@@ -41,3 +41,4 @@
 ## Открытие в браузере
 
 http://localhost:8000
+# cpanel
