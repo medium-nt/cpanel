@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Client;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 
@@ -13,11 +12,15 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::create(
-            ['name' => 'client']
+        Role::query()->create(
+            ['name' => 'seamstress']
         );
 
-        Role::create(
+        Role::query()->create(
+            ['name' => 'storekeeper']
+        );
+
+        Role::query()->create(
             ['name' => 'admin']
         );
     }

@@ -25,6 +25,7 @@ class StoreUsersRequest extends FormRequest
             'name' => 'required|max:255',
             'email' => 'required|max:255|email',
             'password' => 'required|confirmed',
+            'role_id' => 'required|in:1,2',
         ];
     }
 
@@ -37,6 +38,8 @@ class StoreUsersRequest extends FormRequest
             'email.required' => 'Поле "Email" обязательно для заполнения',
             'password.required' => 'Поле "Пароль" обязательно для заполнения',
             'password.confirmed' => 'Поля "Пароль" и "Подтверждение пароля" должны совпадать',
+            'role_id.required' => 'Поле "Роль" обязательно для заполнения',
+            'role_id.in' => 'Указана неизвестная роль для пользователя',
         ];
     }
 }

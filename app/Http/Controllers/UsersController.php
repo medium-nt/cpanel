@@ -30,7 +30,7 @@ class UsersController extends Controller
     public function create()
     {
         return view('users.create', [
-            'title' => 'Добавить пользователя',
+            'title' => 'Добавить сотрудника',
         ]);
     }
 

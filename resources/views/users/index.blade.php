@@ -1,3 +1,9 @@
+@php
+
+    use App\Services\UserService;
+
+@endphp
+
 @extends('layouts.app')
 
 {{-- Customize layout sections --}}
@@ -10,12 +16,16 @@
 @section('content_body')
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header">
+            <div class="card-body">
+
+                <a href="{{ route('users.create') }}" class="btn btn-primary mr-3 mb-3">Добавить сотрудника</a>
+
                 <table class="table table-hover table-bordered">
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Имя</th>
+                            <th scope="col">Роль</th>
                             <th scope="col">email</th>
                             <th scope="col">Создан</th>
                             <th scope="col">Обновлен</th>
@@ -27,6 +37,7 @@
                             <tr>
                                 <td>{{ $user->id }}</td>
                                 <td>{{ $user->name }}</td>
+                                <td>{{ UserService::translateRoleName($user->role->name) }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ now()->parse($user->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>{{ now()->parse($user->updated_at)->format('d/m/Y H:i') }}</td>

@@ -76,6 +76,15 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="role_id">Роль</label>
+                        <select name="role_id" id="role_id" class="form-control" required>
+                            <option value="" disabled selected>---</option>
+                            <option value="1">Швея</option>
+                            <option value="2">Кладовщик</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <button type="submit" class="btn btn-primary">Сохранить</button>
                     </div>
                 </div>

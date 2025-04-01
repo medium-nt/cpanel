@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Services\UserService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id',
     ];
 
     /**
@@ -58,8 +60,9 @@ class User extends Authenticatable
         return '/admin/profile';
     }
 
-    public function adminlte_desc()
+    public function adminlte_desc(): string
     {
-        return auth()->user()->role->name;
+        return UserService::translateRoleName(auth()->user()->role->name);
+
     }
 }
