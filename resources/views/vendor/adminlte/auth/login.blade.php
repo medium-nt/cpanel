@@ -1,3 +1,7 @@
+@php
+    use App\Models\User;
+@endphp
+
 @extends('adminlte::auth.auth-page', ['auth_type' => 'login'])
 
 @section('adminlte_css_pre')
@@ -94,7 +98,7 @@
     @endif
 
     {{-- Register link --}}
-    @if($register_url)
+    @if($register_url && User::query()->count() === 0)
         <p class="my-0">
             <a href="{{ $register_url }}">
                 {{ __('adminlte::adminlte.register_a_new_membership') }}
