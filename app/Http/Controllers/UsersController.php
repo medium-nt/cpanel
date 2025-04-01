@@ -103,11 +103,11 @@ class UsersController extends Controller
     {
         $rules = [
             'name' => 'required|string|min:2|max:255',
-            'email' => 'required|email|max:255'
+            'email' => 'required|email|max:255',
         ];
 
         if ($request->filled('password')) {
-            $rules['password'] = 'required|string|min:6';
+            $rules['password'] = 'required|confirmed|string|min:6';
         }
 
         $validatedData = $request->validate($rules);

@@ -85,6 +85,17 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="salary_rate">Ставка (для швеи за метр, для кладовщиков за месяц)</label>
+                        <input type="text"
+                               class="form-control @error('salary_rate') is-invalid @enderror"
+                               id="salary_rate"
+                               name="salary_rate"
+                               placeholder=""
+                               value="{{ old('salary_rate') }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
                         <button type="submit" class="btn btn-primary">Сохранить</button>
                     </div>
                 </div>

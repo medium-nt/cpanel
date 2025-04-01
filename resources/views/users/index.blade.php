@@ -27,6 +27,7 @@
                             <th scope="col">Имя</th>
                             <th scope="col">Роль</th>
                             <th scope="col">email</th>
+                            <th scope="col">Ставка</th>
                             <th scope="col">Создан</th>
                             <th scope="col">Обновлен</th>
                             <th scope="col">Действия</th>
@@ -39,6 +40,7 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ UserService::translateRoleName($user->role->name) }}</td>
                                 <td>{{ $user->email }}</td>
+                                <td>{{ $user->salary_rate }}</td>
                                 <td>{{ now()->parse($user->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>{{ now()->parse($user->updated_at)->format('d/m/Y H:i') }}</td>
                                 <td>
@@ -49,7 +51,8 @@
                                         <form action="{{ route('users.destroy', ['user' => $user->id]) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('Вы уверены что хотите удалить данного сотрудника?')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

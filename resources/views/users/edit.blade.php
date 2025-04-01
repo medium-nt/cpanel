@@ -50,6 +50,23 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="password_confirmation">Подтверждение пароля</label>
+                        <input type="password" class="form-control" id="password_confirmation"
+                               name="password_confirmation" placeholder="Подтверждение пароля">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="salary_rate">Ставка (для швеи за метр, для кладовщиков за месяц)</label>
+                        <input type="number" step="1" min="0"
+                               class="form-control @error('salary_rate') is-invalid @enderror"
+                               id="salary_rate"
+                               name="salary_rate"
+                               placeholder=""
+                               value="{{ $user->salary_rate }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
                         <button type="submit" class="btn btn-primary">Сохранить</button>
                     </div>
                 </div>

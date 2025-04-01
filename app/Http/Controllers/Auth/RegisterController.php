@@ -43,7 +43,7 @@ class RegisterController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if (User::query()->where('role_id', 2)->count() > 0) {
+            if (User::query()->where('role_id', 3)->count() > 0) {
                 return redirect()->route('login');
             }
             return $next($request);
