@@ -311,6 +311,24 @@ return [
             'can' => 'is-admin',
         ],
 
+        [
+            'text' => 'settings',
+            'icon' => 'fas fa-fw fa-cog',
+            'can' => 'is-admin',
+            'submenu' => [
+                [
+                    'text' => 'materials',
+                    'url' => 'admin/materials',
+                    'icon' => 'fas fa-fw fa-toilet-paper',
+                ],
+                [
+                    'text' => 'suppliers',
+                    'url' => 'admin/suppliers',
+                    'icon' => 'fas fa-fw fa-truck',
+                ]
+            ]
+        ],
+
 //        ['header' => 'account_settings'],
 //        [
 //            'text' => 'profile',

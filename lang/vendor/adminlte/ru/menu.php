@@ -19,4 +19,7 @@ return [
     'important' => 'Важно',
     'warning' => 'Внимание',
     'information' => 'Информация',
+    'settings' => 'Настройки',
+    'materials' => 'Материалы',
+    'suppliers' => 'Поставщики',
 ];
