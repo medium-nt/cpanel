@@ -13,6 +13,7 @@
             <div class="card-body">
 
                 <a href="{{ route('materials.create') }}" class="btn btn-primary mr-3 mb-3">Добавить материал</a>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
@@ -28,7 +29,7 @@
                         <tbody>
                         @foreach ($materials as $material)
                             <tr>
-                                <td>{{ $material->id }}</td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $material->type->title }}</td>
                                 <td>{{ $material->title }}</td>
                                 <td>{{ $material->height }}</td>

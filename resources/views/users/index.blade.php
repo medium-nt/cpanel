@@ -20,7 +20,8 @@
 
                 <a href="{{ route('users.create') }}" class="btn btn-primary mr-3 mb-3">Добавить сотрудника</a>
 
-                <table class="table table-hover table-bordered">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
@@ -62,6 +63,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
 
                 {{-- Pagination --}}
                 <x-pagination-component :collection="$users" />
