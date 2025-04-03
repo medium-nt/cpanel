@@ -305,6 +305,11 @@ return [
             'icon' => 'fas fa-fw fa-home',
         ],
         [
+            'text' => 'movements',
+            'url' => 'admin/movements',
+            'icon' => 'fas fa-fw fa-exchange-alt',
+        ],
+        [
             'text' => 'users',
             'url' => 'admin/users',
             'icon' => 'far fa-fw fa-user',

@@ -91,4 +91,30 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             ->can('delete', 'supplier')
             ->name('suppliers.destroy');
     });
+
+    Route::prefix('/movements')->group(function () {
+        Route::get('', [App\Http\Controllers\MovementMaterialController::class, 'index'])
+            ->can('viewAny', App\Models\MovementMaterial::class)
+            ->name('movements.index');
+
+        Route::get('/create', [App\Http\Controllers\MovementMaterialController::class, 'create'])
+            ->can('create', App\Models\MovementMaterial::class)
+            ->name('movements.create');
+
+        Route::post('/store', [App\Http\Controllers\MovementMaterialController::class, 'store'])
+            ->can('create', App\Models\MovementMaterial::class)
+            ->name('movements.store');
+
+        Route::get('/{movement}/edit', [App\Http\Controllers\MovementMaterialController::class, 'edit'])
+            ->can('update', 'movement')
+            ->name('movements.edit');
+
+        Route::put('/update/{movement}', [App\Http\Controllers\MovementMaterialController::class, 'update'])
+            ->can('update', 'movement')
+            ->name('movements.update');
+
+        Route::delete('/delete/{movement}', [App\Http\Controllers\MovementMaterialController::class, 'destroy'])
+            ->can('delete', 'movement')
+            ->name('movements.destroy');
+    });
 });
