@@ -16,5 +16,7 @@ class DatabaseSeeder extends Seeder
 
          $this->call(TypeMaterialSeeder::class);
          $this->call(MaterialSeeder::class);
+
+         $this->call(SupplierSeeder::class);
     }
 }
