@@ -50,8 +50,6 @@ class MovementMaterialController extends Controller
         $validatedData['storekeeper_id'] = auth()->user()->id;
         $validatedData['completed_at'] = now();
 
-
-
         MovementMaterial::query()->create($validatedData);
 
         return redirect()->route('movements.index')->with('success', 'Поступление добавлено');

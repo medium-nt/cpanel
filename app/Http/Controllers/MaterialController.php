@@ -91,6 +91,11 @@ class MaterialController extends Controller
      */
     public function destroy(Material $material)
     {
+        if ($material->movementMaterials()->count() > 0) {
+            return redirect()->route('materials.index')
+                ->with('error', 'Невозможно удалить материал, так как он используется в системе');
+        }
+
         $material->delete();
 
         return redirect()->route('materials.index')->with('success', 'Материал удален');

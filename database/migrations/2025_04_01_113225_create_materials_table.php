@@ -16,10 +16,11 @@ return new class extends Migration
             $table->string('title')->unique();
             $table->unsignedBigInteger('type_id')->nullable();
             $table->foreign('type_id')->references('id')
-                ->on('type_materials')->onDelete('set null');
+                ->on('type_materials')->onDelete('restrict');
             $table->integer('height')->nullable();
             $table->string('unit');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

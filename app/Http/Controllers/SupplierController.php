@@ -82,6 +82,11 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
+        if ($supplier->movementMaterials()->count() > 0) {
+            return redirect()->route('suppliers.index')
+                ->with('error', 'Невозможно удалить поставщика, так как он используется в системе');
+        }
+
         $supplier->delete();
 
         return redirect()->route('suppliers.index')->with('success', 'Поставщик удален');

@@ -17,7 +17,7 @@ class MovementMaterial extends Model
         'comment',
         'type_movement',
         'status_movement',
-        'suppliers_id',
+        'supplier_id',
         'storekeeper_id',
     ];
 
@@ -32,4 +32,5 @@ class MovementMaterial extends Model
     {
         return $this->belongsTo(Material::class);
     }
+
 }

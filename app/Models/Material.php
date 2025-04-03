@@ -5,11 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Material extends Model
 {
     /** @use HasFactory<\Database\Factories\MaterialFactory> */
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -21,5 +24,10 @@ class Material extends Model
     public function type(): BelongsTo
     {
         return $this->belongsTo(TypeMaterial::class);
+    }
+
+    public function movementMaterials(): HasMany
+    {
+        return $this->hasMany(MovementMaterial::class);
     }
 }

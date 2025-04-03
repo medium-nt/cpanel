@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('material_id');
             $table->foreign('material_id')->references('id')
-                ->on('materials')->onDelete('cascade');
+                ->on('materials')->onDelete('restrict');
             $table->integer('quantity')->default(0);
             $table->integer('ordered_quantity')->default(0);
             $table->decimal('price', 10)->default(0);
@@ -28,19 +28,19 @@ return new class extends Migration
             $table->foreign('supplier_id')
                 ->references('id')
                 ->on('suppliers')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->unsignedBigInteger('storekeeper_id')->nullable()->default(null);
             $table->foreign('storekeeper_id')
                 ->references('id')
                 ->on('users')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->unsignedBigInteger('seamstress_id')->nullable()->default(null);
             $table->foreign('seamstress_id')
                 ->references('id')
                 ->on('users')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->integer('is_approved')->default(0);
             $table->timestamp('completed_at')->nullable();
