@@ -305,8 +305,8 @@ return [
             'icon' => 'fas fa-fw fa-home',
         ],
         [
-            'text' => 'movements',
-            'url' => 'admin/movements',
+            'text' => 'movements_from_supplier',
+            'url' => 'admin/movements_from_supplier',
             'icon' => 'fas fa-fw fa-exchange-alt',
         ],
         [

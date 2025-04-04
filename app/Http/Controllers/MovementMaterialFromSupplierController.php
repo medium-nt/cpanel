@@ -7,16 +7,18 @@ use App\Models\MovementMaterial;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 
-class MovementMaterialController extends Controller
+class MovementMaterialFromSupplierController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('movements.index', [
+        return view('movements_from_supplier.index', [
             'title' => 'Поступление материалов на склад',
-            'movements' => MovementMaterial::query()->where('type_movement', 1)->paginate(10)
+            'movements' => MovementMaterial::query()
+                ->where('type_movement', 1)
+                ->paginate(10)
         ]);
     }
 
@@ -25,7 +27,7 @@ class MovementMaterialController extends Controller
      */
     public function create()
     {
-        return view('movements.create', [
+        return view('movements_from_supplier.create', [
             'title' => 'Добавить поступление на склад',
             'materials' => Material::query()->get(),
             'suppliers' => Supplier::query()->get(),
@@ -52,7 +54,9 @@ class MovementMaterialController extends Controller
 
         MovementMaterial::query()->create($validatedData);
 
-        return redirect()->route('movements.index')->with('success', 'Поступление добавлено');
+        return redirect()
+            ->route('movements_from_supplier.index')
+            ->with('success', 'Поступление добавлено');
     }
 
     /**

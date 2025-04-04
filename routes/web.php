@@ -92,29 +92,29 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             ->name('suppliers.destroy');
     });
 
-    Route::prefix('/movements')->group(function () {
-        Route::get('', [App\Http\Controllers\MovementMaterialController::class, 'index'])
+    Route::prefix('/movements_from_supplier')->group(function () {
+        Route::get('', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'index'])
             ->can('viewAny', App\Models\MovementMaterial::class)
-            ->name('movements.index');
+            ->name('movements_from_supplier.index');
 
-        Route::get('/create', [App\Http\Controllers\MovementMaterialController::class, 'create'])
+        Route::get('/create', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'create'])
             ->can('create', App\Models\MovementMaterial::class)
-            ->name('movements.create');
+            ->name('movements_from_supplier.create');
 
-        Route::post('/store', [App\Http\Controllers\MovementMaterialController::class, 'store'])
+        Route::post('/store', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'store'])
             ->can('create', App\Models\MovementMaterial::class)
-            ->name('movements.store');
+            ->name('movements_from_supplier.store');
 
-        Route::get('/{movement}/edit', [App\Http\Controllers\MovementMaterialController::class, 'edit'])
+        Route::get('/{movement}/edit', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'edit'])
             ->can('update', 'movement')
-            ->name('movements.edit');
+            ->name('movements_from_supplier.edit');
 
-        Route::put('/update/{movement}', [App\Http\Controllers\MovementMaterialController::class, 'update'])
+        Route::put('/update/{movement}', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'update'])
             ->can('update', 'movement')
-            ->name('movements.update');
+            ->name('movements_from_supplier.update');
 
-        Route::delete('/delete/{movement}', [App\Http\Controllers\MovementMaterialController::class, 'destroy'])
+        Route::delete('/delete/{movement}', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'destroy'])
             ->can('delete', 'movement')
-            ->name('movements.destroy');
+            ->name('movements_from_supplier.destroy');
     });
 });

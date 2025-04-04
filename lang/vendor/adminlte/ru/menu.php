@@ -22,4 +22,5 @@ return [
     'settings' => 'Настройки',
     'materials' => 'Материалы',
     'suppliers' => 'Поставщики',
+    'movements_from_supplier' => 'Поступления от поставщика',
 ];
