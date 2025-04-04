@@ -18,5 +18,8 @@ class DatabaseSeeder extends Seeder
          $this->call(MaterialSeeder::class);
 
          $this->call(SupplierSeeder::class);
+
+         $this->call(OrderSeeder::class);
+         $this->call(MovementMaterialSeeder::class);
     }
 }

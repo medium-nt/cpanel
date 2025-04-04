@@ -17,8 +17,12 @@ class MovementMaterial extends Model
         'comment',
         'type_movement',
         'status_movement',
+        'order_id',
         'supplier_id',
         'storekeeper_id',
+        'seamstress_id',
+        'is_approved',
+        'completed_at',
     ];
 
     protected $appends = ['status_name'];

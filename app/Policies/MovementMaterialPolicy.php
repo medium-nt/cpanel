@@ -35,9 +35,9 @@ class MovementMaterialPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, MovementMaterial $movementMaterial): bool
+    public function update(User $user): bool
     {
-        return false;
+        return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
     }
 
     /**

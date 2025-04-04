@@ -24,6 +24,12 @@ return new class extends Migration
             $table->integer('type_movement')->default(0);
             $table->integer('status_movement')->default(0);
 
+            $table->unsignedBigInteger('order_id')->nullable()->default(null);
+            $table->foreign('order_id')
+                ->references('id')
+                ->on('orders')
+                ->onDelete('restrict');
+
             $table->unsignedBigInteger('supplier_id')->nullable()->default(null);
             $table->foreign('supplier_id')
                 ->references('id')
