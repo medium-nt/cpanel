@@ -110,7 +110,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             ->name('movements_from_supplier.edit');
 
         Route::put('/update/{order}', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'update'])
-//            ->can('update', 'order')
             ->name('movements_from_supplier.update');
 
         Route::delete('/delete/{movement}', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'destroy'])
@@ -131,22 +130,20 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             ->can('create', App\Models\MovementMaterial::class)
             ->name('movements_to_workshop.store');
 
-        Route::get('/{movement_material}/collect', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'collect'])
-            ->can('update', App\Models\MovementMaterial::class)
-//            ->can('update', 'movement_material')
+        Route::get('/{order}/collect', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'collect'])
+            ->can('update', 'order')
             ->name('movements_to_workshop.collect');
 
-        Route::put('/save_collect/{movement_material}', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'save_collect'])
-//            ->can('update', App\Models\MovementMaterial::class)
-            ->can('update', 'movement_material')
+        Route::put('/save_collect/{order}', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'save_collect'])
+            ->can('update', 'order')
             ->name('movements_to_workshop.save_collect');
 
-        Route::get('/{movement_material}/edit', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'edit'])
+        Route::get('/{order}/receive', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'receive'])
             ->can('update', App\Models\MovementMaterial::class)
-            ->name('movements_to_workshop.edit');
+            ->name('movements_to_workshop.receive');
 
-        Route::delete('/delete/{movement}', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'destroy'])
-            ->can('delete', 'movement')
-            ->name('movements_to_workshop.destroy');
+        Route::put('/save_receive/{order}', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'save_receive'])
+            ->can('update', 'order')
+            ->name('movements_to_workshop.save_receive');
     });
 });
