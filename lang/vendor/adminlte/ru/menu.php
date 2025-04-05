@@ -22,5 +22,8 @@ return [
     'settings' => 'Настройки',
     'materials' => 'Материалы',
     'suppliers' => 'Поставщики',
-    'movements_from_supplier' => 'Поступления от поставщика',
+    'movements_from_supplier' => 'Поступления материала от поставщика',
+    'movements_to_workshop' => 'Отгрузка материала на производство',
+    'workshop' => 'Производство',
+    'warehouse' => 'Склад',
 ];

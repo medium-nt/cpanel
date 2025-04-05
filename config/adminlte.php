@@ -305,10 +305,40 @@ return [
             'icon' => 'fas fa-fw fa-home',
         ],
         [
-            'text' => 'movements_from_supplier',
-            'url' => 'admin/movements_from_supplier',
-            'icon' => 'fas fa-fw fa-exchange-alt',
+            'text' => 'warehouse',
+            'icon' => 'fas fa-fw fa-cog',
+            'can' => 'is-storekeeper-or-admin',
+            'submenu' => [
+                [
+                    'text' => 'movements_from_supplier',
+                    'url' => 'admin/movements_from_supplier',
+                    'icon' => 'fas fa-fw fa-exchange-alt',
+                ],
+                [
+                    'text' => 'movements_to_workshop',
+                    'url' => 'admin/movements_to_workshop',
+                    'icon' => 'fas fa-fw fa-exchange-alt',
+                ],
+            ]
         ],
+        [
+            'text' => 'workshop',
+            'icon' => 'fas fa-fw fa-cog',
+            'can' => 'is-seamstress-or-admin',
+            'submenu' => [
+//                [
+//                    'text' => 'movements_from_supplier',
+//                    'url' => 'admin/movements_from_supplier',
+//                    'icon' => 'fas fa-fw fa-exchange-alt',
+//                ],
+                [
+                    'text' => 'movements_to_workshop',
+                    'url' => 'admin/movements_to_workshop',
+                    'icon' => 'fas fa-fw fa-exchange-alt',
+                ],
+            ]
+        ],
+
         [
             'text' => 'users',
             'url' => 'admin/users',

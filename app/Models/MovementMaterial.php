@@ -15,22 +15,8 @@ class MovementMaterial extends Model
         'ordered_quantity',
         'price',
         'comment',
-        'type_movement',
-        'status_movement',
-        'order_id',
-        'supplier_id',
-        'storekeeper_id',
-        'seamstress_id',
-        'is_approved',
-        'completed_at',
+        'order_id'
     ];
-
-    protected $appends = ['status_name'];
-
-    public function getStatusNameAttribute(): string
-    {
-        return StatusMovement::STATUSES[$this->status_movement];
-    }
 
     public function material(): BelongsTo
     {

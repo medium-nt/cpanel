@@ -21,35 +21,12 @@ return new class extends Migration
             $table->decimal('price', 10)->default(0);
             $table->text('comment')->nullable();
 
-            $table->integer('type_movement')->default(0);
-            $table->integer('status_movement')->default(0);
-
             $table->unsignedBigInteger('order_id')->nullable()->default(null);
             $table->foreign('order_id')
                 ->references('id')
                 ->on('orders')
                 ->onDelete('restrict');
 
-            $table->unsignedBigInteger('supplier_id')->nullable()->default(null);
-            $table->foreign('supplier_id')
-                ->references('id')
-                ->on('suppliers')
-                ->onDelete('restrict');
-
-            $table->unsignedBigInteger('storekeeper_id')->nullable()->default(null);
-            $table->foreign('storekeeper_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('restrict');
-
-            $table->unsignedBigInteger('seamstress_id')->nullable()->default(null);
-            $table->foreign('seamstress_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('restrict');
-
-            $table->integer('is_approved')->default(0);
-            $table->timestamp('completed_at')->nullable();
             $table->timestamps();
         });
     }

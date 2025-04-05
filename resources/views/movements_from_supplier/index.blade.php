@@ -19,27 +19,27 @@
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Материал</th>
-                            <th scope="col">Кол-во</th>
-                            <th scope="col">Комментарии</th>
+                            <th scope="col">Материалы</th>
                             <th scope="col">Статус</th>
                             <th scope="col">Дата</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach ($movements as $movement)
+                        @foreach ($orders as $order)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $movement->material->title }}</td>
-                                <td>{{ $movement->quantity }} {{ $movement->material->unit }}</td>
-                                <td>{{ $movement->comment }}</td>
-                                <td>{{ $movement->status_name }}</td>
-                                <td>{{ now()->parse($movement->created_at)->format('d/m/Y') }}</td>
+                                <td>
+                                    @foreach($order->movementMaterials as $material)
+                                        <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }} <br>
+                                    @endforeach
+                                </td>
+                                <td>{{ $order->status_name }}</td>
+                                <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('movements_from_supplier.edit', ['movement' => $movement->id]) }}" class="btn btn-primary mr-1">
+                                        <a href="{{ route('movements_from_supplier.edit', ['order' => $order->id]) }}" class="btn btn-primary mr-1">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </div>
@@ -50,7 +50,7 @@
                     </table>
                 </div>
                 {{-- Pagination --}}
-                <x-pagination-component :collection="$movements" />
+                <x-pagination-component :collection="$orders" />
 
             </div>
         </div>

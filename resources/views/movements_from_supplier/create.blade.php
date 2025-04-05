@@ -44,7 +44,7 @@
                     <div class="row">
                         <div class="col-md-10 form-group">
                             <label for="material_id">Материал</label>
-                            <select name="material_id" id="material_id" class="form-control" required>
+                            <select name="material_id[]" id="material_id" class="form-control" required>
                                 <option value="" disabled selected>---</option>
                                 @foreach($materials as $material)
                                     <option value="{{ $material->id }}">{{ $material->title }}</option>
@@ -57,14 +57,17 @@
                             <input type="number"
                                    class="form-control @error('amount') is-invalid @enderror"
                                    id="quantity"
-                                   name="quantity"
+                                   name="quantity[]"
                                    step="1"
-                                   placeholder=""
-                                   value="{{ old('amount') ?? 0 }}"
+                                   value="{{ old('amount') }}"
                                    required>
                         </div>
                     </div>
 
+                    <x-material_from_supplier-component :materials="$materials"/>
+                    <x-material_from_supplier-component :materials="$materials"/>
+                    <x-material_from_supplier-component :materials="$materials"/>
+                    <x-material_from_supplier-component :materials="$materials"/>
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Принять</button>

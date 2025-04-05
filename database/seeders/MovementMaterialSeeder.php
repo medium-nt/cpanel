@@ -16,14 +16,8 @@ class MovementMaterialSeeder extends Seeder
             [
                 'material_id' => 1,
                 'quantity' => 100,
-                'ordered_quantity' => 0,
-                'price' => 0,
                 'comment' => 'тестовая поставка',
-                'type_movement' => 1,
-                'status_movement' => 1,
-                'supplier_id' => 1,
-                'storekeeper_id' => 2,
-                'completed_at' => now()
+                'order_id' => 1
             ]
         );
 
@@ -31,14 +25,8 @@ class MovementMaterialSeeder extends Seeder
             [
                 'material_id' => 2,
                 'quantity' => 50,
-                'ordered_quantity' => 0,
-                'price' => 0,
                 'comment' => 'тестовая поставка',
-                'type_movement' => 1,
-                'status_movement' => 1,
-                'supplier_id' => 1,
-                'storekeeper_id' => 2,
-                'completed_at' => now()
+                'order_id' => 1
             ]
         );
 
@@ -46,14 +34,8 @@ class MovementMaterialSeeder extends Seeder
             [
                 'material_id' => 3,
                 'quantity' => 10,
-                'ordered_quantity' => 0,
-                'price' => 0,
                 'comment' => 'тестовая поставка',
-                'type_movement' => 1,
-                'status_movement' => 1,
-                'supplier_id' => 1,
-                'storekeeper_id' => 2,
-                'completed_at' => now()
+                'order_id' => 1
             ]
         );
 
@@ -63,10 +45,7 @@ class MovementMaterialSeeder extends Seeder
                 'quantity' => 0,
                 'ordered_quantity' => 20,
                 'comment' => 'тестовый заказ',
-                'type_movement' => 2,
-                'status_movement' => 0,
-                'order_id' => 1,
-                'seamstress_id' => 3,
+                'order_id' => 2
             ]
         );
     }
