@@ -165,6 +165,7 @@ class MovementMaterialToWorkshopController extends Controller
 
         $order->update([
             'status_movement' => 2,
+            'storekeeper_id' => auth()->user()->id
         ]);
 
         return redirect()->route('movements_to_workshop.index')->with('success', 'Отгрузка сформирована');
