@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Material;
 use App\Models\MovementMaterial;
+use App\Services\MovementMaterialService;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -28,26 +29,14 @@ class MaterialForm extends Component
     public function updatedSelectedMaterialId(): void
     {
         if ($this->selectedMaterialId) {
-                $inStock = MovementMaterial::query()
-                    ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
-                    ->where('material_id', $this->selectedMaterialId)
-                    ->where('orders.type_movement', 1)
-                    ->where('orders.status_movement', 3)
-                    ->sum('quantity');
-
-                $outStock = MovementMaterial::query()
-                    ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
-                    ->where('material_id', $this->selectedMaterialId)
-                    ->where('orders.type_movement', 2)
-                    ->whereNotIn('orders.status_movement', [-1])
-                    ->sum('quantity');
-
-                $outStockNew = MovementMaterial::query()
-                    ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
-                    ->where('material_id', $this->selectedMaterialId)
-                    ->where('orders.type_movement', 2)
-                    ->where('orders.status_movement', 0)
-                    ->sum('ordered_quantity');
+            $inStock = MovementMaterialService::countMaterial($this->selectedMaterialId, 1, 3);
+            $outStockNew = MovementMaterialService::countMaterial($this->selectedMaterialId, 2, 0);
+            $outStock = MovementMaterial::query()
+                ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+                ->where('material_id', $this->selectedMaterialId)
+                ->where('orders.type_movement', 2)
+                ->whereNotIn('orders.status_movement', [-1])
+                ->sum('quantity');
 
             $this->maxQuantity = $inStock - $outStock - $outStockNew;
         } else {

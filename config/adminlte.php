@@ -310,6 +310,11 @@ return [
             'can' => 'is-storekeeper-or-admin',
             'submenu' => [
                 [
+                    'text' => 'inventory_by_warehouse',
+                    'url' => 'admin/inventory/warehouse',
+                    'icon' => 'fas fa-fw fa-boxes',
+                ],
+                [
                     'text' => 'movements_from_supplier',
                     'url' => 'admin/movements_from_supplier',
                     'icon' => 'fas fa-fw fa-exchange-alt',
@@ -326,11 +331,11 @@ return [
             'icon' => 'fas fa-fw fa-cog',
             'can' => 'is-seamstress-or-admin',
             'submenu' => [
-//                [
-//                    'text' => 'movements_from_supplier',
-//                    'url' => 'admin/movements_from_supplier',
-//                    'icon' => 'fas fa-fw fa-exchange-alt',
-//                ],
+                [
+                    'text' => 'inventory_by_workshop',
+                    'url' => 'admin/inventory/workshop',
+                    'icon' => 'fas fa-fw fa-boxes',
+                ],
                 [
                     'text' => 'movements_to_workshop',
                     'url' => 'admin/movements_to_workshop',

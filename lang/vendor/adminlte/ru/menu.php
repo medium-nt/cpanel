@@ -26,4 +26,6 @@ return [
     'movements_to_workshop' => 'Отгрузка материала на производство',
     'workshop' => 'Производство',
     'warehouse' => 'Склад',
+    'inventory_by_warehouse' => 'Инвентаризация склада',
+    'inventory_by_workshop' => 'Инвентаризация производства',
 ];

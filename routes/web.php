@@ -146,4 +146,14 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             ->can('update', 'order')
             ->name('movements_to_workshop.save_receive');
     });
+
+    Route::prefix('/inventory')->group(function () {
+        Route::get('/warehouse', [App\Http\Controllers\InventoryController::class, 'byWarehouse'])
+            ->can('viewAny', App\Models\MovementMaterial::class)
+            ->name('inventory.warehouse');
+
+        Route::get('/workshop', [App\Http\Controllers\InventoryController::class, 'byWorkshop'])
+            ->can('viewAny', App\Models\MovementMaterial::class)
+            ->name('inventory.workshop');
+    });
 });
