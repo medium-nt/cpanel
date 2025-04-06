@@ -45,3 +45,30 @@
         </div>
     </div>
 @stop
+
+@section('js')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const selects = document.querySelectorAll('select[name="material_id[]"]');
+
+            function checkUniqueSelects() {
+                let selectedValues = [];
+
+                selects.forEach(select => {
+                    if (select.value !== "") {
+                        if (selectedValues.includes(select.value)) {
+                            select.value = "";
+                            alert("Этот материал уже выбран!");
+                        } else {
+                            selectedValues.push(select.value);
+                        }
+                    }
+                });
+            }
+
+            selects.forEach(select => {
+                select.addEventListener('change', checkUniqueSelects);
+            });
+        });
+    </script>
+@stop
