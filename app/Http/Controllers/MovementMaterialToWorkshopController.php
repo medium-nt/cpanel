@@ -27,7 +27,7 @@ class MovementMaterialToWorkshopController extends Controller
             'userRole' => auth()->user()->role->name,
             'orders' => Order::query()
                 ->where('type_movement', 2)
-                ->whereIn('status_movement', $status)
+                ->whereIn('status', $status)
                 ->paginate(10)
         ]);
     }
@@ -91,7 +91,7 @@ class MovementMaterialToWorkshopController extends Controller
         $order = Order::query()->create([
             'seamstress_id' => auth()->user()->id,
             'type_movement' => 2,
-            'status_movement' => 0
+            'status' => 0
         ]);
 
         foreach ($validatedData as $item) {
@@ -164,7 +164,7 @@ class MovementMaterialToWorkshopController extends Controller
         }
 
         $order->update([
-            'status_movement' => 2,
+            'status' => 2,
             'storekeeper_id' => auth()->user()->id
         ]);
 
@@ -182,7 +182,7 @@ class MovementMaterialToWorkshopController extends Controller
     public function save_receive(Request $request, Order $order)
     {
         $order->update([
-            'status_movement' => 3,
+            'status' => 3,
             'completed_at' => now(),
         ]);
 

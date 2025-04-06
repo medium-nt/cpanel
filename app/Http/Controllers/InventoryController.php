@@ -20,7 +20,7 @@ class InventoryController extends Controller
                 ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
                 ->where('material_id', $material->id)
                 ->where('orders.type_movement', 2)
-                ->whereNotIn('orders.status_movement', [-1])
+                ->whereNotIn('orders.status', [-1])
                 ->sum('quantity');
 
             $materialsQuantity[] = [

@@ -73,7 +73,7 @@ class MovementMaterialFromSupplierController extends Controller
             'supplier_id' => $validatedData[0]['supplier_id'],
             'storekeeper_id' => auth()->user()->id,
             'type_movement' => 1,
-            'status_movement' => 3,
+            'status' => 3,
             'completed_at' => now()
         ]);
 

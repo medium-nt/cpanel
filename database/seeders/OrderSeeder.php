@@ -14,7 +14,7 @@ class OrderSeeder extends Seeder
     {
         Order::query()->create([
             'type_movement' => 1,
-            'status_movement' => 3,
+            'status' => 3,
             'supplier_id' => 1,
             'storekeeper_id' => 2,
             'completed_at' => now()
@@ -22,7 +22,7 @@ class OrderSeeder extends Seeder
 
         Order::query()->create([
             'type_movement' => 2,
-            'status_movement' => 0,
+            'status' => 0,
             'supplier_id' => 1,
             'seamstress_id' => 3
         ]);

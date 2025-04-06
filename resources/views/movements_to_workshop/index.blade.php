@@ -37,7 +37,7 @@
                                     @foreach($order->movementMaterials as $material)
                                         <b>{{ $material->material->title }}</b> -
                                         {{ $material->ordered_quantity }} {{ $material->material->unit }}
-                                        / <span style="@if($order->status_movement == '2' && $material->quantity < $material->ordered_quantity) color: red; @endif">
+                                        / <span style="@if($order->status == '2' && $material->quantity < $material->ordered_quantity) color: red; @endif">
                                             {{ $material->quantity }} {{ $material->material->unit }}
                                         </span>
                                         <br>
@@ -48,7 +48,7 @@
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">
-                                    @if( $order->status_movement == '0' && ($userRole == 'admin' || $userRole == 'storekeeper'))
+                                    @if( $order->status == '0' && ($userRole == 'admin' || $userRole == 'storekeeper'))
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.collect', ['order' => $order->id]) }}"
                                            class="btn btn-warning mr-1"
@@ -56,7 +56,7 @@
                                             <i class="fas fa-box-open"></i>
                                         </a>
                                     </div>
-                                    @elseif( $order->status_movement == '2' && ($userRole == 'admin' || $userRole == 'seamstress'))
+                                    @elseif( $order->status == '2' && ($userRole == 'admin' || $userRole == 'seamstress'))
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                            class="btn btn-success mr-1"

@@ -10,7 +10,7 @@ class Order extends Model
 {
     protected $fillable = [
         'type_movement',
-        'status_movement',
+        'status',
         'supplier_id',
         'storekeeper_id',
         'seamstress_id',
@@ -22,12 +22,12 @@ class Order extends Model
 
     public function getStatusNameAttribute(): string
     {
-        return StatusMovement::STATUSES[$this->status_movement];
+        return StatusMovement::STATUSES[$this->status];
     }
 
     public function getStatusColorAttribute(): string
     {
-        return StatusMovement::BADGE_COLORS[$this->status_movement];
+        return StatusMovement::BADGE_COLORS[$this->status];
     }
 
     public function user(): BelongsTo

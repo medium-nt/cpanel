@@ -35,7 +35,7 @@ class MaterialForm extends Component
                 ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
                 ->where('material_id', $this->selectedMaterialId)
                 ->where('orders.type_movement', 2)
-                ->whereNotIn('orders.status_movement', [-1])
+                ->whereNotIn('orders.status', [-1])
                 ->sum('quantity');
 
             $this->maxQuantity = $inStock - $outStock - $outStockNew;

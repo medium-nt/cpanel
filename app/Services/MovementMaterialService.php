@@ -12,7 +12,7 @@ class MovementMaterialService
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
             ->where('material_id', $materialId)
             ->where('orders.type_movement', $type)
-            ->where('orders.status_movement', $status)
+            ->where('orders.status', $status)
             ->sum('quantity');
     }
 }

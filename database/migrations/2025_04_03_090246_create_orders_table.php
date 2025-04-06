@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->integer('type_movement')->default(0);
-            $table->integer('status_movement')->default(0);
+            $table->integer('status')->default(0);
             $table->unsignedBigInteger('supplier_id')->nullable()->default(null);
             $table->foreign('supplier_id')
                 ->references('id')
