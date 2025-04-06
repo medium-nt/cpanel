@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,13 +10,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Supplier extends Model
 {
     use SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
-        'title'
+        'title',
+        'phone',
+        'address',
     ];
 
-    public function movementMaterials() : HasMany
+    public function orders() : HasMany
     {
-        return $this->hasMany(MovementMaterial::class, 'supplier_id', 'id');
+        return $this->hasMany(Order::class, 'supplier_id', 'id');
     }
 }

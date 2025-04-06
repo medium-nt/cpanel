@@ -51,6 +51,28 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="text"
+                               class="form-control @error('phone') is-invalid @enderror"
+                               id="phone"
+                               name="phone"
+                               placeholder=""
+                               value="{{ $supplier->phone }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Адрес</label>
+                        <input type="text"
+                               class="form-control @error('address') is-invalid @enderror"
+                               id="address"
+                               name="address"
+                               placeholder=""
+                               value="{{ $supplier->address }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
                         <button type="submit" class="btn btn-success">Сохранить</button>
                     </div>
                 </div>

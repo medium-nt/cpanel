@@ -12,22 +12,6 @@ class SupplierSeeder extends Seeder
      */
     public function run(): void
     {
-        Supplier::query()->create(
-            [
-                'title' => 'ИП Иванов'
-            ]
-        );
-
-        Supplier::query()->create(
-            [
-                'title' => 'ООО Ромашка'
-            ]
-        );
-
-        Supplier::query()->create(
-            [
-                'title' => 'China LTD'
-            ]
-        );
+        Supplier::factory(10)->create();
     }
 }

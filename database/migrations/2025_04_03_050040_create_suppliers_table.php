@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
             $table->string('title')->unique();
+            $table->string('phone')->unique();
+            $table->string('address')->unique();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -34,21 +34,16 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'title' => 'required|string|min:2|max:255'
+            'title' => 'required|string|min:2|max:255',
+            'phone' => 'required|string|min:2|max:255',
+            'address' => 'required|string|min:2|max:255'
         ];
 
         $validatedData = $request->validate($rules);
+
         Supplier::query()->create($validatedData);
 
         return redirect()->route('suppliers.index')->with('success', 'Поставщик добавлен');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Supplier $supplier)
-    {
-        //
     }
 
     /**
@@ -68,7 +63,9 @@ class SupplierController extends Controller
     public function update(Request $request, Supplier $supplier)
     {
         $rules = [
-            'title' => 'required|string|min:2|max:255'
+            'title' => 'required|string|min:2|max:255',
+            'phone' => 'required|string|min:2|max:255',
+            'address' => 'required|string|min:2|max:255'
         ];
 
         $validatedData = $request->validate($rules);
@@ -82,7 +79,7 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
-        if ($supplier->movementMaterials()->count() > 0) {
+        if ($supplier->orders()->count() > 0) {
             return redirect()->route('suppliers.index')
                 ->with('error', 'Невозможно удалить поставщика, так как он используется в системе');
         }

@@ -20,6 +20,8 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Название</th>
+                            <th scope="col">Телефон</th>
+                            <th scope="col">Адрес</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -28,6 +30,8 @@
                             <tr>
                                 <td style="width: 50px">{{ $loop->iteration }}</td>
                                 <td>{{ $supplier->title }}</td>
+                                <td>{{ $supplier->phone }}</td>
+                                <td>{{ $supplier->address }}</td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">
