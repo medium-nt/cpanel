@@ -14,8 +14,11 @@ class StatusMovement extends Model
         3 => 'Завершено'
     ];
 
-    public function getStatusNameAttribute(): string
-    {
-        return self::STATUSES[$this->status_id];
-    }
+    const BADGE_COLORS = [
+        -1 => 'badge-danger',
+        0 => 'badge-secondary',
+        1 => 'badge-success',
+        2 => 'badge-warning',
+        3 => 'badge-primary',
+    ];
 }

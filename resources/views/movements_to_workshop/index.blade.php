@@ -44,7 +44,7 @@
                                     @endforeach
                                 </td>
                                 <td>{{ $order->comment }}</td>
-                                <td>{{ $order->status_name }}</td>
+                                <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">

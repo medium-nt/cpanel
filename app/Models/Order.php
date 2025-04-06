@@ -18,11 +18,16 @@ class Order extends Model
         'completed_at'
     ];
 
-    protected $appends = ['status_name'];
+    protected $appends = ['status_name', 'status_color'];
 
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status_movement];
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return StatusMovement::BADGE_COLORS[$this->status_movement];
     }
 
     public function user(): BelongsTo
