@@ -345,6 +345,13 @@ return [
         ],
 
         [
+            'text' => 'marketplace_orders',
+            'url' => 'admin/marketplace_orders',
+            'icon' => 'fas fa-fw fa-cart-arrow-down',
+            'can' => 'is-seamstress-or-admin',
+        ],
+
+        [
             'text' => 'users',
             'url' => 'admin/users',
             'icon' => 'far fa-fw fa-user',

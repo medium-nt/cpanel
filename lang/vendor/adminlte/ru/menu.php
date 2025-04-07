@@ -29,4 +29,5 @@ return [
     'inventory_by_warehouse' => 'Инвентаризация склада',
     'inventory_by_workshop' => 'Инвентаризация производства',
     'marketplace_items' => 'Товары на маркетплейсе',
+    'marketplace_orders' => 'Заказы с маркетплейса',
 ];
