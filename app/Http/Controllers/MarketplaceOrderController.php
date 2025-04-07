@@ -67,7 +67,7 @@ class MarketplaceOrderController extends Controller
         $rules = [
             '*.order_id' => 'required',
             '*.marketplace_id' => 'required',
-            '*.item_id' => 'required|exists:materials,id',
+            '*.item_id' => 'required|exists:marketplace_items,id',
             '*.quantity' => 'required|integer|min:1',
             '*.price' => 'required|integer|min:1'
         ];

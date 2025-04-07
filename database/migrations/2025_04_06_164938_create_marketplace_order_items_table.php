@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('marketplace_order_items', function (Blueprint $table) {
             $table->id();
-            $table->integer('marketplace_order_id');
+            $table->unsignedBigInteger('marketplace_order_id');
+            $table->foreign('marketplace_order_id')
+                ->references('id')
+                ->on('marketplace_orders')
+                ->onDelete('cascade');
             $table->integer('marketplace_item_id');
             $table->integer('quantity');
             $table->decimal('price', 10, 2);

@@ -91,10 +91,7 @@ class MarketplaceItemController extends Controller
      */
     public function destroy(MarketplaceItem $marketplaceItem)
     {
-        dump($marketplaceItem);
-        dd($marketplaceItem->marketplaceOrder()->get());
-
-        if ($marketplaceItem->marketplace()->count() > 0) {
+        if ($marketplaceItem->marketplaceOrderItem()->count() > 0) {
             return redirect()->route('marketplace_items.index')
                 ->with('error', 'Невозможно удалить товар, так как он используется в системе');
         }
