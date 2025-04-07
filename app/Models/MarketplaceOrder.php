@@ -14,11 +14,16 @@ class MarketplaceOrder extends Model
         'status'
     ];
 
-    public $timestamps = false;
+    protected $appends = ['marketplace_name'];
 
     public function items()
     {
         return $this->hasMany(MarketplaceOrderItem::class);
+    }
+
+    public function getMarketplaceNameAttribute(): string
+    {
+        return Marketplace::NAME[$this->marketplace_id];
     }
 
 }

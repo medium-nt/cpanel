@@ -31,7 +31,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $order->order_id }}</td>
-                                <td>{{ $order->marketplace_id }}</td>
+                                <td>{{ $order->marketplace_name }}</td>
                                 <td>
                                     @foreach($order->items as $item)
                                         <b>{{ $item->item->title }}</b> - {{ $item->quantity }} шт. <br>

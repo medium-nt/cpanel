@@ -81,7 +81,7 @@
                                        id="quantity"
                                        name="quantity[]"
                                        step="1"
-                                       value="{{ old('quantity') ?? 1 }}">
+                                >
                             </div>
                         </div>
 
@@ -92,8 +92,8 @@
                                        class="form-control @error('price') is-invalid @enderror"
                                        id="price"
                                        name="price[]"
-                                       value="{{ old('price') }}"
-                                       required>
+                                       required
+                                >
                             </div>
                         </div>
                     </div>

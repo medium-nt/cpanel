@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MarketplaceItem extends Model
 {
@@ -15,8 +15,16 @@ class MarketplaceItem extends Model
         'marketplace_id',
     ];
 
-    public function marketplaceOrder(): BelongsTo
+    protected $appends = ['marketplace_name'];
+
+    public function marketplaceOrderItem(): HasMany
     {
-        return $this->belongsTo(MarketplaceOrderItem::class, 'marketplace_order_id', 'id');
+        return $this->HasMany(MarketplaceOrderItem::class, 'marketplace_item_id', 'id');
+
+    }
+
+    public function getMarketplaceNameAttribute(): string
+    {
+        return Marketplace::NAME[$this->marketplace_id];
     }
 }

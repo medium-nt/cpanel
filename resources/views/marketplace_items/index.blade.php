@@ -35,7 +35,7 @@
                                 <td>{{ $item->sku }}</td>
                                 <td>{{ $item->width }}</td>
                                 <td>{{ $item->height }}</td>
-                                <td>{{ $item->marketplace_id }}</td>
+                                <td>{{ $item->marketplace_name }}</td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">
@@ -46,7 +46,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger"
-                                                    onclick="return confirm('Вы уверены что хотите удалить данный материал из системы?')">
+                                                    onclick="return confirm('Вы уверены что хотите удалить данный товар из системы?')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
