@@ -365,6 +365,11 @@ return [
                     'text' => 'suppliers',
                     'url' => 'admin/suppliers',
                     'icon' => 'fas fa-fw fa-truck',
+                ],
+                [
+                    'text' => 'marketplace_items',
+                    'url' => 'admin/marketplace_items',
+                    'icon' => 'fas fa-fw fa-shopping-basket',
                 ]
             ]
         ],
