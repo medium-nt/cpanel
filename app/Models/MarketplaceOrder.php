@@ -14,7 +14,7 @@ class MarketplaceOrder extends Model
         'status'
     ];
 
-    protected $appends = ['marketplace_name'];
+    protected $appends = ['marketplace_name', 'status_name', 'status_color'];
 
     public function items()
     {
@@ -24,6 +24,16 @@ class MarketplaceOrder extends Model
     public function getMarketplaceNameAttribute(): string
     {
         return Marketplace::NAME[$this->marketplace_id];
+    }
+
+    public function getStatusNameAttribute(): string
+    {
+        return StatusMovement::STATUSES[$this->status];
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return StatusMovement::BADGE_COLORS[$this->status];
     }
 
 }

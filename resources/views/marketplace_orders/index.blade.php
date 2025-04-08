@@ -19,6 +19,7 @@
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">Статус</th>
                             <th scope="col">Номер заказа</th>
                             <th scope="col">Маркетплейс</th>
                             <th scope="col">Товары</th>
@@ -30,6 +31,7 @@
                         @foreach ($orders as $order)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
                                 <td>{{ $order->order_id }}</td>
                                 <td>{{ $order->marketplace_name }}</td>
                                 <td>
