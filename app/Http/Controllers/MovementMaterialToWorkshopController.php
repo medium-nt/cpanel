@@ -74,7 +74,7 @@ class MovementMaterialToWorkshopController extends Controller
 
         $rules = [
             '*.material_id' => 'required|exists:materials,id',
-            '*.ordered_quantity' => 'required|integer|min:1',
+            '*.ordered_quantity' => 'required|numeric|min:0.01',
         ];
 
         $validator = Validator::make($data, $rules);
@@ -141,7 +141,7 @@ class MovementMaterialToWorkshopController extends Controller
 
         $rules = [
             '*.id' => 'required|exists:movement_materials,id',
-            '*.quantity' => 'required|integer',
+            '*.quantity' => 'required|numeric|min:0.01',
         ];
 
         $validator = Validator::make($data, $rules);

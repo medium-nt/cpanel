@@ -6,7 +6,7 @@ use App\Models\MovementMaterial;
 
 class MovementMaterialService
 {
-    public static function countMaterial($materialId, $type, $status): int
+    public static function countMaterial($materialId, $type, $status): float
     {
         return MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')

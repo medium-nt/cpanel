@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('material_id');
             $table->foreign('material_id')->references('id')
                 ->on('materials')->onDelete('restrict');
-            $table->integer('quantity')->default(0);
-            $table->integer('ordered_quantity')->default(0);
+            $table->decimal('quantity', 10)->default(0);
+            $table->decimal('ordered_quantity', 10)->default(0);
             $table->decimal('price', 10)->default(0);
             $table->text('comment')->nullable();
 

@@ -55,7 +55,7 @@ class MovementMaterialFromSupplierController extends Controller
         $rules = [
             '*.supplier_id' => 'required|exists:suppliers,id',
             '*.material_id' => 'required|exists:materials,id',
-            '*.quantity' => 'required|integer',
+            '*.quantity' => 'required|numeric|min:0.01',
         ];
 
         $validator = Validator::make($data, $rules);

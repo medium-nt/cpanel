@@ -58,8 +58,8 @@
                                    class="form-control"
                                    id="quantity"
                                    name="quantity[]"
-                                   step="1"
-                                   min="0"
+                                   step="0.01"
+                                   min="0.01"
                                    max="{{ $item->ordered_quantity }}"
                                    required>
                         </div>

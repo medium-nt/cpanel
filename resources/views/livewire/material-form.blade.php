@@ -17,9 +17,9 @@
                    class="form-control @error('orderedQuantity') is-invalid @enderror"
                    id="ordered_quantity"
                    name="ordered_quantity[]"
-                   step="1"
+                   step="0.01"
                    value="{{ old('orderedQuantity') }}"
-                   min = 0
+                   min = 0.01
                    max = {{ $maxQuantity }}>
             <span class="invalid-feedback d-block mt-0" id="max">max = {{ $maxQuantity }}</span>
             @error('orderedQuantity')

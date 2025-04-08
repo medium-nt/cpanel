@@ -58,8 +58,9 @@
                                    class="form-control @error('amount') is-invalid @enderror"
                                    id="quantity"
                                    name="quantity[]"
-                                   step="1"
                                    value="{{ old('amount') }}"
+                                   step="0.01"
+                                   min="0.01"
                                    required>
                         </div>
                     </div>
