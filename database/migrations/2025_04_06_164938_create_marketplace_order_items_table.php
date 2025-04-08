@@ -21,6 +21,8 @@ return new class extends Migration
             $table->integer('marketplace_item_id');
             $table->integer('quantity');
             $table->decimal('price', 10, 2);
+            $table->integer('status')->default(0);
+            $table->integer('seamstress_id')->default(0);
             $table->timestamps();
         });
     }

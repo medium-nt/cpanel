@@ -343,14 +343,18 @@ return [
                 ],
             ]
         ],
-
         [
             'text' => 'marketplace_orders',
             'url' => 'admin/marketplace_orders',
             'icon' => 'fas fa-fw fa-cart-arrow-down',
             'can' => 'is-seamstress-or-admin',
         ],
-
+        [
+            'text' => 'marketplace_order_items',
+            'url' => 'admin/marketplace_order_items',
+            'icon' => 'fas fa-fw fa-stream',
+            'can' => 'is-seamstress-or-admin',
+        ],
         [
             'text' => 'users',
             'url' => 'admin/users',

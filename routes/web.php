@@ -208,4 +208,23 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             ->can('delete', 'marketplace_order')
             ->name('marketplace_orders.destroy');
     });
+
+    Route::prefix('/marketplace_order_items')->group(function () {
+        Route::get('', [App\Http\Controllers\MarketplaceOrderItemController::class, 'index'])
+            ->can('viewAny', App\Models\MarketplaceItem::class)
+            ->name('marketplace_order_items.index');
+
+        Route::get('/{marketplace_order_items}/edit', [App\Http\Controllers\MarketplaceOrderItemController::class, 'edit'])
+            ->can('update', 'marketplace_order_items')
+            ->name('marketplace_order_items.edit');
+
+        Route::put('/startWork/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'startWork'])
+            ->can('update', 'marketplace_order_item')
+            ->name('marketplace_order_items.startWork');
+
+        Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
+            ->can('update', 'marketplace_order_item')
+            ->name('marketplace_order_items.done');
+
+    });
 });

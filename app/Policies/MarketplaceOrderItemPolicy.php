@@ -36,7 +36,7 @@ class MarketplaceOrderItemPolicy
      */
     public function update(User $user, MarketplaceOrderItem $marketplaceOrderItem): bool
     {
-        return false;
+        return $user->role->name === 'admin' || $user->role->name === 'seamstress';
     }
 
     /**
