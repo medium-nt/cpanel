@@ -11,6 +11,7 @@ class StatusMovement extends Model
         0 => 'Новый',
         1 => 'Одобрено',
         2 => 'Отправлено',
+        4 => 'В работе',
         3 => 'Завершено'
     ];
 
@@ -19,6 +20,7 @@ class StatusMovement extends Model
         0 => 'badge-secondary',
         1 => 'badge-success',
         2 => 'badge-warning',
+        4 => 'badge-warning',
         3 => 'badge-primary',
     ];
 }
