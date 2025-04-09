@@ -63,11 +63,13 @@
                                 <label for="item_id">Товар</label>
                                 <select name="item_id[]"
                                         id="item_id"
-                                        class="form-control"
+                                        class="form-control item_id"
                                         required>
                                     <option value="" disabled selected>---</option>
                                     @foreach($items as $item)
-                                        <option value="{{ $item->id }}">{{ $item->title }}</option>
+                                        <option value="{{ $item->id }}">
+                                            {{ $item->title }} {{ $item->width }}х{{ $item->width }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -98,10 +100,9 @@
                         </div>
                     </div>
 
-                    <x-odred_item-component :items="$items"/>
-                    <x-odred_item-component :items="$items"/>
-                    <x-odred_item-component :items="$items"/>
-                    <x-odred_item-component :items="$items"/>
+                    @for($i = 1; $i < 5; $i++)
+                        <x-odred_item-component :items="$items" :i="$i"/>
+                    @endfor
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Создать</button>
@@ -111,3 +112,32 @@
         </div>
     </div>
 @stop
+
+@push('js')
+{{--@section('js')--}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+                $('select').select2();
+        });
+    </script>
+{{--@endsection--}}
+@endpush
+
+@push('css')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <style>
+        .select2-container .select2-selection--single {
+            height: auto !important;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: inherit !important;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__arrow {
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+        }
+    </style>
+@endpush

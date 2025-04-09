@@ -2,8 +2,8 @@
     <div class="col-md-6">
         <div class="form-group">
             <select name="item_id[]"
-                    id="item_id"
-                    class="form-control">
+                    id="item_id{{$i}}"
+                    class="form-control item_id">
                 <option value="" disabled selected>---</option>
                 @foreach($items as $item)
                     <option value="{{ $item->id }}">{{ $item->title }}</option>
