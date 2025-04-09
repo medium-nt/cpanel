@@ -68,7 +68,7 @@
                                     <option value="" disabled selected>---</option>
                                     @foreach($items as $item)
                                         <option value="{{ $item->id }}">
-                                            {{ $item->title }} {{ $item->width }}х{{ $item->width }}
+                                            {{ $item->title }} {{ $item->width }}х{{ $item->height }}
                                         </option>
                                     @endforeach
                                 </select>

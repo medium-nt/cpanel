@@ -6,7 +6,9 @@
                     class="form-control item_id">
                 <option value="" disabled selected>---</option>
                 @foreach($items as $item)
-                    <option value="{{ $item->id }}">{{ $item->title }}</option>
+                    <option value="{{ $item->id }}">
+                        {{ $item->title }} {{ $item->width }}х{{ $item->height }}
+                    </option>
                 @endforeach
             </select>
         </div>
