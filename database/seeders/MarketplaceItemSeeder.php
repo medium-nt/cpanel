@@ -12,34 +12,28 @@ class MarketplaceItemSeeder extends Seeder
      */
     public function run(): void
     {
-        MarketplaceItem::query()->create(
-            [
-                'sku' => '123456789',
-                'title' => 'Тюль Бамбук',
-                'width' => 200,
-                'height' => 220,
-                'marketplace_id' => 1
-            ]
-        );
+        // Массивы с возможными значениями ширины и высоты
+        $widths = [200, 300, 400, 500, 600, 700, 800];
+        $heights = [220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295];
 
-        MarketplaceItem::query()->create(
-            [
-                'sku' => '987654321',
-                'title' => 'Тюль Лен',
-                'width' => 300,
-                'height' => 240,
-                'marketplace_id' => 1
-            ]
-        );
+        // Массив с названиями тканей
+        $fabrics = ['Бамбук', 'Сетка', 'Лен', 'Вуаль', 'Шифон'];
 
-        MarketplaceItem::query()->create(
-            [
-                'sku' => '192837465',
-                'title' => 'Тюль Вуаль',
-                'width' => 400,
-                'height' => 225,
-                'marketplace_id' => 2
-            ]
-        );
+        foreach ($fabrics as $fabric) {
+            foreach ($widths as $width) {
+                foreach ($heights as $height) {
+                    // Генерируем уникальный SKU
+                    $sku = substr(md5(rand()), 0, 9);
+
+                    MarketplaceItem::query()->create([
+                        'sku' => $sku,
+                        'title' => $fabric,
+                        'width' => $width,
+                        'height' => $height,
+                        'marketplace_id' => rand(1, 2), // случайный marketplace_id
+                    ]);
+                }
+            }
+        }
     }
 }
