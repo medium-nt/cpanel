@@ -10,11 +10,27 @@ class MarketplaceItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $queryParams = $request->except(['page']);
+
+        $items = MarketplaceItem::query();
+
+        if ($request->has('title')) {
+            $items = $items->where('title', 'like', '%' . $request->title . '%');
+        }
+
+        if ($request->has('width')) {
+            $items = $items->where('width', $request->width);
+        }
+
+        $items = $items->paginate(20);
+
+        $items->appends($queryParams);
+
         return view('marketplace_items.index', [
             'title' => 'Товары маркетплейса',
-            'items' => MarketplaceItem::query()->paginate(10)
+            'items' => $items
         ]);
     }
 
@@ -45,7 +61,9 @@ class MarketplaceItemController extends Controller
         $validatedData = $request->validate($rules);
         MarketplaceItem::query()->create($validatedData);
 
-        return redirect()->route('marketplace_items.index')->with('success', 'Товар добавлен');
+        return redirect()
+            ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
+            ->with('success', 'Товар добавлен');
     }
 
     /**
@@ -83,7 +101,9 @@ class MarketplaceItemController extends Controller
         $validatedData = $request->validate($rules);
         $marketplaceItem->update($validatedData);
 
-        return redirect()->route('marketplace_items.index')->with('success', 'Изменения сохранены');
+        return redirect()
+            ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
+            ->with('success', 'Изменения сохранены');
     }
 
     /**

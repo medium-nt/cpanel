@@ -14,6 +14,32 @@
 
                 <a href="{{ route('marketplace_items.create') }}" class="btn btn-primary mr-3 mb-3">Добавить товар</a>
 
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <select name="title" id="title" class="form-control" onchange="updatePageWithQueryParam(this)" required>
+                            <option value="" selected>Все</option>
+                            <option value="Бамбук" @if(request('title') == 'Бамбук') selected @endif>Бамбук</option>
+                            <option value="Сетка" @if(request('title') == 'Сетка') selected @endif>Сетка</option>
+                            <option value="Лен" @if(request('title') == 'Лен') selected @endif>Лен</option>
+                            <option value="Вуаль" @if(request('title') == 'Вуаль') selected @endif>Вуаль</option>
+                            <option value="Шифон" @if(request('title') == 'Шифон') selected @endif>Шифон</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <select name="width" id="width" class="form-control" onchange="updatePageWithQueryParam(this)" required>
+                            <option value="" selected>Все</option>
+                            <option value="200" @if(request('width') == '200') selected @endif>200</option>
+                            <option value="300" @if(request('width') == '300') selected @endif>300</option>
+                            <option value="400" @if(request('width') == '400') selected @endif>400</option>
+                            <option value="500" @if(request('width') == '500') selected @endif>500</option>
+                            <option value="600" @if(request('width') == '600') selected @endif>600</option>
+                            <option value="700" @if(request('width') == '700') selected @endif>700</option>
+                            <option value="800" @if(request('width') == '800') selected @endif>800</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
@@ -65,15 +91,23 @@
     </div>
 @stop
 
-{{-- Push extra CSS --}}
-
-@push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-@endpush
-
-{{-- Push extra scripts --}}
-
 @push('js')
-    {{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
+    <script>
+        function updatePageWithQueryParam(selectElement) {
+            const paramName = selectElement.name;
+            const paramValue = selectElement.value;
+
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Проверяем, есть ли уже параметр с таким именем, и удаляем его перед установкой нового значения
+            urlParams.delete(paramName);
+
+            // Добавляем новый параметр
+            if (paramValue !== '' && paramValue !== 'all') {
+                urlParams.append(paramName, paramValue);
+            }
+
+            window.location.assign(`${window.location.origin}${window.location.pathname}?${urlParams}`);
+        }
+    </script>
 @endpush
