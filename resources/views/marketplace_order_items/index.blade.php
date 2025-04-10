@@ -40,7 +40,7 @@
                                 <td>{{ $item->item->width }}</td>
                                 <td>{{ $item->item->height }}</td>
                                 <td>{{ $item->quantity }}</td>
-                                <td>{{ $item->item->marketplace_name }}</td>
+                                <td>{{ $item->marketplaceOrder->marketplace_name }}</td>
                                 <td>{{ $item->item->created_at }}</td>
 
                                 <td style="width: 100px">
