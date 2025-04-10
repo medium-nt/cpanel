@@ -225,6 +225,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
             ->can('update', 'marketplace_order_item')
             ->name('marketplace_order_items.done');
+    });
 
+    Route::prefix('/material_consumption')->group(function () {
+        Route::get('/delete/{material_consumption}', [App\Http\Controllers\MaterialConsumptionController::class, 'destroy'])
+            ->can('delete', 'material_consumption')
+            ->name('material_consumption.destroy');
     });
 });

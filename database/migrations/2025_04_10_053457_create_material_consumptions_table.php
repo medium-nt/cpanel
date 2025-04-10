@@ -11,15 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('skus', function (Blueprint $table) {
+        Schema::create('material_consumptions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('item_id');
             $table->foreign('item_id')
                 ->references('id')
                 ->on('marketplace_items')
                 ->onDelete('cascade');
-            $table->string('sku');
-            $table->integer('marketplace_id');
+            $table->unsignedBigInteger('material_id');
+            $table->foreign('material_id')
+                ->references('id')
+                ->on('materials')
+                ->onDelete('cascade');
+            $table->decimal('quantity', 10);
             $table->timestamps();
         });
     }
@@ -29,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('skus');
+        Schema::dropIfExists('material_consumptions');
     }
 };

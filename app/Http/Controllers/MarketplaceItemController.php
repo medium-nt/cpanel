@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceItem;
+use App\Models\Material;
+use App\Models\MaterialConsumption;
 use App\Models\Sku;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class MarketplaceItemController extends Controller
 {
@@ -36,7 +39,8 @@ class MarketplaceItemController extends Controller
     {
         return view('marketplace_items.create', [
             'title' => 'Добавить товар',
-            'items' => MarketplaceItem::query()->get()
+            'items' => MarketplaceItem::query()->get(),
+            'materials' => Material::query()->get()
         ]);
     }
 
@@ -52,6 +56,30 @@ class MarketplaceItemController extends Controller
 
         $validatedData = $request->validate($rules);
 
+        $materialsConsumption = [];
+        foreach ($request->material_id as $key => $material_id) {
+            if ($request->quantity[$key] > 0) {
+                $materialsConsumption[] = [
+                    'material_id' => $material_id,
+                    'quantity' => $request->quantity[$key]
+                ];
+            }
+        }
+
+        $rules = [
+            '*.material_id' => 'required|exists:materials,id',
+            '*.quantity' => 'required|numeric|min:0.01',
+        ];
+
+        $validator = Validator::make($materialsConsumption, $rules);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         $itemId = MarketplaceItem::query()->create($validatedData);
 
         Sku::query()->create([
@@ -66,6 +94,15 @@ class MarketplaceItemController extends Controller
             'marketplace_id' => 2
         ]);
 
+        $validatedMaterialsConsumption = $validator->validated();
+        foreach ($validatedMaterialsConsumption as $item) {
+            MaterialConsumption::query()->create([
+                'item_id' => $itemId->id,
+                'material_id' => $item['material_id'],
+                'quantity' => $item['quantity']
+            ]);
+        }
+
         return redirect()
             ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
             ->with('success', 'Товар добавлен');
@@ -76,6 +113,8 @@ class MarketplaceItemController extends Controller
         return view('marketplace_items.edit', [
             'title' => 'Изменить товар',
             'item' => $marketplaceItem,
+            'materials' => Material::query()->get(),
+            'materialsConsumption' => MaterialConsumption::query()->where('item_id', $marketplaceItem->id)->get()
         ]);
     }
 
@@ -90,6 +129,30 @@ class MarketplaceItemController extends Controller
         ];
 
         $validatedData = $request->validate($rules);
+
+        $materialsConsumption = [];
+        foreach ($request->material_id as $key => $material_id) {
+            if ($request->quantity[$key] > 0) {
+                $materialsConsumption[] = [
+                    'material_id' => $material_id,
+                    'quantity' => $request->quantity[$key]
+                ];
+            }
+        }
+
+        $rules = [
+            '*.material_id' => 'required|exists:materials,id',
+            '*.quantity' => 'required|numeric|min:0.01',
+        ];
+
+        $validator = Validator::make($materialsConsumption, $rules);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         $marketplaceItem->update($validatedData);
 
@@ -106,6 +169,14 @@ class MarketplaceItemController extends Controller
             ->update([
                 'sku' => $request->wb_sku,
         ]);
+
+        $validatedMaterialsConsumption = $validator->validated();
+        foreach ($validatedMaterialsConsumption as $item) {
+            MaterialConsumption::query()->updateOrCreate(
+                ['item_id' => $marketplaceItem->id, 'material_id' => $item['material_id']],
+                ['quantity' => $item['quantity']]
+            );
+        }
 
         return redirect()
             ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
