@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('marketplace_items', function (Blueprint $table) {
+        Schema::create('skus', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->integer('width');
-            $table->integer('height');
+            $table->unsignedBigInteger('item_id');
+            $table->foreign('item_id')
+                ->references('id')
+                ->on('marketplace_items')
+                ->onDelete('cascade');
+            $table->string('sku');
+            $table->integer('marketplace_id');
             $table->timestamps();
         });
     }
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('marketplace_items');
+        Schema::dropIfExists('sku');
     }
 };

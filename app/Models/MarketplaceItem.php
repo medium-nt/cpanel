@@ -9,13 +9,9 @@ class MarketplaceItem extends Model
 {
     protected $fillable = [
         'title',
-        'sku',
         'width',
         'height',
-        'marketplace_id',
     ];
-
-    protected $appends = ['marketplace_name'];
 
     public function marketplaceOrderItem(): HasMany
     {
@@ -23,8 +19,8 @@ class MarketplaceItem extends Model
 
     }
 
-    public function getMarketplaceNameAttribute(): string
+    public function sku(): HasMany
     {
-        return Marketplace::NAME[$this->marketplace_id];
+        return $this->hasMany(Sku::class, 'item_id', 'id');
     }
 }

@@ -45,21 +45,6 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="sku">SKU</label>
-                                <input type="text"
-                                       class="form-control @error('sku') is-invalid @enderror"
-                                       id="sku"
-                                       name="sku"
-                                       placeholder=""
-                                       value="{{ old('sku') }}"
-                                       required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="width">Ширина</label>
@@ -85,15 +70,40 @@
                                        value="{{ old('height') }}">
                             </div>
                         </div>
+                    </div>
 
+                    <hr>
+
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="marketplace_id">Маркетплейс</label>
-                                <select name="marketplace_id" id="marketplace_id" class="form-control" required>
-                                    <option value="" disabled selected>---</option>
-                                    <option value="1">OZON</option>
-                                    <option value="2">WB</option>
-                                </select>
+                                <label for="height">SKU:</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="ozon_sku">OZON</label>
+                                <input type="text"
+                                       class="form-control @error('ozon_sku') is-invalid @enderror"
+                                       id="ozon_sku"
+                                       name="ozon_sku"
+                                       value="{{ old('ozon_sku') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="wb_sku">WB</label>
+                                <input type="text"
+                                       class="form-control @error('wb_sku') is-invalid @enderror"
+                                       id="wb_sku"
+                                       name="wb_sku"
+                                       value="{{ old('wb_sku') }}">
                             </div>
                         </div>
                     </div>

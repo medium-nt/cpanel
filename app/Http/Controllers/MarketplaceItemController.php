@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceItem;
+use App\Models\Sku;
 use Illuminate\Http\Request;
 
 class MarketplaceItemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $queryParams = $request->except(['page']);
@@ -34,9 +32,6 @@ class MarketplaceItemController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('marketplace_items.create', [
@@ -45,38 +40,37 @@ class MarketplaceItemController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $rules = [
             'title' => 'required|string|min:2|max:255',
-            'sku' => 'required|string|min:2|max:255',
             'width' => 'required|integer',
             'height' => 'required|integer',
-            'marketplace_id' => 'required|integer',
+            'ozon_sku' => 'nullable|string|min:3',
+            'wb_sku' => 'nullable|string|min:3',
         ];
 
         $validatedData = $request->validate($rules);
-        MarketplaceItem::query()->create($validatedData);
+
+        $itemId = MarketplaceItem::query()->create($validatedData);
+
+        Sku::query()->create([
+            'item_id' => $itemId->id,
+            'sku' => $request->ozon_sku,
+            'marketplace_id' => 1
+        ]);
+
+        Sku::query()->create([
+            'item_id' => $itemId->id,
+            'sku' => $request->wb_sku,
+            'marketplace_id' => 2
+        ]);
 
         return redirect()
             ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
             ->with('success', 'Товар добавлен');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MarketplaceItem $marketplaceItem)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(MarketplaceItem $marketplaceItem)
     {
         return view('marketplace_items.edit', [
@@ -85,30 +79,39 @@ class MarketplaceItemController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, MarketplaceItem $marketplaceItem)
     {
         $rules = [
             'title' => 'required|string|min:2|max:255',
-            'sku' => 'required|string|min:2|max:255',
             'width' => 'required|integer',
             'height' => 'required|integer',
-            'marketplace_id' => 'required|integer',
+            'ozon_sku' => 'nullable|string|min:3',
+            'wb_sku' => 'nullable|string|min:3',
         ];
 
         $validatedData = $request->validate($rules);
+
         $marketplaceItem->update($validatedData);
+
+        Sku::query()
+            ->where('item_id', $marketplaceItem->id)
+            ->where('marketplace_id', 1)
+            ->update([
+                'sku' => $request->ozon_sku,
+        ]);
+
+        Sku::query()
+            ->where('item_id', $marketplaceItem->id)
+            ->where('marketplace_id', 2)
+            ->update([
+                'sku' => $request->wb_sku,
+        ]);
 
         return redirect()
             ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
             ->with('success', 'Изменения сохранены');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(MarketplaceItem $marketplaceItem)
     {
         if ($marketplaceItem->marketplaceOrderItem()->count() > 0) {

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\MarketplaceItem;
+use App\Models\Sku;
 use Illuminate\Database\Seeder;
 
 class MarketplaceItemSeeder extends Seeder
@@ -19,19 +20,28 @@ class MarketplaceItemSeeder extends Seeder
         // Массив с названиями тканей
         $fabrics = ['Бамбук', 'Сетка', 'Лен', 'Вуаль', 'Шифон'];
 
+        // Массив с id маркетплейсов
+        $marketplaceItems = [1, 2];
+
         foreach ($fabrics as $fabric) {
             foreach ($widths as $width) {
                 foreach ($heights as $height) {
-                    // Генерируем уникальный SKU
+
                     $sku = substr(md5(rand()), 0, 9);
 
-                    MarketplaceItem::query()->create([
-                        'sku' => $sku,
+                    $item = MarketplaceItem::query()->create([
                         'title' => $fabric,
                         'width' => $width,
-                        'height' => $height,
-                        'marketplace_id' => rand(1, 2), // случайный marketplace_id
+                        'height' => $height
                     ]);
+
+                    foreach ($marketplaceItems as $marketplaceItem) {
+                        Sku::query()->create([
+                            'item_id' => $item->id,
+                            'sku' => $sku,
+                            'marketplace_id' => $marketplaceItem
+                        ]);
+                    }
                 }
             }
         }
