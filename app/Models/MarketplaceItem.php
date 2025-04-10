@@ -23,4 +23,9 @@ class MarketplaceItem extends Model
     {
         return $this->hasMany(Sku::class, 'item_id', 'id');
     }
+
+    public function consumption(): HasMany
+    {
+        return $this->hasMany(MaterialConsumption::class, 'item_id', 'id');
+    }
 }
