@@ -14,7 +14,6 @@ class MovementMaterial extends Model
         'quantity',
         'ordered_quantity',
         'price',
-        'comment',
         'order_id'
     ];
 

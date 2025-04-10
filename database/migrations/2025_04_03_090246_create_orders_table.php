@@ -33,6 +33,14 @@ return new class extends Migration
                 ->on('users')
                 ->onDelete('restrict');
 
+            $table->unsignedBigInteger('marketplace_order_id')->nullable()->default(null);
+            $table->foreign('marketplace_order_id')
+                ->references('id')
+                ->on('marketplace_orders')
+                ->onDelete('restrict');
+
+            $table->text('comment')->nullable();
+
             $table->integer('is_approved')->default(0);
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();

@@ -14,6 +14,8 @@ class Order extends Model
         'supplier_id',
         'storekeeper_id',
         'seamstress_id',
+        'comment',
+        'marketplace_order_id',
         'is_approved',
         'completed_at'
     ];

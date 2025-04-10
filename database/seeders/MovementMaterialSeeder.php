@@ -16,7 +16,6 @@ class MovementMaterialSeeder extends Seeder
             [
                 'material_id' => 1,
                 'quantity' => 100,
-                'comment' => 'тестовая поставка',
                 'order_id' => 1
             ]
         );
@@ -25,7 +24,6 @@ class MovementMaterialSeeder extends Seeder
             [
                 'material_id' => 2,
                 'quantity' => 50,
-                'comment' => 'тестовая поставка',
                 'order_id' => 1
             ]
         );
@@ -34,7 +32,6 @@ class MovementMaterialSeeder extends Seeder
             [
                 'material_id' => 3,
                 'quantity' => 10,
-                'comment' => 'тестовая поставка',
                 'order_id' => 1
             ]
         );
@@ -44,7 +41,6 @@ class MovementMaterialSeeder extends Seeder
                 'material_id' => 1,
                 'quantity' => 0,
                 'ordered_quantity' => 20,
-                'comment' => 'тестовый заказ',
                 'order_id' => 2
             ]
         );

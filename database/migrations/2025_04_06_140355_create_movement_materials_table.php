@@ -19,14 +19,12 @@ return new class extends Migration
             $table->decimal('quantity', 10)->default(0);
             $table->decimal('ordered_quantity', 10)->default(0);
             $table->decimal('price', 10)->default(0);
-            $table->text('comment')->nullable();
 
             $table->unsignedBigInteger('order_id')->nullable()->default(null);
             $table->foreign('order_id')
                 ->references('id')
                 ->on('orders')
                 ->onDelete('restrict');
-
             $table->timestamps();
         });
     }

@@ -17,6 +17,7 @@ class OrderSeeder extends Seeder
             'status' => 3,
             'supplier_id' => 1,
             'storekeeper_id' => 2,
+            'comment' => 'тестовая поставка',
             'completed_at' => now()
         ]);
 
@@ -24,7 +25,8 @@ class OrderSeeder extends Seeder
             'type_movement' => 2,
             'status' => 0,
             'supplier_id' => 1,
-            'seamstress_id' => 3
+            'seamstress_id' => 3,
+            'comment' => 'тестовый заказ',
         ]);
     }
 }

@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
+use App\Models\MovementMaterial;
+use App\Models\Order;
 use App\Services\MovementMaterialService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class MarketplaceOrderItemController extends Controller
 {
@@ -46,7 +50,7 @@ class MarketplaceOrderItemController extends Controller
 
             $inWorkshop = MovementMaterialService::countMaterial($materialId, 2, 3);
             $outWorkshop = MovementMaterialService::countMaterial($materialId, 3, 3);
-            $holdWorkshop = 0;
+            $holdWorkshop = MovementMaterialService::countMaterial($materialId, 3, 4);
 
             $materialInWorkhouse = $inWorkshop - $outWorkshop - $holdWorkshop;
 
@@ -56,10 +60,38 @@ class MarketplaceOrderItemController extends Controller
             }
         }
 
-        $marketplaceOrderItem->update([
-            'status' => 4,
-            'seamstress_id' => auth()->user()->id
-        ]);
+        try {
+            DB::beginTransaction();
+
+            $marketplaceOrderItem->update([
+                'status' => 4,
+                'seamstress_id' => auth()->user()->id
+            ]);
+
+            $order = Order::query()->create([
+                'type_movement' => 3,
+                'status' => 4,
+                'seamstress_id' => auth()->user()->id,
+                'comment' => 'По заказу No: ' . $marketplaceOrderItem->marketplaceOrder->order_id,
+                'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id
+            ]);
+
+            foreach ($materialConsumptions as $item) {
+                $movementData['material_id'] = $item->material_id;
+                $movementData['quantity'] = $item->quantity * $quantityOrderItem;
+                $movementData['order_id'] = $order->id;
+
+                MovementMaterial::query()->create($movementData);
+            }
+
+            DB::commit();
+        } catch (Throwable $e) {
+
+            DB::rollBack();
+
+            return redirect()->route('marketplace_order_items.index', ['status' => 'new'])
+                ->with('error', 'Внутренняя ошибка');
+        }
 
         return redirect()->route('marketplace_order_items.index')->with('success', 'Заказ принят');
     }
