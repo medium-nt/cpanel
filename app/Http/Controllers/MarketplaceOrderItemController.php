@@ -98,7 +98,12 @@ class MarketplaceOrderItemController extends Controller
 
     public function done(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
-//        TO_DO списать материал
+        Order::query()
+            ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+            ->update([
+                'status' => 3,
+                'completed_at' => now()
+        ]);
 
         $marketplaceOrderItem->update([
             'status' => 3,
