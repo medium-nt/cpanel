@@ -65,10 +65,10 @@
                         </div>
                     </div>
 
-                    <x-material_from_supplier-component :materials="$materials"/>
-                    <x-material_from_supplier-component :materials="$materials"/>
-                    <x-material_from_supplier-component :materials="$materials"/>
-                    <x-material_from_supplier-component :materials="$materials"/>
+                    <x-material-component :materials="$materials"/>
+                    <x-material-component :materials="$materials"/>
+                    <x-material-component :materials="$materials"/>
+                    <x-material-component :materials="$materials"/>
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Принять</button>
