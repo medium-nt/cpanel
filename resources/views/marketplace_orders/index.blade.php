@@ -36,7 +36,10 @@
                                 <td>{{ $order->marketplace_name }}</td>
                                 <td>
                                     @foreach($order->items as $item)
-                                        <b>{{ $item->item->title }}</b> - {{ $item->quantity }} шт. <br>
+                                        <b>{{ $item->item->title }}</b> - {{ $item->quantity }} шт.
+                                        @if($item->status == 3) <span class="badge badge-success">Выполнено</span> @endif
+                                        @if($item->status == 4) <span class="badge badge-warning">В работе</span> @endif
+                                        <br>
                                     @endforeach
                                 </td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
