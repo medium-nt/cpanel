@@ -27,7 +27,7 @@
                             <th scope="col">Высота</th>
                             <th scope="col">Кол-во</th>
                             <th scope="col">Маркетплейс</th>
-                            <th scope="col">Дата</th>
+                            <th scope="col">Создан</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -41,7 +41,7 @@
                                 <td>{{ $item->item->height }}</td>
                                 <td>{{ $item->quantity }}</td>
                                 <td>{{ $item->marketplaceOrder->marketplace_name }}</td>
-                                <td>{{ $item->item->created_at }}</td>
+                                <td>{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
                                     @switch($item->status)
