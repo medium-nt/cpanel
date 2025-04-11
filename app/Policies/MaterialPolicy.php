@@ -13,7 +13,7 @@ class MaterialPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->role->name == 'admin';
     }
 
     /**

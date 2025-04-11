@@ -305,43 +305,27 @@ return [
             'icon' => 'fas fa-fw fa-home',
         ],
         [
-            'text' => 'warehouse',
-            'icon' => 'fas fa-fw fa-cog',
+            'text' => 'inventory_by_warehouse',
+            'url' => 'admin/inventory/warehouse',
+            'icon' => 'fas fa-fw fa-boxes',
             'can' => 'is-storekeeper-or-admin',
-            'submenu' => [
-                [
-                    'text' => 'inventory_by_warehouse',
-                    'url' => 'admin/inventory/warehouse',
-                    'icon' => 'fas fa-fw fa-boxes',
-                ],
-                [
-                    'text' => 'movements_from_supplier',
-                    'url' => 'admin/movements_from_supplier',
-                    'icon' => 'fas fa-fw fa-exchange-alt',
-                ],
-                [
-                    'text' => 'movements_to_workshop',
-                    'url' => 'admin/movements_to_workshop',
-                    'icon' => 'fas fa-fw fa-exchange-alt',
-                ],
-            ]
         ],
         [
-            'text' => 'workshop',
-            'icon' => 'fas fa-fw fa-cog',
+            'text' => 'inventory_by_workshop',
+            'url' => 'admin/inventory/workshop',
+            'icon' => 'fas fa-fw fa-boxes',
             'can' => 'is-seamstress-or-admin',
-            'submenu' => [
-                [
-                    'text' => 'inventory_by_workshop',
-                    'url' => 'admin/inventory/workshop',
-                    'icon' => 'fas fa-fw fa-boxes',
-                ],
-                [
-                    'text' => 'movements_to_workshop',
-                    'url' => 'admin/movements_to_workshop',
-                    'icon' => 'fas fa-fw fa-exchange-alt',
-                ],
-            ]
+        ],
+        [
+            'text' => 'movements_from_supplier',
+            'url' => 'admin/movements_from_supplier',
+            'icon' => 'fas fa-fw fa-truck-loading',
+            'can' => 'is-storekeeper-or-admin',
+        ],
+        [
+            'text' => 'movements_to_workshop',
+            'url' => 'admin/movements_to_workshop',
+            'icon' => 'fas fa-fw fa-dolly',
         ],
         [
             'text' => 'marketplace_orders',
@@ -356,17 +340,15 @@ return [
             'can' => 'is-seamstress-or-admin',
         ],
         [
-            'text' => 'users',
-            'url' => 'admin/users',
-            'icon' => 'far fa-fw fa-user',
-            'can' => 'is-admin',
-        ],
-
-        [
             'text' => 'settings',
             'icon' => 'fas fa-fw fa-cog',
             'can' => 'is-admin',
             'submenu' => [
+                [
+                    'text' => 'users',
+                    'url' => 'admin/users',
+                    'icon' => 'far fa-fw fa-user',
+                ],
                 [
                     'text' => 'materials',
                     'url' => 'admin/materials',

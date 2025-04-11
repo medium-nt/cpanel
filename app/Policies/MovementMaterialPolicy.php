@@ -29,7 +29,7 @@ class MovementMaterialPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
+        return $user->role->name === 'admin' || $user->role->name === 'storekeeper' || $user->role->name === 'seamstress';
     }
 
     /**
@@ -37,7 +37,7 @@ class MovementMaterialPolicy
      */
     public function update(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
+        return $user->role->name === 'admin' || $user->role->name === 'storekeeper' || $user->role->name === 'seamstress';
     }
 
     /**

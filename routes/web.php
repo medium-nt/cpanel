@@ -22,22 +22,28 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::prefix('/users')->group(function () {
         Route::get('', [App\Http\Controllers\UsersController::class, 'index'])
-            ->can('viewAny', User::class)->name('users.index');
+            ->can('viewAny', User::class)
+            ->name('users.index');
 
         Route::get('/create', [App\Http\Controllers\UsersController::class, 'create'])
-            ->can('create', User::class)->name('users.create');
+            ->can('create', User::class)
+            ->name('users.create');
 
         Route::post('/store', [App\Http\Controllers\UsersController::class, 'store'])
-            ->can('create', User::class)->name('users.store');
+            ->can('create', User::class)
+            ->name('users.store');
 
         Route::get('/{user}/edit', [App\Http\Controllers\UsersController::class, 'edit'])
-            ->can('update', 'user')->name('users.edit');
+            ->can('update', 'user')
+            ->name('users.edit');
 
         Route::put('/update/{user}', [App\Http\Controllers\UsersController::class, 'update'])
-            ->can('update', 'user')->name('users.update');
+            ->can('update', 'user')
+            ->name('users.update');
 
         Route::delete('/delete/{user}', [App\Http\Controllers\UsersController::class, 'destroy'])
-            ->can('delete', 'user')->name('users.destroy');
+            ->can('delete', 'user')
+            ->name('users.destroy');
     });
 
     Route::prefix('/materials')->group(function () {
@@ -211,7 +217,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::prefix('/marketplace_order_items')->group(function () {
         Route::get('', [App\Http\Controllers\MarketplaceOrderItemController::class, 'index'])
-            ->can('viewAny', App\Models\MarketplaceItem::class)
+            ->can('viewAny', App\Models\MarketplaceOrderItem::class)
             ->name('marketplace_order_items.index');
 
         Route::get('/{marketplace_order_items}/edit', [App\Http\Controllers\MarketplaceOrderItemController::class, 'edit'])
