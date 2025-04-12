@@ -10,9 +10,6 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $this->authorize('viewAny', User::class);
@@ -24,9 +21,6 @@ class UsersController extends Controller
         return view('users.index', $data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('users.create', [
@@ -34,9 +28,6 @@ class UsersController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreUsersRequest $request): RedirectResponse
     {
         $validate = $request->safe()->toArray();
@@ -45,17 +36,11 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'Пользователь добавлен');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(User $user): View
     {
         return view('users.edit', [
@@ -64,9 +49,6 @@ class UsersController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user): RedirectResponse
     {
         $this->saved($request, $user);
@@ -74,9 +56,6 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'Изменения сохранены.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user): RedirectResponse
     {
         User::query()->findOrFail($user->id)->delete();

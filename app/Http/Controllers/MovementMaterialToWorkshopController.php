@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class MovementMaterialToWorkshopController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         match ($request->status)
@@ -32,9 +29,6 @@ class MovementMaterialToWorkshopController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('movements_to_workshop.create', [
@@ -43,9 +37,6 @@ class MovementMaterialToWorkshopController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         if (!is_array($request->material_id)) {
@@ -107,17 +98,11 @@ class MovementMaterialToWorkshopController extends Controller
             ->with('success', 'Заказ сформирован и отправлен на склад');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function collect(Order $order)
     {
         return view('movements_to_workshop.collect', [
@@ -126,9 +111,6 @@ class MovementMaterialToWorkshopController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function save_collect(Request $request, Order $order)
     {
         $data = [];

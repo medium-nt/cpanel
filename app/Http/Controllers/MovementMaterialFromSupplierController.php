@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class MovementMaterialFromSupplierController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return view('movements_from_supplier.index', [
@@ -24,9 +21,6 @@ class MovementMaterialFromSupplierController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('movements_from_supplier.create', [
@@ -36,9 +30,6 @@ class MovementMaterialFromSupplierController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $data = [];
@@ -90,17 +81,11 @@ class MovementMaterialFromSupplierController extends Controller
             ->with('success', 'Поступление добавлено');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(MovementMaterial $movementMaterial)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Order $order)
     {
         return view('movements_from_supplier.edit', [
@@ -110,9 +95,6 @@ class MovementMaterialFromSupplierController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Order $order)
     {
         $data = [];
@@ -152,9 +134,6 @@ class MovementMaterialFromSupplierController extends Controller
             ->with('success', 'Поступление добавлено');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(MovementMaterial $movementMaterial)
     {
         //

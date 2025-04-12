@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class MarketplaceOrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return view('marketplace_orders.index', [
@@ -21,9 +18,6 @@ class MarketplaceOrderController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('marketplace_orders.create', [
@@ -32,9 +26,6 @@ class MarketplaceOrderController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         if (!is_array($request->item_id)) {
@@ -83,7 +74,6 @@ class MarketplaceOrderController extends Controller
 
         $validatedData = $validator->validated();
 
-
         $marketplaceOrder = MarketplaceOrder::query()->create([
             'order_id' => $request->order_id,
             'marketplace_id' => $request->marketplace_id,
@@ -104,17 +94,11 @@ class MarketplaceOrderController extends Controller
             ->with('success', 'Заказ сформирован.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(MarketplaceOrder $marketplaceOrder)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(MarketplaceOrder $marketplaceOrder)
     {
         return view('marketplace_orders.edit', [
@@ -124,13 +108,8 @@ class MarketplaceOrderController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, MarketplaceOrder $marketplaceOrder)
     {
-//        dd($request->all());
-
         if (!is_array($request->item_id)) {
             return redirect()
                 ->back()
@@ -185,8 +164,6 @@ class MarketplaceOrderController extends Controller
             'status' => 0
         ]);
 
-//        dd($validatedData);
-
         foreach ($validatedData as $item) {
             MarketplaceOrderItem::query()
                 ->where('id', $item['order_item_id'])
@@ -202,9 +179,6 @@ class MarketplaceOrderController extends Controller
             ->with('success', 'Заказ изменен.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(MarketplaceOrder $marketplaceOrder)
     {
         if($marketplaceOrder->status != 0) {
