@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaveMarketplaceItemRequest;
 use App\Models\MarketplaceItem;
 use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Models\Sku;
+use App\Services\MarketplaceItemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,25 +15,14 @@ class MarketplaceItemController extends Controller
 {
     public function index(Request $request)
     {
-        $queryParams = $request->except(['page']);
-
-        $items = MarketplaceItem::query();
-
-        if ($request->has('title')) {
-            $items = $items->where('title', 'like', '%' . $request->title . '%');
-        }
-
-        if ($request->has('width')) {
-            $items = $items->where('width', $request->width);
-        }
-
+        $items = MarketplaceItemService::getFilteredItems($request);
         $items = $items->paginate(20);
 
-        $items->appends($queryParams);
+        $queryParams = $request->except(['page']);
 
         return view('marketplace_items.index', [
             'title' => 'Товары маркетплейса',
-            'items' => $items
+            'items' => $items->appends($queryParams)
         ]);
     }
 
@@ -44,64 +35,12 @@ class MarketplaceItemController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(SaveMarketplaceItemRequest $request)
     {
-        $rules = [
-            'title' => 'required|string|min:2|max:255',
-            'width' => 'required|integer',
-            'height' => 'required|integer',
-            'ozon_sku' => 'nullable|string|min:3',
-            'wb_sku' => 'nullable|string|min:3',
-        ];
+        $marketplaceItem = MarketplaceItem::query()->create($request->all());
 
-        $validatedData = $request->validate($rules);
-
-        $materialsConsumption = [];
-        foreach ($request->material_id as $key => $material_id) {
-            if ($request->quantity[$key] > 0) {
-                $materialsConsumption[] = [
-                    'material_id' => $material_id,
-                    'quantity' => $request->quantity[$key]
-                ];
-            }
-        }
-
-        $rules = [
-            '*.material_id' => 'required|exists:materials,id',
-            '*.quantity' => 'required|numeric|min:0.01',
-        ];
-
-        $validator = Validator::make($materialsConsumption, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $itemId = MarketplaceItem::query()->create($validatedData);
-
-        Sku::query()->create([
-            'item_id' => $itemId->id,
-            'sku' => $request->ozon_sku,
-            'marketplace_id' => 1
-        ]);
-
-        Sku::query()->create([
-            'item_id' => $itemId->id,
-            'sku' => $request->wb_sku,
-            'marketplace_id' => 2
-        ]);
-
-        $validatedMaterialsConsumption = $validator->validated();
-        foreach ($validatedMaterialsConsumption as $item) {
-            MaterialConsumption::query()->create([
-                'item_id' => $itemId->id,
-                'material_id' => $item['material_id'],
-                'quantity' => $item['quantity']
-            ]);
-        }
+        MarketplaceItemService::saveSkus($marketplaceItem, $request);
+        MarketplaceItemService::saveMaterialsConsumption($marketplaceItem, $request);
 
         return redirect()
             ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
@@ -118,65 +57,11 @@ class MarketplaceItemController extends Controller
         ]);
     }
 
-    public function update(Request $request, MarketplaceItem $marketplaceItem)
+    public function update(SaveMarketplaceItemRequest $request, MarketplaceItem $marketplaceItem)
     {
-        $rules = [
-            'title' => 'required|string|min:2|max:255',
-            'width' => 'required|integer',
-            'height' => 'required|integer',
-            'ozon_sku' => 'nullable|string|min:3',
-            'wb_sku' => 'nullable|string|min:3',
-        ];
-
-        $validatedData = $request->validate($rules);
-
-        $materialsConsumption = [];
-        foreach ($request->material_id as $key => $material_id) {
-            if ($request->quantity[$key] > 0) {
-                $materialsConsumption[] = [
-                    'material_id' => $material_id,
-                    'quantity' => $request->quantity[$key]
-                ];
-            }
-        }
-
-        $rules = [
-            '*.material_id' => 'required|exists:materials,id',
-            '*.quantity' => 'required|numeric|min:0.01',
-        ];
-
-        $validator = Validator::make($materialsConsumption, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $marketplaceItem->update($validatedData);
-
-        Sku::query()
-            ->where('item_id', $marketplaceItem->id)
-            ->where('marketplace_id', 1)
-            ->update([
-                'sku' => $request->ozon_sku,
-        ]);
-
-        Sku::query()
-            ->where('item_id', $marketplaceItem->id)
-            ->where('marketplace_id', 2)
-            ->update([
-                'sku' => $request->wb_sku,
-        ]);
-
-        $validatedMaterialsConsumption = $validator->validated();
-        foreach ($validatedMaterialsConsumption as $item) {
-            MaterialConsumption::query()->updateOrCreate(
-                ['item_id' => $marketplaceItem->id, 'material_id' => $item['material_id']],
-                ['quantity' => $item['quantity']]
-            );
-        }
+        $marketplaceItem->update($request->all());
+        MarketplaceItemService::saveSkus($marketplaceItem, $request);
+        MarketplaceItemService::saveMaterialsConsumption($marketplaceItem, $request);
 
         return redirect()
             ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
