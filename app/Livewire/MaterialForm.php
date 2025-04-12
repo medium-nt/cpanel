@@ -3,8 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Material;
-use App\Models\MovementMaterial;
-use App\Services\MovementMaterialService;
+use App\Services\InventoryService;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -29,16 +28,7 @@ class MaterialForm extends Component
     public function updatedSelectedMaterialId(): void
     {
         if ($this->selectedMaterialId) {
-            $inStock = MovementMaterialService::countMaterial($this->selectedMaterialId, 1, 3);
-            $outStockNew = MovementMaterialService::countMaterial($this->selectedMaterialId, 2, 0);
-            $outStock = MovementMaterial::query()
-                ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
-                ->where('material_id', $this->selectedMaterialId)
-                ->where('orders.type_movement', 2)
-                ->whereNotIn('orders.status', [-1])
-                ->sum('quantity');
-
-            $this->maxQuantity = $inStock - $outStock - $outStockNew;
+            $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId);
         } else {
             $this->maxQuantity = null;
         }
