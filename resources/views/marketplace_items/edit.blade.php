@@ -87,7 +87,7 @@
                                                class="form-control @error('ozon_sku') is-invalid @enderror"
                                                id="ozon_sku"
                                                name="ozon_sku"
-                                               value="{{ $item->sku()->where('marketplace_id', 1)->first()->sku }}">
+                                               value="{{ $item->sku()->where('marketplace_id', 1)->first()->sku ?? '' }}">
                                     </div>
                                 </div>
                             </div>
@@ -100,7 +100,7 @@
                                                class="form-control @error('wb_sku') is-invalid @enderror"
                                                id="wb_sku"
                                                name="wb_sku"
-                                               value="{{ $item->sku()->where('marketplace_id', 2)->first()->sku }}">
+                                               value="{{ $item->sku()->where('marketplace_id', 2)->first()->sku ?? '' }}">
                                     </div>
                                 </div>
                             </div>
