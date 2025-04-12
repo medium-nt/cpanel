@@ -56,7 +56,8 @@
                                                name="width"
                                                step="100"
                                                placeholder=""
-                                               value="{{ old('width') }}">
+                                               value="{{ old('width') }}"
+                                               required>
                                     </div>
                                 </div>
 
@@ -69,7 +70,8 @@
                                                name="height"
                                                step="5"
                                                placeholder=""
-                                               value="{{ old('height') }}">
+                                               value="{{ old('height') }}"
+                                               required>
                                     </div>
                                 </div>
                             </div>
@@ -138,7 +140,6 @@
                                                class="form-control @error('quantity') is-invalid @enderror"
                                                id="quantity"
                                                name="quantity[]"
-                                               value="{{ old('quantity') }}"
                                                required>
                                     </div>
                                 </div>

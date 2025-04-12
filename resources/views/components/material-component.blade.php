@@ -14,7 +14,6 @@
                id="quantity"
                name="quantity[]"
                step="0.01"
-               min="0.01"
-               value="{{ old('amount') }}">
+               min="0.01">
     </div>
 </div>
