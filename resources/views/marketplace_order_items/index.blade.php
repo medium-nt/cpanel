@@ -44,36 +44,38 @@
                                 <td>{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
-                                    @switch($item->status)
-                                        @case(0)
-                                            <div class="btn-group" role="group">
-                                                <form action="{{ route('marketplace_order_items.startWork', ['marketplace_order_item' => $item->id]) }}"
-                                                      method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-success mr-1"
-                                                            title="Взять работу"
-                                                            onclick="return confirm('Вы уверены что хотите взять данный товар в работу?')">
-                                                        <i class="fas fa-drafting-compass"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            @break
-                                        @case(4)
-                                            <div class="btn-group" role="group">
-                                                <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
-                                                      method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-success mr-1"
-                                                            title="Сдать работу"
-                                                            onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            @break
-                                    @endswitch
+                                    @if(auth()->user()->role->name == 'seamstress')
+                                        @switch($item->status)
+                                            @case(0)
+                                                <div class="btn-group" role="group">
+                                                    <form action="{{ route('marketplace_order_items.startWork', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-success mr-1"
+                                                                title="Взять работу"
+                                                                onclick="return confirm('Вы уверены что хотите взять данный товар в работу?')">
+                                                            <i class="fas fa-drafting-compass"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                                @break
+                                            @case(4)
+                                                <div class="btn-group" role="group">
+                                                    <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-success mr-1"
+                                                                title="Сдать работу"
+                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                                @break
+                                        @endswitch
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

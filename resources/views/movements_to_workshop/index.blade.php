@@ -12,7 +12,9 @@
         <div class="card">
             <div class="card-body">
 
+                @if(auth()->user()->role->name == 'seamstress')
                 <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-3 mb-3">Новый заказ</a>
+                @endif
 
                 <a href="{{ route('movements_to_workshop.index') }}" class="btn btn-link mr-3 mb-3">Активные</a>
                 <a href="{{ route('movements_to_workshop.index', ['status' => 'all']) }}" class="btn btn-link mr-3 mb-3">Все заказы</a>
@@ -78,16 +80,3 @@
         </div>
     </div>
 @stop
-
-{{-- Push extra CSS --}}
-
-@push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-@endpush
-
-{{-- Push extra scripts --}}
-
-@push('js')
-    {{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
-@endpush

@@ -40,11 +40,14 @@
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">
+                                    @if(auth()->user()->role->name == 'admin')
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('movements_from_supplier.edit', ['order' => $order->id]) }}" class="btn btn-primary mr-1">
+                                        <a href="{{ route('movements_from_supplier.edit', ['order' => $order->id]) }}"
+                                           class="btn btn-primary mr-1">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
