@@ -20,9 +20,23 @@ class MarketplaceItemController extends Controller
 
         $queryParams = $request->except(['page']);
 
+        $titleMaterials = MarketplaceItem::query()
+            ->select('title')
+            ->distinct()
+            ->orderBy('title')
+            ->get();
+
+        $widthMaterials = MarketplaceItem::query()
+            ->select('width')
+            ->distinct()
+            ->orderBy('width')
+            ->get();
+
         return view('marketplace_items.index', [
             'title' => 'Товары маркетплейса',
-            'items' => $items->appends($queryParams)
+            'items' => $items->appends($queryParams),
+            'titleMaterials' => $titleMaterials,
+            'widthMaterials' => $widthMaterials
         ]);
     }
 

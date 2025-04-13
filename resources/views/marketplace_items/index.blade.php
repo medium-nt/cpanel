@@ -18,24 +18,22 @@
                     <div class="form-group col-md-3">
                         <select name="title" id="title" class="form-control" onchange="updatePageWithQueryParam(this)" required>
                             <option value="" selected>Все</option>
-                            <option value="Бамбук" @if(request('title') == 'Бамбук') selected @endif>Бамбук</option>
-                            <option value="Сетка" @if(request('title') == 'Сетка') selected @endif>Сетка</option>
-                            <option value="Лен" @if(request('title') == 'Лен') selected @endif>Лен</option>
-                            <option value="Вуаль" @if(request('title') == 'Вуаль') selected @endif>Вуаль</option>
-                            <option value="Шифон" @if(request('title') == 'Шифон') selected @endif>Шифон</option>
+                            @foreach($titleMaterials as $titleMaterial)
+                                <option value="{{ $titleMaterial->title }}"
+                                        @if(request('title') == $titleMaterial->title) selected @endif
+                                >{{ $titleMaterial->title }}</option>
+                            @endforeach
                         </select>
                     </div>
 
                     <div class="form-group col-md-3">
                         <select name="width" id="width" class="form-control" onchange="updatePageWithQueryParam(this)" required>
                             <option value="" selected>Все</option>
-                            <option value="200" @if(request('width') == '200') selected @endif>200</option>
-                            <option value="300" @if(request('width') == '300') selected @endif>300</option>
-                            <option value="400" @if(request('width') == '400') selected @endif>400</option>
-                            <option value="500" @if(request('width') == '500') selected @endif>500</option>
-                            <option value="600" @if(request('width') == '600') selected @endif>600</option>
-                            <option value="700" @if(request('width') == '700') selected @endif>700</option>
-                            <option value="800" @if(request('width') == '800') selected @endif>800</option>
+                            @foreach($widthMaterials as $widthMaterial)
+                                <option value="{{ $widthMaterial->width }}"
+                                        @if(request('width') == $widthMaterial->width) selected @endif
+                                >{{ $widthMaterial->width }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
