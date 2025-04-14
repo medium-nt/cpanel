@@ -21,6 +21,7 @@
                             <th scope="col">#</th>
                             <th scope="col">Материалы</th>
                             <th scope="col">Статус</th>
+                            <th scope="col">Комментарий</th>
                             <th scope="col">Дата</th>
                             <th scope="col"></th>
                         </tr>
@@ -37,6 +38,7 @@
                                 <td>
                                     <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                 </td>
+                                <td>{{ $order->comment }}</td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">

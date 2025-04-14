@@ -41,6 +41,15 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="comment">Комментарий</label>
+                        <textarea class="form-control @error('comment') is-invalid @enderror"
+                                  id="comment"
+                                  name="comment"
+                                  rows="3"
+                                  value="{{ old('comment') }}"></textarea>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-10 form-group">
                             <label for="material_id">Материал</label>

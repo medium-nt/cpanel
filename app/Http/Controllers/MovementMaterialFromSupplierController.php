@@ -65,6 +65,7 @@ class MovementMaterialFromSupplierController extends Controller
             'storekeeper_id' => auth()->user()->id,
             'type_movement' => 1,
             'status' => 3,
+            'comment' => $request->comment,
             'completed_at' => now()
         ]);
 
