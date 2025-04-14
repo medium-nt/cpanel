@@ -21,7 +21,7 @@ class MarketplaceOrderController extends Controller
     public function create()
     {
         return view('marketplace_orders.create', [
-            'title' => 'Добавить материал',
+            'title' => 'Добавить заказ',
             'items' => MarketplaceItem::query()->get()
         ]);
     }
@@ -92,11 +92,6 @@ class MarketplaceOrderController extends Controller
         return redirect()
             ->route('marketplace_orders.index')
             ->with('success', 'Заказ сформирован.');
-    }
-
-    public function show(MarketplaceOrder $marketplaceOrder)
-    {
-        //
     }
 
     public function edit(MarketplaceOrder $marketplaceOrder)
