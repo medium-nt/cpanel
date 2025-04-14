@@ -6,10 +6,8 @@ use App\Http\Requests\SaveMarketplaceItemRequest;
 use App\Models\MarketplaceItem;
 use App\Models\Material;
 use App\Models\MaterialConsumption;
-use App\Models\Sku;
 use App\Services\MarketplaceItemService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class MarketplaceItemController extends Controller
 {
@@ -20,23 +18,11 @@ class MarketplaceItemController extends Controller
 
         $queryParams = $request->except(['page']);
 
-        $titleMaterials = MarketplaceItem::query()
-            ->select('title')
-            ->distinct()
-            ->orderBy('title')
-            ->get();
-
-        $widthMaterials = MarketplaceItem::query()
-            ->select('width')
-            ->distinct()
-            ->orderBy('width')
-            ->get();
-
         return view('marketplace_items.index', [
             'title' => 'Товары маркетплейса',
             'items' => $items->appends($queryParams),
-            'titleMaterials' => $titleMaterials,
-            'widthMaterials' => $widthMaterials
+            'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
+            'widthMaterials' => MarketplaceItemService::getAllWidthMaterials()
         ]);
     }
 

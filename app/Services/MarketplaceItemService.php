@@ -6,6 +6,8 @@ use App\Http\Requests\SaveMarketplaceItemRequest;
 use App\Models\MarketplaceItem;
 use App\Models\MaterialConsumption;
 use App\Models\Sku;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class MarketplaceItemService
@@ -63,6 +65,24 @@ class MarketplaceItemService
                     );
             }
         }
+    }
+
+    public static function getAllTitleMaterials(): Collection
+    {
+        return MarketplaceItem::query()
+            ->select('title')
+            ->distinct()
+            ->orderBy('title')
+            ->get();
+    }
+
+    public static function getAllWidthMaterials(): Collection
+    {
+        return MarketplaceItem::query()
+            ->select('width')
+            ->distinct()
+            ->orderBy('width')
+            ->get();
     }
 
 }
