@@ -11,9 +11,11 @@ use Throwable;
 
 class MarketplaceOrderItemService
 {
-    public static function getMarketplaceOrdersByStatus($status): Builder
+    public static function getFiltered($request): Builder
     {
-        return MarketplaceOrderItem::query()
+        $status = $request->status ?? 'in_work';
+
+        $items = MarketplaceOrderItem::query()
             ->when($status === 'new', function ($query) {
                 return $query->where('status', '0');
             })
@@ -21,6 +23,20 @@ class MarketplaceOrderItemService
                 return $query->where('status', $status === 'in_work' ? 4 : 3)
                     ->where('seamstress_id', auth()->user()->id);
             });
+
+        if ($request->has('seamstress_id') && $status != 'new') {
+            $items = $items->where('seamstress_id', $request->seamstress_id);
+        }
+
+        if ($request->has('date_start') && $status != 'new') {
+            $items = $items->where('created_at', '>', $request->date_start);
+        }
+
+        if ($request->has('date_end') && $status != 'new') {
+            $items = $items->where('created_at', '<', $request->date_end);
+        }
+
+        return $items;
     }
 
     public static function acceptToSeamstress($marketplaceOrderItem): array

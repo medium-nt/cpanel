@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
+use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use Illuminate\Http\Request;
 
@@ -11,12 +12,15 @@ class MarketplaceOrderItemController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->status ?? 'in_work';
-        $items = MarketplaceOrderItemService::getMarketplaceOrdersByStatus($status);
+        $items = MarketplaceOrderItemService::getFiltered($request);
+        $paginatedItems = $items->paginate(10);
+
+        $queryParams = $request->except(['page']);
 
         return view('marketplace_order_items.index', [
             'title' => 'Товары для пошива',
-            'items' => $items->paginate(10)
+            'items' => $paginatedItems->appends($queryParams),
+            'seamstresses' => User::query()->where('role_id', '1')->get()
         ]);
     }
 

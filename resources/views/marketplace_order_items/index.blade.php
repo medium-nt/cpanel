@@ -12,9 +12,65 @@
         <div class="card">
             <div class="card-body">
 
-                <a href="{{ route('marketplace_order_items.index', ['status' => 'in_work']) }}" class="btn btn-link mr-3 mb-3">В работе</a>
-                <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="btn btn-link mr-3 mb-3">Новые заказы</a>
-                <a href="{{ route('marketplace_order_items.index', ['status' => 'done']) }}" class="btn btn-link mr-3 mb-3">Выполненные</a>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <select name="seamstress_id"
+                                id="seamstress_id"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option value="" selected>Все</option>
+                            @foreach($seamstresses as $seamstress)
+                                <option value="{{ $seamstress->id }}"
+                                        @if(request('seamstress_id') == $seamstress->id) selected @endif
+                                >{{ $seamstress->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <input type="date"
+                               name="date_start"
+                               id="date_start"
+                               class="form-control"
+                               onchange="updatePageWithQueryParam(this)"
+                               value="{{ request('date_start') }}">
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <input type="date"
+                               name="date_end"
+                               id="date_end"
+                               class="form-control"
+                               onchange="updatePageWithQueryParam(this)"
+                               value="{{ request('date_end') }}">
+                    </div>
+
+                </div>
+
+                <a href="{{ route('marketplace_order_items.index', [
+                    'status' => 'in_work',
+                    'seamstress_id' => request('seamstress_id'),
+                    'date_start' => request('date_start'),
+                    'date_end' => request('date_end')
+                ]) }}"
+                   class="btn btn-link mr-3 mb-3">В работе</a>
+
+                <a href="{{ route('marketplace_order_items.index', [
+                    'status' => 'new',
+                    'seamstress_id' => request('seamstress_id'),
+                    'date_start' => request('date_start'),
+                    'date_end' => request('date_end')
+                ]) }}"
+                   class="btn btn-link mr-3 mb-3">Новые заказы</a>
+
+                <a href="{{ route('marketplace_order_items.index', [
+                    'status' => 'done',
+                    'seamstress_id' => request('seamstress_id'),
+                    'date_start' => request('date_start'),
+                    'date_end' => request('date_end')
+                ]) }}"
+                   class="btn btn-link mr-3 mb-3">Выполненные</a>
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
@@ -89,3 +145,7 @@
         </div>
     </div>
 @stop
+
+@push('js')
+    <script src="{{ asset('js/PageQueryParam.js') }}"></script>
+@endpush
