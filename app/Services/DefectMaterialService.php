@@ -34,15 +34,8 @@ class DefectMaterialService
 
     public static function store(SaveDefectMaterialRequest $request): bool
     {
-        $data = [];
-        foreach ($request->material_id as $key => $material_id) {
-            if ($request->quantity[$key] > 0) {
-                $data[] = [
-                    'material_id' => $material_id,
-                    'ordered_quantity' => $request->quantity[$key]
-                ];
-            }
-        }
+        $movementMaterialIds = $request->input('material_id', []);
+        $quantities = $request->input('ordered_quantity', []);
 
         try {
             DB::beginTransaction();
@@ -55,11 +48,11 @@ class DefectMaterialService
                 'completed_at' => now()
             ]);
 
-            foreach ($data as $item) {
+            foreach ($movementMaterialIds as $key => $material_id) {
                 MovementMaterial::query()->create([
                     'order_id' => $order->id,
-                    'material_id' => $item['material_id'],
-                    'ordered_quantity' => $item['quantity'],
+                    'material_id' => $material_id,
+                    'ordered_quantity' => $quantities[$key],
                 ]);
             }
 
