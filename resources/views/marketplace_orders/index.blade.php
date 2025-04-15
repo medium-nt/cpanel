@@ -12,7 +12,9 @@
         <div class="card">
             <div class="card-body">
 
-                <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ</a>
+                @if(auth()->user()->role->name == 'admin')
+                    <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ</a>
+                @endif
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
