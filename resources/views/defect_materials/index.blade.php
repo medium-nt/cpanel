@@ -50,7 +50,7 @@
                                                     <div class="btn-group" role="group">
                                                         <a href="{{ route('defect_materials.approve_reject', ['order' => $order->id]) }}"
                                                            class="btn btn-warning mr-1">
-                                                            <i class="fas fa-check"></i> нужно разрешение админа
+                                                            <i class="fas fa-check"></i>
                                                         </a>
                                                     </div>
                                                 @endif
@@ -60,7 +60,7 @@
                                                 <div class="btn-group" role="group">
                                                     <a href="{{ route('defect_materials.pick_up', ['order' => $order->id]) }}"
                                                        class="btn btn-warning mr-1">
-                                                        <i class="fas fa-dolly"></i> ждет забора кладовщиком
+                                                        <i class="fas fa-dolly"></i>
                                                     </a>
                                                 </div>
                                                 @endif
