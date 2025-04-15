@@ -12,7 +12,7 @@ class TypeMovement extends Model
         3 => 'Списание по заказу',
         4 => 'Брак на производстве',
         5 => 'Списание брака',
-        6 => 'Списание неучтенки с цеха'
+        6 => 'Списание недосдачи с цеха'
     ];
 
     public function getTypeNameAttribute(): string
