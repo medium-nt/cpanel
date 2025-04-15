@@ -7,57 +7,52 @@ use App\Models\User;
 
 class OrderPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Order $order): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role->name == 'seamstress';
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Order $order): bool
     {
-        return true;
+        match ($order->status) {
+            0 => $return = $user->role->name == 'admin',
+            1 => $return = $user->role->name == 'storekeeper',
+            default => $return = false
+        };
+
+        return $return;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    public function approve_reject(User $user, Order $order): bool
+    {
+        return $user->role->name == 'admin';
+    }
+
+    public function pick_up(User $user, Order $order): bool
+    {
+        return $user->role->name == 'storekeeper';
+    }
+
     public function delete(User $user, Order $order): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Order $order): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Order $order): bool
     {
         return false;

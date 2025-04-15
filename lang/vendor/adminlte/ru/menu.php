@@ -31,4 +31,5 @@ return [
     'marketplace_items' => 'Товары на маркетплейсе',
     'marketplace_orders' => 'Заказы с маркетплейса',
     'marketplace_order_items' => 'Товары для пошива',
+    'defect_materials' => 'Передача брака на склад',
 ];

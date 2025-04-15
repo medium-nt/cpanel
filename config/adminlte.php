@@ -328,6 +328,11 @@ return [
             'icon' => 'fas fa-fw fa-dolly',
         ],
         [
+            'text' => 'defect_materials',
+            'url' => 'admin/defect_materials',
+            'icon' => 'fas fa-fw fa-trash-alt',
+        ],
+        [
             'text' => 'marketplace_orders',
             'url' => 'admin/marketplace_orders',
             'icon' => 'fas fa-fw fa-cart-arrow-down',

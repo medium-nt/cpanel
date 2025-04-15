@@ -26,5 +26,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     require base_path('routes/marketplace_orders.php');
     require base_path('routes/marketplace_order_items.php');
     require base_path('routes/material_consumption.php');
+    require base_path('routes/defect_materials.php');
 
 });
