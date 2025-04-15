@@ -112,6 +112,76 @@ class MovementMaterialToWorkshopController extends Controller
         ]);
     }
 
+    public function write_off()
+    {
+        return view('movements_to_workshop.write_off', [
+            'title' => 'Сборка списания',
+        ]);
+    }
+
+    public function save_write_off(Request $request, Order $order)
+    {
+        if (!is_array($request->material_id)) {
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Заказ не может быть пустым'])
+                ->withInput();
+        }
+
+        $data = [];
+        foreach ($request->material_id as $key => $material_id) {
+            if ($request->ordered_quantity[$key] > 0) {
+                $data[] = [
+                    'material_id' => $material_id,
+                    'quantity' => $request->ordered_quantity[$key]
+                ];
+            }
+        }
+
+        if ($data == []) {
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Заказ не может быть пустым'])
+                ->withInput();
+        }
+
+        $rules = [
+            '*.material_id' => 'required|exists:materials,id',
+            '*.quantity' => 'required|numeric|min:0.01',
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $validatedData = $validator->validated();
+
+        $order = Order::query()->create([
+            'type_movement' => 6,
+            'status' => 3,
+            'is_approved' => 1,
+            'comment' => $request->comment,
+            'completed_at' => now()
+        ]);
+
+        foreach ($validatedData as $item) {
+            $movementData['order_id'] = $order->id;
+            $movementData['material_id'] = $item['material_id'];
+            $movementData['quantity'] = $item['quantity'];
+
+            MovementMaterial::query()->create($movementData);
+        }
+
+        return redirect()
+            ->route('movements_to_workshop.index')
+            ->with('success', 'Материал списан');
+    }
+
     public function save_collect(Request $request, Order $order)
     {
         $data = [];

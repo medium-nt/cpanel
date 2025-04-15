@@ -7,13 +7,14 @@ use App\Models\MovementMaterial;
 
 class InventoryService
 {
-    public static function materialInWorkhouse($materialId): float
+    public static function materialInWorkshop($materialId): float
     {
         $inWorkshop = self::countMaterial($materialId, 2, 3);
         $outWorkshop = self::countMaterial($materialId, 3, 3);
         $holdWorkshop = self::countMaterial($materialId, 3, 4);
+        $writeOff = self::countMaterial($materialId, 6, 3);
 
-        return $inWorkshop - $outWorkshop - $holdWorkshop;
+        return $inWorkshop - $outWorkshop - $holdWorkshop - $writeOff;
     }
 
     public static function materialInWarehouse($materialId): float
@@ -49,7 +50,7 @@ class InventoryService
         foreach ($materials as $material) {
             match ($type) {
                 'warehouse' => $quantity = self::materialInWarehouse($material->id),
-                'workhouse' => $quantity = self::materialInWorkhouse($material->id),
+                'workhouse' => $quantity = self::materialInWorkshop($material->id),
             };
 
             $materialsQuantity[] = [

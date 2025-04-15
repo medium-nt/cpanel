@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\MovementMaterial;
+use App\Models\Order;
 
 Route::prefix('/movements_to_workshop')->group(function () {
     Route::get('', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'index'])
@@ -30,4 +31,12 @@ Route::prefix('/movements_to_workshop')->group(function () {
     Route::put('/save_receive/{order}', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'save_receive'])
         ->can('update', 'order')
         ->name('movements_to_workshop.save_receive');
+
+    Route::get('/write_off', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'write_off'])
+        ->can('write_off', Order::class)
+        ->name('movements_to_workshop.write_off');
+
+    Route::post('/save_write_off', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'save_write_off'])
+        ->can('write_off', Order::class)
+        ->name('movements_to_workshop.save_write_off');
 });

@@ -13,22 +13,28 @@ class MaterialForm extends Component
     public $materials;
     public $orderedQuantity;
     public $maxQuantity;
+    public $sourceType;
 
     protected $rules = [
         'selectedMaterialId' => 'required|exists:materials,id',
         'orderedQuantity' => 'nullable|numeric|min:0|max:maxQuantity',
     ];
 
-    public function mount(): void
+    public function mount(string $sourceType = 'warehouse'): void
     {
         $this->materials = Material::all();
         $this->resetErrorBag();
+        $this->sourceType = $sourceType;
     }
 
     public function updatedSelectedMaterialId(): void
     {
         if ($this->selectedMaterialId) {
-            $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId);
+            if ($this->sourceType === 'workshop') {
+                $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId);
+            } else {
+                $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId);
+            }
         } else {
             $this->maxQuantity = null;
         }

@@ -48,6 +48,11 @@ class OrderPolicy
         return $user->role->name == 'storekeeper';
     }
 
+    public function write_off(User $user): bool
+    {
+        return $user->role->name == 'admin';
+    }
+
     public function delete(User $user, Order $order): bool
     {
         return false;

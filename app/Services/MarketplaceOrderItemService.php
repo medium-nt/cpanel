@@ -57,7 +57,7 @@ class MarketplaceOrderItemService
             $materialId = $materialConsumption->material_id;
             $materialConsumptionQuantity = $materialConsumption->quantity;
 
-            $materialInWorkhouse = InventoryService::materialInWorkhouse($materialId);
+            $materialInWorkhouse = InventoryService::materialInWorkshop($materialId);
 
             if ($materialInWorkhouse < $materialConsumptionQuantity * $quantityOrderItem) {
                 return [
