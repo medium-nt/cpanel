@@ -39,7 +39,7 @@ class DefectMaterialService
             if ($request->quantity[$key] > 0) {
                 $data[] = [
                     'material_id' => $material_id,
-                    'quantity' => $request->quantity[$key]
+                    'ordered_quantity' => $request->quantity[$key]
                 ];
             }
         }
@@ -59,7 +59,7 @@ class DefectMaterialService
                 MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $item['material_id'],
-                    'quantity' => $item['quantity'],
+                    'ordered_quantity' => $item['quantity'],
                 ]);
             }
 
