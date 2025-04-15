@@ -82,7 +82,8 @@ class MovementMaterialToWorkshopController extends Controller
         $order = Order::query()->create([
             'seamstress_id' => auth()->user()->id,
             'type_movement' => 2,
-            'status' => 0
+            'status' => 0,
+            'comment' => $request->comment
         ]);
 
         foreach ($validatedData as $item) {

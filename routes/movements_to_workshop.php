@@ -16,11 +16,11 @@ Route::prefix('/movements_to_workshop')->group(function () {
         ->name('movements_to_workshop.store');
 
     Route::get('/{order}/collect', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'collect'])
-        ->can('update', 'order')
+        ->can('collect', 'order')
         ->name('movements_to_workshop.collect');
 
     Route::put('/save_collect/{order}', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'save_collect'])
-        ->can('update', 'order')
+        ->can('collect', 'order')
         ->name('movements_to_workshop.save_collect');
 
     Route::get('/{order}/receive', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'receive'])

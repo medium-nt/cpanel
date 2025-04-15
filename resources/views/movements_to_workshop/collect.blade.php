@@ -68,6 +68,15 @@
                     </div>
                     @endforeach
 
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label for="comment">Комментарий</label>
+                                <textarea rows="3"
+                                          class="form-control"
+                                readonly>{{ $order->comment }}</textarea>
+                            </div>
+                        </div>
+
                     <div class="form-group">
                         <button class="btn btn-success">Подтвердить отгрузку</button>
                     </div>

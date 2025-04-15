@@ -37,6 +37,15 @@
                     @livewire('material-form')
                     @livewire('material-form')
 
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label for="comment">Комментарий</label>
+                            <textarea name="comment"
+                                      class="form-control"
+                                      rows="3"></textarea>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <button class="btn btn-primary">Оформить заказ</button>
                     </div>

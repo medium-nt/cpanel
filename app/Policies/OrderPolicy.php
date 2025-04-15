@@ -43,6 +43,11 @@ class OrderPolicy
         return $user->role->name == 'storekeeper';
     }
 
+    public function collect(User $user, Order $order): bool
+    {
+        return $user->role->name == 'storekeeper';
+    }
+
     public function delete(User $user, Order $order): bool
     {
         return false;
