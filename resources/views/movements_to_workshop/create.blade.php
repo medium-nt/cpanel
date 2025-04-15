@@ -42,7 +42,9 @@
                             <label for="comment">Комментарий</label>
                             <textarea name="comment"
                                       class="form-control"
-                                      rows="3"></textarea>
+                                      rows="3"
+                                      minlength="3"
+                            ></textarea>
                         </div>
                     </div>
 

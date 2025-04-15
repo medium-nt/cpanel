@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaveCollectMovementMaterialToWorkshopRequest;
+use App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest;
+use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Order;
-use App\Models\Supplier;
+use App\Services\MovementMaterialToWorkshopService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,19 +16,10 @@ class MovementMaterialToWorkshopController extends Controller
 {
     public function index(Request $request)
     {
-        match ($request->status)
-        {
-            'all' => $status = [-1, 0, 1, 2, 3],
-            default => $status = [0, 2],
-        };
-
         return view('movements_to_workshop.index', [
             'title' => 'Отгрузка на производство',
             'userRole' => auth()->user()->role->name,
-            'orders' => Order::query()
-                ->where('type_movement', 2)
-                ->whereIn('status', $status)
-                ->paginate(10)
+            'orders' => MovementMaterialToWorkshopService::getOrdersByStatus($request->status)
         ]);
     }
 
@@ -37,71 +31,15 @@ class MovementMaterialToWorkshopController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreMovementMaterialToWorkshopRequest $request)
     {
-        if (!is_array($request->material_id)) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
-        }
-
-        $data = [];
-        foreach ($request->material_id as $key => $material_id) {
-            if ($request->ordered_quantity[$key] > 0) {
-                $data[] = [
-                    'material_id' => $material_id,
-                    'ordered_quantity' => $request->ordered_quantity[$key]
-                ];
-            }
-        }
-
-        if ($data == []) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
-        }
-
-        $rules = [
-            '*.material_id' => 'required|exists:materials,id',
-            '*.ordered_quantity' => 'required|numeric|min:0.01',
-        ];
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $validatedData = $validator->validated();
-
-        $order = Order::query()->create([
-            'seamstress_id' => auth()->user()->id,
-            'type_movement' => 2,
-            'status' => 0,
-            'comment' => $request->comment
-        ]);
-
-        foreach ($validatedData as $item) {
-            $movementData['order_id'] = $order->id;
-            $movementData['material_id'] = $item['material_id'];
-            $movementData['ordered_quantity'] = $item['ordered_quantity'];
-
-            MovementMaterial::query()->create($movementData);
+        if(!MovementMaterialToWorkshopService::store($request)) {
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
         return redirect()
             ->route('movements_to_workshop.index')
             ->with('success', 'Заказ сформирован и отправлен на склад');
-    }
-
-    public function show(string $id)
-    {
-        //
     }
 
     public function collect(Order $order)
@@ -119,62 +57,10 @@ class MovementMaterialToWorkshopController extends Controller
         ]);
     }
 
-    public function save_write_off(Request $request, Order $order)
+    public function save_write_off(SaveWriteOffMovementMaterialToWorkshopRequest $request)
     {
-        if (!is_array($request->material_id)) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
-        }
-
-        $data = [];
-        foreach ($request->material_id as $key => $material_id) {
-            if ($request->ordered_quantity[$key] > 0) {
-                $data[] = [
-                    'material_id' => $material_id,
-                    'quantity' => $request->ordered_quantity[$key]
-                ];
-            }
-        }
-
-        if ($data == []) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
-        }
-
-        $rules = [
-            '*.material_id' => 'required|exists:materials,id',
-            '*.quantity' => 'required|numeric|min:0.01',
-        ];
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $validatedData = $validator->validated();
-
-        $order = Order::query()->create([
-            'type_movement' => 6,
-            'status' => 3,
-            'is_approved' => 1,
-            'comment' => $request->comment,
-            'completed_at' => now()
-        ]);
-
-        foreach ($validatedData as $item) {
-            $movementData['order_id'] = $order->id;
-            $movementData['material_id'] = $item['material_id'];
-            $movementData['quantity'] = $item['quantity'];
-
-            MovementMaterial::query()->create($movementData);
+        if(!MovementMaterialToWorkshopService::save_write_off($request)) {
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
         return redirect()
@@ -182,44 +68,11 @@ class MovementMaterialToWorkshopController extends Controller
             ->with('success', 'Материал списан');
     }
 
-    public function save_collect(Request $request, Order $order)
+    public function save_collect(SaveCollectMovementMaterialToWorkshopRequest $request, Order $order)
     {
-        $data = [];
-        foreach ($request->material_id as $key => $material_id) {
-            $data[] = [
-                'id' => $request->id[$key],
-                'quantity' => $request->quantity[$key]
-            ];
+        if(!MovementMaterialToWorkshopService::save_collect($request, $order)) {
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
-
-        $rules = [
-            '*.id' => 'required|exists:movement_materials,id',
-            '*.quantity' => 'required|numeric|min:0.01',
-        ];
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $validatedData = $validator->validated();
-
-        foreach ($validatedData as $item) {
-            MovementMaterial::query()
-                ->where('id', $item['id'])
-                ->update([
-                    'quantity' => $item['quantity'],
-                ]);
-        }
-
-        $order->update([
-            'status' => 2,
-            'storekeeper_id' => auth()->user()->id
-        ]);
 
         return redirect()->route('movements_to_workshop.index')->with('success', 'Отгрузка сформирована');
     }
