@@ -13,7 +13,7 @@
             <div class="card-body">
 
                 @if(auth()->user()->role->name == 'seamstress')
-                <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-3 mb-3">Новый заказ</a>
+                    <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-3 mb-3">Новый заказ</a>
                 @endif
 
                 <a href="{{ route('movements_to_workshop.index') }}" class="btn btn-link mr-3 mb-3">Активные</a>
@@ -50,7 +50,7 @@
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">
-                                    @if( $order->status == '0' && ($userRole == 'admin' || $userRole == 'storekeeper'))
+                                    @if( $order->status == '0' &&  $userRole == 'storekeeper')
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.collect', ['order' => $order->id]) }}"
                                            class="btn btn-warning mr-1"
@@ -58,7 +58,7 @@
                                             <i class="fas fa-box-open"></i>
                                         </a>
                                     </div>
-                                    @elseif( $order->status == '2' && ($userRole == 'admin' || $userRole == 'seamstress'))
+                                    @elseif( $order->status == '2' && $userRole == 'seamstress')
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                            class="btn btn-success mr-1"
