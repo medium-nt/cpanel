@@ -10,17 +10,18 @@ class InventoryService
     public static function materialInWorkshop($materialId): float
     {
         $inWorkshop = self::countMaterial($materialId, 2, 3);
-        $outWorkshop = self::countMaterial($materialId, 3, 3);
-        $holdWorkshop = self::countMaterial($materialId, 3, 4);
+        $holdWorkshopToItems = self::countMaterial($materialId, 3, 4);
+        $outWorkshopToItems = self::countMaterial($materialId, 3, 3);
+        $outToDefectMaterials = self::countMaterial($materialId, 4, 3);
         $writeOff = self::countMaterial($materialId, 6, 3);
 
-        return $inWorkshop - $outWorkshop - $holdWorkshop - $writeOff;
+        return $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems - $outToDefectMaterials - $writeOff;
     }
 
     public static function materialInWarehouse($materialId): float
     {
         $inStock = self::countMaterial($materialId, 1, 3);
-        $outStockNew = self::countMaterial($materialId, 2, 0);
+        $holdOutStockNew = self::countMaterial($materialId, 2, 0);
 
         $outStock = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
@@ -29,7 +30,15 @@ class InventoryService
             ->whereNotIn('orders.status', [-1])
             ->sum('quantity');
 
-        return $inStock - $outStock - $outStockNew;
+        return $inStock - $outStock - $holdOutStockNew;
+    }
+
+    public static function defectMaterialInWarehouse($materialId): float
+    {
+        $inStock = self::countMaterial($materialId, 4, 3);
+        $outStockNew = self::countMaterial($materialId, 5, 3);
+
+        return $inStock - $outStockNew;
     }
 
     public static function countMaterial($materialId, $type, $status): float
