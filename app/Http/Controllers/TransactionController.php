@@ -37,6 +37,24 @@ class TransactionController extends Controller
             ->with('success', 'Операция добавлена');
     }
 
+    public function getSalaryTable(Request $request)
+    {
+        if (auth()->user()->role->name == 'admin') {
+            $employees = User::query()->where('role_id', '1')->get();
+        } else {
+            $employees = User::query()->where('id', auth()->user()->id)->get();
+        }
+
+        $startDate = $request->date_start ?? now()->format('Y-m-d');
+        $endDate = $request->date_end ?? now()->format('Y-m-d');
+
+        return view('transactions.salary', [
+            'title' => 'Зарплата',
+            'seamstresses' => $employees,
+            'seamstressesSalary' => TransactionService::getSalaryTable($employees, $startDate, $endDate)
+        ]);
+    }
+
     public function edit(Transaction $transaction)
     {
         //

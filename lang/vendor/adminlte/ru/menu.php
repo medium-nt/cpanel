@@ -33,4 +33,5 @@ return [
     'marketplace_order_items' => 'Товары для пошива',
     'defect_materials' => 'Передача брака на склад',
     'transactions' => 'Финансы',
+    'salary' => 'Зарплата',
 ];

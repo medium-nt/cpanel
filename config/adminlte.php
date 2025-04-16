@@ -351,6 +351,11 @@ return [
             'can' => 'is-admin',
         ],
         [
+            'text' => 'salary',
+            'url' => 'admin/salary',
+            'icon' => 'fas fa-fw fa-hand-holding-usd',
+        ],
+        [
             'text' => 'settings',
             'icon' => 'fas fa-fw fa-cog',
             'can' => 'is-admin',

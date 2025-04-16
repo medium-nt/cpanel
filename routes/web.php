@@ -28,4 +28,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     require base_path('routes/material_consumption.php');
     require base_path('routes/defect_materials.php');
     require base_path('routes/transactions.php');
+    require base_path('routes/salary.php');
+
 });

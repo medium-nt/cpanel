@@ -1,0 +1,83 @@
+@extends('layouts.app')
+
+{{-- Customize layout sections --}}
+
+@section('subtitle', $title)
+@section('content_header_title', $title)
+
+{{-- Content body: main page content --}}
+
+@section('content_body')
+    @if(auth()->user()->role->name == 'admin')
+        <div class="col-md-12">
+    @else
+        <div class="col-md-4">
+    @endif
+        <div class="card">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <input type="date"
+                               name="date_start"
+                               id="date_start"
+                               class="form-control"
+                               onchange="updatePageWithQueryParam(this)"
+                               value="{{ request('date_start') }}">
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <input type="date"
+                               name="date_end"
+                               id="date_end"
+                               class="form-control"
+                               onchange="updatePageWithQueryParam(this)"
+                               value="{{ request('date_end') }}">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                     <a class="btn btn-link" href="{{ route('transactions.salary') }}">Сбросить фильтр</a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col"></th>
+                            @foreach($seamstresses as $seamstress)
+                                <th scope="col">{{ $seamstress->name }}</th>
+                            @endforeach
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($seamstressesSalary as $day => $seamstressSalary)
+                            <tr>
+                                <td style="width: 100px">{{ now()->parse($day)->format('d/m/Y') }}</td>
+
+                                @foreach($seamstressSalary as $salary)
+                                    <td>{{ $salary }}</td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+@stop
+
+{{-- Push extra CSS --}}
+
+@push('css')
+    {{-- Add here extra stylesheets --}}
+    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+@endpush
+
+{{-- Push extra scripts --}}
+
+@push('js')
+    <script src="{{ asset('js/PageQueryParam.js') }}"></script>
+@endpush
