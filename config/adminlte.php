@@ -345,6 +345,12 @@ return [
             'can' => 'is-seamstress-or-admin',
         ],
         [
+            'text' => 'transactions',
+            'url' => 'admin/transactions',
+            'icon' => 'fas fa-fw fa-coins',
+            'can' => 'is-admin',
+        ],
+        [
             'text' => 'settings',
             'icon' => 'fas fa-fw fa-cog',
             'can' => 'is-admin',
@@ -371,13 +377,6 @@ return [
                 ]
             ]
         ],
-
-//        ['header' => 'account_settings'],
-//        [
-//            'text' => 'profile',
-//            'url' => 'admin/profile',
-//            'icon' => 'fas fa-fw fa-user',
-//        ],
     ],
 
     /*

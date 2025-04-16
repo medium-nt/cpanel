@@ -23,5 +23,7 @@ class DatabaseSeeder extends Seeder
          $this->call(MovementMaterialSeeder::class);
 
          $this->call(MarketplaceItemSeeder::class);
+
+         $this->call(TransactionSeeder::class);
     }
 }
