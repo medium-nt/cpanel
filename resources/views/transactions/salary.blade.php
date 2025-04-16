@@ -45,22 +45,46 @@
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col"></th>
+                            @php
+                                $salarySeamstress = [];
+                            @endphp
                             @foreach($seamstresses as $seamstress)
                                 <th scope="col">{{ $seamstress->name }}</th>
+                                @php
+                                    $salarySeamstress[$seamstress->id] = 0;
+                                @endphp
                             @endforeach
                         </tr>
                         </thead>
                         <tbody>
+                        @php
+                            $total = [];
+                        @endphp
                         @foreach($seamstressesSalary as $day => $seamstressSalary)
                             <tr>
                                 <td style="width: 100px">{{ now()->parse($day)->format('d/m/Y') }}</td>
 
-                                @foreach($seamstressSalary as $salary)
+                                @foreach($seamstressSalary as $seamstressId => $salary)
+                                    @php
+                                        $salarySeamstress[$seamstressId] += $salary;
+                                    @endphp
                                     <td>{{ $salary }}</td>
                                 @endforeach
                             </tr>
+
+                            @php
+                                $total[] = $salarySeamstress[$seamstressId];
+                            @endphp
                         @endforeach
                         </tbody>
+                        <tfoot>
+                        <tr>
+                            <th scope="col">Итого</th>
+                            @foreach($salarySeamstress as $salary)
+                                <th scope="col">{{ $salary }}</th>
+                            @endforeach
+                        </tr>
+                        </tfoot>
                     </table>
                 </div>
 
