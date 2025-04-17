@@ -35,7 +35,11 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
                                 <td>{{ $order->order_id }}</td>
-                                <td>{{ $order->marketplace_name }}</td>
+                                <td>
+                                    <img style="width: 80px;"
+                                         src="{{ asset($order->marketplace_name) }}"
+                                         alt="{{ $order->marketplace_name }}">
+                                </td>
                                 <td>
                                     @foreach($order->items as $item)
                                         <b>{{ $item->item->title }} {{ $item->item->width }}х{{ $item->item->height }}</b> - {{ $item->quantity }} шт.

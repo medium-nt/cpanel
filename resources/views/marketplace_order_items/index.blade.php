@@ -98,7 +98,11 @@
                                 <td>{{ $item->item->width }}</td>
                                 <td>{{ $item->item->height }}</td>
                                 <td>{{ $item->quantity }}</td>
-                                <td>{{ $item->marketplaceOrder->marketplace_name }}</td>
+                                <td>
+                                    <img style="width: 80px;"
+                                         src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
+                                         alt="{{ $item->marketplaceOrder->marketplace_name }}">
+                                </td>
                                 <td>{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
