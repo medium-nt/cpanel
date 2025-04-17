@@ -31,7 +31,7 @@
                 @method('POST')
                 @csrf
                 <div class="card-body">
-                    @livewire('material-form')
+                    @livewire('material-form', ['isFirst' => true])
                     @livewire('material-form')
                     @livewire('material-form')
                     @livewire('material-form')

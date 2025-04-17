@@ -62,7 +62,7 @@
                         </div>
 
                         <div class="col-md-2 form-group">
-                            <label for="quantity">Количество</label>
+                            <label for="quantity">Кол-во</label>
                             <input type="number"
                                    class="form-control @error('amount') is-invalid @enderror"
                                    id="quantity"

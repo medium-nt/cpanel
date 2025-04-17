@@ -14,17 +14,20 @@ class MaterialForm extends Component
     public $orderedQuantity;
     public $maxQuantity;
     public $sourceType;
+    public $isFirst;
 
     protected $rules = [
         'selectedMaterialId' => 'required|exists:materials,id',
         'orderedQuantity' => 'nullable|numeric|min:0|max:maxQuantity',
     ];
 
-    public function mount(string $sourceType = 'warehouse'): void
+    public function mount(string $sourceType = 'warehouse', $isFirst = false): void
     {
         $this->materials = Material::all();
         $this->resetErrorBag();
         $this->sourceType = $sourceType;
+
+        $this->isFirst = $isFirst;
     }
 
     public function updatedSelectedMaterialId(): void
