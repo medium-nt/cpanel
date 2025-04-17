@@ -29,7 +29,6 @@ class MaterialController extends Controller
         $rules = [
             'title' => 'required|string|min:2|max:255',
             'type_id' => 'required|integer|exists:type_materials,id',
-            'height' => 'required|integer',
             'unit' => 'required|string|min:1|max:10',
         ];
 
@@ -58,7 +57,6 @@ class MaterialController extends Controller
         $rules = [
             'title' => 'required|string|min:2|max:255',
             'type_id' => 'required|integer|exists:type_materials,id',
-            'height' => 'required|integer',
             'unit' => 'required|string|min:1|max:10',
         ];
 

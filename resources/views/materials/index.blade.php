@@ -21,7 +21,6 @@
                             <th scope="col">#</th>
                             <th scope="col">Тип</th>
                             <th scope="col">Название</th>
-                            <th scope="col">Высота</th>
                             <th scope="col">Ед.измерения</th>
                             <th scope="col"></th>
                         </tr>
@@ -32,7 +31,6 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $material->type->title }}</td>
                                 <td>{{ $material->title }}</td>
-                                <td>{{ $material->height }}</td>
                                 <td>{{ $material->unit }}</td>
 
                                 <td style="width: 100px">

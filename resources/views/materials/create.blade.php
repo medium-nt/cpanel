@@ -57,19 +57,6 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="height">Высота</label>
-                                <input type="number"
-                                       class="form-control @error('height') is-invalid @enderror"
-                                       id="height"
-                                       name="height"
-                                       step="5"
-                                       placeholder=""
-                                       value="{{ old('height') ?? 0 }}">
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="form-group">
                                 <label for="unit">Ед. измерения</label>
                                 <input type="text"
                                        class="form-control @error('unit') is-invalid @enderror"
