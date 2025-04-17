@@ -13,6 +13,7 @@
             <div class="card-body">
 
                 <div class="row">
+                    @if(auth()->user()->role->name == 'admin')
                     <div class="form-group col-md-3">
                         <select name="seamstress_id"
                                 id="seamstress_id"
@@ -27,6 +28,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
 
                     <div class="form-group col-md-3">
                         <input type="date"

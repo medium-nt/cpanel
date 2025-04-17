@@ -21,7 +21,9 @@ class MarketplaceOrderItemService
             })
             ->when($status === 'in_work' || $status === 'done', function ($query) use ($status) {
                 return $query->where('status', $status === 'in_work' ? 4 : 3)
-                    ->where('seamstress_id', auth()->user()->id);
+                    ->when(auth()->user()->role->name === 'seamstress', function ($query) {
+                        return $query->where('seamstress_id', auth()->user()->id);
+                    });
             });
 
         if ($request->has('seamstress_id') && $status != 'new') {
