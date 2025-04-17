@@ -86,18 +86,6 @@
                                 >
                             </div>
                         </div>
-
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="price">Цена</label>
-                                <input type="number"
-                                       class="form-control @error('price') is-invalid @enderror"
-                                       id="price"
-                                       name="price[]"
-                                       required
-                                >
-                            </div>
-                        </div>
                     </div>
 
                     @for($i = 1; $i < 5; $i++)

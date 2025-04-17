@@ -24,14 +24,4 @@
             >
         </div>
     </div>
-
-    <div class="col-md-3">
-        <div class="form-group">
-            <input type="number"
-                   class="form-control @error('price') is-invalid @enderror"
-                   id="price"
-                   name="price[]"
-            >
-        </div>
-    </div>
 </div>

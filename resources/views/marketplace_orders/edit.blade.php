@@ -89,19 +89,6 @@
                                        value="{{ $orderItem->quantity }}">
                             </div>
                         </div>
-
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="price">Цена</label>
-                                <input type="number"
-                                       class="form-control @error('price') is-invalid @enderror"
-                                       id="price"
-                                       name="price[]"
-                                       @if($orderItem->status != 0) readonly @endif
-                                       value="{{ $orderItem->price }}"
-                                       required>
-                            </div>
-                        </div>
                     </div>
 
                         <input type="hidden" name="order_item_id[]" value="{{ $orderItem->id }}">

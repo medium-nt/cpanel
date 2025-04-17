@@ -37,13 +37,12 @@ class MarketplaceOrderController extends Controller
 
         $data = [];
         foreach ($request->item_id as $key => $item_id) {
-            if ($request->quantity[$key] > 0 && $request->price[$key] > 0) {
+            if ($request->quantity[$key] > 0) {
                 $data[] = [
                     'order_id' => $request->order_id,
                     'marketplace_id' => $request->marketplace_id,
                     'item_id' => $item_id,
                     'quantity' => $request->quantity[$key],
-                    'price' => $request->price[$key]
                 ];
             }
         }
@@ -60,7 +59,6 @@ class MarketplaceOrderController extends Controller
             '*.marketplace_id' => 'required',
             '*.item_id' => 'required|exists:marketplace_items,id',
             '*.quantity' => 'required|integer|min:1',
-            '*.price' => 'required|integer|min:1'
         ];
 
         $validator = Validator::make($data, $rules);
@@ -84,7 +82,7 @@ class MarketplaceOrderController extends Controller
             $movementData['marketplace_order_id'] = $marketplaceOrder->id;
             $movementData['marketplace_item_id'] = $item['item_id'];
             $movementData['quantity'] = $item['quantity'];
-            $movementData['price'] = $item['price'];
+            $movementData['price'] = 0;
 
             MarketplaceOrderItem::query()->create($movementData);
         }
@@ -107,13 +105,12 @@ class MarketplaceOrderController extends Controller
     {
         $data = [];
         foreach ($request->item_id ?? [] as $key => $item_id) {
-            if ($request->quantity[$key] > 0 && $request->price[$key] > 0) {
+            if ($request->quantity[$key] > 0) {
                 $data[] = [
                     'order_id' => $request->order_id,
                     'marketplace_id' => $request->marketplace_id,
                     'item_id' => $item_id,
                     'quantity' => $request->quantity[$key],
-                    'price' => $request->price[$key],
                     'order_item_id' => $request->order_item_id[$key]
                 ];
             }
@@ -125,7 +122,6 @@ class MarketplaceOrderController extends Controller
             '*.marketplace_id' => 'required',
             '*.item_id' => 'required|exists:marketplace_items,id',
             '*.quantity' => 'required|integer|min:1',
-            '*.price' => 'required|numeric|min:1'
         ];
 
         $validator = Validator::make($data, $rules);
@@ -151,7 +147,6 @@ class MarketplaceOrderController extends Controller
                 ->update([
                     'marketplace_item_id' => $item['item_id'],
                     'quantity' => $item['quantity'],
-                    'price' => $item['price'],
                 ]);
         }
 
