@@ -24,8 +24,11 @@ class OrderPolicy
 
     public function update(User $user, Order $order): bool
     {
+        if ($user->role->name == 'admin'){
+            return true;
+        }
+
         match ($order->status) {
-            0 => $return = $user->role->name == 'admin',
             1 => $return = $user->role->name == 'storekeeper',
             2 => $return = $user->role->name == 'seamstress',
             default => $return = false
