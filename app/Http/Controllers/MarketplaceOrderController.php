@@ -105,15 +105,8 @@ class MarketplaceOrderController extends Controller
 
     public function update(Request $request, MarketplaceOrder $marketplaceOrder)
     {
-        if (!is_array($request->item_id)) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
-        }
-
         $data = [];
-        foreach ($request->item_id as $key => $item_id) {
+        foreach ($request->item_id ?? [] as $key => $item_id) {
             if ($request->quantity[$key] > 0 && $request->price[$key] > 0) {
                 $data[] = [
                     'order_id' => $request->order_id,
@@ -124,13 +117,6 @@ class MarketplaceOrderController extends Controller
                     'order_item_id' => $request->order_item_id[$key]
                 ];
             }
-        }
-
-        if ($data == []) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
         }
 
         $rules = [
@@ -176,10 +162,12 @@ class MarketplaceOrderController extends Controller
 
     public function destroy(MarketplaceOrder $marketplaceOrder)
     {
-        if($marketplaceOrder->status != 0) {
+        if ($marketplaceOrder->items->some(function ($item) {
+            return $item->status != 0;
+        })){
             return redirect()
                 ->route('marketplace_orders.index')
-                ->with('error', 'Заказ уже передан в работу и не может быть удален.');
+                ->with('error', 'Товары заказа уже переданы в работу. Заказ не может быть удален.');
         }
 
         $marketplaceOrder->delete();

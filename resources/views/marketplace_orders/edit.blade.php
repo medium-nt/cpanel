@@ -57,20 +57,21 @@
                         </div>
                     </div>
 
-                    @foreach($order->items as $orderItem)
+                    @foreach($order->items as $key => $orderItem)
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="item_id">Товар</label>
+                                <label for="item_id_{{ $key }}">Товар</label>
                                 <select name="item_id[]"
-                                        id="item_id"
+                                        id="item_id_{{ $key }}"
                                         class="form-control"
+                                        @if($orderItem->status != 0) disabled @endif
                                         required>
                                     <option value="" disabled selected>---</option>
                                     @foreach($items as $item)
                                         <option value="{{ $item->id }}"
                                                 @if ($item->id == $orderItem->marketplace_item_id) selected @endif
-                                        >{{ $item->title }}</option>
+                                        >{{ $item->title }} {{ $item->width }}х{{ $item->height }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -84,6 +85,7 @@
                                        id="quantity"
                                        name="quantity[]"
                                        step="1"
+                                       @if($orderItem->status != 0) readonly @endif
                                        value="{{ $orderItem->quantity }}">
                             </div>
                         </div>
@@ -95,6 +97,7 @@
                                        class="form-control @error('price') is-invalid @enderror"
                                        id="price"
                                        name="price[]"
+                                       @if($orderItem->status != 0) readonly @endif
                                        value="{{ $orderItem->price }}"
                                        required>
                             </div>
@@ -112,3 +115,32 @@
         </div>
     </div>
 @stop
+
+@push('js')
+    {{--@section('js')--}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('select').select2();
+        });
+    </script>
+    {{--@endsection--}}
+@endpush
+
+@push('css')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <style>
+        .select2-container .select2-selection--single {
+            height: auto !important;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: inherit !important;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__arrow {
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+        }
+    </style>
+@endpush

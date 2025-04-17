@@ -38,7 +38,7 @@
                                 <td>{{ $order->marketplace_name }}</td>
                                 <td>
                                     @foreach($order->items as $item)
-                                        <b>{{ $item->item->title }}</b> - {{ $item->quantity }} шт.
+                                        <b>{{ $item->item->title }} {{ $item->item->width }}х{{ $item->item->height }}</b> - {{ $item->quantity }} шт.
                                         @if($item->status == 3) <span class="badge badge-success">Выполнено</span> @endif
                                         @if($item->status == 4) <span class="badge badge-warning">В работе</span> @endif
                                         <br>
