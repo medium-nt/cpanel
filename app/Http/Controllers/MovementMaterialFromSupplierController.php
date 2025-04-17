@@ -64,7 +64,7 @@ class MovementMaterialFromSupplierController extends Controller
             'supplier_id' => $validatedData[0]['supplier_id'],
             'storekeeper_id' => auth()->user()->id,
             'type_movement' => 1,
-            'status' => 3,
+            'status' => 0,
             'comment' => $request->comment,
             'completed_at' => now()
         ]);
@@ -108,7 +108,7 @@ class MovementMaterialFromSupplierController extends Controller
 
         $rules = [
             '*.id' => 'required|exists:movement_materials,id',
-            '*.price' => 'required|integer',
+            '*.price' => 'required|numeric|min:0.01',
         ];
 
         $validator = Validator::make($data, $rules);
@@ -121,6 +121,10 @@ class MovementMaterialFromSupplierController extends Controller
         }
 
         $validatedData = $validator->validated();
+
+        $order->update([
+            'status' => 3,
+        ]);
 
         foreach ($validatedData as $item) {
             MovementMaterial::query()
