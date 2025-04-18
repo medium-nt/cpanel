@@ -24,7 +24,7 @@
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Материал (запрошено / отгружено)</th>
+                            <th scope="col" style="white-space: nowrap;">запрошено / отгружено</th>
                             <th scope="col">Комментарии</th>
                             <th scope="col">Статус</th>
                             <th scope="col">Дата</th>
@@ -35,7 +35,7 @@
                         @foreach ($orders as $order)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>
+                                <td style="white-space: nowrap;">
                                     @foreach($order->movementMaterials as $material)
                                         <b>{{ $material->material->title }}</b> -
                                         {{ $material->ordered_quantity }} {{ $material->material->unit }}
