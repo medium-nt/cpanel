@@ -58,7 +58,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-9">
                             <div class="form-group">
                                 <label for="item_id">Товар</label>
                                 <select name="item_id[]"
@@ -102,30 +102,11 @@
 @stop
 
 @push('js')
-{{--@section('js')--}}
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function () {
-                $('select').select2();
-        });
-    </script>
-{{--@endsection--}}
+    <script src="{{ asset('js/marketplace_orders.js') }}"></script>
 @endpush
 
 @push('css')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
-    <style>
-        .select2-container .select2-selection--single {
-            height: auto !important;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__rendered {
-            line-height: inherit !important;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__arrow {
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-        }
-    </style>
+    <link href="{{ asset('css/marketplace_orders.css') }}" rel="stylesheet"/>
 @endpush

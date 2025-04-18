@@ -1,6 +1,8 @@
+<hr class="d-block d-md-none">
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-9">
         <div class="form-group">
+            <label for="item_id" class="d-block d-md-none">Товар</label>
             <select name="item_id[]"
                     id="item_id{{$i}}"
                     class="form-control item_id">
@@ -16,6 +18,7 @@
 
     <div class="col-md-3">
         <div class="form-group">
+            <label for="quantity" class="d-block d-md-none">Количество</label>
             <input type="number"
                    class="form-control @error('quantity') is-invalid @enderror"
                    id="quantity"

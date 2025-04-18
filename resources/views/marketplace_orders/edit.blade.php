@@ -58,10 +58,11 @@
                     </div>
 
                     @foreach($order->items as $key => $orderItem)
+                    @if(!$loop->first)<hr class="d-block d-md-none">@endif
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-9">
                             <div class="form-group">
-                                <label for="item_id_{{ $key }}">Товар</label>
+                                <label for="item_id_{{ $key }}" @if(!$loop->first) class="d-block d-md-none" @endif>Товар</label>
                                 <select name="item_id[]"
                                         id="item_id_{{ $key }}"
                                         class="form-control"
@@ -79,7 +80,7 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="quantity">Количество</label>
+                                <label for="quantity" @if(!$loop->first) class="d-block d-md-none" @endif>Количество</label>
                                 <input type="number"
                                        class="form-control @error('quantity') is-invalid @enderror"
                                        id="quantity"
@@ -104,30 +105,11 @@
 @stop
 
 @push('js')
-    {{--@section('js')--}}
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('select').select2();
-        });
-    </script>
-    {{--@endsection--}}
+    <script src="{{ asset('js/marketplace_orders.js') }}"></script>
 @endpush
 
 @push('css')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
-    <style>
-        .select2-container .select2-selection--single {
-            height: auto !important;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__rendered {
-            line-height: inherit !important;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__arrow {
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-        }
-    </style>
+    <link href="{{ asset('css/marketplace_orders.css') }}" rel="stylesheet"/>
 @endpush
