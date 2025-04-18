@@ -70,6 +70,8 @@ class TransactionService
                     $result[$formattedDate][$seamstress->id] = 0;
                 }
             }
+
+            ksort($result[$formattedDate]);
         }
 
         ksort($result);
