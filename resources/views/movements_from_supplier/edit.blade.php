@@ -49,7 +49,6 @@
                                     type="text"
                                     class="form-control"
                                     id="material_id"
-                                    name="material_id[]"
                                     value="{{ $item->material->title }}"
                                     readonly>
                             </div>
@@ -59,9 +58,7 @@
                                 <input type="number"
                                        class="form-control"
                                        id="ordered_quantity"
-                                       name="ordered_quantity[]"
                                        step="1"
-                                       placeholder=""
                                        value="{{ $item->quantity }}"
                                        readonly>
                             </div>
@@ -72,7 +69,7 @@
                                        class="form-control"
                                        id="price"
                                        name="price[]"
-                                       step="1"
+                                       step="0.01"
                                        value="{{ $item->price }}"
                                        required>
                             </div>

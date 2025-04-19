@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMovementMaterialFromSupplierRequest;
+use App\Http\Requests\UpdateMovementMaterialFromSupplierRequest;
 use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Supplier;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Services\MovementMaterialFromSupplierService;
 
 class MovementMaterialFromSupplierController extends Controller
 {
@@ -17,6 +18,7 @@ class MovementMaterialFromSupplierController extends Controller
             'title' => 'Поступление материалов на склад',
             'orders' => Order::query()
                 ->where('type_movement', 1)
+                ->orderByDesc('created_at')
                 ->paginate(10)
         ]);
     }
@@ -30,51 +32,10 @@ class MovementMaterialFromSupplierController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreMovementMaterialFromSupplierRequest $request)
     {
-        $data = [];
-        foreach ($request->material_id as $key => $material_id) {
-            if ($request->quantity[$key] > 0) {
-                $data[] = [
-                    'supplier_id' => $request->supplier_id,
-                    'material_id' => $material_id,
-                    'quantity' => $request->quantity[$key]
-                ];
-            }
-        }
-
-        $rules = [
-            '*.supplier_id' => 'required|exists:suppliers,id',
-            '*.material_id' => 'required|exists:materials,id',
-            '*.quantity' => 'required|numeric|min:0.01',
-        ];
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $validatedData = $validator->validated();
-
-        $order = Order::query()->create([
-            'supplier_id' => $validatedData[0]['supplier_id'],
-            'storekeeper_id' => auth()->user()->id,
-            'type_movement' => 1,
-            'status' => 0,
-            'comment' => $request->comment,
-            'completed_at' => now()
-        ]);
-
-        foreach ($validatedData as $item) {
-            MovementMaterial::query()->create([
-                'order_id' => $order->id,
-                'material_id' => $item['material_id'],
-                'quantity' => $item['quantity'],
-            ]);
+        if(!MovementMaterialFromSupplierService::store($request)) {
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
         return redirect()
@@ -96,42 +57,10 @@ class MovementMaterialFromSupplierController extends Controller
         ]);
     }
 
-    public function update(Request $request, Order $order)
+    public function update(UpdateMovementMaterialFromSupplierRequest $request, Order $order)
     {
-        $data = [];
-        foreach ($request->material_id as $key => $material_id) {
-            $data[] = [
-                'id' => $request->id[$key],
-                'price' => $request->price[$key]
-            ];
-        }
-
-        $rules = [
-            '*.id' => 'required|exists:movement_materials,id',
-            '*.price' => 'required|numeric|min:0.01',
-        ];
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $validatedData = $validator->validated();
-
-        $order->update([
-            'status' => 3,
-        ]);
-
-        foreach ($validatedData as $item) {
-            MovementMaterial::query()
-                ->where('id', $item['id'])
-                ->update([
-                    'price' => $item['price'],
-                ]);
+        if(!MovementMaterialFromSupplierService::update($request, $order)) {
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
         return redirect()
