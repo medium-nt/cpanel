@@ -22,6 +22,7 @@
                             <th scope="col">Название</th>
                             <th scope="col">Телефон</th>
                             <th scope="col">Адрес</th>
+                            <th scope="col">Комментарий</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -32,6 +33,7 @@
                                 <td>{{ $supplier->title }}</td>
                                 <td>{{ $supplier->phone }}</td>
                                 <td>{{ $supplier->address }}</td>
+                                <td>{!! nl2br($supplier->comment) !!}</td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">

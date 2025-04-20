@@ -37,7 +37,6 @@
                                class="form-control @error('title') is-invalid @enderror"
                                id="title"
                                name="title"
-                               placeholder=""
                                value="{{ old('title') }}"
                                required>
                     </div>
@@ -48,7 +47,6 @@
                                class="form-control @error('phone') is-invalid @enderror"
                                id="phone"
                                name="phone"
-                               placeholder=""
                                value="{{ old('phone') }}"
                                required>
                     </div>
@@ -59,9 +57,17 @@
                                class="form-control @error('address') is-invalid @enderror"
                                id="address"
                                name="address"
-                               placeholder=""
                                value="{{ old('address') }}"
                                required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Комментарий</label>
+                        <textarea class="form-control @error('comment') is-invalid @enderror"
+                                  id="comment"
+                                  name="comment"
+                                  rows="5"
+                        >{{ old('comment') }}</textarea>
                     </div>
 
                     <div class="form-group">

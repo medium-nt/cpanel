@@ -45,7 +45,6 @@
                                class="form-control @error('title') is-invalid @enderror"
                                id="title"
                                name="title"
-                               placeholder=""
                                value="{{ $supplier->title }}"
                                required>
                     </div>
@@ -56,7 +55,6 @@
                                class="form-control @error('phone') is-invalid @enderror"
                                id="phone"
                                name="phone"
-                               placeholder=""
                                value="{{ $supplier->phone }}"
                                required>
                     </div>
@@ -67,9 +65,17 @@
                                class="form-control @error('address') is-invalid @enderror"
                                id="address"
                                name="address"
-                               placeholder=""
                                value="{{ $supplier->address }}"
                                required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Комментарий</label>
+                        <textarea class="form-control @error('comment') is-invalid @enderror"
+                                  id="comment"
+                                  name="comment"
+                                  rows="5"
+                        >{{ $supplier->comment }}</textarea>
                     </div>
 
                     <div class="form-group">

@@ -16,6 +16,7 @@ class Supplier extends Model
         'title',
         'phone',
         'address',
+        'comment'
     ];
 
     public function orders() : HasMany

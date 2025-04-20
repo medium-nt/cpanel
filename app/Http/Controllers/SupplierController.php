@@ -27,7 +27,8 @@ class SupplierController extends Controller
         $rules = [
             'title' => 'required|string|min:2|max:255',
             'phone' => 'required|string|min:2|max:255',
-            'address' => 'required|string|min:2|max:255'
+            'address' => 'required|string|min:2|max:255',
+            'comment' => 'nullable|string|min:2|max:255'
         ];
 
         $validatedData = $request->validate($rules);
@@ -50,7 +51,8 @@ class SupplierController extends Controller
         $rules = [
             'title' => 'required|string|min:2|max:255',
             'phone' => 'required|string|min:2|max:255',
-            'address' => 'required|string|min:2|max:255'
+            'address' => 'required|string|min:2|max:255',
+            'comment' => 'nullable|string|min:2|max:255'
         ];
 
         $validatedData = $request->validate($rules);
