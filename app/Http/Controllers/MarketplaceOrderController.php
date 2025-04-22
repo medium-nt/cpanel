@@ -14,7 +14,9 @@ class MarketplaceOrderController extends Controller
     {
         return view('marketplace_orders.index', [
             'title' => 'Заказы',
-            'orders' => MarketplaceOrder::query()->paginate(10)
+            'orders' => MarketplaceOrder::query()
+                ->orderBy('marketplace_orders.created_at', 'desc')
+                ->paginate(10)
         ]);
     }
 
