@@ -85,13 +85,22 @@
                             <th scope="col">Высота</th>
                             <th scope="col">Кол-во</th>
                             <th scope="col">Маркетплейс</th>
+                            <th scope="col">Тип</th>
                             <th scope="col">Создан</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach ($items as $item)
-                            <tr>
+                            <tr style="background-color:
+                                @if($item->marketplaceOrder->fulfillment_type == 'FBS')
+                                    @if($item->marketplaceOrder->marketplace_id == 1)
+                                        #ff3636
+                                    @else
+                                        #ffafaf
+                                    @endif
+                                @endif
+                            ">
                                 <td>{{ $loop->iteration }}</td>
                                 <td><span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span></td>
                                 <td>{{ $item->item->title }}</td>
@@ -103,6 +112,7 @@
                                          src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
                                          alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                 </td>
+                                <td>{{ $item->marketplaceOrder->fulfillment_type }}</td>
                                 <td>{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
@@ -151,6 +161,11 @@
         </div>
     </div>
 @stop
+
+@push('css')
+    {{-- Add here extra stylesheets --}}
+    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+@endpush
 
 @push('js')
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>

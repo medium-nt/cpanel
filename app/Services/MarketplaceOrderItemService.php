@@ -17,14 +17,20 @@ class MarketplaceOrderItemService
 
         $items = MarketplaceOrderItem::query()
             ->when($status === 'new', function ($query) {
-                return $query->where('status', '0');
+                return $query->where('marketplace_order_items.status', '0');
             })
             ->when($status === 'in_work' || $status === 'done', function ($query) use ($status) {
-                return $query->where('status', $status === 'in_work' ? 4 : 3)
+                return $query->where('marketplace_order_items.status', $status === 'in_work' ? 4 : 3)
                     ->when(auth()->user()->role->name === 'seamstress', function ($query) {
                         return $query->where('seamstress_id', auth()->user()->id);
                     });
-            });
+            })
+            ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+            ->orderBy('marketplace_orders.fulfillment_type', 'asc')
+            ->orderBy('marketplace_orders.marketplace_id', 'asc')
+            ->orderBy('marketplace_orders.created_at', 'asc')
+        ;
+
 
         if ($request->has('seamstress_id') && $status != 'new') {
             $items = $items->where('seamstress_id', $request->seamstress_id);
@@ -37,6 +43,7 @@ class MarketplaceOrderItemService
         if ($request->has('date_end') && $status != 'new') {
             $items = $items->where('created_at', '<', $request->date_end);
         }
+
 
         return $items;
     }

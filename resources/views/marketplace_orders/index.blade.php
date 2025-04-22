@@ -24,6 +24,7 @@
                             <th scope="col">Статус</th>
                             <th scope="col">Номер заказа</th>
                             <th scope="col">Маркетплейс</th>
+                            <th scope="col">Тип</th>
                             <th scope="col">Товары</th>
                             <th scope="col">Создан</th>
                             <th scope="col"></th>
@@ -40,6 +41,7 @@
                                          src="{{ asset($order->marketplace_name) }}"
                                          alt="{{ $order->marketplace_name }}">
                                 </td>
+                                <td>{{ $order->fulfillment_type }}</td>
                                 <td>
                                     @foreach($order->items as $item)
                                         <b>{{ $item->item->title }} {{ $item->item->width }}х{{ $item->item->height }}</b> - {{ $item->quantity }} шт.
