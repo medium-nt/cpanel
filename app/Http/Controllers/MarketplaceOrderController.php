@@ -45,6 +45,7 @@ class MarketplaceOrderController extends Controller
                     'marketplace_id' => $request->marketplace_id,
                     'item_id' => $item_id,
                     'quantity' => $request->quantity[$key],
+                    'fulfillment_type' => $request->fulfillment_type,
                 ];
             }
         }
@@ -61,6 +62,7 @@ class MarketplaceOrderController extends Controller
             '*.marketplace_id' => 'required',
             '*.item_id' => 'required|exists:marketplace_items,id',
             '*.quantity' => 'required|integer|min:1',
+            '*.fulfillment_type' => 'required|in:FBO,FBS',
         ];
 
         $validator = Validator::make($data, $rules);
@@ -77,7 +79,8 @@ class MarketplaceOrderController extends Controller
         $marketplaceOrder = MarketplaceOrder::query()->create([
             'order_id' => $request->order_id,
             'marketplace_id' => $request->marketplace_id,
-            'status' => 0
+            'fulfillment_type' => $request->fulfillment_type,
+            'status' => 0,
         ]);
 
         foreach ($validatedData as $item) {
@@ -113,7 +116,8 @@ class MarketplaceOrderController extends Controller
                     'marketplace_id' => $request->marketplace_id,
                     'item_id' => $item_id,
                     'quantity' => $request->quantity[$key],
-                    'order_item_id' => $request->order_item_id[$key]
+                    'order_item_id' => $request->order_item_id[$key],
+                    'fulfillment_type' => $request->fulfillment_type,
                 ];
             }
         }
@@ -124,6 +128,7 @@ class MarketplaceOrderController extends Controller
             '*.marketplace_id' => 'required',
             '*.item_id' => 'required|exists:marketplace_items,id',
             '*.quantity' => 'required|integer|min:1',
+            '*.fulfillment_type' => 'required|in:FBO,FBS',
         ];
 
         $validator = Validator::make($data, $rules);
@@ -140,7 +145,8 @@ class MarketplaceOrderController extends Controller
         $marketplaceOrder->update([
             'order_id' => $request->order_id,
             'marketplace_id' => $request->marketplace_id,
-            'status' => 0
+            'status' => 0,
+            'fulfillment_type' => $request->fulfillment_type,
         ]);
 
         foreach ($validatedData as $item) {

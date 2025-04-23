@@ -45,13 +45,24 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="marketplace_id">Маркетплейс</label>
                                 <select name="marketplace_id" id="marketplace_id" class="form-control" required>
                                     <option value="" disabled selected>---</option>
                                     <option value="1">OZON</option>
                                     <option value="2">WB</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="fulfillment_type">Тип</label>
+                                <select name="fulfillment_type" id="fulfillment_type" class="form-control" required>
+                                    <option value="" disabled selected>---</option>
+                                    <option value="FBO">FBO</option>
+                                    <option value="FBS">FBS</option>
                                 </select>
                             </div>
                         </div>

@@ -45,13 +45,24 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="marketplace_id">Маркетплейс</label>
                                 <select name="marketplace_id" id="marketplace_id" class="form-control" required>
                                     <option value="" disabled selected>---</option>
                                     <option value="1" @if ($order->marketplace_id == 1) selected @endif>OZON</option>
                                     <option value="2" @if ($order->marketplace_id == 2) selected @endif>WB</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="fulfillment_type">Тип</label>
+                                <select name="fulfillment_type" id="fulfillment_type" class="form-control" required>
+                                    <option value="" disabled selected>---</option>
+                                    <option value="FBO" @if ($order->fulfillment_type == 'FBO') selected @endif>FBO</option>
+                                    <option value="FBS" @if ($order->fulfillment_type == 'FBS') selected @endif>FBS</option>
                                 </select>
                             </div>
                         </div>
