@@ -29,6 +29,7 @@ class MarketplaceOrderItemService
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
             ->orderBy('marketplace_orders.marketplace_id', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
+            ->select('marketplace_order_items.*')
         ;
 
 
@@ -101,6 +102,7 @@ class MarketplaceOrderItemService
             }
 
             DB::commit();
+
         } catch (Throwable $e) {
             DB::rollBack();
 
@@ -113,6 +115,43 @@ class MarketplaceOrderItemService
         return [
             'success' => true,
             'message' => 'Заказ принят'
+        ];
+    }
+
+    public static function cancelToSeamstress(MarketplaceOrderItem $marketplaceOrderItem): array
+    {
+        try {
+            DB::beginTransaction();
+
+            $marketplaceOrderItem->update([
+                'status' => 0,
+                'seamstress_id' => 0,
+            ]);
+
+            $order = Order::query()
+                ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+                ->first();
+
+            MovementMaterial::query()
+                ->where('order_id', $order->id)
+                ->delete();
+
+            $order->delete();
+
+            DB::commit();
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => 'Внутренняя ошибка'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Заказ отменен'
         ];
     }
 

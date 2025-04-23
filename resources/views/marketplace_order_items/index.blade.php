@@ -144,7 +144,19 @@
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                     </form>
+
+                                                    <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-danger mr-1"
+                                                                title="Отменить заказ"
+                                                                onclick="return confirm('Вы уверены что хотите отказаться от заказа?')">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
+
                                                 @break
                                         @endswitch
                                     @endif

@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
+use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class MarketplaceOrderItemController extends Controller
 {
@@ -29,10 +32,14 @@ class MarketplaceOrderItemController extends Controller
         $result = MarketplaceOrderItemService::acceptToSeamstress($marketplaceOrderItem);
 
         if (!$result['success']) {
-            return redirect()->route('marketplace_order_items.index', ['status' => 'new'])->with('error', $result['message']);
+            return redirect()
+                ->route('marketplace_order_items.index', ['status' => 'new'])
+                ->with('error', $result['message']);
         }
 
-        return redirect()->route('marketplace_order_items.index')->with('success', 'Заказ принят');
+        return redirect()
+            ->route('marketplace_order_items.index')
+            ->with('success', $result['message']);
     }
 
     public function done(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
@@ -49,6 +56,21 @@ class MarketplaceOrderItemController extends Controller
         ]);
 
         return redirect()->route('marketplace_order_items.index')->with('success', 'Заказ сдан');
+    }
+
+    public function cancel(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
+    {
+        $result = MarketplaceOrderItemService::cancelToSeamstress($marketplaceOrderItem);
+
+        if (!$result['success']) {
+            return redirect()
+                ->route('marketplace_order_items.index', ['status' => 'new'])
+                ->with('error', $result['message']);
+        }
+
+        return redirect()
+            ->route('marketplace_order_items.index')
+            ->with('success', $result['message']);
     }
 
 }

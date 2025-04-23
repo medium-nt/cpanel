@@ -18,4 +18,9 @@ Route::prefix('/marketplace_order_items')->group(function () {
     Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
         ->can('update', 'marketplace_order_item')
         ->name('marketplace_order_items.done');
+
+    Route::put('/cancel/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'cancel'])
+        ->can('update', 'marketplace_order_item')
+        ->name('marketplace_order_items.cancel');
 });
+
