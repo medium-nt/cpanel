@@ -15,7 +15,9 @@ class InventoryService
         $outToDefectMaterials = self::countMaterial($materialId, 4, 3);
         $writeOff = self::countMaterial($materialId, 6, 3);
 
-        return $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems - $outToDefectMaterials - $writeOff;
+        $result = $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems - $outToDefectMaterials - $writeOff;
+
+        return round($result, 2);
     }
 
     public static function materialInWarehouse($materialId): float
@@ -30,7 +32,9 @@ class InventoryService
             ->whereNotIn('orders.status', [-1])
             ->sum('quantity');
 
-        return $inStock - $outStock - $holdOutStockNew;
+        $result = $inStock - $outStock - $holdOutStockNew;
+
+        return round($result, 2);
     }
 
     public static function defectMaterialInWarehouse($materialId): float
@@ -38,7 +42,8 @@ class InventoryService
         $inStock = self::countMaterial($materialId, 4, 3);
         $outStockNew = self::countMaterial($materialId, 5, 3);
 
-        return $inStock - $outStockNew;
+        $result = $inStock - $outStockNew;
+        return round($result, 2);
     }
 
     public static function countMaterial($materialId, $type, $status): float
