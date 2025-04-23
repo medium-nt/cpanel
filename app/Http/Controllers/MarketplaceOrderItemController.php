@@ -53,6 +53,7 @@ class MarketplaceOrderItemController extends Controller
 
         $marketplaceOrderItem->update([
             'status' => 3,
+            'completed_at' => now()
         ]);
 
         return redirect()->route('marketplace_order_items.index')->with('success', 'Заказ сдан');

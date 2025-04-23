@@ -13,7 +13,8 @@ class MarketplaceOrderItem extends Model
         'quantity',
         'price',
         'seamstress_id',
-        'status'
+        'status',
+        'completed_at'
     ];
 
     protected $appends = ['status_name', 'status_color'];
