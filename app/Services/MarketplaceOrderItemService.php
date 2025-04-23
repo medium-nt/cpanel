@@ -22,26 +22,25 @@ class MarketplaceOrderItemService
             ->when($status === 'in_work' || $status === 'done', function ($query) use ($status) {
                 return $query->where('marketplace_order_items.status', $status === 'in_work' ? 4 : 3)
                     ->when(auth()->user()->role->name === 'seamstress', function ($query) {
-                        return $query->where('seamstress_id', auth()->user()->id);
+                        return $query->where('marketplace_order_items.seamstress_id', auth()->user()->id);
                     });
             })
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
             ->orderBy('marketplace_orders.marketplace_id', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
-            ->select('marketplace_order_items.*')
-        ;
+            ->select('marketplace_order_items.*');
 
 
-        if ($request->has('marketplace_order_items.seamstress_id') && $status != 'new') {
+        if ($request->has('seamstress_id') && $status != 'new') {
             $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);
         }
 
-        if ($request->has('marketplace_order_items.date_start') && $status != 'new') {
+        if ($request->has('date_start') && $status != 'new') {
             $items = $items->where('marketplace_order_items.created_at', '>', $request->date_start);
         }
 
-        if ($request->has('marketplace_order_items.date_end') && $status != 'new') {
+        if ($request->has('date_end') && $status != 'new') {
             $items = $items->where('marketplace_order_items.created_at', '<', $request->date_end);
         }
 
