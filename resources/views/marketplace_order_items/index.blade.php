@@ -80,6 +80,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Статус</th>
+                            <th scope="col">Номер заказа</th>
                             <th scope="col">Название</th>
                             <th scope="col">Ширина</th>
                             <th scope="col">Высота</th>
@@ -92,17 +93,10 @@
                         </thead>
                         <tbody>
                         @foreach ($items as $item)
-                            <tr style="background-color:
-                                @if($item->marketplaceOrder->fulfillment_type == 'FBS')
-                                    @if($item->marketplaceOrder->marketplace_id == 1)
-                                        #f58585
-                                    @else
-                                        #f2c1c1
-                                    @endif
-                                @endif
-                            ">
-                                <td>{{ $loop->iteration }}</td>
+                            <tr>
+                                <td>{{ $item->id }}</td>
                                 <td><span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span></td>
+                                <td>{{ $item->marketplaceOrder->order_id }}</td>
                                 <td>{{ $item->item->title }}</td>
                                 <td>{{ $item->item->width }}</td>
                                 <td>{{ $item->item->height }}</td>
