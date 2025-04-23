@@ -10,13 +10,22 @@ use Illuminate\Support\Facades\Validator;
 
 class MarketplaceOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $orders = MarketplaceOrder::query()
+            ->orderBy('marketplace_orders.created_at', 'desc');
+
+        if($request->status != 0) {
+            $orders = $orders->where('marketplace_orders.status', '!=', 0);
+        } else {
+            $orders = $orders->where('marketplace_orders.status', 0);
+        }
+
+        $queryParams = $request->except(['page']);
+
         return view('marketplace_orders.index', [
             'title' => 'Заказы',
-            'orders' => MarketplaceOrder::query()
-                ->orderBy('marketplace_orders.created_at', 'desc')
-                ->paginate(10)
+            'orders' => $orders->paginate(10)->appends($queryParams),
         ]);
     }
 
@@ -161,6 +170,18 @@ class MarketplaceOrderController extends Controller
         return redirect()
             ->route('marketplace_orders.index')
             ->with('success', 'Заказ изменен.');
+    }
+
+    public function complete(MarketplaceOrder $marketplaceOrder)
+    {
+        $marketplaceOrder->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('marketplace_orders.index')
+            ->with('success', 'Заказ выполнен.');
     }
 
     public function destroy(MarketplaceOrder $marketplaceOrder)

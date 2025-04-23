@@ -12,7 +12,8 @@ class MarketplaceOrder extends Model
         'marketplace_id',
         'order_id',
         'status',
-        'fulfillment_type'
+        'fulfillment_type',
+        'completed_at',
     ];
 
     protected $appends = ['marketplace_name', 'status_name', 'status_color'];

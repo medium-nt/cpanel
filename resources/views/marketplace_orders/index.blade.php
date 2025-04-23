@@ -16,6 +16,12 @@
                     <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ</a>
                 @endif
 
+                    <a href="{{ route('marketplace_orders.index', ['status' => 0]) }}"
+                       class="btn btn-link mr-3 mb-3">Новые заказы</a>
+
+                    <a href="{{ route('marketplace_orders.index', ['status' => 3]) }}"
+                       class="btn btn-link mr-3 mb-3">Выполненные</a>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
@@ -27,6 +33,7 @@
                             <th scope="col">Тип</th>
                             <th scope="col">Товары</th>
                             <th scope="col">Создан</th>
+                            <th scope="col">Выполнен</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -43,7 +50,15 @@
                                 </td>
                                 <td>{{ $order->fulfillment_type }}</td>
                                 <td>
+                                    @php
+                                        $orderStatus = true;
+                                    @endphp
                                     @foreach($order->items as $item)
+                                        @php
+                                            if ($item->status != 3){
+                                                $orderStatus = false;
+                                            }
+                                        @endphp
                                         <b>{{ $item->item->title }} {{ $item->item->width }}х{{ $item->item->height }}</b> - {{ $item->quantity }} шт.
                                         @if($item->status == 3) <span class="badge badge-success">Выполнено</span> @endif
                                         @if($item->status == 4) <span class="badge badge-warning">В работе</span> @endif
@@ -51,6 +66,7 @@
                                     @endforeach
                                 </td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
+                                <td>{{ is_null($order->completed_at) ? '' : now()->parse($order->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
                                     @if(auth()->user()->role->name == 'admin')
@@ -67,6 +83,14 @@
                                             </button>
                                         </form>
                                     </div>
+                                    @endif
+
+                                    @if($orderStatus && $order->status != 3)
+                                        <a href="{{ route('marketplace_orders.complete', ['marketplace_order' => $order->id]) }}"
+                                           class="btn btn-success mr-1"
+                                           onclick="return confirm('Вы уверены что заказ выполнен?')">
+                                            <i class="fas fa-check"></i>
+                                        </a>
                                     @endif
                                 </td>
                             </tr>

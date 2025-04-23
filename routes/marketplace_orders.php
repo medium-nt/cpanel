@@ -23,6 +23,10 @@ Route::prefix('/marketplace_orders')->group(function () {
         ->can('update', 'marketplace_order')
         ->name('marketplace_orders.update');
 
+    Route::get('/{marketplace_order}/complete', [App\Http\Controllers\MarketplaceOrderController::class, 'complete'])
+        ->can('complete', 'marketplace_order')
+        ->name('marketplace_orders.complete');
+
     Route::delete('/delete/{marketplace_order}', [App\Http\Controllers\MarketplaceOrderController::class, 'destroy'])
         ->can('delete', 'marketplace_order')
         ->name('marketplace_orders.destroy');
