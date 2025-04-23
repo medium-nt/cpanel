@@ -34,4 +34,5 @@ return [
     'defect_materials' => 'Передача брака на склад',
     'transactions' => 'Финансы',
     'salary' => 'Зарплата',
+    'movements_by_marketplace_order' => 'Расход материала на заказы',
 ];

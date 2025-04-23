@@ -328,6 +328,12 @@ return [
             'icon' => 'fas fa-fw fa-dolly',
         ],
         [
+            'text' => 'movements_by_marketplace_order',
+            'url' => 'admin/movements_by_marketplace_order',
+            'icon' => 'fas fa-fw fa-pencil-ruler',
+            'can' => 'is-admin',
+        ],
+        [
             'text' => 'defect_materials',
             'url' => 'admin/defect_materials',
             'icon' => 'fas fa-fw fa-trash-alt',
