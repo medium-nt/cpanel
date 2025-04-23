@@ -33,7 +33,7 @@
                         <tbody>
                         @foreach ($orders as $order)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $order->id }}</td>
                                 <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
                                 <td>{{ $order->order_id }}</td>
                                 <td>
