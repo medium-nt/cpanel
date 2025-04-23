@@ -95,9 +95,9 @@
                             <tr style="background-color:
                                 @if($item->marketplaceOrder->fulfillment_type == 'FBS')
                                     @if($item->marketplaceOrder->marketplace_id == 1)
-                                        #ff3636
+                                        #f58585
                                     @else
-                                        #ffafaf
+                                        #f2c1c1
                                     @endif
                                 @endif
                             ">
