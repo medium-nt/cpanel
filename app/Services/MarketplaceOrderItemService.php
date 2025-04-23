@@ -33,16 +33,16 @@ class MarketplaceOrderItemService
         ;
 
 
-        if ($request->has('seamstress_id') && $status != 'new') {
-            $items = $items->where('seamstress_id', $request->seamstress_id);
+        if ($request->has('marketplace_order_items.seamstress_id') && $status != 'new') {
+            $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);
         }
 
-        if ($request->has('date_start') && $status != 'new') {
-            $items = $items->where('created_at', '>', $request->date_start);
+        if ($request->has('marketplace_order_items.date_start') && $status != 'new') {
+            $items = $items->where('marketplace_order_items.created_at', '>', $request->date_start);
         }
 
-        if ($request->has('date_end') && $status != 'new') {
-            $items = $items->where('created_at', '<', $request->date_end);
+        if ($request->has('marketplace_order_items.date_end') && $status != 'new') {
+            $items = $items->where('marketplace_order_items.created_at', '<', $request->date_end);
         }
 
 
