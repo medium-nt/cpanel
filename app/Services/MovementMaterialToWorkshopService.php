@@ -90,9 +90,9 @@ class MovementMaterialToWorkshopService
                 'storekeeper_id' => auth()->user()->id
             ]);
 
-            foreach ($movementMaterialIds as $key => $material_id) {
+            foreach ($movementMaterialIds as $key => $movementMaterialId) {
                 MovementMaterial::query()
-                    ->where('id', $material_id)
+                    ->where('id', $movementMaterialId)
                     ->update([
                         'quantity' => $quantities[$key],
                     ]);

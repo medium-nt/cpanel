@@ -32,40 +32,44 @@
                 @csrf
                 <div class="card-body">
                     @foreach($order->movementMaterials as $item)
-                    <div class="row">
-                        <div class="col-md-8 form-group">
-                            <label for="material_id">Материал</label>
-                            <input type="text"
-                                   class="form-control"
-                                   id="material_id"
-                                   name="material_id[]"
-                                   value="{{ $item->material->title }}"
-                                   readonly>
-                        </div>
+                        <div class="row">
+                            <div class="col-md-8 form-group">
+                                <label for="material_id">Материал</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="material_id"
+                                       name="material_id[]"
+                                       value="{{ $item->material->title }}"
+                                       readonly>
+                            </div>
 
-                        <div class="col-md-2 form-group">
-                            <label for="ordered_quantity">Заказано</label>
-                            <input type="number"
-                                   class="form-control"
-                                   id="ordered_quantity"
-                                   value="{{ $item->ordered_quantity }}"
-                                   readonly>
-                        </div>
+                            <div class="col-md-2 form-group">
+                                <label for="ordered_quantity">Заказано</label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="ordered_quantity"
+                                       value="{{ $item->ordered_quantity }}"
+                                       readonly>
+                            </div>
 
-                        <div class="col-md-2 form-group">
-                            <label for="quantity">Отгружено</label>
-                            <input type="number"
-                                   class="form-control"
-                                   id="quantity"
-                                   name="quantity[]"
-                                   step="0.01"
-                                   min="0.01"
-                                   max="{{ $item->ordered_quantity }}"
-                                   required>
-                        </div>
+                            @php
+                                $materialInWarehouse = App\Services\InventoryService::materialInWarehouse($item->material_id);
+                            @endphp
+                            <div class="col-md-2 form-group">
+                                <label for="quantity">Отгружено</label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="quantity"
+                                       name="quantity[]"
+                                       step="0.01"
+                                       min="0.01"
+                                       max="{{ $materialInWarehouse }}"
+                                       required>
+                                <span class="invalid-feedback d-block mt-0" id="max">max = {{ $materialInWarehouse }}</span>
+                            </div>
 
-                        <input type="hidden" name="id[]" value="{{ $item->id }}">
-                    </div>
+                            <input type="hidden" name="id[]" value="{{ $item->id }}">
+                        </div>
                     @endforeach
 
                         <div class="row">
