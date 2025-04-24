@@ -51,7 +51,7 @@ class TransactionController extends Controller
         return view('transactions.salary', [
             'title' => 'Зарплата',
             'seamstresses' => $employees,
-            'seamstressesSalary' => TransactionService::getSalaryTable($employees, $startDate, $endDate)
+            'seamstressesSalary' => TransactionService::getSalaryTable_new($employees, $startDate, $endDate)
         ]);
     }
 
