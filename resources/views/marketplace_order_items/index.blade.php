@@ -88,6 +88,7 @@
                             <th scope="col">Маркетплейс</th>
                             <th scope="col">Тип</th>
                             <th scope="col">Создан</th>
+                            <th scope="col">Выполнен</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -108,6 +109,7 @@
                                 </td>
                                 <td>{{ $item->marketplaceOrder->fulfillment_type }}</td>
                                 <td>{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</td>
+                                <td>{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
                                     @if(auth()->user()->role->name == 'seamstress')
