@@ -83,6 +83,7 @@ class UsersController extends Controller
         $rules = [
             'name' => 'required|string|min:2|max:255',
             'email' => 'required|email|max:255',
+            'salary_rate' => 'required|numeric',
         ];
 
         if ($request->filled('password')) {
