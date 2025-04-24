@@ -14,7 +14,7 @@ use Throwable;
 
 class MovementMaterialToWorkshopService
 {
-    public static function getOrdersByStatus($requestStatus): LengthAwarePaginator
+    public static function getOrdersByStatus($requestStatus)
     {
         match ($requestStatus)
         {
@@ -24,8 +24,7 @@ class MovementMaterialToWorkshopService
 
         return Order::query()
             ->where('type_movement', 2)
-            ->whereIn('status', $status)
-            ->paginate(10);
+            ->whereIn('status', $status);
     }
 
     public static function store(StoreMovementMaterialToWorkshopRequest $request): bool|RedirectResponse
