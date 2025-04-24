@@ -22,6 +22,7 @@
                                name="date_start"
                                id="date_start"
                                class="form-control"
+                               max="{{ now()->format('Y-m-d') }}"
                                onchange="updatePageWithQueryParam(this)"
                                value="{{ request('date_start') }}">
                     </div>
@@ -31,6 +32,7 @@
                                name="date_end"
                                id="date_end"
                                class="form-control"
+                               max="{{ now()->format('Y-m-d') }}"
                                onchange="updatePageWithQueryParam(this)"
                                value="{{ request('date_end') }}">
                     </div>
