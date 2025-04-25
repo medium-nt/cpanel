@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -31,19 +32,27 @@ class MarketplaceOrderItemService
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->select('marketplace_order_items.*');
 
-
         if ($request->has('seamstress_id') && $status != 'new') {
             $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);
         }
 
-        if ($request->has('date_start') && $status != 'new') {
-            $items = $items->where('marketplace_order_items.created_at', '>', $request->date_start);
+        if ($request->has('date_start') && $status == 'in_work') {
+            $items = $items->where('marketplace_order_items.created_at', '>=', $request->date_start);
         }
 
-        if ($request->has('date_end') && $status != 'new') {
-            $items = $items->where('marketplace_order_items.created_at', '<', $request->date_end);
+        if ($request->has('date_start') && $status == 'done') {
+            $items = $items->where('marketplace_order_items.completed_at', '>=', $request->date_start);
         }
 
+        $dateEndWithTime = Carbon::parse($request->date_end)->endOfDay();
+
+        if ($request->has('date_end') && $status == 'in_work') {
+            $items = $items->where('marketplace_order_items.created_at', '<=', $dateEndWithTime);
+        }
+
+        if ($request->has('date_end') && $status == 'done') {
+            $items = $items->where('marketplace_order_items.completed_at', '<=', $dateEndWithTime);
+        }
 
         return $items;
     }
