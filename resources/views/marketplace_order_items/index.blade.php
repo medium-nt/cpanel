@@ -93,7 +93,13 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @php
+                            $allCalcWidth = 0;
+                        @endphp
                         @foreach ($items as $item)
+                            @php
+                                $allCalcWidth += $item->item->width * $item->quantity;
+                            @endphp
                             <tr>
                                 <td>{{ $item->id }}</td>
                                 <td><span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span></td>
@@ -160,6 +166,15 @@
                             </tr>
                         @endforeach
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4"></td>
+                                <td colspan="3" style="text-align: center">
+                                    ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> метров
+                                </td>
+                                <td colspan="4"></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
                 {{-- Pagination --}}
