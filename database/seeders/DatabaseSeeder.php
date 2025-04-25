@@ -25,5 +25,7 @@ class DatabaseSeeder extends Seeder
          $this->call(MarketplaceItemSeeder::class);
 
          $this->call(TransactionSeeder::class);
+
+         $this->call(ScheduleSeeder::class);
     }
 }
