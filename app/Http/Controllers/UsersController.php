@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUsersRequest;
 use App\Models\User;
+use App\Services\ScheduleService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,6 +47,7 @@ class UsersController extends Controller
         return view('users.edit', [
             'title' => 'Изменить пользователя',
             'user' => User::query()->findOrFail($user->id),
+            'events' => ScheduleService::getScheduleByUserId($user->id),
         ]);
     }
 

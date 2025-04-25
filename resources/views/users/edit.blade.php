@@ -72,5 +72,28 @@
                 </div>
             </form>
         </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Рабочий календарь</h3>
+            </div>
+            <div class="card-body">
+                <div id="calendar"
+                     data-events="{{ json_encode($events) }}"
+                     data-csrf_token="{{ csrf_token() }}"
+                     data-user_id="{{ $user->id }}"
+                ></div>
+            </div>
+        </div>
     </div>
 @stop
+
+@push('js')
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="{{ asset('js/fullcalendar_by_admin.js') }}"></script>
+@endpush
+
+@push('css')
+    <link href="{{ asset('css/fullcalendar.css') }}" rel="stylesheet"/>
+@endpush

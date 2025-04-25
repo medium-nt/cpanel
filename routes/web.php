@@ -30,5 +30,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     require base_path('routes/transactions.php');
     require base_path('routes/salary.php');
     require base_path('routes/movements_by_marketplace_order.php');
+    require base_path('routes/schedule.php');
 
 });
