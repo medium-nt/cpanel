@@ -190,4 +190,33 @@ class MarketplaceOrderItemService
         ];
     }
 
+    public static function toWork(): int
+    {
+        $marketplaceOrderItemInWork =MarketplaceOrderItem::query()
+            ->where('status', 4);
+
+        if (auth()->user()->role->name === 'seamstress') {
+            $marketplaceOrderItemInWork = $marketplaceOrderItemInWork
+                ->where('seamstress_id', auth()->id());
+        }
+
+        return $marketplaceOrderItemInWork->count();
+    }
+
+    public static function new(): int
+    {
+        return MarketplaceOrderItem::query()
+            ->where('status', 0)
+            ->count();
+    }
+
+    public static function urgent(): int
+    {
+        return MarketplaceOrderItem::query()
+            ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->whereIn('marketplace_order_items.status', [0, 4])
+            ->where('marketplace_orders.fulfillment_type', 'FBS')
+            ->count();
+    }
+
 }

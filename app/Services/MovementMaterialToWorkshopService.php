@@ -7,7 +7,6 @@ use App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest;
 use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\MovementMaterial;
 use App\Models\Order;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -147,5 +146,21 @@ class MovementMaterialToWorkshopService
         }
 
         return true;
+    }
+
+    public static function getCountNotShippedMovements(): int
+    {
+        return Order::query()
+            ->where('type_movement', 2)
+            ->where('status', 0)
+            ->count();
+    }
+
+    public static function getCountNotReceivedMovements(): int
+    {
+        return Order::query()
+            ->where('type_movement', 2)
+            ->where('status', 2)
+            ->count();
     }
 }
