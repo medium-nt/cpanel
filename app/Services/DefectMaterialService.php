@@ -52,7 +52,7 @@ class DefectMaterialService
                 MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,
-                    'ordered_quantity' => $quantities[$key],
+                    'quantity' => $quantities[$key],
                 ]);
             }
 
