@@ -200,23 +200,27 @@ class MarketplaceOrderItemService
                 ->where('seamstress_id', auth()->id());
         }
 
-        return $marketplaceOrderItemInWork->count();
+        return $marketplaceOrderItemInWork->sum('quantity');
     }
 
     public static function new(): int
     {
         return MarketplaceOrderItem::query()
             ->where('status', 0)
-            ->count();
+            ->sum('quantity');
     }
 
     public static function urgent(): int
     {
         return MarketplaceOrderItem::query()
-            ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->join('marketplace_orders',
+                'marketplace_orders.id',
+                '=',
+                'marketplace_order_items.marketplace_order_id'
+            )
             ->whereIn('marketplace_order_items.status', [0, 4])
             ->where('marketplace_orders.fulfillment_type', 'FBS')
-            ->count();
+            ->sum('quantity');
     }
 
 }
