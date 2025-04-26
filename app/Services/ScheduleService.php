@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Schedule;
+use Carbon\Carbon;
 
 class ScheduleService
 {
@@ -21,5 +22,20 @@ class ScheduleService
             ->toArray();
     }
 
+    public static function isWorkDay(): bool
+    {
+        $date = Carbon::now()->toDateString();
+
+        $existsDay = Schedule::query()
+            ->where('date', $date)
+            ->where('user_id', auth()->user()->id)
+            ->first();
+
+        if ($existsDay) {
+            return true;
+        }
+
+        return false;
+    }
 
 }

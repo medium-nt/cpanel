@@ -59,7 +59,32 @@ class MarketplaceOrderItemService
 
     public static function acceptToSeamstress($marketplaceOrderItem): array
     {
-        $quantityOrderItem = $marketplaceOrderItem->quantity;
+        if (!ScheduleService::isWorkDay()) {
+            return [
+                'success' => false,
+                'message' => 'Вы не можете взять заказ в нерабочий день!'
+            ];
+        }
+
+        $nowTime = Carbon::now()->toDateTimeString();
+        if ($nowTime < '8:00:00' || $nowTime >= '20:00:00') {
+            return [
+                'success' => false,
+                'message' => 'Вы не можете взять заказ в нерабочее время!'
+            ];
+        }
+
+        $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
+            ->where('status', 4)
+            ->where('seamstress_id', auth()->user()->id)
+            ->count();
+
+        if ($countOrderItemsBySeamstress > 10) {
+            return [
+                'success' => false,
+                'message' => 'Вы не можете принять больше 10 заказов!'
+            ];
+        }
 
         $marketplaceItem = $marketplaceOrderItem->item()->first();
         $materialConsumptions = $marketplaceItem->consumption;
@@ -70,6 +95,8 @@ class MarketplaceOrderItemService
                 'message' => 'Для этого заказа не указаны материалы!'
             ];
         }
+
+        $quantityOrderItem = $marketplaceOrderItem->quantity;
 
         foreach ($materialConsumptions as $materialConsumption) {
             $materialId = $materialConsumption->material_id;
