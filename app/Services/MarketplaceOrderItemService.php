@@ -66,11 +66,12 @@ class MarketplaceOrderItemService
             ];
         }
 
-        $nowTime = Carbon::now()->toDateTimeString();
-        if ($nowTime < '8:00:00' || $nowTime >= '20:00:00') {
+        $nowTime = Carbon::now();
+        if ($nowTime->lt(Carbon::createFromFormat('H:i:s', '08:00:00')) ||
+            $nowTime->gte(Carbon::createFromFormat('H:i:s', '20:00:00'))) {
             return [
                 'success' => false,
-                'message' => 'Вы не можете взять заказ в нерабочее время! Сейчас ' . $nowTime . '!'
+                'message' => 'Вы не можете взять заказ в нерабочее время! Сейчас ' . $nowTime->format('H:i:s') . '!'
             ];
         }
 
