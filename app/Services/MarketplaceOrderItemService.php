@@ -70,7 +70,7 @@ class MarketplaceOrderItemService
         if ($nowTime < '8:00:00' || $nowTime >= '20:00:00') {
             return [
                 'success' => false,
-                'message' => 'Вы не можете взять заказ в нерабочее время!'
+                'message' => 'Вы не можете взять заказ в нерабочее время! Сейчас ' . $nowTime . '!'
             ];
         }
 
