@@ -314,7 +314,6 @@ return [
             'text' => 'inventory_by_workshop',
             'url' => 'admin/inventory/workshop',
             'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'is-seamstress-or-admin',
         ],
         [
             'text' => 'movements_from_supplier',
@@ -342,7 +341,6 @@ return [
             'text' => 'marketplace_orders',
             'url' => 'admin/marketplace_orders',
             'icon' => 'fas fa-fw fa-cart-arrow-down',
-            'can' => 'is-seamstress-or-admin',
         ],
         [
             'text' => 'marketplace_order_items',

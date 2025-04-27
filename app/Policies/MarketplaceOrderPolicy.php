@@ -9,7 +9,7 @@ class MarketplaceOrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'seamstress';
+        return true;
     }
 
     public function view(User $user, MarketplaceOrder $marketplaceOrder): bool
