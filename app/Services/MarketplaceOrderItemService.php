@@ -44,6 +44,10 @@ class MarketplaceOrderItemService
             $items = $items->where('marketplace_order_items.completed_at', '>=', $request->date_start);
         }
 
+        if ($request->has('marketplace_id')) {
+            $items = $items->where('marketplace_orders.marketplace_id', $request->marketplace_id);
+        }
+
         $dateEndWithTime = Carbon::parse($request->date_end)->endOfDay();
 
         if ($request->has('date_end') && $status == 'in_work') {

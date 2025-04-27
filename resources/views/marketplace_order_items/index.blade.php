@@ -48,13 +48,26 @@
                                value="{{ request('date_end') }}">
                     </div>
 
+                    <div class="form-group col-md-2">
+                        <select name="marketplace_id"
+                                id="marketplace_id"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option value="" selected>---</option>
+                            <option value="1" @if(request()->get('marketplace_id') == 1) selected @endif>OZON</option>
+                            <option value="2" @if(request()->get('marketplace_id') == 2) selected @endif>WB</option>
+                        </select>
+                    </div>
+
                 </div>
 
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'in_work',
                     'seamstress_id' => request('seamstress_id'),
                     'date_start' => request('date_start'),
-                    'date_end' => request('date_end')
+                    'date_end' => request('date_end'),
+                    'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link mr-3 mb-3">В работе</a>
 
@@ -62,7 +75,8 @@
                     'status' => 'new',
                     'seamstress_id' => request('seamstress_id'),
                     'date_start' => request('date_start'),
-                    'date_end' => request('date_end')
+                    'date_end' => request('date_end'),
+                    'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link mr-3 mb-3">Новые заказы</a>
 
@@ -70,7 +84,8 @@
                     'status' => 'done',
                     'seamstress_id' => request('seamstress_id'),
                     'date_start' => request('date_start'),
-                    'date_end' => request('date_end')
+                    'date_end' => request('date_end'),
+                    'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link mr-3 mb-3">Выполненные</a>
 

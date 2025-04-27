@@ -21,6 +21,10 @@ class MarketplaceOrderController extends Controller
             $orders = $orders->where('marketplace_orders.status', 0);
         }
 
+        if (isset($request->marketplace_id)) {
+            $orders = $orders->where('marketplace_orders.marketplace_id', $request->marketplace_id);
+        }
+
         $queryParams = $request->except(['page']);
 
         return view('marketplace_orders.index', [

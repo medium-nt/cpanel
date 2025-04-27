@@ -12,15 +12,30 @@
         <div class="card">
             <div class="card-body">
 
-                @if(auth()->user()->role->name == 'admin')
-                    <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ</a>
-                @endif
+                <div class="row">
 
-                    <a href="{{ route('marketplace_orders.index', ['status' => 0]) }}"
+                    @if(auth()->user()->role->name == 'admin')
+                        <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ</a>
+                    @endif
+
+                    <a href="{{ route('marketplace_orders.index', ['status' => 0, 'marketplace_id' => request('marketplace_id')]) }}"
                        class="btn btn-link mr-3 mb-3">Новые заказы</a>
 
-                    <a href="{{ route('marketplace_orders.index', ['status' => 3]) }}"
+                    <a href="{{ route('marketplace_orders.index', ['status' => 3, 'marketplace_id' => request('marketplace_id')]) }}"
                        class="btn btn-link mr-3 mb-3">Выполненные</a>
+
+                    <div class="form-group col-md-2">
+                        <select name="marketplace_id"
+                                id="marketplace_id"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option value="" selected>---</option>
+                            <option value="1" @if(request()->get('marketplace_id') == 1) selected @endif>OZON</option>
+                            <option value="2" @if(request()->get('marketplace_id') == 2) selected @endif>WB</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
@@ -116,5 +131,5 @@
 {{-- Push extra scripts --}}
 
 @push('js')
-    {{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
+    <script src="{{ asset('js/PageQueryParam.js') }}"></script>
 @endpush
