@@ -80,7 +80,7 @@ class MarketplaceOrderItemService
             ->where('seamstress_id', auth()->user()->id)
             ->count();
 
-        if ($countOrderItemsBySeamstress > 10) {
+        if ($countOrderItemsBySeamstress > 5) {
             return [
                 'success' => false,
                 'message' => 'Вы не можете принять больше 10 заказов!'
