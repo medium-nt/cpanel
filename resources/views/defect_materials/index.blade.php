@@ -41,8 +41,8 @@
                                 <td>
                                     <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                 </td>
-                                <td>{{ $order->comment }}</td>
                                 <td>{{ $order->seamstress->name ?? '' }}</td>
+                                <td>{{ $order->comment }}</td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">
