@@ -41,7 +41,7 @@ class DefectMaterialService
             DB::beginTransaction();
 
             $order = Order::query()->create([
-                'storekeeper_id' => auth()->user()->id,
+                'seamstress_id' => auth()->user()->id,
                 'type_movement' => 4,
                 'status' => 0,
                 'comment' => $request->comment,

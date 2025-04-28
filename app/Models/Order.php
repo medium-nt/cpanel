@@ -37,6 +37,11 @@ class Order extends Model
         return $this->belongsTo(User::class, 'storekeeper_id');
     }
 
+    public function seamstress(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'seamstress_id');
+    }
+
     public function movementMaterials(): hasMany
     {
         return $this->hasMany(MovementMaterial::class);
