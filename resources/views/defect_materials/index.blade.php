@@ -43,7 +43,7 @@
                                 </td>
                                 <td>{{ $order->seamstress->name ?? '' }}</td>
                                 <td>{{ $order->comment }}</td>
-                                <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
+                                <td>{{ $order->created_date }}</td>
 
                                 <td style="width: 100px">
                                         @switch($order->status)

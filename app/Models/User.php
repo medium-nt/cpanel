@@ -67,6 +67,15 @@ class User extends Authenticatable
     public function adminlte_desc(): string
     {
         return UserService::translateRoleName(auth()->user()->role->name);
+    }
 
+    public function getUpdatedDateAttribute()
+    {
+        return $this->updated_at->format('d/m/Y H:i');
+    }
+
+    public function getCreatedDateAttribute()
+    {
+        return $this->updated_at->format('d/m/Y H:i');
     }
 }

@@ -51,4 +51,14 @@ class Order extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
+
+    public function getUpdatedDateAttribute()
+    {
+        return $this->updated_at->format('d/m/Y');
+    }
+
+    public function getCreatedDateAttribute()
+    {
+        return $this->created_at->format('d/m/Y');
+    }
 }

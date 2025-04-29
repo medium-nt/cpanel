@@ -42,8 +42,8 @@
                                 <td>{{ UserService::translateRoleName($user->role->name) }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->salary_rate }}</td>
-                                <td>{{ now()->parse($user->created_at)->format('d/m/Y H:i') }}</td>
-                                <td>{{ now()->parse($user->updated_at)->format('d/m/Y H:i') }}</td>
+                                <td>{{ $user->created_date }}</td>
+                                <td>{{ $user->updated_date }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
                                     <a href="{{ route('users.edit', ['user' => $user->id]) }}" class="btn btn-primary mr-1">
