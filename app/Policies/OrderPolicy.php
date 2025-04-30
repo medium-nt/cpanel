@@ -59,7 +59,7 @@ class OrderPolicy
 
     public function delete(User $user, Order $order): bool
     {
-        return false;
+        return $user->role->name == 'admin';
     }
 
     public function restore(User $user, Order $order): bool

@@ -39,4 +39,8 @@ Route::prefix('/movements_to_workshop')->group(function () {
     Route::post('/save_write_off', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'save_write_off'])
         ->can('write_off', Order::class)
         ->name('movements_to_workshop.save_write_off');
+
+    Route::get('/{order}/delete', [App\Http\Controllers\MovementMaterialToWorkshopController::class, 'delete'])
+        ->can('delete', 'order')
+        ->name('movements_to_workshop.destroy');
 });

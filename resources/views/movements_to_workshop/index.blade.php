@@ -67,6 +67,15 @@
                                         </a>
                                     </div>
                                     @endif
+
+                                    @if($userRole == 'admin' && $order->status == '0')
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('movements_to_workshop.destroy', ['order' => $order->id]) }}"
+                                                class="btn btn-danger" title="Удалить">
+                                                    <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

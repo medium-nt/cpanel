@@ -97,4 +97,21 @@ class MovementMaterialToWorkshopController extends Controller
 
         return redirect()->route('movements_to_workshop.index')->with('success', 'Поставка принята');
     }
+
+    public function delete(Order $order)
+    {
+        if ($order->status != 0) {
+            return redirect()
+                ->route('movements_to_workshop.index')
+                ->with('error', 'Невозможно удалить заказ, так как он уже в работе');
+        }
+
+        $order->movementMaterials()->delete();
+
+        $order->delete();
+
+        return redirect()
+            ->route('movements_to_workshop.index')
+            ->with('success', 'Поставка удалена');
+    }
 }
