@@ -354,11 +354,11 @@ return [
             'icon' => 'fas fa-fw fa-coins',
             'can' => 'is-admin',
         ],
-        [
-            'text' => 'salary',
-            'url' => 'admin/salary',
-            'icon' => 'fas fa-fw fa-hand-holding-usd',
-        ],
+//        [
+//            'text' => 'salary',
+//            'url' => 'admin/salary',
+//            'icon' => 'fas fa-fw fa-hand-holding-usd',
+//        ],
         [
             'text' => 'settings',
             'icon' => 'fas fa-fw fa-cog',
