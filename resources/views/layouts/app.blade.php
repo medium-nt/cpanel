@@ -33,15 +33,15 @@
 {{-- Create a common footer --}}
 
 @section('footer')
-    <div class="float-right">
-        Version: {{ config('app.version', '1.0.0') }}
-    </div>
+{{--    <div class="float-right">--}}
+{{--        Version: {{ config('app.version', '1.0.0') }}--}}
+{{--    </div>--}}
 
-    <strong>
-        <a href="{{ config('app.company_url', '#') }}">
-            {{ config('app.company_name', 'My company') }}
-        </a>
-    </strong>
+{{--    <strong>--}}
+{{--        <a href="{{ config('app.company_url', '#') }}">--}}
+{{--            {{ config('app.company_name', 'My company') }}--}}
+{{--        </a>--}}
+{{--    </strong>--}}
 @stop
 
 {{-- Add common Javascript/Jquery code --}}
