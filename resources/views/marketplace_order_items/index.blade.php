@@ -69,7 +69,7 @@
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
-                   class="btn btn-link mb-3">В работе</a>
+                   class="btn btn-link">В работе</a>
 
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'new',
@@ -78,7 +78,7 @@
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
-                   class="btn btn-link mb-3">Новые</a>
+                   class="btn btn-link">Новые</a>
 
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'done',
@@ -87,7 +87,7 @@
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
-                   class="btn btn-link mb-3">Выполненные</a>
+                   class="btn btn-link">Выполненные</a>
 
             </div>
         </div>
