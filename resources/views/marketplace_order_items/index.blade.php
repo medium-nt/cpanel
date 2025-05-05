@@ -169,6 +169,8 @@
                     </div>
                 </div>
             @endforeach
+
+            <x-pagination-component :collection="$items" />
         </div>
 
         <div class="card show-only-on-wide-screens">
