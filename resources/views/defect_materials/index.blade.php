@@ -51,9 +51,32 @@
                                     <div class="mt-2">
                                         Швея: <b>{{ $order->seamstress->name }}</b>
                                     </div>
-                                    <div class="mt-2">
+                                    <div class="my-2">
                                         Комментарий: <b>{{ $order->comment }}</b>
                                     </div>
+
+                                    @switch($order->status)
+                                        @case(0)
+                                            @if(auth()->user()->role->name == 'admin')
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ route('defect_materials.approve_reject', ['order' => $order->id]) }}"
+                                                       class="btn btn-warning mr-1">
+                                                        <i class="fas fa-check"></i> Согласовать
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            @break
+                                        @case(1)
+                                            @if(auth()->user()->role->name == 'storekeeper')
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ route('defect_materials.pick_up', ['order' => $order->id]) }}"
+                                                       class="btn btn-warning mr-1">
+                                                        <i class="fas fa-dolly"></i> Принять
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            @break
+                                    @endswitch
                                 </div>
                             </div>
                         </div>

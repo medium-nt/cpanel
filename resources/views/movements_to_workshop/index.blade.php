@@ -46,9 +46,36 @@
                                         </li>
                                     @endforeach
 
-                                    <div class="mt-2">
+                                    <div class="my-2">
                                         Комментарий: <b>{{ $order->comment }}</b>
                                     </div>
+
+                                    @if( $order->status == '0' &&  $userRole == 'storekeeper')
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('movements_to_workshop.collect', ['order' => $order->id]) }}"
+                                               class="btn btn-warning mr-1"
+                                               title="Сформировать">
+                                                <i class="fas fa-box-open"></i> Сформировать
+                                            </a>
+                                        </div>
+                                    @elseif( $order->status == '2' && $userRole == 'seamstress')
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
+                                               class="btn btn-success mr-1"
+                                               title="Принять">
+                                                <i class="fas fa-vote-yea"></i> Принять
+                                            </a>
+                                        </div>
+                                    @endif
+
+                                    @if($userRole == 'admin' && $order->status == '0')
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('movements_to_workshop.destroy', ['order' => $order->id]) }}"
+                                               class="btn btn-danger" title="Удалить">
+                                                <i class="fas fa-trash-alt"></i> Удалить
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
 
                             </div>
