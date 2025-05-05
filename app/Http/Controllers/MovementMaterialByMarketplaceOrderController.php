@@ -13,6 +13,7 @@ class MovementMaterialByMarketplaceOrderController extends Controller
             'title' => 'Расход материала на заказы',
             'orders' => Order::query()
                 ->where('type_movement', 3)
+                ->latest()
                 ->paginate(10)
         ]);
     }

@@ -15,6 +15,7 @@ class MovementMaterialToWorkshopController extends Controller
     public function index(Request $request)
     {
         $paginatedOrders = MovementMaterialToWorkshopService::getOrdersByStatus($request->status)
+            ->latest()
             ->paginate(10);
 
         $queryParams = $request->except(['page']);

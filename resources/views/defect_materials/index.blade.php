@@ -16,6 +16,15 @@
                     <a href="{{ route('defect_materials.create') }}" class="btn btn-primary mr-3 mb-3">Добавить новый брак</a>
                 @endif
 
+                <a href="{{ route('defect_materials.index', ['status' => 0]) }}"
+                   class="btn btn-link mr-3 mb-3">Новые заказы</a>
+
+                <a href="{{ route('defect_materials.index', ['status' => 3]) }}"
+                   class="btn btn-link mr-3 mb-3">Завершенные</a>
+
+                <a href="{{ route('defect_materials.index', ['status' => -1]) }}"
+                   class="btn btn-link mr-3 mb-3">Отказанные</a>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">

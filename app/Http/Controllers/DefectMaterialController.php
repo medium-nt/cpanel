@@ -11,13 +11,22 @@ use Illuminate\Http\Request;
 
 class DefectMaterialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        match ($request->status)
+        {
+            '-1' => $statusId = [-1],
+            '3' => $statusId = [3],
+            default => $statusId = [0, 1],
+        };
+
         return view('defect_materials.index', [
             'title' => 'Передача брака на склад',
             'orders' => Order::query()
                 ->where('type_movement', 4)
-                ->orderBy('created_at', 'desc')
+                ->whereIn('status', $statusId)
+                ->latest()
+//                ->orderBy('created_at', 'desc')
                 ->paginate(10)
         ]);
     }

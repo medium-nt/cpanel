@@ -18,7 +18,7 @@ class MovementMaterialFromSupplierController extends Controller
             'title' => 'Поступление материалов на склад',
             'orders' => Order::query()
                 ->where('type_movement', 1)
-                ->orderByDesc('created_at')
+                ->latest()
                 ->paginate(10)
         ]);
     }
