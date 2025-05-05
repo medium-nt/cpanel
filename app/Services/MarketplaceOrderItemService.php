@@ -30,6 +30,7 @@ class MarketplaceOrderItemService
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
             ->orderBy('marketplace_orders.marketplace_id', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
+            ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*');
 
         if ($request->has('seamstress_id') && $status != 'new') {
