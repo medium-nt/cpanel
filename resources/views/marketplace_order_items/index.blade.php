@@ -173,7 +173,7 @@
             <x-pagination-component :collection="$items" />
         </div>
 
-        <div class="card show-only-on-wide-screens">
+        <div class="card only-on-desktop">
             <div class="card-body">
 
                 <div class="table-responsive">
@@ -293,27 +293,7 @@
 @stop
 
 @push('css')
-    <style>
-        .only-on-smartphone {
-            display: block;
-        }
-
-        @media screen and (min-width: 768px) {
-            .only-on-smartphone {
-                display: none;
-            }
-        }
-
-        .show-only-on-wide-screens {
-            display: none;
-        }
-
-        @media screen and (min-width: 768px) {
-            .show-only-on-wide-screens {
-                display: block;
-            }
-        }
-    </style>
+    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
 @endpush
 
 @push('js')

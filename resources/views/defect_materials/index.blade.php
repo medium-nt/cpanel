@@ -13,17 +13,59 @@
             <div class="card-body">
 
                 @if(auth()->user()->role->name == 'seamstress')
-                    <a href="{{ route('defect_materials.create') }}" class="btn btn-primary mr-3 mb-3">Добавить новый брак</a>
+                    <a href="{{ route('defect_materials.create') }}" class="btn btn-primary">Добавить новый брак</a>
                 @endif
 
                 <a href="{{ route('defect_materials.index', ['status' => 0]) }}"
-                   class="btn btn-link mr-3 mb-3">Новые заказы</a>
+                   class="btn btn-link">Новые заказы</a>
 
                 <a href="{{ route('defect_materials.index', ['status' => 3]) }}"
-                   class="btn btn-link mr-3 mb-3">Завершенные</a>
+                   class="btn btn-link">Завершенные</a>
 
                 <a href="{{ route('defect_materials.index', ['status' => -1]) }}"
-                   class="btn btn-link mr-3 mb-3">Отказанные</a>
+                   class="btn btn-link">Отказанные</a>
+
+            </div>
+        </div>
+
+        <div class="row only-on-smartphone">
+            @foreach ($orders as $order)
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="position-relative">
+                            <div class="card-body">
+                                <small>
+                                    <b>{{ now()->parse($order->created_at)->format('d/m/Y') }}</b>
+                                </small>
+                                <span class="mx-1 badge {{ $order->status_color }}">
+                                    {{ $order->status_name }}
+                                </span>
+
+                                <div class="mt-3">
+                                    @foreach($order->movementMaterials as $material)
+                                        <li>
+                                            <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }}
+                                            <br>
+                                        </li>
+                                    @endforeach
+                                    <div class="mt-2">
+                                        Швея: <b>{{ $order->seamstress->name }}</b>
+                                    </div>
+                                    <div class="mt-2">
+                                        Комментарий: <b>{{ $order->comment }}</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            <x-pagination-component :collection="$orders" />
+        </div>
+
+        <div class="card only-on-desktop">
+            <div class="card-body">
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
@@ -94,8 +136,7 @@
 {{-- Push extra CSS --}}
 
 @push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
 @endpush
 
 {{-- Push extra scripts --}}

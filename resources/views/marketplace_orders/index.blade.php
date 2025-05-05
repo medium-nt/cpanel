@@ -13,7 +13,6 @@
             <div class="card-body">
 
                 <div class="row">
-
                     @if(auth()->user()->role->name == 'admin')
                         <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ</a>
                     @endif
@@ -37,6 +36,88 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <div class="row only-on-smartphone">
+            @foreach ($orders as $order)
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="position-relative">
+                            <div class="ribbon-wrapper ribbon-lg">
+                                <div class="ribbon bg-gradient-gray-dark text-lg">
+                                    <img style="width: 80px;"
+                                         src="{{ asset($order->marketplace_name) }}"
+                                         alt="{{ $order->marketplace_name }}">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <b>{{ $order->order_id }} </b>
+                                <span class="mx-1 badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
+                                <b>{{ $order->fulfillment_type }}</b> <br>
+
+                                <div class="my-3">
+                                    @php
+                                        $orderStatus = true;
+                                    @endphp
+
+                                    @foreach($order->items as $item)
+                                        @php
+                                            if ($item->status != 3){
+                                                $orderStatus = false;
+                                            }
+                                        @endphp
+                                        <li>
+                                            <b>{{ $item->item->title }} {{ $item->item->width / 100 }} . {{ $item->item->height }}</b>
+                                            - {{ $item->quantity }} шт.
+                                            @if($item->status == 3) <span class="badge badge-success">Выполнено</span> @endif
+                                            @if($item->status == 4) <span class="badge badge-warning">В работе</span> @endif
+                                        </li>
+                                    @endforeach
+                                    <div class="mt-2">
+                                        <small>
+                                            Создан: <b> {{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</b>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                @if(auth()->user()->role->name == 'admin')
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('marketplace_orders.edit', ['marketplace_order' => $order->id]) }}"
+                                       class="btn btn-primary mr-3">
+                                        <i class="fas fa-edit"></i> Редактировать
+                                    </a>
+
+                                    <form method="POST"
+                                          action="{{ route('marketplace_orders.destroy', ['marketplace_order' => $order->id]) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger mr-3"
+                                                onclick="return confirm('Вы уверены что хотите удалить данный заказ из системы?')">
+                                            <i class="fas fa-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                </div>
+                                @endif
+
+                                @if($orderStatus && $order->status != 3)
+                                <a href="{{ route('marketplace_orders.complete', ['marketplace_order' => $order->id]) }}"
+                                   class="btn btn-success mt-2"
+                                   onclick="return confirm('Вы уверены что заказ выполнен?')">
+                                    <i class="fas fa-check"></i> Выполнено
+                                </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            <x-pagination-component :collection="$orders" />
+        </div>
+
+        <div class="card only-on-desktop">
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
@@ -102,7 +183,7 @@
 
                                     @if($orderStatus && $order->status != 3)
                                         <a href="{{ route('marketplace_orders.complete', ['marketplace_order' => $order->id]) }}"
-                                           class="btn btn-success mr-1"
+                                           class="btn btn-success mt-2"
                                            onclick="return confirm('Вы уверены что заказ выполнен?')">
                                             <i class="fas fa-check"></i>
                                         </a>
@@ -121,14 +202,9 @@
     </div>
 @stop
 
-{{-- Push extra CSS --}}
-
 @push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
 @endpush
-
-{{-- Push extra scripts --}}
 
 @push('js')
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>

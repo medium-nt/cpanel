@@ -11,14 +11,57 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
+                <div class="row">
+                    @if(auth()->user()->role->name == 'seamstress')
+                        <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-1">Новый заказ</a>
+                    @endif
 
-                @if(auth()->user()->role->name == 'seamstress')
-                    <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-3 mb-3">Новый заказ</a>
-                @endif
+                    <a href="{{ route('movements_to_workshop.index') }}" class="btn btn-link">Активные</a>
+                    <a href="{{ route('movements_to_workshop.index', ['status' => 'all']) }}" class="btn btn-link">Все заказы</a>
+                </div>
+            </div>
+        </div>
 
-                <a href="{{ route('movements_to_workshop.index') }}" class="btn btn-link mr-3 mb-3">Активные</a>
-                <a href="{{ route('movements_to_workshop.index', ['status' => 'all']) }}" class="btn btn-link mr-3 mb-3">Все заказы</a>
+        <div class="row only-on-smartphone">
+            @foreach ($orders as $order)
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="position-relative">
+                            <div class="card-body">
+                                <small>
+                                    <b>{{ now()->parse($order->created_at)->format('d/m/Y') }}</b>
+                                </small>
+                                <span class="mx-1 badge {{ $order->status_color }}">
+                                    {{ $order->status_name }}
+                                </span>
 
+                                <div class="mt-3">
+                                    @foreach($order->movementMaterials as $material)
+                                        <li>
+                                            <b>{{ $material->material->title }}</b> -
+                                            {{ $material->ordered_quantity }} {{ $material->material->unit }} /
+                                            <span style="@if($order->status == '2' && $material->quantity < $material->ordered_quantity) color: red; @endif">
+                                            {{ $material->quantity }} {{ $material->material->unit }}
+                                            </span>
+                                        </li>
+                                    @endforeach
+
+                                    <div class="mt-2">
+                                        Комментарий: <b>{{ $order->comment }}</b>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            <x-pagination-component :collection="$orders" />
+        </div>
+
+        <div class="card only-on-desktop">
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
@@ -34,7 +77,7 @@
                         <tbody>
                         @foreach ($orders as $order)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $order->id }}</td>
                                 <td style="white-space: nowrap;">
                                     @foreach($order->movementMaterials as $material)
                                         <b>{{ $material->material->title }}</b> -
@@ -89,3 +132,7 @@
         </div>
     </div>
 @stop
+
+@push('css')
+    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
+@endpush
