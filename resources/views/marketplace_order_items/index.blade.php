@@ -92,87 +92,6 @@
             </div>
         </div>
 
-        <div class="row only-on-smartphone">
-            @foreach ($items as $item)
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="position-relative">
-                            <div class="ribbon-wrapper ribbon-lg">
-                                <div class="ribbon bg-gradient-gray-dark text-lg">
-                                    <img style="width: 80px;"
-                                         src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
-                                         alt="{{ $item->marketplaceOrder->marketplace_name }}">
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <b>{{ $item->marketplaceOrder->order_id }} </b>
-                                <span class="mx-1 badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
-                                <b> {{ $item->marketplaceOrder->fulfillment_type }}</b> <br>
-
-                                <div class="my-3">
-                                    Товар: <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b><br>
-                                    Размеры: <b> {{ $item->item->width / 100 }}</b> . <b> {{ $item->item->height }}</b><br>
-                                    <small>
-                                        Создан: <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
-                                    </small>
-                                </div>
-
-                                @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
-                                    @switch($item->status)
-                                        @case(0)
-                                            @if(auth()->user()->role->name != 'admin')
-                                            <div class="btn-group" role="group">
-                                                <form action="{{ route('marketplace_order_items.startWork', ['marketplace_order_item' => $item->id]) }}"
-                                                      method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-success mr-1"
-                                                            title="Взять работу"
-                                                            onclick="return confirm('Вы уверены что хотите взять данный товар в работу?')">
-                                                        <i class="fas fa-drafting-compass"></i> Взять работу
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            @endif
-                                            @break
-                                        @case(4)
-                                            <div class="btn-group" role="group">
-                                                @if(auth()->user()->role->name != 'admin')
-                                                <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
-                                                      method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-success mr-4"
-                                                            title="Сдать работу"
-                                                            onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                        <i class="fas fa-check"></i> Сдать работу
-                                                    </button>
-                                                </form>
-                                                @endif
-
-                                                <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                      method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-danger mr-1"
-                                                            title="Отменить заказ"
-                                                            onclick="return confirm('Вы уверены что хотите отказаться от заказа?')">
-                                                        <i class="fas fa-times"></i> Отменить заказ
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            @break
-                                    @endswitch
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-
-            <x-pagination-component :collection="$items" />
-        </div>
-
         <div class="card only-on-desktop">
             <div class="card-body">
 
@@ -277,7 +196,7 @@
                             <tr>
                                 <td colspan="4"></td>
                                 <td colspan="3" style="text-align: center">
-                                    ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> метров
+                                    ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> м.п.
                                 </td>
                                 <td colspan="4"></td>
                             </tr>
@@ -288,6 +207,94 @@
                 <x-pagination-component :collection="$items" />
 
             </div>
+        </div>
+
+        <div class="row only-on-smartphone">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> м.п.
+                    </div>
+                </div>
+            </div>
+            @foreach ($items as $item)
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="position-relative">
+                            <div class="ribbon-wrapper ribbon-lg">
+                                <div class="ribbon bg-gradient-gray-dark text-lg">
+                                    <img style="width: 80px;"
+                                         src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
+                                         alt="{{ $item->marketplaceOrder->marketplace_name }}">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <b>{{ $item->marketplaceOrder->order_id }} </b>
+                                <span class="mx-1 badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
+                                <b> {{ $item->marketplaceOrder->fulfillment_type }}</b> <br>
+
+                                <div class="my-3">
+                                    Товар: <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b><br>
+                                    Размеры: <b> {{ $item->item->width / 100 }}</b> . <b> {{ $item->item->height }}</b><br>
+                                    <small>
+                                        Создан: <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
+                                    </small>
+                                </div>
+
+                                @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
+                                    @switch($item->status)
+                                        @case(0)
+                                            @if(auth()->user()->role->name != 'admin')
+                                                <div class="btn-group" role="group">
+                                                    <form action="{{ route('marketplace_order_items.startWork', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-success mr-1"
+                                                                title="Взять работу"
+                                                                onclick="return confirm('Вы уверены что хотите взять данный товар в работу?')">
+                                                            <i class="fas fa-drafting-compass"></i> Взять работу
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @endif
+                                            @break
+                                        @case(4)
+                                            <div class="btn-group" role="group">
+                                                @if(auth()->user()->role->name != 'admin')
+                                                    <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-success mr-4"
+                                                                title="Сдать работу"
+                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
+                                                            <i class="fas fa-check"></i> Сдать работу
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
+                                                      method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-danger mr-1"
+                                                            title="Отменить заказ"
+                                                            onclick="return confirm('Вы уверены что хотите отказаться от заказа?')">
+                                                        <i class="fas fa-times"></i> Отменить заказ
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            @break
+                                    @endswitch
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            <x-pagination-component :collection="$items" />
         </div>
     </div>
 @stop
