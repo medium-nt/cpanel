@@ -65,6 +65,7 @@ class InventoryService
             match ($type) {
                 'warehouse' => $quantity = self::materialInWarehouse($material->id),
                 'workhouse' => $quantity = self::materialInWorkshop($material->id),
+                'defect_warehouse' => $quantity = self::defectMaterialInWarehouse($material->id),
             };
 
             $materialsQuantity[] = [

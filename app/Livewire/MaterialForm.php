@@ -33,11 +33,17 @@ class MaterialForm extends Component
     public function updatedSelectedMaterialId(): void
     {
         if ($this->selectedMaterialId) {
-            if ($this->sourceType === 'workshop') {
-                $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId);
-            } else {
-                $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId);
-            }
+            match ($this->sourceType)
+                {
+                    'warehouse' => $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId),
+                    'workshop' => $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId),
+                    'defect' => $this->maxQuantity = InventoryService::defectMaterialInWarehouse($this->selectedMaterialId),
+            };
+//            if ($this->sourceType === 'workshop') {
+//                $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId);
+//            } else {
+//                $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId);
+//            }
         } else {
             $this->maxQuantity = null;
         }

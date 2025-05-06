@@ -13,7 +13,8 @@ class MarketplaceOrderController extends Controller
     public function index(Request $request)
     {
         $orders = MarketplaceOrder::query()
-            ->orderBy('marketplace_orders.created_at', 'desc');
+//            ->orderBy('marketplace_orders.created_at', 'desc');
+            ->orderBy('marketplace_orders.created_at');
 
         if($request->status != 0) {
             $orders = $orders->where('marketplace_orders.status', '!=', 0);

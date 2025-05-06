@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'cpanel',
+    'title' => 'МЕГАТЮЛЬ',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -316,9 +316,21 @@ return [
             'icon' => 'fas fa-fw fa-boxes',
         ],
         [
+            'text' => 'inventory_by_defect_warehouse',
+            'url' => 'admin/inventory/defect_warehouse',
+            'icon' => 'fas fa-fw fa-boxes',
+            'can' => 'is-storekeeper-or-admin',
+        ],
+        [
             'text' => 'movements_from_supplier',
             'url' => 'admin/movements_from_supplier',
             'icon' => 'fas fa-fw fa-truck-loading',
+            'can' => 'is-storekeeper-or-admin',
+        ],
+        [
+            'text' => 'movements_defect_to_supplier',
+            'url' => 'admin/movements_defect_to_supplier',
+            'icon' => 'fas fa-fw fa-dolly',
             'can' => 'is-storekeeper-or-admin',
         ],
         [

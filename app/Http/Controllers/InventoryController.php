@@ -21,4 +21,12 @@ class InventoryController extends Controller
             'materials' => InventoryService::materialsQuantityBy('workhouse'),
         ]);
     }
+
+    public function defectByWarehouse()
+    {
+        return view('inventory.defect_warehouse', [
+            'title' => 'Брак на складе',
+            'materials' => InventoryService::materialsQuantityBy('defect_warehouse'),
+        ]);
+    }
 }

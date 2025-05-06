@@ -29,5 +29,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     require base_path('routes/salary.php');
     require base_path('routes/movements_by_marketplace_order.php');
     require base_path('routes/schedule.php');
+    require base_path('routes/movements_defect_to_supplier.php');
 
 });
