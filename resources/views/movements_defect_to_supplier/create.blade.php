@@ -27,10 +27,20 @@
                 </div>
             @endif
 
-            <form action="{{ route('defect_materials_in_stock.store') }}" method="POST">
+            <form action="{{ route('movements_defect_to_supplier.store') }}" method="POST">
                 @method('POST')
                 @csrf
                 <div class="card-body">
+                    <div class="form-group">
+                        <label for="supplier_id">Поставщик</label>
+                        <select name="supplier_id" id="supplier_id" class="form-control" required>
+                            <option value="" disabled selected>---</option>
+                            @foreach($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}">{{ $supplier->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     @livewire('material-form', ['isFirst' => true, 'sourceType' => 'defect'])
                     @livewire('material-form', ['sourceType' => 'defect'])
                     @livewire('material-form', ['sourceType' => 'defect'])

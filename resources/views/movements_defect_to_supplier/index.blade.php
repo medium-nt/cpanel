@@ -12,7 +12,7 @@
         <div class="card">
             <div class="card-body">
 
-                <a href="{{ route('defect_materials_in_stock.create') }}" class="btn btn-primary mr-3 mb-3">Добавить новый возврат</a>
+                <a href="{{ route('movements_defect_to_supplier.create') }}" class="btn btn-primary mr-3 mb-3">Добавить новый возврат</a>
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
@@ -63,16 +63,3 @@
         </div>
     </div>
 @stop
-
-{{-- Push extra CSS --}}
-
-@push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-@endpush
-
-{{-- Push extra scripts --}}
-
-@push('js')
-    {{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
-@endpush

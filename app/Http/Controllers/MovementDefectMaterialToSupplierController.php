@@ -3,14 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDefectMaterialToSupplierRequest;
-use App\Http\Requests\UpdateMovementMaterialFromSupplierRequest;
 use App\Models\Material;
-use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Supplier;
 use App\Services\MovementDefectMaterialToSupplierService;
-use App\Services\MovementMaterialFromSupplierService;
-use Illuminate\Http\Request;
 
 class MovementDefectMaterialToSupplierController extends Controller
 {
