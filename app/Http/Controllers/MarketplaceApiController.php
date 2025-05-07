@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\InventoryService;
 use App\Services\MarketplaceApiService;
 
 class MarketplaceApiController extends Controller
