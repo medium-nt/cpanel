@@ -20,14 +20,16 @@ class DefectMaterialController extends Controller
             default => $statusId = [0, 1],
         };
 
+        $queryParams = $request->except(['page']);
+
         return view('defect_materials.index', [
             'title' => 'Передача брака на склад',
             'orders' => Order::query()
                 ->where('type_movement', 4)
                 ->whereIn('status', $statusId)
                 ->latest()
-//                ->orderBy('created_at', 'desc')
                 ->paginate(10)
+                ->appends($queryParams)
         ]);
     }
 
