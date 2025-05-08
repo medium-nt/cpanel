@@ -75,9 +75,12 @@
                                         </li>
                                     @endforeach
                                     <div class="mt-2">
-                                        <small>
+                                        <small class="mr-2">
                                             Создан: <b> {{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</b>
                                         </small>
+                                        <badge class="badge @if($order->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                            {{ $order->created_at->diffForHumans(['parts' => 2]) }}
+                                        </badge>
                                     </div>
                                 </div>
 
@@ -161,7 +164,12 @@
                                         <br>
                                     @endforeach
                                 </td>
-                                <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    <span class="mr-2">{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</span>
+                                    <badge class="badge @if($order->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                        {{ $order->created_at->diffForHumans(['parts' => 2]) }}
+                                    </badge><br>
+                                </td>
                                 <td>{{ is_null($order->completed_at) ? '' : now()->parse($order->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
@@ -204,6 +212,7 @@
 
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('css/badges.css') }}" rel="stylesheet"/>
 @endpush
 
 @push('js')

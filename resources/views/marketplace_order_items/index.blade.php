@@ -136,7 +136,12 @@
                                          alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                 </td>
                                 <td>{{ $item->marketplaceOrder->fulfillment_type }}</td>
-                                <td>{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    <span class="mr-2">{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</span>
+                                    <badge class="badge @if($item->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                        {{ $item->created_at->diffForHumans(['parts' => 2]) }}
+                                    </badge><br>
+                                </td>
                                 <td>{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
@@ -237,8 +242,13 @@
                                     Товар: <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b><br>
                                     Размеры: <b> {{ $item->item->width / 100 }}</b> . <b> {{ $item->item->height }}</b><br>
                                     <small>
+                                    </small>
+                                    <small class="mr-2">
                                         Создан: <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
                                     </small>
+                                    <badge class="badge @if($item->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                        {{ $item->created_at->diffForHumans(['parts' => 2]) }}
+                                    </badge>
                                 </div>
 
                                 @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
@@ -301,6 +311,7 @@
 
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('css/badges.css') }}" rel="stylesheet"/>
 @endpush
 
 @push('js')
