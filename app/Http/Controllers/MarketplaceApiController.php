@@ -34,6 +34,11 @@ class MarketplaceApiController extends Controller
 
     public function uploadingNewProducts()
     {
-        //
+        $result = MarketplaceApiService::uploadingNewProducts();
+
+        return view('marketplace_api.uploading_new_products', [
+            'title' => 'Отчет о загрузке новых товаров',
+            'results' => $result,
+        ]);
     }
 }

@@ -2,9 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\MarketplaceOrder;
+use App\Models\MarketplaceOrderItem;
 use App\Models\Sku;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Throwable;
 
 class MarketplaceApiService
 {
@@ -86,4 +91,71 @@ class MarketplaceApiService
         return $notFoundSkus;
     }
 
+    public static function getAllNewOrders(): object|false|null
+    {
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => Config::get('marketplaces.wb_api_key')])
+            ->get('https://marketplace-api.wildberries.ru/api/v3/orders/new');
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        return $response->object();
+    }
+
+    public static function uploadingNewProducts(): false|array
+    {
+        $newOrders = MarketplaceApiService::getAllNewOrders()->orders;
+
+        $arrayNotFoundSkus = [];
+
+        foreach ($newOrders as $order) {
+            try {
+                DB::beginTransaction();
+
+                $sku = Sku::query()->where('sku', $order->skus[0])->first();
+
+                //  проверить что такой sku есть в системе
+                if (!$sku) {
+                    $arrayNotFoundSkus[$order->id] = $order->skus[0];
+                    continue;
+                }
+
+                // проверить есть ли такой заказ уже в системе
+                if (MarketplaceOrder::query()->where('order_id', $order->id)->first()) {
+                    continue;
+                }
+
+                // добавить заказ в систему
+                $marketplaceOrder = MarketplaceOrder::query()->create([
+                    'order_id' => $order->id,
+                    'marketplace_id' => 2,
+                    'fulfillment_type' => $order->deliveryType,
+                    'status' => 0,
+                    'created_at' => Carbon::parse($order->createdAt)->setTimezone('Europe/Moscow')
+                ]);
+
+                // добавить материалы из заказа в систему
+                foreach ($order->skus as $skus) {
+                    $movementData['marketplace_order_id'] = $marketplaceOrder->id;
+                    $movementData['marketplace_item_id'] = $sku->item_id;
+                    $movementData['quantity'] = 1;
+                    $movementData['price'] = 0;
+                    $movementData['created_at'] = Carbon::parse($order->createdAt)->setTimezone('Europe/Moscow');
+
+                    MarketplaceOrderItem::query()->create($movementData);
+                }
+
+                DB::commit();
+            } catch (Throwable $e) {
+                DB::rollBack();
+
+                return false;
+            }
+        }
+
+        return $arrayNotFoundSkus;
+    }
 }

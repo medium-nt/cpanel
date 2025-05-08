@@ -14,7 +14,9 @@
 
                 <div class="row">
                     @if(auth()->user()->role->name == 'admin')
-                        <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ</a>
+                        <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ вручную</a>
+
+                        <a href="{{ route('marketplace_api.newOrder') }}" class="btn btn-success mr-3 mb-3">Загрузить заказы с API</a>
                     @endif
 
                     <a href="{{ route('marketplace_orders.index', ['status' => 0, 'marketplace_id' => request('marketplace_id')]) }}"
