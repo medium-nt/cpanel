@@ -80,7 +80,11 @@
                                         <small class="mr-2">
                                             Создан: <b> {{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</b>
                                         </small>
-                                        <badge class="badge @if($order->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                        <badge class="badge
+                                        @if($order->created_at->addHours(41)->isPast()) badge-hot
+                                        @elseif($order->created_at->addHours(21)->isPast()) badge-old
+                                        @else badge-new
+                                        @endif">
                                             {{ $order->created_at->diffForHumans(['parts' => 2]) }}
                                         </badge>
                                     </div>
@@ -168,7 +172,11 @@
                                 </td>
                                 <td>
                                     <span class="mr-2">{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</span>
-                                    <badge class="badge @if($order->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                    <badge class="badge
+                                    @if($order->created_at->addHours(41)->isPast()) badge-hot
+                                    @elseif($order->created_at->addHours(21)->isPast()) badge-old
+                                    @else badge-new
+                                    @endif">
                                         {{ $order->created_at->diffForHumans(['parts' => 2]) }}
                                     </badge><br>
                                 </td>

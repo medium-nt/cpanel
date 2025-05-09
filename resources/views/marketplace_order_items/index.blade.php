@@ -138,7 +138,11 @@
                                 <td>{{ $item->marketplaceOrder->fulfillment_type }}</td>
                                 <td>
                                     <span class="mr-2">{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</span>
-                                    <badge class="badge @if($item->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                    <badge class="badge
+                                    @if($item->created_at->addHours(41)->isPast()) badge-hot
+                                    @elseif($item->created_at->addHours(21)->isPast()) badge-old
+                                    @else badge-new
+                                    @endif">
                                         {{ $item->created_at->diffForHumans(['parts' => 2]) }}
                                     </badge><br>
                                 </td>
@@ -246,7 +250,11 @@
                                     <small class="mr-2">
                                         Создан: <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
                                     </small>
-                                    <badge class="badge @if($item->created_at->addHours(20)->isPast()) badge-old @else badge-new @endif">
+                                    <badge class="badge
+                                    @if($item->created_at->addHours(41)->isPast()) badge-hot
+                                    @elseif($item->created_at->addHours(21)->isPast()) badge-old
+                                    @else badge-new
+                                    @endif">
                                         {{ $item->created_at->diffForHumans(['parts' => 2]) }}
                                     </badge>
                                 </div>
