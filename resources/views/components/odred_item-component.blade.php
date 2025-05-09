@@ -24,6 +24,7 @@
                    id="quantity"
                    name="quantity[]"
                    step="1"
+                   disabled
             >
         </div>
     </div>

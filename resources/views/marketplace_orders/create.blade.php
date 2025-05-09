@@ -94,6 +94,7 @@
                                        id="quantity"
                                        name="quantity[]"
                                        step="1"
+                                       disabled
                                 >
                             </div>
                         </div>
@@ -115,6 +116,20 @@
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ asset('js/marketplace_orders.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.item_id').on('change', function() {
+                var quantityInput = $(this).closest('.row').find('[name="quantity[]"]');
+
+                if ($(this).val() === '') {
+                    quantityInput.prop('disabled', true);
+                } else {
+                    quantityInput.prop('disabled', false);
+                }
+            });
+        });
+    </script>
 @endpush
 
 @push('css')

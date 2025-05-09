@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMarketplaceOrderRequest;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Services\MarketplaceOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,7 +15,6 @@ class MarketplaceOrderController extends Controller
     public function index(Request $request)
     {
         $orders = MarketplaceOrder::query()
-//            ->orderBy('marketplace_orders.created_at', 'desc');
             ->orderBy('marketplace_orders.created_at');
 
         if($request->status != 0) {
@@ -42,68 +43,10 @@ class MarketplaceOrderController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreMarketplaceOrderRequest $request)
     {
-        if (!is_array($request->item_id)) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
-        }
-
-        $data = [];
-        foreach ($request->item_id as $key => $item_id) {
-            if ($request->quantity[$key] > 0) {
-                $data[] = [
-                    'order_id' => $request->order_id,
-                    'marketplace_id' => $request->marketplace_id,
-                    'item_id' => $item_id,
-                    'quantity' => $request->quantity[$key],
-                    'fulfillment_type' => $request->fulfillment_type,
-                ];
-            }
-        }
-
-        if ($data == []) {
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Заказ не может быть пустым'])
-                ->withInput();
-        }
-
-        $rules = [
-            '*.order_id' => 'required',
-            '*.marketplace_id' => 'required',
-            '*.item_id' => 'required|exists:marketplace_items,id',
-            '*.quantity' => 'required|integer|min:1',
-            '*.fulfillment_type' => 'required|in:FBO,FBS',
-        ];
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $validatedData = $validator->validated();
-
-        $marketplaceOrder = MarketplaceOrder::query()->create([
-            'order_id' => $request->order_id,
-            'marketplace_id' => $request->marketplace_id,
-            'fulfillment_type' => $request->fulfillment_type,
-            'status' => 0,
-        ]);
-
-        foreach ($validatedData as $item) {
-            $movementData['marketplace_order_id'] = $marketplaceOrder->id;
-            $movementData['marketplace_item_id'] = $item['item_id'];
-            $movementData['quantity'] = $item['quantity'];
-            $movementData['price'] = 0;
-
-            MarketplaceOrderItem::query()->create($movementData);
+        if(!MarketplaceOrderService::store($request)) {
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
         return redirect()
