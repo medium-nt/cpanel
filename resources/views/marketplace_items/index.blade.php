@@ -52,7 +52,7 @@
                         <tbody>
                         @foreach ($items as $item)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $item->id }}</td>
                                 <td>{{ $item->title }}</td>
                                 <td>{{ $item->width }}</td>
                                 <td>{{ $item->height }}</td>

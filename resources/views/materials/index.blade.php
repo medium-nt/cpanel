@@ -28,7 +28,7 @@
                         <tbody>
                         @foreach ($materials as $material)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $material->id }}</td>
                                 <td>{{ $material->type->title }}</td>
                                 <td>{{ $material->title }}</td>
                                 <td>{{ $material->unit }}</td>

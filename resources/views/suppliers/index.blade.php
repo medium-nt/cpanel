@@ -29,7 +29,7 @@
                         <tbody>
                         @foreach ($suppliers as $supplier)
                             <tr>
-                                <td style="width: 50px">{{ $loop->iteration }}</td>
+                                <td style="width: 50px">{{ $supplier->id }}</td>
                                 <td>{{ $supplier->title }}</td>
                                 <td>{{ $supplier->phone }}</td>
                                 <td>{{ $supplier->address }}</td>

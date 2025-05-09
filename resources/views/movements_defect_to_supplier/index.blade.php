@@ -29,7 +29,7 @@
                         <tbody>
                         @foreach ($orders as $order)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $order->id }}</td>
                                 <td>
                                     @foreach($order->movementMaterials as $material)
                                         <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }} <br>
