@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class MarketplaceApiService
@@ -105,11 +106,14 @@ class MarketplaceApiService
         return $response->object();
     }
 
-    public static function uploadingNewProducts(): false|array
+    public static function uploadingNewProducts(): array
     {
+        Log::channel('marketplace_api')->info('Начало загрузки.');
+
         $newOrders = MarketplaceApiService::getAllNewOrders()->orders;
 
         $arrayNotFoundSkus = [];
+        $errors = [];
 
         foreach ($newOrders as $order) {
             try {
@@ -148,14 +152,27 @@ class MarketplaceApiService
                     MarketplaceOrderItem::query()->create($movementData);
                 }
 
+                Log::channel('marketplace_api')->info('\t\tЗаказ №' . $order->id . ' добавлен в систему.');
+
                 DB::commit();
             } catch (Throwable $e) {
                 DB::rollBack();
 
-                return false;
+                // Собираем ошибки в массив
+                $errors[$order->id] = [
+                    'message' => $e->getMessage(),
+                ];
+
+                Log::channel('marketplace_api')
+                    ->error('\t\tОшибка при загрузке заказа №' . $order->id . ': ' . $e->getMessage());
             }
         }
 
-        return $arrayNotFoundSkus;
+        Log::channel('marketplace_api')->info('Заказы загружены.');
+
+        return [
+            'not_found_skus' => $arrayNotFoundSkus,
+            'errors' => $errors,
+        ];
     }
 }
