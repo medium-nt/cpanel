@@ -10,7 +10,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::call(function () {
-    echo ' Starting schedule';
-    Log::channel('marketplace_api')->info('Тест крона.');
-    MarketplaceApiService::uploadingNewProducts();
+//    MarketplaceApiService::uploadingNewProducts();
 })->everyFiveMinutes();
