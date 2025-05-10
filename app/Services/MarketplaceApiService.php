@@ -117,19 +117,21 @@ class MarketplaceApiService
 
         foreach ($newOrders as $order) {
             try {
-//                DB::beginTransaction();
+                DB::beginTransaction();
 
                 $sku = Sku::query()->where('sku', $order->skus[0])->first();
 
                 //  проверить что такой sku есть в системе
                 if (!$sku) {
                     $arrayNotFoundSkus[$order->id] = $order->skus[0];
+                    DB::rollBack();
                     continue;
                 }
 
                 // проверить есть ли такой заказ уже в системе
                 if (MarketplaceOrder::query()->where('order_id', $order->id)->first()) {
                     Log::channel('marketplace_api')->info('    Дубль заказа №' . $order->id . '.');
+                    DB::rollBack();
                     continue;
                 }
 
@@ -150,16 +152,15 @@ class MarketplaceApiService
                     $movementData['price'] = 0;
                     $movementData['created_at'] = Carbon::parse($order->createdAt)->setTimezone('Europe/Moscow');
 
-                    $test = MarketplaceOrderItem::query()->create($movementData);
+                    MarketplaceOrderItem::query()->create($movementData);
                 }
 
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
-//                DB::commit();
+                DB::commit();
             } catch (Throwable $e) {
-//                DB::rollBack();
+                DB::rollBack();
 
-                dd($marketplaceOrder, $movementData, $order->skus, $test);
                 // Собираем ошибки в массив
                 $errors[$order->id] = [
                     'message' => $e->getMessage(),
