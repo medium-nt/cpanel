@@ -149,13 +149,13 @@ class MarketplaceApiService
                     $movementData['price'] = 0;
                     $movementData['created_at'] = Carbon::parse($order->createdAt)->setTimezone('Europe/Moscow');
 
-                    MarketplaceOrderItem::query()->create($movementData);
+                    $test = MarketplaceOrderItem::query()->create($movementData);
                 }
 
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
                 DB::commit();
-                dd($marketplaceOrder, $movementData,  $order->skus);
+                dd($marketplaceOrder, $movementData, $order->skus, $test);
             } catch (Throwable $e) {
                 DB::rollBack();
 
