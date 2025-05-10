@@ -132,7 +132,6 @@ class MarketplaceApiService
                     continue;
                 }
 
-                dd($marketplaceOrder, $order->skus);
 
                 // добавить заказ в систему
                 $marketplaceOrder = MarketplaceOrder::query()->create([
@@ -142,6 +141,7 @@ class MarketplaceApiService
                     'status' => 0,
                     'created_at' => Carbon::parse($order->createdAt)->setTimezone('Europe/Moscow')
                 ]);
+                dd($marketplaceOrder, $order->skus);
 
                 // добавить материалы из заказа в систему
                 foreach ($order->skus as $skus) {
