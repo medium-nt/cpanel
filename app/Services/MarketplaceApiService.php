@@ -155,7 +155,7 @@ class MarketplaceApiService
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
                 DB::commit();
-                dd($marketplaceOrder, $order->skus);
+                dd($marketplaceOrder, $movementData,  $order->skus);
             } catch (Throwable $e) {
                 DB::rollBack();
 
