@@ -132,7 +132,6 @@ class MarketplaceApiService
                     continue;
                 }
 
-
                 // добавить заказ в систему
                 $marketplaceOrder = MarketplaceOrder::query()->create([
                     'order_id' => $order->id,
