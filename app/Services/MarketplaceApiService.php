@@ -155,10 +155,10 @@ class MarketplaceApiService
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
                 DB::commit();
-                dd($marketplaceOrder, $movementData, $order->skus, $test);
             } catch (Throwable $e) {
                 DB::rollBack();
 
+                dd($marketplaceOrder, $movementData, $order->skus, $test);
                 // Собираем ошибки в массив
                 $errors[$order->id] = [
                     'message' => $e->getMessage(),
