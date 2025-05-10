@@ -152,7 +152,7 @@ class MarketplaceApiService
                     MarketplaceOrderItem::query()->create($movementData);
                 }
 
-                Log::channel('marketplace_api')->info('\t\tЗаказ №' . $order->id . ' добавлен в систему.');
+                Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
                 DB::commit();
             } catch (Throwable $e) {
@@ -164,7 +164,7 @@ class MarketplaceApiService
                 ];
 
                 Log::channel('marketplace_api')
-                    ->error('\t\tОшибка при загрузке заказа №' . $order->id . ': ' . $e->getMessage());
+                    ->error('    Ошибка при загрузке заказа №' . $order->id . ': ' . $e->getMessage());
             }
         }
 
