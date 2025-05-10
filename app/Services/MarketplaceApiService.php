@@ -124,13 +124,14 @@ class MarketplaceApiService
                 //  проверить что такой sku есть в системе
                 if (!$sku) {
                     $arrayNotFoundSkus[$order->id] = $order->skus[0];
+
                     DB::rollBack();
                     continue;
                 }
 
                 // проверить есть ли такой заказ уже в системе
                 if (MarketplaceOrder::query()->where('order_id', $order->id)->first()) {
-                    Log::channel('marketplace_api')->info('    Дубль заказа №' . $order->id . '.');
+
                     DB::rollBack();
                     continue;
                 }
