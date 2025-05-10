@@ -129,6 +129,7 @@ class MarketplaceApiService
 
                 // проверить есть ли такой заказ уже в системе
                 if (MarketplaceOrder::query()->where('order_id', $order->id)->first()) {
+                    Log::channel('marketplace_api')->info('    Дубль заказа №' . $order->id . '.');
                     continue;
                 }
 
