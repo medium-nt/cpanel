@@ -117,7 +117,7 @@ class MarketplaceApiService
 
         foreach ($newOrders as $order) {
             try {
-                DB::beginTransaction();
+//                DB::beginTransaction();
 
                 $sku = Sku::query()->where('sku', $order->skus[0])->first();
 
@@ -155,9 +155,9 @@ class MarketplaceApiService
 
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
-                DB::commit();
+//                DB::commit();
             } catch (Throwable $e) {
-                DB::rollBack();
+//                DB::rollBack();
 
                 dd($marketplaceOrder, $movementData, $order->skus, $test);
                 // Собираем ошибки в массив
