@@ -167,6 +167,7 @@ class MarketplaceOrderItemService
             $marketplaceOrderItem->update([
                 'status' => 0,
                 'seamstress_id' => 0,
+                'completed_at' => null
             ]);
 
             $order = Order::query()
