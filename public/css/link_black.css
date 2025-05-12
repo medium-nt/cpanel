@@ -1,0 +1,4 @@
+.link-black {
+    color: black !important; /* Устанавливаем цвет текста */
+    text-decoration: none; /* Убираем подчеркивание */
+}
