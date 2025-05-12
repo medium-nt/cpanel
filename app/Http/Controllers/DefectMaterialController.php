@@ -7,6 +7,7 @@ use App\Models\Material;
 use App\Models\Order;
 use App\Models\Supplier;
 use App\Services\DefectMaterialService;
+use App\Services\InventoryService;
 use Illuminate\Http\Request;
 
 class DefectMaterialController extends Controller
@@ -24,6 +25,7 @@ class DefectMaterialController extends Controller
 
         return view('defect_materials.index', [
             'title' => 'Передача брака на склад',
+            'materials' => InventoryService::materialsQuantityBy('defect_warehouse'),
             'orders' => Order::query()
                 ->where('type_movement', 4)
                 ->whereIn('status', $statusId)
