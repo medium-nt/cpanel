@@ -305,61 +305,80 @@ return [
             'icon' => 'fas fa-fw fa-home',
         ],
         [
-            'text' => 'inventory_by_warehouse',
-            'url' => 'admin/inventory/warehouse',
+            'text' => 'inventory',
             'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'is-storekeeper-or-admin',
+            'submenu' => [
+                [
+                    'text' => 'inventory_by_warehouse',
+                    'url' => 'admin/inventory/warehouse',
+                    'icon' => 'fas fa-fw fa-boxes',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
+                [
+                    'text' => 'inventory_by_workshop',
+                    'url' => 'admin/inventory/workshop',
+                    'icon' => 'fas fa-fw fa-boxes',
+                ],
+//              [
+//                  'text' => 'inventory_by_defect_warehouse',
+//                  'url' => 'admin/inventory/defect_warehouse',
+//                  'icon' => 'fas fa-fw fa-boxes',
+//                  'can' => 'is-storekeeper-or-admin',
+//              ],
+            ]
         ],
         [
-            'text' => 'inventory_by_workshop',
-            'url' => 'admin/inventory/workshop',
-            'icon' => 'fas fa-fw fa-boxes',
-        ],
-//        [
-//            'text' => 'inventory_by_defect_warehouse',
-//            'url' => 'admin/inventory/defect_warehouse',
-//            'icon' => 'fas fa-fw fa-boxes',
-//            'can' => 'is-storekeeper-or-admin',
-//        ],
-        [
-            'text' => 'movements_from_supplier',
-            'url' => 'admin/movements_from_supplier',
-            'icon' => 'fas fa-fw fa-truck-loading',
-            'can' => 'is-storekeeper-or-admin',
-        ],
-        [
-            'text' => 'movements_defect_to_supplier',
-            'url' => 'admin/movements_defect_to_supplier',
+            'text' => 'movements',
             'icon' => 'fas fa-fw fa-dolly',
-            'can' => 'is-storekeeper-or-admin',
+            'submenu' => [
+                [
+                    'text' => 'movements_from_supplier',
+                    'url' => 'admin/movements_from_supplier',
+                    'icon' => 'fas fa-fw fa-truck-loading',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
+                [
+                    'text' => 'movements_defect_to_supplier',
+                    'url' => 'admin/movements_defect_to_supplier',
+                    'icon' => 'fas fa-fw fa-dolly',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
+                [
+                    'text' => 'movements_to_workshop',
+                    'url' => 'admin/movements_to_workshop',
+                    'icon' => 'fas fa-fw fa-dolly',
+                ],
+                [
+                    'text' => 'movements_by_marketplace_order',
+                    'url' => 'admin/movements_by_marketplace_order',
+                    'icon' => 'fas fa-fw fa-pencil-ruler',
+                    'can' => 'is-admin',
+                ],
+                [
+                    'text' => 'defect_materials',
+                    'url' => 'admin/defect_materials',
+                    'icon' => 'fas fa-fw fa-trash-alt',
+                ],
+            ]
         ],
         [
-            'text' => 'movements_to_workshop',
-            'url' => 'admin/movements_to_workshop',
-            'icon' => 'fas fa-fw fa-dolly',
+            'text' => 'marketplace',
+            'icon' => 'fas fa-fw fa-shopping-cart',
+            'submenu' => [
+                [
+                    'text' => 'marketplace_orders',
+                    'url' => 'admin/marketplace_orders',
+                    'icon' => 'fas fa-fw fa-cart-arrow-down',
+                ],
+                [
+                    'text' => 'marketplace_order_items',
+                    'url' => 'admin/marketplace_order_items',
+                    'icon' => 'fas fa-fw fa-stream',
+                    'can' => 'is-seamstress-or-admin',
+                ],
+            ]
         ],
-        [
-            'text' => 'movements_by_marketplace_order',
-            'url' => 'admin/movements_by_marketplace_order',
-            'icon' => 'fas fa-fw fa-pencil-ruler',
-            'can' => 'is-admin',
-        ],
-        [
-            'text' => 'defect_materials',
-            'url' => 'admin/defect_materials',
-            'icon' => 'fas fa-fw fa-trash-alt',
-        ],
-        [
-            'text' => 'marketplace_orders',
-            'url' => 'admin/marketplace_orders',
-            'icon' => 'fas fa-fw fa-cart-arrow-down',
-        ],
-        [
-            'text' => 'marketplace_order_items',
-            'url' => 'admin/marketplace_order_items',
-            'icon' => 'fas fa-fw fa-stream',
-            'can' => 'is-seamstress-or-admin',
-        ],
+
         [
             'text' => 'transactions',
             'url' => 'admin/transactions',
