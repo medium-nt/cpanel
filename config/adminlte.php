@@ -315,12 +315,12 @@ return [
             'url' => 'admin/inventory/workshop',
             'icon' => 'fas fa-fw fa-boxes',
         ],
-        [
-            'text' => 'inventory_by_defect_warehouse',
-            'url' => 'admin/inventory/defect_warehouse',
-            'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'is-storekeeper-or-admin',
-        ],
+//        [
+//            'text' => 'inventory_by_defect_warehouse',
+//            'url' => 'admin/inventory/defect_warehouse',
+//            'icon' => 'fas fa-fw fa-boxes',
+//            'can' => 'is-storekeeper-or-admin',
+//        ],
         [
             'text' => 'movements_from_supplier',
             'url' => 'admin/movements_from_supplier',
