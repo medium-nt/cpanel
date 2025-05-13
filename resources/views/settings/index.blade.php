@@ -103,6 +103,24 @@
                 </div>
             </div>
         </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{{ route('marketplace_api.checkDuplicateSkuz') }}"
+                           class="btn btn-outline-primary mb-3 mr-3">
+                            Проверить дубли skuz в системе
+                        </a>
+
+                        <a href="{{ route('marketplace_api.checkSkuz') }}"
+                           class="btn btn-outline-primary mb-3">
+                            Проверить наличие всех skuz в системе
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @stop
 

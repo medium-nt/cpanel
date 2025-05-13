@@ -12,6 +12,8 @@
         <div class="card">
             <div class="card-body">
 
+                <a href="{{ route('setting.index') }}" class="btn btn-primary mb-3">Вернуться в настройки</a>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">

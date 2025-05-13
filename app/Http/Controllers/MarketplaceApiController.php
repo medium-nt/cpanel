@@ -9,7 +9,9 @@ class MarketplaceApiController extends Controller
 {
     public function checkSkuz()
     {
-        $allItems = MarketplaceApiService::getAllItems();
+        $allItemsOzon = MarketplaceApiService::getAllItemsOzon();
+        $allItemsWb = MarketplaceApiService::getAllItemsWb();
+        $allItems = array_merge($allItemsOzon, $allItemsWb);
 
         $notFoundSkus = MarketplaceApiService::getNotFoundSkus($allItems);
 

@@ -14,7 +14,7 @@ use Throwable;
 
 class MarketplaceApiService
 {
-    public static function getItems($cursor = 0): object|false|null
+    public static function getItemsWb($cursor = 0): object|false|null
     {
         $response = Http::accept('application/json')
         ->withOptions(['verify' => false])
@@ -28,7 +28,7 @@ class MarketplaceApiService
         return $response->object();
     }
 
-    public static function getAllItems(): array
+    public static function getAllItemsWb(): array
     {
         $productsArray = [];
 
@@ -45,7 +45,7 @@ class MarketplaceApiService
         ];
 
         do {
-            $items = MarketplaceApiService::getItems($cursor);
+            $items = MarketplaceApiService::getItemsWb($cursor);
 
             if(!$items) {
                 return $productsArray;
@@ -53,9 +53,9 @@ class MarketplaceApiService
 
             foreach ($items->cards as $product) {
                 $array = [
-                    'imtID' => $product->imtID,
-                    'nmID' => $product->nmID,
+                    'marketplace_id' => 'wb',
                     'title' => $product->title,
+                    'nmID' => $product->nmID,
                     'skus' => [],
                 ];
 
@@ -76,6 +76,68 @@ class MarketplaceApiService
         } while (true);
 
         return $productsArray;
+    }
+
+    public static function getAllItemsOzon(): array
+    {
+        $productsArray = [];
+        $lastId = '';
+
+        $limit = 100;
+        $body = [
+            "filter" => [
+                "visibility" => "ALL",
+            ],
+            "limit" => $limit,
+            "sort_dir" => "ASC",
+            "last_id" => $lastId,
+        ];
+
+        do {
+            $items = MarketplaceApiService::getItemsOzon($body);
+
+            if(!$items) {
+                return $productsArray;
+            }
+
+            foreach ($items->result as $product) {
+                $array = [
+                    'marketplace_id' => 'ozon',
+                    'title' => $product->name,
+                    'nmID' => $product->id,
+                    'skus' => [],
+                ];
+
+                $array['skus'][] = $product->sku;
+
+                $productsArray[] = $array;
+            }
+
+            if (isset($items->last_id)) {
+                $body["last_id"] = $items->last_id;
+            } else {
+                break;
+            }
+        } while (true);
+
+        return $productsArray;
+    }
+
+    public static function getItemsOzon($body = 0): object|false|null
+    {
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v4/product/info/attributes', $body);
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        return $response->object();
     }
 
     public static function getNotFoundSkus($allItems): array
@@ -183,5 +245,15 @@ class MarketplaceApiService
     private static function getWbApiKey()
     {
         return Setting::query()->where('name', 'api_key_wb')->first()->value;
+    }
+
+    private static function getOzonApiKey()
+    {
+        return Setting::query()->where('name', 'api_key_ozon')->first()->value;
+    }
+
+    private static function getOzonSellerId()
+    {
+        return Setting::query()->where('name', 'seller_id_ozon')->first()->value;
     }
 }
