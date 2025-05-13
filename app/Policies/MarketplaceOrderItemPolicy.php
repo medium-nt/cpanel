@@ -12,7 +12,7 @@ class MarketplaceOrderItemPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name == 'admin' || $user->role->name == 'seamstress';
+        return $user->role->name == 'admin' || $user->role->name == 'seamstress' || $user->role->name == 'storekeeper';
     }
 
     /**

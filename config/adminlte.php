@@ -374,7 +374,7 @@ return [
                     'text' => 'marketplace_order_items',
                     'url' => 'admin/marketplace_order_items',
                     'icon' => 'fas fa-fw fa-stream',
-                    'can' => 'is-seamstress-or-admin',
+//                    'can' => 'is-seamstress-or-admin',
                 ],
             ]
         ],
