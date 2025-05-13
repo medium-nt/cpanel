@@ -13,6 +13,15 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
+                    <a href="{{ route('movements_defect_to_supplier.create') }}"
+                       class="btn btn-primary mr-3">
+                        Добавить возврат поставщику
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
 
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered">
