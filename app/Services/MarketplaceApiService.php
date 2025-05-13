@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Setting;
 use App\Models\Sku;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +18,7 @@ class MarketplaceApiService
     {
         $response = Http::accept('application/json')
         ->withOptions(['verify' => false])
-        ->withHeaders(['Authorization' => Config::get('marketplaces.wb_api_key')])
+        ->withHeaders(['Authorization' => self::getWbApiKey()])
         ->post('https://content-api.wildberries.ru/content/v2/get/cards/list', $cursor);
 
         if(!$response->ok()) {
@@ -96,7 +96,7 @@ class MarketplaceApiService
     {
         $response = Http::accept('application/json')
             ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => Config::get('marketplaces.wb_api_key')])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
             ->get('https://marketplace-api.wildberries.ru/api/v3/orders/new');
 
         if(!$response->ok()) {
@@ -178,5 +178,10 @@ class MarketplaceApiService
             'not_found_skus' => $arrayNotFoundSkus,
             'errors' => $errors,
         ];
+    }
+
+    private static function getWbApiKey()
+    {
+        return Setting::query()->where('name', 'api_key_wb')->first()->value;
     }
 }

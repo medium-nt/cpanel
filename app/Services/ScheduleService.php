@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Schedule;
+use App\Models\Setting;
 use Carbon\Carbon;
 
 class ScheduleService
@@ -36,6 +37,11 @@ class ScheduleService
         }
 
         return false;
+    }
+
+    public static function isEnabledSchedule(): bool
+    {
+        return Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
     }
 
 }

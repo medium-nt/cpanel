@@ -64,20 +64,22 @@ class MarketplaceOrderItemService
 
     public static function acceptToSeamstress($marketplaceOrderItem): array
     {
-        if (!ScheduleService::isWorkDay()) {
-            return [
-                'success' => false,
-                'message' => 'Вы не можете взять заказ в нерабочий день!'
-            ];
-        }
+        if (ScheduleService::isEnabledSchedule()) {
+            if (!ScheduleService::isWorkDay()) {
+                return [
+                    'success' => false,
+                    'message' => 'Вы не можете взять заказ в нерабочий день!'
+                ];
+            }
 
-        $nowTime = Carbon::now();
-        if ($nowTime->lt(Carbon::createFromFormat('H:i:s', '07:00:00')) ||
-            $nowTime->gte(Carbon::createFromFormat('H:i:s', '20:00:00'))) {
-            return [
-                'success' => false,
-                'message' => 'Вы не можете взять заказ в нерабочее время! Сейчас ' . $nowTime->format('H:i:s') . '!'
-            ];
+            $nowTime = Carbon::now();
+            if ($nowTime->lt(Carbon::createFromFormat('H:i:s', '07:00:00')) ||
+                $nowTime->gte(Carbon::createFromFormat('H:i:s', '20:00:00'))) {
+                return [
+                    'success' => false,
+                    'message' => 'Вы не можете взять заказ в нерабочее время! Сейчас ' . $nowTime->format('H:i:s') . '!'
+                ];
+            }
         }
 
         $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
