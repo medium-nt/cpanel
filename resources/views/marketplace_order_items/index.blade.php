@@ -193,7 +193,22 @@
                                                         </button>
                                                     </form>
                                                 </div>
-
+                                                @break
+                                            @case(3)
+                                                <div class="btn-group" role="group">
+                                                    @if(auth()->user()->role->name == 'admin')
+                                                        <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
+                                                              method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit" class="btn btn-danger mr-1"
+                                                                    title="Удалить заказ"
+                                                                    onclick="return confirm('Вы уверены что хотите удалить уже выполненный заказа?')">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
                                                 @break
                                         @endswitch
                                     @endif
@@ -205,7 +220,7 @@
                             <tr>
                                 <td colspan="4"></td>
                                 <td colspan="3" style="text-align: center">
-                                    ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> м.п.
+                                    ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> п.м.
                                 </td>
                                 <td colspan="4"></td>
                             </tr>
@@ -222,7 +237,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> м.п.
+                        ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> п.м.
                     </div>
                 </div>
             </div>
@@ -302,6 +317,22 @@
                                                         <i class="fas fa-times"></i> Отменить заказ
                                                     </button>
                                                 </form>
+                                            </div>
+                                            @break
+                                        @case(3)
+                                            <div class="btn-group" role="group">
+                                                @if(auth()->user()->role->name == 'admin')
+                                                    <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-danger mr-1"
+                                                                title="Удалить заказ"
+                                                                onclick="return confirm('Вы уверены что хотите удалить уже выполненный заказа?')">
+                                                            <i class="fas fa-times"></i> Удалить заказ
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </div>
                                             @break
                                     @endswitch
