@@ -220,7 +220,7 @@
                             <tr>
                                 <td colspan="4"></td>
                                 <td colspan="3" style="text-align: center">
-                                    ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> п.м.
+                                    Итого на странице: <b>{{ $allCalcWidth / 100 }}</b> п.м.
                                 </td>
                                 <td colspan="4"></td>
                             </tr>
@@ -237,7 +237,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        ИТОГО: <b>{{ $allCalcWidth / 100 }}</b> п.м.
+                        Итого на странице: <b>{{ $allCalcWidth / 100 }}</b> п.м.
                     </div>
                 </div>
             </div>

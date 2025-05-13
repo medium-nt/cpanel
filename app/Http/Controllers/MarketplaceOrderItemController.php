@@ -16,7 +16,7 @@ class MarketplaceOrderItemController extends Controller
     public function index(Request $request)
     {
         $items = MarketplaceOrderItemService::getFiltered($request);
-        $paginatedItems = $items->paginate(20);
+        $paginatedItems = $items->paginate(50);
 
         $queryParams = $request->except(['page']);
 
