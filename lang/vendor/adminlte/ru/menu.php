@@ -20,6 +20,7 @@ return [
     'warning' => 'Внимание',
     'information' => 'Информация',
     'settings' => 'Настройки',
+    'system_settings' => 'Настройки системы',
     'materials' => 'Материалы',
     'suppliers' => 'Поставщики',
     'movements' => 'Отгрузки',

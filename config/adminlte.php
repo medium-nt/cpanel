@@ -396,9 +396,14 @@ return [
             'can' => 'is-admin',
             'submenu' => [
                 [
+                    'text' => 'system_settings',
+                    'url' => 'admin/setting',
+                    'icon' => 'fas fa-fw fa-tools',
+                ],
+                [
                     'text' => 'users',
                     'url' => 'admin/users',
-                    'icon' => 'far fa-fw fa-user',
+                    'icon' => 'fas fa-fw fa-user',
                 ],
                 [
                     'text' => 'materials',

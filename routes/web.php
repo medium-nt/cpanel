@@ -31,5 +31,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     require base_path('routes/schedule.php');
     require base_path('routes/movements_defect_to_supplier.php');
     require base_path('routes/marketplace_api.php');
+    require base_path('routes/setting.php');
 
 });
