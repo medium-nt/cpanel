@@ -66,4 +66,39 @@ class DefectMaterialService
         return true;
 
     }
+
+    public static function delete(Order $order): array
+    {
+        if ($order->status != 1) {
+            return [
+                'success' => false,
+                'message' => 'Заказ уже забран на склад!'
+            ];
+        }
+
+        try {
+            DB::beginTransaction();
+
+            MovementMaterial::query()
+                ->where('order_id', $order->id)
+                ->delete();
+
+            $order->delete();
+
+            DB::commit();
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => 'Внутренняя ошибка'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Заказ на брак удален'
+        ];
+    }
 }

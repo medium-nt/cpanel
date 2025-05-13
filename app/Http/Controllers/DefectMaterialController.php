@@ -94,4 +94,18 @@ class DefectMaterialController extends Controller
             ->with($result['status'], 'Брак ' . $result['text']);
     }
 
+    public function delete(Order $order)
+        {
+            $result = DefectMaterialService::delete($order);
+
+            if (!$result['success']) {
+                return redirect()
+                    ->route('defect_materials.index')
+                    ->with('error', $result['message']);
+            }
+
+            return redirect()
+                ->route('defect_materials.index')
+                ->with('success', $result['message']);
+        }
 }
