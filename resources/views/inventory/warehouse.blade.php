@@ -16,7 +16,7 @@
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
                         <tr>
-                            <th scope="col">#</th>
+                            <th scope="col" style="width: 75px;">#</th>
                             <th scope="col">Материал</th>
                             <th scope="col">Количество</th>
                         </tr>
@@ -26,7 +26,25 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item['material']->title }}</td>
-                                <td>{{ $item['quantity'] }}</td>
+                                <td>
+                                    <span style="min-width: 40px; display: inline-block;">
+                                        {{ $item['quantity'] }}
+                                    </span>
+
+                                    @if($item['quantity'] <= 300)
+                                        <span class="badge badge-danger">
+                                            очень мало
+                                        </span>
+                                    @elseif($item['quantity'] <= 1000)
+                                        <span class="badge badge-warning">
+                                            достаточно
+                                        </span>
+                                    @else
+                                        <span class="badge badge-success ml-3">
+                                            более чем достаточно
+                                        </span>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>
