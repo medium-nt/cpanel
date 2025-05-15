@@ -99,44 +99,46 @@
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Статус</th>
-                            <th scope="col">Номер заказа</th>
-                            <th scope="col">Название</th>
-                            <th scope="col">Ширина</th>
-                            <th scope="col">Высота</th>
-                            <th scope="col">Кол-во</th>
-                            <th scope="col">Маркетплейс</th>
-                            <th scope="col">Тип</th>
-                            <th scope="col">Создан</th>
-                            <th scope="col">Выполнен</th>
-                            <th scope="col"></th>
+                            <th style="text-align: center" scope="col">#</th>
+                            <th style="text-align: center" scope="col">Статус</th>
+                            <th style="text-align: center" scope="col">Номер заказа</th>
+                            <th style="text-align: center" scope="col">Название</th>
+                            <th style="text-align: center" scope="col">Ширина</th>
+                            <th style="text-align: center" scope="col">Высота</th>
+                            <th style="text-align: center" scope="col">Кол-во</th>
+                            <th style="text-align: center" scope="col">Маркетплейс</th>
+                            <th style="text-align: center" scope="col">Тип</th>
+                            <th style="text-align: center" scope="col">Создан</th>
+                            <th style="text-align: center" scope="col">Выполнен</th>
+                            <th style="text-align: center" scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
                         @php
                             $allCalcWidth = 0;
+                            $allCount = 0;
                         @endphp
 
                         @foreach ($items as $item)
                             @php
                                 $allCalcWidth += $item->item->width * $item->quantity;
+                                $allCount += $item->quantity;
                             @endphp
                             <tr>
-                                <td>{{ $item->id }}</td>
-                                <td><span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span></td>
-                                <td>{{ $item->marketplaceOrder->order_id }}</td>
-                                <td>{{ $item->item->title }}</td>
-                                <td>{{ $item->item->width }}</td>
-                                <td>{{ $item->item->height }}</td>
-                                <td>{{ $item->quantity }}</td>
-                                <td>
+                                <td style="text-align: center">{{ $item->id }}</td>
+                                <td style="text-align: center"><span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span></td>
+                                <td style="text-align: center">{{ $item->marketplaceOrder->order_id }}</td>
+                                <td style="text-align: center">{{ $item->item->title }}</td>
+                                <td style="text-align: center">{{ $item->item->width }}</td>
+                                <td style="text-align: center">{{ $item->item->height }}</td>
+                                <td style="text-align: center">{{ $item->quantity }}</td>
+                                <td style="text-align: center">
                                     <img style="width: 80px;"
                                          src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
                                          alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                 </td>
-                                <td>{{ $item->marketplaceOrder->fulfillment_type }}</td>
-                                <td>
+                                <td style="text-align: center">{{ $item->marketplaceOrder->fulfillment_type }}</td>
+                                <td style="text-align: center">
                                     <span class="mr-2">{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</span>
                                     <badge class="badge
                                     @if($item->created_at->addHours(41)->isPast()) badge-hot
@@ -146,7 +148,7 @@
                                         {{ $item->created_at->diffForHumans(['parts' => 2]) }}
                                     </badge><br>
                                 </td>
-                                <td>{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
+                                <td style="text-align: center">{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
                                     @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
@@ -218,10 +220,12 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="4"></td>
-                                <td colspan="3" style="text-align: center">
-                                    Итого на странице: <b>{{ $allCalcWidth / 100 }}</b> п.м.
+                                <td colspan="4" style="text-align: right">
+                                    Итого на странице:
                                 </td>
+                                <td style="text-align: center"><b>{{ $allCalcWidth / 100 }}</b> п.м.</td>
+                                <td></td>
+                                <td style="text-align: center"><b>{{ $allCount }}</b> шт.</td>
                                 <td colspan="4"></td>
                             </tr>
                         </tfoot>
@@ -237,7 +241,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        Итого на странице: <b>{{ $allCalcWidth / 100 }}</b> п.м.
+                        Итого на странице: <b>{{ $allCalcWidth / 100 }}</b> п.м. (<b>{{ $allCount }}</b> шт.)
                     </div>
                 </div>
             </div>
