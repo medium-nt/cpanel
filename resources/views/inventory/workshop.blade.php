@@ -32,7 +32,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item['material']->title }}</td>
                                 <td>
-                                    <span style="min-width: 40px; display: inline-block;">
+                                    <span style="width: 80px; display: inline-block;">
                                         {{ $item['quantity'] }}
                                     </span>
 
