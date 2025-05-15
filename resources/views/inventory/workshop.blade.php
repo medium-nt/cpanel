@@ -24,6 +24,7 @@
                             <th scope="col" style="width: 75px;">#</th>
                             <th scope="col">Материал</th>
                             <th scope="col">Количество</th>
+                            <th scope="col">Статус</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -32,10 +33,12 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item['material']->title }}</td>
                                 <td>
-                                    <span style="width: 150px; display: inline-block;">
+                                    <span style="width: 100px; display: inline-block;">
                                         {{ $item['quantity'] }}
                                     </span>
+                                </td>
 
+                                <td>
                                     @if($item['quantity'] <= 100)
                                         <span class="badge badge-danger">
                                             очень мало
