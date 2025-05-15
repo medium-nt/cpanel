@@ -29,7 +29,11 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $order_id }}</td>
-                                <td>{{ $sku }}</td>
+                                <td>
+                                    @foreach ($sku as $sku_item)
+                                        <li>{{ $sku_item }}</li>
+                                    @endforeach
+                                </td>
                             </tr>
                         @endforeach
 
@@ -61,11 +65,15 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach ($results['errors'] as $order_id => $message)
+                        @foreach ($results['errors'] as $order_id => $messages)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $order_id }}</td>
-                                <td>{{ $message }}</td>
+                                <td>
+                                    @foreach ($messages as $message)
+                                        <li>{{ $message }}</li>
+                                    @endforeach
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

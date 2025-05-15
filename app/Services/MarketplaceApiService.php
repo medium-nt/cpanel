@@ -14,12 +14,12 @@ use Throwable;
 
 class MarketplaceApiService
 {
-    public static function getItemsWb($cursor = 0): object|false|null
+    public static function getItemsWb($body = 0): object|false|null
     {
         $response = Http::accept('application/json')
         ->withOptions(['verify' => false])
         ->withHeaders(['Authorization' => self::getWbApiKey()])
-        ->post('https://content-api.wildberries.ru/content/v2/get/cards/list', $cursor);
+        ->post('https://content-api.wildberries.ru/content/v2/get/cards/list', $body);
 
         if(!$response->ok()) {
             return false;
@@ -45,7 +45,7 @@ class MarketplaceApiService
         ];
 
         do {
-            $items = MarketplaceApiService::getItemsWb($cursor);
+            $items = self::getItemsWb($cursor);
 
             if(!$items) {
                 return $productsArray;
@@ -78,6 +78,23 @@ class MarketplaceApiService
         return $productsArray;
     }
 
+    public static function getItemsOzon($body = 0): object|false|null
+    {
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v4/product/info/attributes', $body);
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        return $response->object();
+    }
+
     public static function getAllItemsOzon(): array
     {
         $productsArray = [];
@@ -94,7 +111,7 @@ class MarketplaceApiService
         ];
 
         do {
-            $items = MarketplaceApiService::getItemsOzon($body);
+            $items = self::getItemsOzon($body);
 
             if(!$items) {
                 return $productsArray;
@@ -123,23 +140,6 @@ class MarketplaceApiService
         return $productsArray;
     }
 
-    public static function getItemsOzon($body = 0): object|false|null
-    {
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
-            ->post('https://api-seller.ozon.ru/v4/product/info/attributes', $body);
-
-        if(!$response->ok()) {
-            return false;
-        }
-
-        return $response->object();
-    }
-
     public static function getNotFoundSkus($allItems): array
     {
         $notFoundSkus = [];
@@ -154,7 +154,7 @@ class MarketplaceApiService
         return $notFoundSkus;
     }
 
-    public static function getAllNewOrders(): object|false|null
+    public static function getAllNewOrdersWb(): array|object
     {
         $response = Http::accept('application/json')
             ->withOptions(['verify' => false])
@@ -162,60 +162,133 @@ class MarketplaceApiService
             ->get('https://marketplace-api.wildberries.ru/api/v3/orders/new');
 
         if(!$response->ok()) {
-            return false;
+            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения новых заказов из Wb');
+            return [];
         }
 
-        return $response->object();
+        $orders = $response->object()->orders;
+
+        $unifiedOrders = [];
+        foreach ($orders as $order) {
+            $array = [
+                'id' => $order->id,
+                'skus' => [],
+                'marketplace_id' => '2',
+                'order_created' => $order->createdAt,
+            ];
+
+            foreach ($order->skus as $sku) {
+                $array['skus'][] = [
+                    'sku' => $sku,
+                    'quantity' => 1
+                ];
+            }
+
+            $unifiedOrders[] = $array;
+        }
+
+        return json_decode(json_encode($unifiedOrders));
+    }
+
+    public static function getAllNewOrdersOzon(): array|object
+    {
+        $body = [
+            "dir" => "ASC",
+            "limit" => 1000,
+            "offset" => 0,
+            "filter" => [
+                "cutoff_from" => "2025-05-11T00:00:00Z",
+                "cutoff_to" => "2025-05-24T23:59:59Z",
+                "status" => "awaiting_packaging",
+            ],
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v3/posting/fbs/unfulfilled/list', $body);
+
+        if(!$response->ok()) {
+            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения новых заказов из Ozon');
+            return [];
+        }
+
+        $orders = $response->object()->result->postings;
+
+        $unifiedOrders = [];
+        foreach ($orders as $order) {
+            $array = [
+                'id' => $order->posting_number,
+                'skus' => [],
+                'marketplace_id' => '1',
+                'order_created' => $order->in_process_at,
+            ];
+
+            foreach ($order->products as $item) {
+                $array['skus'][] = [
+                    'sku' => $item->sku,
+                    'quantity' => $item->quantity
+                ];
+            }
+
+            $unifiedOrders[] = $array;
+        }
+
+        return json_decode(json_encode($unifiedOrders));
     }
 
     public static function uploadingNewProducts(): array
     {
-        Log::channel('marketplace_api')->info('Начало загрузки.');
+        Log::channel('marketplace_api')->info('Начало загрузки новых заказов...');
 
-        $newOrders = MarketplaceApiService::getAllNewOrders()->orders;
+        $newOrdersOzon = self::getAllNewOrdersOzon();
+        $newOrdersOzonWithOneQuantity = self::splittingOrdersWithMoreThanOneQuantity($newOrdersOzon);
+
+        $newOrdersWb = self::getAllNewOrdersWb();
+
+        $newOrders = array_merge($newOrdersWb, $newOrdersOzonWithOneQuantity);
 
         $arrayNotFoundSkus = [];
         $errors = [];
 
         foreach ($newOrders as $order) {
             try {
+                if (self::hasOrderInSystem($order->id)) {
+                    continue;
+                }
+
+                foreach ($order->skus as $skus) {
+                    if (!self::hasSkuInSystem($skus->sku)) {
+                        $arrayNotFoundSkus[$order->id][] = $skus->sku;
+                    }
+                }
+                if (isset($arrayNotFoundSkus[$order->id])) {
+                    continue;
+                }
+
                 DB::beginTransaction();
 
-                $sku = Sku::query()->where('sku', $order->skus[0])->first();
-
-                //  проверить что такой sku есть в системе
-                if (!$sku) {
-                    $arrayNotFoundSkus[$order->id] = $order->skus[0];
-
-                    DB::rollBack();
-                    continue;
-                }
-
-                // проверить есть ли такой заказ уже в системе
-                if (MarketplaceOrder::query()->where('order_id', $order->id)->first()) {
-
-                    DB::rollBack();
-                    continue;
-                }
-
-                // добавить заказ в систему
                 $marketplaceOrder = MarketplaceOrder::query()->create([
                     'order_id' => $order->id,
-                    'marketplace_id' => 2,
-                    'fulfillment_type' => $order->deliveryType,
+                    'marketplace_id' => $order->marketplace_id,
+                    'fulfillment_type' => 'FBS',
                     'status' => 0,
-                    'created_at' => Carbon::parse($order->createdAt)->setTimezone('Europe/Moscow')
+                    'created_at' => Carbon::parse($order->order_created)->setTimezone('Europe/Moscow')
                 ]);
 
-                // добавить материалы из заказа в систему
                 foreach ($order->skus as $skus) {
-                    $movementData['marketplace_order_id'] = $marketplaceOrder->id;
-                    $movementData['marketplace_item_id'] = $sku->item_id;
-                    $movementData['quantity'] = 1;
-                    $movementData['price'] = 0;
-                    $movementData['created_at'] = Carbon::parse($order->createdAt)->setTimezone('Europe/Moscow');
+                    $sku = self::hasSkuInSystem($skus->sku);
 
-                    MarketplaceOrderItem::query()->create($movementData);
+                    $orderItem['marketplace_order_id'] = $marketplaceOrder->id;
+                    $orderItem['marketplace_item_id'] = $sku->item_id;
+                    $orderItem['quantity'] = 1;
+                    $orderItem['price'] = 0;
+                    $orderItem['created_at'] = Carbon::parse($order->order_created)->setTimezone('Europe/Moscow');
+
+                    MarketplaceOrderItem::query()->create($orderItem);
                 }
 
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
@@ -224,7 +297,6 @@ class MarketplaceApiService
             } catch (Throwable $e) {
                 DB::rollBack();
 
-                // Собираем ошибки в массив
                 $errors[$order->id] = [
                     'message' => $e->getMessage(),
                 ];
@@ -234,12 +306,33 @@ class MarketplaceApiService
             }
         }
 
-        Log::channel('marketplace_api')->info('Заказы загружены.');
+        Log::channel('marketplace_api')->info('Конец загрузки новых заказов.');
 
         return [
             'not_found_skus' => $arrayNotFoundSkus,
             'errors' => $errors,
         ];
+    }
+
+    private static function splittingOrdersWithMoreThanOneQuantity($orders): array
+    {
+        $ordersWithOneQuantity = [];
+        if (!empty($orders)) {
+            foreach ($orders as $order) {
+                foreach ($order->skus as $product) {
+                    if ($product->quantity == 1) {
+                        $ordersWithOneQuantity[] = $order;
+                    } else {
+                        if (self::splittingOrder($order->id, $order->skus)) {
+                            Log::channel('marketplace_api')->info('Разбит заказ №'.$order->id);
+                        } else {
+                            Log::channel('marketplace_api')->error('Ошибка при разбивке заказа №'.$order->id);
+                        }
+                    }
+                }
+            }
+        }
+        return $ordersWithOneQuantity;
     }
 
     private static function getWbApiKey()
@@ -255,5 +348,50 @@ class MarketplaceApiService
     private static function getOzonSellerId()
     {
         return Setting::query()->where('name', 'seller_id_ozon')->first()->value;
+    }
+
+    public static function splittingOrder($posting_number, $skus): bool
+    {
+        $postings = [];
+
+        foreach ($skus as $product) {
+            for ($i = 0; $i < $product->quantity; $i++) {
+                $postings[] = [
+                    "products" => [[
+                        "product_id" => $product->sku,
+                        "quantity" => 1,
+                    ]],
+                ];
+            }
+        }
+
+        $body = [
+            "posting_number" => $posting_number,
+            "postings" => $postings,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v1/posting/fbs/split', $body);
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function hasOrderInSystem($id): bool
+    {
+        return MarketplaceOrder::query()->where('order_id', $id)->exists();
+    }
+
+    private static function hasSkuInSystem($sku): ?Sku
+    {
+        return Sku::query()->where('sku', $sku)->first();
     }
 }
