@@ -9,10 +9,15 @@
 
 @section('content_body')
     <div class="col-md-12">
+
         <div class="card">
             <div class="card-body">
+                <a href="{{ route('movements_from_supplier.create') }}" class="btn btn-primary mr-3">Добавить новое поступление</a>
+            </div>
+        </div>
 
-                <a href="{{ route('movements_from_supplier.create') }}" class="btn btn-primary mr-3 mb-3">Добавить новое поступление</a>
+        <div class="card only-on-desktop">
+            <div class="card-body">
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
@@ -61,18 +66,52 @@
 
             </div>
         </div>
+
+        <div class="row only-on-smartphone">
+            @foreach ($orders as $order)
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="position-relative">
+                            <div class="card-body">
+                                <b>№ {{ $order->id }} </b>
+                                <span class="badge ml-1 {{ $order->status_color }}"> {{ $order->status_name }}</span>
+
+                                <div class="my-3">
+                                    @foreach($order->movementMaterials as $material)
+                                    <li>
+                                        <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }}
+                                    </li>
+                                    @endforeach
+
+                                    <div class="mt-3">
+                                        Комментарий: {{ $order->comment }}
+                                    </div>
+
+                                    <small class="mr-2">
+                                        Создан: <b> {{ now()->parse($order->created_at)->format('d/m/Y') }}</b>
+                                    </small>
+                                </div>
+
+                                @if(auth()->user()->role->name == 'admin')
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ route('movements_from_supplier.edit', ['order' => $order->id]) }}"
+                                           class="btn btn-primary mr-1">
+                                            <i class="fas fa-edit"></i> Редактировать
+                                        </a>
+                                    </div>
+                                @endif
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            <x-pagination-component :collection="$orders" />
+        </div>
     </div>
 @stop
 
-{{-- Push extra CSS --}}
-
 @push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-@endpush
-
-{{-- Push extra scripts --}}
-
-@push('js')
-    {{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
+    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
 @endpush
