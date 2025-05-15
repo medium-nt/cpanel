@@ -48,7 +48,7 @@
                                             достаточно
                                         </span>
                                     @else
-                                        <span class="badge badge-success ml-3">
+                                        <span class="badge badge-success">
                                             более чем достаточно
                                         </span>
                                     @endif
