@@ -317,18 +317,30 @@ class MarketplaceApiService
     private static function splittingOrdersWithMoreThanOneQuantity($orders): array
     {
         $ordersWithOneQuantity = [];
+
         if (!empty($orders)) {
             foreach ($orders as $order) {
-                foreach ($order->skus as $product) {
-                    if ($product->quantity == 1) {
-                        $ordersWithOneQuantity[] = $order;
-                    } else {
-                        if (self::splittingOrder($order->id, $order->skus)) {
-                            Log::channel('marketplace_api')->info('Разбит заказ №'.$order->id);
-                        } else {
-                            Log::channel('marketplace_api')->error('Ошибка при разбивке заказа №'.$order->id);
+                $splitResult = null;
+
+                if (count($order->skus) > 1) {
+                    $splitResult = self::splittingOrder($order);
+                } else {
+                    foreach ($order->skus as $product) {
+                        if ($product->quantity > 1) {
+                            $splitResult = self::splittingOrder($order);
+                            break;
                         }
                     }
+                }
+
+                if ($splitResult !== null) {
+                    if ($splitResult) {
+                        Log::channel('marketplace_api')->info('Разбит заказ №'.$order->id);
+                    } else {
+                        Log::channel('marketplace_api')->error('Ошибка при разбивке заказа №'.$order->id);
+                    }
+                } else {
+                    $ordersWithOneQuantity[] = $order;
                 }
             }
         }
@@ -350,11 +362,11 @@ class MarketplaceApiService
         return Setting::query()->where('name', 'seller_id_ozon')->first()->value;
     }
 
-    public static function splittingOrder($posting_number, $skus): bool
+    public static function splittingOrder($order): bool
     {
         $postings = [];
 
-        foreach ($skus as $product) {
+        foreach ($order->skus as $product) {
             for ($i = 0; $i < $product->quantity; $i++) {
                 $postings[] = [
                     "products" => [[
@@ -366,7 +378,7 @@ class MarketplaceApiService
         }
 
         $body = [
-            "posting_number" => $posting_number,
+            "posting_number" => $order->id,
             "postings" => $postings,
         ];
 
