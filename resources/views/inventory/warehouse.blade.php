@@ -33,7 +33,7 @@
                                 <td>
                                     @if($item['quantity'] <= 300)
                                         <span class="badge badge-danger">
-                                            очень мало
+                                            мало
                                         </span>
                                     @elseif($item['quantity'] <= 1000)
                                         <span class="badge badge-warning">
@@ -41,7 +41,7 @@
                                         </span>
                                     @else
                                         <span class="badge badge-success">
-                                            более чем достаточно
+                                            много
                                         </span>
                                     @endif
                                 </td>
