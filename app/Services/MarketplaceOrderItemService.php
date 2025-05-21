@@ -253,7 +253,7 @@ class MarketplaceOrderItemService
                     $averageVolume = $seamstressRating->total_volume / $seamstressRating->total_quantity;
                     $seamstressesLargeSizeRating[$seamstress->id][$date] = $averageVolume;
                 } else {
-                    $seamstressesLargeSizeRating[$seamstress->id][$date] = null;
+                    $seamstressesLargeSizeRating[$seamstress->id][$date] = 0;
                 }
             }
         }
