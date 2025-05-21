@@ -261,10 +261,10 @@ class MarketplaceOrderItemService
         return $seamstressesLargeSizeRating;
     }
 
-    public static function getDatesByLargeSizeRating(): array
+    public static function getDatesByLargeSizeRating($daysAgo): array
     {
         $dates = [];
-        $startDate = Carbon::now()->subDays(6);
+        $startDate = Carbon::now()->subDays($daysAgo + 6);
 
         for ($i = 0; $i < 7; $i++) {
             $dates[] = $startDate->copy()->addDays($i)->toDateString();

@@ -18,7 +18,15 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $employeeId = $request->input('employee_id') ?? auth()->id();
-        $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating();
+
+        $daysAgo = $request->input('days_ago') ?? 0;
+        $daysAgo = intval($daysAgo);
+
+        if ($daysAgo < 0 || $daysAgo > 28) {
+            $daysAgo = 0;
+        }
+
+        $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
 
         return view('home', [
             'title' => 'Дашборд',
@@ -31,7 +39,8 @@ class HomeController extends Controller
             'employees' => User::query()->get(),
             'currentUserId' => auth()->id(),
             'dates' => json_encode($dates),
-            'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates))
+            'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
+            'days_ago' => $daysAgo
         ]);
     }
 }

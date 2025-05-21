@@ -101,6 +101,31 @@
     <div class="card">
         <div class="card-header">
             Динамика преобладания большими размерами
+
+            @if($days_ago > 7)
+            <a href="{{ route('home', ['days_ago' => max(0, $days_ago - 7)]) }}"
+               class="btn btn-default btn-sm float-right">
+                Вперед
+                <i class="fa fa-arrow-right"></i>
+            </a>
+            @endif
+
+            @if($days_ago != 0)
+            <a href="{{ route('home') }}"
+               class="btn btn-default btn-sm float-right mr-2">
+                <i class="fa fa-dot-circle-o"></i>
+                Сегодня
+            </a>
+            @endif
+
+            @if($days_ago < 28)
+            <a href="{{ route('home', ['days_ago' => $days_ago + 7]) }}"
+               class="btn btn-default btn-sm float-right mr-2">
+                <i class="fa fa-arrow-left"></i>
+                Назад
+            </a>
+            @endif
+
         </div>
         <div class="card-body">
             <div style="width:100%; margin: auto;">
@@ -139,16 +164,16 @@
             type: 'line',
             data,
             options: {
-                responsive: true, // Автоматическая подстройка под размер окна
-                maintainAspectRatio: false, // Позволяет изменять пропорции
+                responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
-                        min: 0,  // Минимальное значение на оси Y
-                        max: 9  // Максимальное значение на оси Y
+                        min: 1,
+                        max: 8
                     }
                 },
                 ticks: {
-                    stepSize: 1 // Шаг между горизонтальными линиями
+                    stepSize: 1
                 }
             }
         });
