@@ -6,8 +6,8 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -251,7 +251,7 @@ class MarketplaceOrderItemService
 
                 if ($seamstressRating && $seamstressRating->total_quantity > 0) {
                     $averageVolume = $seamstressRating->total_volume / $seamstressRating->total_quantity;
-                    $seamstressesLargeSizeRating[$seamstress->id][$date] = $averageVolume;
+                    $seamstressesLargeSizeRating[$seamstress->id][$date] = round($averageVolume, 1);
                 } else {
                     $seamstressesLargeSizeRating[$seamstress->id][$date] = 0;
                 }
@@ -264,7 +264,7 @@ class MarketplaceOrderItemService
     public static function getDatesByLargeSizeRating(): array
     {
         $dates = [];
-        $startDate = \Illuminate\Support\Carbon::now()->subWeek()->startOfWeek();
+        $startDate = Carbon::now()->subDays(6);
 
         for ($i = 0; $i < 7; $i++) {
             $dates[] = $startDate->copy()->addDays($i)->toDateString();
