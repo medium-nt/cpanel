@@ -18,6 +18,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $employeeId = $request->input('employee_id') ?? auth()->id();
+        $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating();
 
         return view('home', [
             'title' => 'Дашборд',
@@ -28,7 +29,9 @@ class HomeController extends Controller
             'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements(),
             'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(),
             'employees' => User::query()->get(),
-            'currentUserId' => auth()->id()
+            'currentUserId' => auth()->id(),
+            'dates' => json_encode($dates),
+            'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates))
         ]);
     }
 }

@@ -9,7 +9,6 @@
 
 @section('content_body')
     <div class="card">
-
         <div class="card-body">
             <div class="row">
                 <div class="col-md-2">
@@ -94,17 +93,66 @@
             </div>
         </div>
         <div class="card-body">
-
             <div id="calendar" data-events="{{ json_encode($events) }}"></div>
         </div>
     </div>
 
+    @if(auth()->user()->role_id == '3')
+    <div class="card">
+        <div class="card-header">
+            Динамика преобладания большими размерами
+        </div>
+        <div class="card-body">
+            <div style="width:100%; margin: auto;">
+                <canvas id="ratingGraph" style="width: 100%; height: 400px"></canvas>
+            </div>
+        </div>
+    </div>
+    @endif
 @stop
 
 @push('js')
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
     <script src="{{ asset('js/fullcalendar.js') }}"></script>
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('ratingGraph').getContext('2d');
+
+        const seamstressesData = {!! $seamstresses !!};
+
+        const datasets = Object.keys(seamstressesData).map(seamstressId => {
+            return {
+                label: seamstressesData[seamstressId].name,
+                data: Object.keys(seamstressesData[seamstressId]).map(date => seamstressesData[seamstressId][date]).slice(1),
+                cubicInterpolationMode: 'monotone'
+            };
+        });
+
+        const data = {
+            labels: {!! $dates !!},
+            datasets: datasets
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data,
+            options: {
+                responsive: true, // Автоматическая подстройка под размер окна
+                maintainAspectRatio: false, // Позволяет изменять пропорции
+                scales: {
+                    y: {
+                        min: 1,  // Минимальное значение на оси Y
+                        max: 9  // Максимальное значение на оси Y
+                    }
+                },
+                ticks: {
+                    stepSize: 1 // Шаг между горизонтальными линиями
+                }
+            }
+        });
+    </script>
 @endpush
 
 @push('css')

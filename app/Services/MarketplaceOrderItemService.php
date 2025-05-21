@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -232,4 +233,43 @@ class MarketplaceOrderItemService
             ->sum('quantity');
     }
 
+    public static function getSeamstressesLargeSizeRating(array $dates): array
+    {
+        $seamstressesLargeSizeRating = [];
+        $seamstresses = User::query()->where('role_id', '1')->get();
+
+        foreach ($seamstresses as $seamstress) {
+            $seamstressesLargeSizeRating[$seamstress->id]['name'] = $seamstress->name;
+            foreach ($dates as $date) {
+                $seamstressRating = MarketplaceOrderItem::query()
+                    ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+                    ->where('marketplace_order_items.seamstress_id', $seamstress->id)
+                    ->whereDate('marketplace_order_items.completed_at', $date)
+                    ->where('marketplace_order_items.status', 3)
+                    ->selectRaw('SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume, SUM(marketplace_order_items.quantity) as total_quantity')
+                    ->first();
+
+                if ($seamstressRating && $seamstressRating->total_quantity > 0) {
+                    $averageVolume = $seamstressRating->total_volume / $seamstressRating->total_quantity;
+                    $seamstressesLargeSizeRating[$seamstress->id][$date] = $averageVolume;
+                } else {
+                    $seamstressesLargeSizeRating[$seamstress->id][$date] = null;
+                }
+            }
+        }
+
+        return $seamstressesLargeSizeRating;
+    }
+
+    public static function getDatesByLargeSizeRating(): array
+    {
+        $dates = [];
+        $startDate = \Illuminate\Support\Carbon::now()->subWeek()->startOfWeek();
+
+        for ($i = 0; $i < 7; $i++) {
+            $dates[] = $startDate->copy()->addDays($i)->toDateString();
+        }
+
+        return $dates;
+    }
 }
