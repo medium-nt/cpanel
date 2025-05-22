@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketplaceOrder;
 use App\Models\Sku;
 use App\Services\MarketplaceApiService;
 
@@ -23,7 +24,7 @@ class MarketplaceApiController extends Controller
 
     public function checkDuplicateSkuz()
     {
-        $duplicates = Sku::selectRaw('sku, count(*) as occurrences')
+        $duplicates = Sku::query()->selectRaw('sku, count(*) as occurrences')
             ->groupBy('sku')
             ->havingRaw('COUNT(*) > 1')
             ->get();
