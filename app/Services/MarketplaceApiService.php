@@ -192,13 +192,16 @@ class MarketplaceApiService
 
     public static function getAllNewOrdersOzon(): array|object
     {
+        $cutoffFrom = Carbon::now()->subDays(7)->startOfDay()->format('Y-m-d\TH:i:s\Z'); // 7 дней назад
+        $cutoffTo = Carbon::now()->addDays(14)->endOfDay()->format('Y-m-d\TH:i:s\Z'); // 14 дней вперед
+
         $body = [
             "dir" => "ASC",
             "limit" => 1000,
             "offset" => 0,
             "filter" => [
-                "cutoff_from" => "2025-05-11T00:00:00Z",
-                "cutoff_to" => "2025-05-24T23:59:59Z",
+                "cutoff_from" => $cutoffFrom,
+                "cutoff_to" => $cutoffTo,
                 "status" => "awaiting_packaging",
             ],
         ];
