@@ -53,10 +53,10 @@ class MarketplaceApiController extends Controller
             ->where('order_id', $orderId)
             ->first();
 
-        if ($order->status < 3) {
-            echo 'Заказ еще не обработан';
-            exit;
-        }
+//        if ($order->status < 3) {
+//            echo 'Заказ еще не обработан';
+//            exit;
+//        }
 
         return match ($order->marketplace_id) {
             1 => MarketplaceApiService::getBarcodeOzon($orderId),
