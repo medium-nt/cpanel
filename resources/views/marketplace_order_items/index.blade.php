@@ -127,7 +127,17 @@
                             <tr>
                                 <td style="text-align: center">{{ $item->id }}</td>
                                 <td style="text-align: center"><span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span></td>
-                                <td style="text-align: center">{{ $item->marketplaceOrder->order_id }}</td>
+                                <td style="text-align: center">
+                                    {{ $item->marketplaceOrder->order_id }}
+                                    @if($item->status == 3 && auth()->user()->role_id == 3)
+                                    <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $item->marketplaceOrder->order_id]) }}"
+                                       class="btn btn-outline-secondary btn-sm ml-1"
+                                       style="padding: 0px 5px;"
+                                       target="_blank">
+                                        <i class="fas fa-barcode"></i>
+                                    </a>
+                                    @endif
+                                </td>
                                 <td style="text-align: center">{{ $item->item->title }}</td>
                                 <td style="text-align: center">{{ $item->item->width }}</td>
                                 <td style="text-align: center">{{ $item->item->height }}</td>

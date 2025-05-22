@@ -15,4 +15,8 @@ Route::prefix('/marketplace_api')->group(function () {
 //        ->can('viewAny', User::class)
         ->name('marketplace_api.checkDuplicateSkuz');
 
+    Route::get('barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getBarcodeFile'])
+//        ->can('viewAny', User::class)
+        ->name('marketplace_api.barcode');
+
 });

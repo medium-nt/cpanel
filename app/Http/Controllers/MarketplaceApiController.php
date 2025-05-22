@@ -43,4 +43,24 @@ class MarketplaceApiController extends Controller
             'results' => $result,
         ]);
     }
+
+    public function getBarcodeFile()
+    {
+        $orderId = request()->marketplaceOrderId;
+
+        $order = MarketplaceOrder::query()
+            ->where('order_id', $orderId)
+            ->first();
+
+        if ($order->status < 3) {
+            echo 'Заказ еще не обработан';
+            exit;
+        }
+
+        return match ($order->marketplace_id) {
+            1 => MarketplaceApiService::getBarcodeOzon($orderId),
+            2 => MarketplaceApiService::getBarcodeWb($orderId),
+            default => null,
+        };
+    }
 }

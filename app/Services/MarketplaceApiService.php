@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class MarketplaceApiService
@@ -409,4 +410,63 @@ class MarketplaceApiService
     {
         return Sku::query()->where('sku', $sku)->first();
     }
+
+    public static function getBarcodeOzon(mixed $orderId): object|false|null
+    {
+        $body = [
+            "posting_number" => [
+                $orderId
+            ]
+        ];
+
+        $response = Http::accept('application/pdf')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v2/posting/fbs/package-label', $body);
+
+        if (!$response->successful()) {
+            echo "Ошибка получения стикера";
+            exit;
+        }
+
+        if ($response->header('Content-Type') !== 'application/pdf') {
+            echo "Получен стикер неверного формата";
+            exit;
+        }
+
+        return response($response->body(), Response::HTTP_OK)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="barcode.pdf"');
+    }
+
+    public static function getBarcodeWb(int $orderId): object|false|null
+    {
+        $body = [
+            'orders' => [
+                $orderId,
+            ],
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->withQueryParameters( [
+                'type' => 'png',
+                'width' => 58,
+                'height' => 40,
+            ])
+            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/stickers', $body);
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        $decodedData = base64_decode($response->object()->stickers[0]->file);
+
+        return response($decodedData)->header('Content-Type', 'image/png');
+    }
+
 }
