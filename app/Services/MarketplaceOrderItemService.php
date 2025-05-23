@@ -213,7 +213,7 @@ class MarketplaceOrderItemService
 
     public static function toWork(): int
     {
-        $marketplaceOrderItemInWork =MarketplaceOrderItem::query()
+        $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
             ->where('status', 4);
 
         if (auth()->user()->role->name === 'seamstress') {
