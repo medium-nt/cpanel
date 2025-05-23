@@ -17,22 +17,32 @@ class MarketplaceOrderItemService
     {
         $status = $request->status ?? 'in_work';
 
-        $items = MarketplaceOrderItem::query()
-            ->when($status === 'new', function ($query) {
-                return $query->where('marketplace_order_items.status', '0');
-            })
-            ->when($status === 'in_work' || $status === 'done', function ($query) use ($status) {
-                return $query->where('marketplace_order_items.status', $status === 'in_work' ? 4 : 3)
-                    ->when(auth()->user()->role->name === 'seamstress', function ($query) {
-                        return $query->where('marketplace_order_items.seamstress_id', auth()->user()->id);
-                    });
-            })
-            ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+        $statusId = match ($request->status) {
+            'new' => 0,
+            'done' => 3,
+            'labeling' => 5,
+            default => 4,
+        };
+
+        $items = MarketplaceOrderItem::query();
+
+        $items = match ($statusId) {
+            0 => $items->where('marketplace_order_items.status', 0),
+            3 => $items->where('marketplace_order_items.status', 3),
+            5 => $items->where('marketplace_order_items.status', 5),
+            default => $items->where('marketplace_order_items.status', 4),
+        };
+
+        $items = $items->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
             ->orderBy('marketplace_orders.marketplace_id', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*');
+
+        if(auth()->user()->role->name === 'seamstress' && $status != 'new') {
+            $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
+        }
 
         if ($request->has('seamstress_id') && $status != 'new') {
             $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);

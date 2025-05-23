@@ -12,7 +12,8 @@ class StatusMovement extends Model
         1 => 'Одобрено',
         2 => 'Отправлено',
         4 => 'В работе',
-        3 => 'Завершено'
+        3 => 'Завершено',
+        5 => 'Стикеровка',
     ];
 
     const BADGE_COLORS = [
@@ -22,5 +23,6 @@ class StatusMovement extends Model
         2 => 'badge-warning',
         4 => 'badge-warning',
         3 => 'badge-primary',
+        5 => 'badge-info',
     ];
 }
