@@ -88,10 +88,11 @@ class MarketplaceOrderItemService
             ->where('seamstress_id', auth()->user()->id)
             ->count();
 
-        if ($countOrderItemsBySeamstress > 5) {
+        $maxCountOrderItems = 6;
+        if ($countOrderItemsBySeamstress > $maxCountOrderItems) {
             return [
                 'success' => false,
-                'message' => 'Вы не можете принять больше 10 заказов!'
+                'message' => 'Вы не можете принять больше ' . $maxCountOrderItems . ' заказов!'
             ];
         }
 
