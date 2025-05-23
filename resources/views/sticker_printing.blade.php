@@ -17,6 +17,13 @@
             .wrapper {
                 background-color: #f4f6f9;
             }
+
+            .square-btn {
+                width: 50px !important;
+                height: 50px !important;
+                padding: 0;
+                font-size: 1rem;
+            }
         </style>
     </head>
     <body>
@@ -65,18 +72,18 @@
                                     @foreach ($items as $item)
                                         <tr>
                                             <td>
-                                                <div class="row">
+                                                <div class="row ml-1">
                                                     <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $item->marketplaceOrder->order_id]) }}"
-                                                       class="btn btn-outline-secondary btn-lg mr-3"
+                                                       class="btn btn-outline-secondary btn-lg mr-3 mb-1 d-flex align-items-center justify-content-center square-btn"
                                                        target="_blank">
-                                                        <i class="fas fa-barcode fa-lg"></i>
+                                                        <i class="fas fa-barcode fa-2x"></i>
                                                     </a>
 
                                                     <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
                                                         @method('PUT')
-                                                        <button type="submit" class="btn btn-success btn-lg mr-1"
+                                                        <button type="submit" class="btn btn-success btn-lg mr-1 square-btn"
                                                                 title="Выполнено"
                                                                 onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">
                                                             <i class="fas fa-check fa-lg"></i>
@@ -104,11 +111,8 @@
         </div>
 
         <script src="{{ asset('js/PageQueryParam.js') }}"></script>
-
         <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
         <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
         <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-{{--        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>--}}
-
     </body>
 </html>
