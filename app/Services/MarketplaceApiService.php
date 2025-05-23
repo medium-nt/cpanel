@@ -464,6 +464,11 @@ class MarketplaceApiService
             return false;
         }
 
+        if (empty($response->object()->stickers)) {
+            echo "Ошибка получения стикера";
+            exit;
+        }
+
         $decodedData = base64_decode($response->object()->stickers[0]->file);
 
         return response($decodedData)->header('Content-Type', 'image/png');
