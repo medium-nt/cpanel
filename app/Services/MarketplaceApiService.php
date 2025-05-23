@@ -6,6 +6,7 @@ use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Setting;
 use App\Models\Sku;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -471,7 +472,17 @@ class MarketplaceApiService
 
         $decodedData = base64_decode($response->object()->stickers[0]->file);
 
-        return response($decodedData)->header('Content-Type', 'image/png');
+        $tempImagePath = sys_get_temp_dir() . '/image.png';
+        file_put_contents($tempImagePath, $decodedData); // Сохраняем изображение
+
+        // Генерация PDF с заданным размером
+        $pdf = PDF::loadView('pdf.wb_sticker', ['imagePath' => $tempImagePath]);
+
+        // Установка размера PDF (58x40 мм)
+        $pdf->setPaper('A4', 'portrait'); // Установка общей бумаги (необходимо для загрузки)
+
+        // Возврат PDF для загрузки
+        return $pdf->stream('barcode.pdf');
     }
 
 }
