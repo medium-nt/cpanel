@@ -473,15 +473,11 @@ class MarketplaceApiService
         $decodedData = base64_decode($response->object()->stickers[0]->file);
 
         $tempImagePath = sys_get_temp_dir() . '/image.png';
-        file_put_contents($tempImagePath, $decodedData); // Сохраняем изображение
+        file_put_contents($tempImagePath, $decodedData);
 
-        // Генерация PDF с заданным размером
         $pdf = PDF::loadView('pdf.wb_sticker', ['imagePath' => $tempImagePath]);
+        $pdf->setPaper('A4', 'portrait');
 
-        // Установка размера PDF (58x40 мм)
-        $pdf->setPaper('A4', 'portrait'); // Установка общей бумаги (необходимо для загрузки)
-
-        // Возврат PDF для загрузки
         return $pdf->stream('barcode.pdf');
     }
 
