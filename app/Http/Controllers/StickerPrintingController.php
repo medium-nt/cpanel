@@ -4,12 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
 use App\Models\User;
+use App\Services\MarketplaceOrderItemService;
 use Illuminate\Http\Request;
 
 class StickerPrintingController extends Controller
 {
     public function index(Request $request)
     {
+        $daysAgo = $request->input('days_ago') ?? 0;
+        $daysAgo = intval($daysAgo);
+
+        if ($daysAgo < 0 || $daysAgo > 28) {
+            $daysAgo = 0;
+        }
+
+        $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
+
         $items = MarketplaceOrderItem::query()
             ->where('marketplace_order_items.status', '5')
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
@@ -22,7 +32,10 @@ class StickerPrintingController extends Controller
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
             'items' => $items->get(),
-            'seamstresses' => User::query()->where('role_id', '1')->get()
+            'seamstresses' => User::query()->where('role_id', '1')->get(),
+            'dates' => json_encode($dates),
+            'seamstressesJson' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
+            'days_ago' => $daysAgo
         ]);
     }
 }

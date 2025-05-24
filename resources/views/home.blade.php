@@ -168,55 +168,15 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
     <script src="{{ asset('js/fullcalendar.js') }}"></script>
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
-
-    <script>
-        function toggleSpoiler() {
-            var spoiler = document.getElementById('spoilerText');
-            if (spoiler.style.display === 'none') {
-                spoiler.style.display = 'block';
-            } else {
-                spoiler.style.display = 'none';
-            }
-        }
-    </script>
+    <script src="{{ asset('js/toggle_spoiler.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
-        const ctx = document.getElementById('ratingGraph').getContext('2d');
-
-        const seamstressesData = {!! $seamstresses !!};
-
-        const datasets = Object.keys(seamstressesData).map(seamstressId => {
-            return {
-                label: seamstressesData[seamstressId].name,
-                data: Object.keys(seamstressesData[seamstressId]).map(date => seamstressesData[seamstressId][date]).slice(1),
-                cubicInterpolationMode: 'monotone'
-            };
-        });
-
-        const data = {
-            labels: {!! $dates !!},
-            datasets: datasets
-        };
-
-        new Chart(ctx, {
-            type: 'bar',
-            data,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        min: 1,
-                        max: 8
-                    }
-                },
-                ticks: {
-                    stepSize: 1
-                }
-            }
-        });
+        window.seamstressesData = {!! $seamstresses !!};
+        window.dates = {!! $dates !!};
     </script>
+    <script src="{{ asset('js/ratingGraph.js') }}"></script>
 @endpush
 
 @push('css')
