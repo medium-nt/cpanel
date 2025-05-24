@@ -25,6 +25,7 @@
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">Аватар</th>
                             <th scope="col">Имя</th>
                             <th scope="col">Роль</th>
                             <th scope="col">email</th>
@@ -38,6 +39,12 @@
                         @foreach ($users as $user)
                             <tr>
                                 <td>{{ $user->id }}</td>
+                                <td>
+                                    @if($user->avatar != null)
+                                    <img src="{{ asset('storage/' . $user->avatar) }}"
+                                         style="width:50px; height:50px;" alt="">
+                                    @endif
+                                </td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ UserService::translateRoleName($user->role->name) }}</td>
                                 <td>{{ $user->email }}</td>

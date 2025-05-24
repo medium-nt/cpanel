@@ -29,6 +29,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'salary_rate',
+        'avatar',
     ];
 
     /**

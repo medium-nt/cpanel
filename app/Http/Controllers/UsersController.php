@@ -8,6 +8,7 @@ use App\Services\ScheduleService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
 {
@@ -35,11 +36,6 @@ class UsersController extends Controller
         User::query()->create($validate);
 
         return redirect()->route('users.index')->with('success', 'Пользователь добавлен');
-    }
-
-    public function show(string $id)
-    {
-        //
     }
 
     public function edit(User $user): View
@@ -86,19 +82,30 @@ class UsersController extends Controller
             'name' => 'required|string|min:2|max:255',
             'email' => 'required|email|max:255',
             'salary_rate' => 'sometimes|nullable|numeric',
+            'password' => 'nullable|confirmed|string|min:6',
+            'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',
         ];
 
-        if ($request->filled('password')) {
-            $rules['password'] = 'required|confirmed|string|min:6';
-        }
-
         $validatedData = $request->validate($rules);
-        $user->update($validatedData);
 
-        // Проверяем, был ли передан пароль, и если да, то сохраняем его
         if ($request->filled('password')) {
-            $user->password = bcrypt($validatedData['password']);
-            $user->save();
+            $validatedData['password'] = bcrypt($validatedData['password']);
+        } else {
+            unset($validatedData['password']);
         }
+
+        if ($request->hasFile('avatar')) {
+            if (!Storage::disk('public')->exists('avatars')) {
+                Storage::disk('public')->makeDirectory('avatars');
+            }
+
+            $fileName = $user->id . '.' . $request->file('avatar')
+                    ->getClientOriginalExtension();
+
+            $validatedData['avatar'] = $request->file('avatar')
+                ->storeAs('avatars', $fileName, 'public');
+        }
+
+        $user->update($validatedData);
     }
 }
