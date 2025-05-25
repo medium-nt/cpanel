@@ -42,7 +42,7 @@
                                         class="form-control  form-control-lg"
                                         onchange="updatePageWithQueryParam(this)"
                                         required>
-                                    <option value="" selected>Все</option>
+                                    <option value="" selected disabled>Выберите швею</option>
                                     @foreach($seamstresses as $seamstress)
                                         <option value="{{ $seamstress->id }}"
                                                 @if(request('seamstress_id') == $seamstress->id) selected @endif
