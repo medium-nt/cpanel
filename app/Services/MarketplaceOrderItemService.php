@@ -247,7 +247,10 @@ class MarketplaceOrderItemService
     public static function getSeamstressesLargeSizeRating(array $dates): array
     {
         $seamstressesLargeSizeRating = [];
-        $seamstresses = User::query()->where('role_id', '1')->get();
+        $seamstresses = User::query()
+            ->where('role_id', '1')
+            ->where('name', 'not like', '%Тест%')
+            ->get();
 
         foreach ($seamstresses as $seamstress) {
             $seamstressesLargeSizeRating[$seamstress->id]['name'] = $seamstress->name;
@@ -297,6 +300,7 @@ class MarketplaceOrderItemService
     {
         return User::query()
             ->where('role_id', '1')
+            ->where('name', 'not like', '%Тест%')
             ->get()
             ->map(function ($user) {
                 $startDate = Carbon::now()->subDays(14)->toDateString();

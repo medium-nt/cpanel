@@ -76,36 +76,36 @@
 
     <div class="card">
         <div class="card-header">
-            Рейтинг
+            <h3 class="card-title">Рейтинг</h3>
         </div>
-        <div class="card-body">
-
-            @foreach($seamstressesRating as $seamstress)
-                <div class="row mb-3 align-items-center" style="height: 70px;">
-                    <div class="col-md-1" style=" text-align: center; vertical-align: middle;">
-                        @if($seamstress->avatar != null)
+        <div class="card-body table-responsive p-0">
+            <table class="table table-valign-middle">
+                <thead>
+                <tr>
+                    <th>Швея</th>
+                    <th>Рейтинг</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($seamstressesRating as $seamstress)
+                    <tr>
+                        <td style="max-width: 200px">
                             <img src="{{ asset('storage/' . $seamstress->avatar) }}"
                                  style="width:50px; height:50px;" alt="">
-                        @endif
-                    </div>
 
-                    <div class="col-md-2">
-                        {{ $seamstress->name }}
-                    </div>
-
-                    <div class="col-md-1" style=" text-align: right;">
-                        за сегодня: <b>{{ $seamstress->ratingNow }}</b>
-                        <br>
-                        за 2 недели: <b>{{ $seamstress->rating2week }}</b>
-                        <br>
-                        за месяц: <b>{{ $seamstress->rating1month }}</b>
-                    </div>
-
-                    <div class="col-md-7">
-                    </div>
-                </div>
-                <hr>
-            @endforeach
+                            {{ $seamstress->name }}
+                        </td>
+                        <td style="max-width: 200px">
+                            за сегодня: <b>{{ $seamstress->ratingNow }}</b>
+                            <br>
+                            за 2 недели: <b>{{ $seamstress->rating2week }}</b>
+                            <br>
+                            за месяц: <b>{{ $seamstress->rating1month }}</b>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 
