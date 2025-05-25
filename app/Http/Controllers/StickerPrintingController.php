@@ -33,6 +33,7 @@ class StickerPrintingController extends Controller
 
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
+            'seamstressId' => $request->seamstress_id ?? 0,
             'items' => $items->get(),
             'seamstresses' => User::query()->where('role_id', '1')
                 ->where('name', 'not like', '%Тест%')->get(),

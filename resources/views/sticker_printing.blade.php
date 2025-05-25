@@ -53,7 +53,7 @@
                         </div>
                     </div>
 
-                    @if($items->isNotEmpty())
+                    @if($items->isNotEmpty() || $seamstressId != 0)
                     <div class="card" style="top: 10px;">
                         <div class="card-body">
 
