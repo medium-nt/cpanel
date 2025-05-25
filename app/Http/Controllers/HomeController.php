@@ -40,7 +40,8 @@ class HomeController extends Controller
             'currentUserId' => auth()->id(),
             'dates' => json_encode($dates),
             'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
-            'days_ago' => $daysAgo
+            'days_ago' => $daysAgo,
+            'seamstressesRating' => MarketplaceOrderItemService::getSeamstressesRating(),
         ]);
     }
 }

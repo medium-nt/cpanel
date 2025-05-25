@@ -252,20 +252,9 @@ class MarketplaceOrderItemService
         foreach ($seamstresses as $seamstress) {
             $seamstressesLargeSizeRating[$seamstress->id]['name'] = $seamstress->name;
             foreach ($dates as $date) {
-                $seamstressRating = MarketplaceOrderItem::query()
-                    ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
-                    ->where('marketplace_order_items.seamstress_id', $seamstress->id)
-                    ->whereDate('marketplace_order_items.completed_at', $date)
-                    ->where('marketplace_order_items.status', 3)
-                    ->selectRaw('SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume, SUM(marketplace_order_items.quantity) as total_quantity')
-                    ->first();
+                $startDate = $endDate = $date;
 
-                if ($seamstressRating && $seamstressRating->total_quantity > 0) {
-                    $averageVolume = $seamstressRating->total_volume / $seamstressRating->total_quantity;
-                    $seamstressesLargeSizeRating[$seamstress->id][$date] = round($averageVolume, 1);
-                } else {
-                    $seamstressesLargeSizeRating[$seamstress->id][$date] = 0;
-                }
+                $seamstressesLargeSizeRating[$seamstress->id][$date] = self::getRatingByDate($seamstress, $startDate, $endDate);
             }
         }
 
@@ -282,5 +271,42 @@ class MarketplaceOrderItemService
         }
 
         return $dates;
+    }
+
+    public static function getRatingByDate(mixed $seamstress, mixed $startDate, mixed $endDate): float|string
+    {
+        $seamstressRating = MarketplaceOrderItem::query()
+            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+            ->where('marketplace_order_items.seamstress_id', $seamstress->id)
+            ->where('marketplace_order_items.status', 3)
+            ->whereBetween('marketplace_order_items.completed_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->selectRaw('SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume, SUM(marketplace_order_items.quantity) as total_quantity')
+            ->first();
+
+        if ($seamstressRating && $seamstressRating->total_quantity > 0) {
+            $averageVolume = $seamstressRating->total_volume / $seamstressRating->total_quantity;
+            $result = round($averageVolume, 1);
+        } else {
+            $result = "0.0";
+        }
+
+        return $result;
+    }
+
+    public static function getSeamstressesRating()
+    {
+        return User::query()
+            ->where('role_id', '1')
+            ->get()
+            ->map(function ($user) {
+                $startDate = Carbon::now()->subDays(14)->toDateString();
+                $startDate2 = Carbon::now()->subMonth()->toDateString();
+                $endDate = Carbon::now()->toDateString();
+
+                $user->ratingNow = MarketplaceOrderItemService::getRatingByDate($user, $endDate, $endDate);
+                $user->rating2week = MarketplaceOrderItemService::getRatingByDate($user, $startDate, $endDate);
+                $user->rating1month = MarketplaceOrderItemService::getRatingByDate($user, $startDate2, $endDate);
+                return $user;
+            });
     }
 }

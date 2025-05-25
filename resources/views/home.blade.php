@@ -75,6 +75,41 @@
     </div>
 
     <div class="card">
+        <div class="card-header">
+            Рейтинг
+        </div>
+        <div class="card-body">
+
+            @foreach($seamstressesRating as $seamstress)
+                <div class="row mb-3 align-items-center" style="height: 70px;">
+                    <div class="col-md-1" style=" text-align: center; vertical-align: middle;">
+                        @if($seamstress->avatar != null)
+                            <img src="{{ asset('storage/' . $seamstress->avatar) }}"
+                                 style="width:50px; height:50px;" alt="">
+                        @endif
+                    </div>
+
+                    <div class="col-md-2">
+                        {{ $seamstress->name }}
+                    </div>
+
+                    <div class="col-md-1" style=" text-align: right;">
+                        за сегодня: <b>{{ $seamstress->ratingNow }}</b>
+                        <br>
+                        за 2 недели: <b>{{ $seamstress->rating2week }}</b>
+                        <br>
+                        за месяц: <b>{{ $seamstress->rating1month }}</b>
+                    </div>
+
+                    <div class="col-md-7">
+                    </div>
+                </div>
+                <hr>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="card">
         <div class="card-header row">
             <h4 class=" my-1 mr-2">Рабочий календарь</h4>
 
