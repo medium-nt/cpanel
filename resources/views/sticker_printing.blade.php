@@ -32,11 +32,11 @@
                 <div class="container-fluid">
                     <div class="card" style="top: 10px;">
                         <div class="row mt-3 ml-3 mr-1">
-                            <div class="form-group col-md-1">
+                            <div class="form-group col-md-1 mr-5">
                                 <a class="btn btn-primary btn-lg" href="{{ route('sticker_printing') }}">Обновить</a>
                             </div>
 
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-3 ml-3">
                                 <select name="seamstress_id"
                                         id="seamstress_id"
                                         class="form-control  form-control-lg"
