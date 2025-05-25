@@ -27,12 +27,15 @@ class StickerPrintingController extends Controller
 
         if ($request->has('seamstress_id')) {
             $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);
+        } else {
+            $items = $items->where('marketplace_order_items.seamstress_id', 0);
         }
 
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
             'items' => $items->get(),
-            'seamstresses' => User::query()->where('role_id', '1')->get(),
+            'seamstresses' => User::query()->where('role_id', '1')
+                ->where('name', 'not like', '%Тест%')->get(),
             'dates' => json_encode($dates),
             'seamstressesJson' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
             'days_ago' => $daysAgo

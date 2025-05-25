@@ -53,6 +53,7 @@
                         </div>
                     </div>
 
+                    @if($items->isNotEmpty())
                     <div class="card" style="top: 10px;">
                         <div class="card-body">
 
@@ -110,6 +111,7 @@
 
                         </div>
                     </div>
+                    @endif
 
                     <div class="card" style="top: 10px;">
                         <div class="card-header">
