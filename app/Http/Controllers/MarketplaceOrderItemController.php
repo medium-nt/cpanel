@@ -23,7 +23,8 @@ class MarketplaceOrderItemController extends Controller
         return view('marketplace_order_items.index', [
             'title' => 'Товары для пошива',
             'items' => $paginatedItems->appends($queryParams),
-            'seamstresses' => User::query()->where('role_id', '1')->get()
+            'seamstresses' => User::query()->where('role_id', '1')
+                ->where('name', 'not like', '%Тест%')->get()
         ]);
     }
 
