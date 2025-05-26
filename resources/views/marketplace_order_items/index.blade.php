@@ -81,6 +81,15 @@
                    class="btn btn-link">Новые</a>
 
                 <a href="{{ route('marketplace_order_items.index', [
+                    'status' => 'labeling',
+                    'seamstress_id' => request('seamstress_id'),
+                    'date_start' => request('date_start'),
+                    'date_end' => request('date_end'),
+                    'marketplace_id' => request('marketplace_id')
+                ]) }}"
+                   class="btn btn-link">На стикеровке</a>
+
+                <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'done',
                     'seamstress_id' => request('seamstress_id'),
                     'date_start' => request('date_start'),
@@ -182,14 +191,14 @@
                                             @case(4)
                                                 <div class="btn-group" role="group">
                                                     @if(auth()->user()->role->name != 'admin')
-                                                    <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
+                                                    <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
                                                         @method('PUT')
                                                         <button type="submit" class="btn btn-success mr-1"
-                                                                title="Сдать работу"
+                                                                title="На стикеровку"
                                                                 onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                            <i class="fas fa-check"></i>
+                                                            <i class="far fa-sticky-note"></i>
                                                         </button>
                                                     </form>
                                                     @endif
@@ -316,7 +325,7 @@
                                                         <button type="submit" class="btn btn-success mr-4"
                                                                 title="Сдать работу"
                                                                 onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                            <i class="fas fa-check"></i> Сдать работу
+                                                            <i class="far fa-sticky-note"></i> На стикеровку
                                                         </button>
                                                     </form>
                                                 @endif

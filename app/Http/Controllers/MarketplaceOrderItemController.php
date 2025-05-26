@@ -3,13 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
-use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class MarketplaceOrderItemController extends Controller
 {
@@ -57,7 +54,7 @@ class MarketplaceOrderItemController extends Controller
             'completed_at' => now()
         ]);
 
-        return redirect()->route('marketplace_order_items.index')->with('success', 'Заказ сдан');
+        return back()->with('success', 'Заказ успешно выполнен');
     }
 
     public function cancel(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
@@ -73,6 +70,16 @@ class MarketplaceOrderItemController extends Controller
         return redirect()
             ->route('marketplace_order_items.index')
             ->with('success', $result['message']);
+    }
+
+    public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
+    {
+        $marketplaceOrderItem->update([
+            'status' => 5
+        ]);
+
+        return redirect()->route('marketplace_order_items.index')
+            ->with('success', 'Заказ передан на стикеровку');
     }
 
 }
