@@ -51,7 +51,7 @@
                                 </select>
                             </div>
 
-                            <div class="form-group col-md-2 ml-5">
+                            <div class="form-group col-md-3 ml-5">
                                 <select name="marketplace_id"
                                         id="marketplace_id"
                                         class="form-control form-control-lg"
