@@ -318,12 +318,12 @@
                                         @case(4)
                                             <div class="btn-group" role="group">
                                                 @if(auth()->user()->role->name != 'admin')
-                                                    <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
+                                                    <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
                                                         @method('PUT')
                                                         <button type="submit" class="btn btn-success mr-4"
-                                                                title="Сдать работу"
+                                                                title="На стикеровку"
                                                                 onclick="return confirm('Вы уверены что заказ выполнен?')">
                                                             <i class="far fa-sticky-note"></i> На стикеровку
                                                         </button>
