@@ -93,8 +93,10 @@
                                                     </a>
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle;">{{ $item->marketplaceOrder->order_id }}</td>
-                                            <td style="text-align: center; vertical-align: middle;">{{ $item->item->title }} - {{ $item->item->width / 100 }} х {{ $item->item->height }}</td>
+                                            <td style="text-align: center; vertical-align: middle; font-size: 30px;">{{ $item->marketplaceOrder->order_id }}</td>
+                                            <td style="text-align: center; vertical-align: middle; font-size: 30px;">
+                                                {{ $item->item->title }} - {{ $item->item->width / 100 }} х {{ $item->item->height }}
+                                            </td>
                                             <td style="text-align: center; vertical-align: middle;">
                                                 <img style="width: 80px;"
                                                      src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
