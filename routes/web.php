@@ -12,6 +12,9 @@ Route::get('/sticker_printing', [App\Http\Controllers\StickerPrintingController:
 Route::get('barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getBarcodeFile'])
     ->name('marketplace_api.barcode');
 
+Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
+    ->name('marketplace_order_items.done');
+
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -11,10 +11,6 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->can('update', 'marketplace_order_item')
         ->name('marketplace_order_items.startWork');
 
-    Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
-//        ->can('update', 'marketplace_order_item')
-        ->name('marketplace_order_items.done');
-
     Route::put('/labeling/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'labeling'])
         ->can('update', 'marketplace_order_item')
         ->name('marketplace_order_items.labeling');
