@@ -39,7 +39,7 @@
                             <div class="form-group col-md-3 ml-3">
                                 <select name="seamstress_id"
                                         id="seamstress_id"
-                                        class="form-control  form-control-lg"
+                                        class="form-control form-control-lg"
                                         onchange="updatePageWithQueryParam(this)"
                                         required>
                                     <option value="" selected disabled>Выберите швею</option>
@@ -48,6 +48,18 @@
                                                 @if(request('seamstress_id') == $seamstress->id) selected @endif
                                         >{{ $seamstress->name }}</option>
                                     @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-2 ml-5">
+                                <select name="marketplace_id"
+                                        id="marketplace_id"
+                                        class="form-control form-control-lg"
+                                        onchange="updatePageWithQueryParam(this)"
+                                        required>
+                                    <option value="" selected disabled>Выбрать маркетплейс</option>
+                                    <option value="1" @if(request()->get('marketplace_id') == 1) selected @endif>OZON</option>
+                                    <option value="2" @if(request()->get('marketplace_id') == 2) selected @endif>WB</option>
                                 </select>
                             </div>
                         </div>

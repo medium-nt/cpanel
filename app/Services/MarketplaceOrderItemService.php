@@ -7,8 +7,10 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Throwable;
 
 class MarketplaceOrderItemService
@@ -312,5 +314,25 @@ class MarketplaceOrderItemService
                 $user->rating1month = MarketplaceOrderItemService::getRatingByDate($user, $startDate2, $endDate);
                 return $user;
             });
+    }
+
+    public static function getItemsForLabeling(Request $request): Collection
+    {
+        $items = MarketplaceOrderItem::query()
+            ->where('marketplace_order_items.status', '5')
+            ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+            ->select('marketplace_order_items.*');
+
+        if ($request->has('seamstress_id')) {
+            $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);
+        } else {
+            $items = $items->where('marketplace_order_items.seamstress_id', 0);
+        }
+
+        if ($request->has('marketplace_id')) {
+            $items = $items->where('marketplace_orders.marketplace_id', $request->marketplace_id);
+        }
+
+        return $items->get();
     }
 }
