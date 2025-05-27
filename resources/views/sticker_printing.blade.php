@@ -16,6 +16,11 @@
             .wrapper {
                 background-color: #f4f6f9;
             }
+            .td_style {
+                text-align: center;
+                vertical-align: middle;
+                font-size: 30px;
+            }
         </style>
     </head>
     <body>
@@ -61,11 +66,11 @@
                     @if($items->isNotEmpty() || $seamstressId != 0)
                     <div class="card" style="top: 10px;">
                         <div class="card-body">
-
                             <div class="table-responsive">
                                 <table class="table table-hover table-bordered">
                                     <thead class="thead-dark">
                                         <tr>
+                                            <th style="text-align: center; width: 80px" scope="col"></th>
                                             <th style="text-align: center" scope="col">Номер заказа</th>
                                             <th style="text-align: center" scope="col">Товар</th>
                                             <th style="text-align: center" scope="col">Маркетплейс</th>
@@ -75,110 +80,61 @@
                                     <tbody>
 
                                     @foreach ($items as $item)
-                                        <div class="modal fade" id="modal-static-{{ $item->marketplaceOrder->order_id }}" data-backdrop="static"
-                                             data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-body">
-                                                        <div class="modal-div-static">
-                                                            @if($item->marketplaceOrder->is_printed)
-                                                                <div class="alert alert-danger" role="alert">
-                                                                    <i class="fas fa-exclamation-triangle"></i>
-                                                                    Внимание! Стикер уже печатался ранее.
-                                                                </div>
-
-                                                                <a href="#"
-                                                                   id="reprint_{{$item->marketplaceOrder->order_id}}"
-                                                                   class="btn btn-link btn-sx mx-5 mb-3 d-flex align-items-center justify-content-center">
-                                                                    Нужно распечатать повторно
-                                                                </a>
-                                                            @endif
-
-                                                            <script>
-                                                                $(document).ready(function() {
-                                                                    $("#print_{{$item->marketplaceOrder->order_id}}").click(function(e) {
-                                                                        $("#submit_{{ $item->marketplaceOrder->order_id }}").show();
-                                                                    });
-
-                                                                    $("#reprint_{{$item->marketplaceOrder->order_id}}").click(function(e) {
-                                                                        $("#print_{{ $item->marketplaceOrder->order_id }}").show();
-                                                                    });
-                                                                });
-                                                            </script>
-
-                                                            <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $item->marketplaceOrder->order_id]) }}"
-                                                               class="btn btn-outline-secondary btn-lg mx-5 mb-5 d-flex align-items-center justify-content-center"
-                                                               id="print_{{$item->marketplaceOrder->order_id}}"
-                                                               @if($item->marketplaceOrder->is_printed) style="display: none !important;" @endif
-                                                               target="_blank">
-                                                                <i class="fas fa-barcode fa-2x mr-2"></i> Распечатать стикер к заказу
-                                                            </a>
-
-                                                            <div class="modal-div-static d-flex justify-content-between">
-                                                                <button type="button" class="btn btn-danger"
-                                                                        onclick="location.reload();">
-                                                                    Стикер не распечатан
-                                                                </button>
-
-{{--                                                                <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"--}}
-{{--                                                                      method="POST">--}}
-{{--                                                                    @csrf--}}
-{{--                                                                    @method('PUT')--}}
-{{--                                                                    <button type="submit" class="btn btn-success ml-auto"--}}
-{{--                                                                            id="submit_{{ $item->marketplaceOrder->order_id }}" style="display: none;"--}}
-{{--                                                                            onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">--}}
-{{--                                                                        Сдать заказ--}}
-{{--                                                                    </button>--}}
-{{--                                                                </form>--}}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @php
+                                            $isPrinted = $item->marketplaceOrder->is_printed;
+                                            $orderId = $item->marketplaceOrder->order_id;
+                                            $fulfillmentType = $item->marketplaceOrder->fulfillment_type;
+                                        @endphp
+                                        <script>
+                                            $(document).ready(function() {
+                                                $("#print_{{ $orderId }}").click(function(e) {
+                                                    $("#submit_{{ $orderId }}").show();
+                                                    $(this).removeClass('btn-outline-secondary').addClass('btn-outline-danger');
+                                                });
+                                            });
+                                        </script>
 
                                         <tr>
-                                            <td class="sticker {{ $item->marketplaceOrder->order_id }}"
-                                                data-toggle="modal" data-target="#modal-static-{{ $item->marketplaceOrder->order_id }}"
-                                                style="text-align: center; vertical-align: middle; font-size: 30px;">
-                                                {{ $item->marketplaceOrder->order_id }}
-                                                @if($item->marketplaceOrder->is_printed)
-                                                    <i class="fas fa-print ml-1" style="color: red;"></i>
+                                            <td>
+                                                @if($fulfillmentType === 'FBS')
+                                                <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $orderId]) }}"
+                                                   class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
+                                                   @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                   id="print_{{ $orderId }}">
+                                                    <i class="fas fa-barcode fa-2x"></i>
+                                                </a>
                                                 @endif
                                             </td>
-                                            <td class="sticker {{ $item->marketplaceOrder->order_id }}"
-                                                data-toggle="modal" data-target="#modal-static-{{ $item->marketplaceOrder->order_id }}"
-                                                style="text-align: center; vertical-align: middle; font-size: 30px;">
+
+                                            <td class="td_style">
+                                                {{ $orderId }}
+                                            </td>
+                                            <td class="td_style">
                                                 {{ $item->item->title }} - {{ $item->item->width / 100 }} х {{ $item->item->height }}
                                             </td>
-                                            <td class="sticker {{ $item->marketplaceOrder->order_id }}"
-                                                data-toggle="modal" data-target="#modal-static-{{ $item->marketplaceOrder->order_id }}"
-                                                style="text-align: center; vertical-align: middle;">
+                                            <td class="td_style">
                                                 <img style="width: 80px;"
                                                      src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
                                                      alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle;">
-                                                @if($item->marketplaceOrder->is_printed)
+                                            <td class="td_style">
                                                 <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
                                                       method="POST">
                                                     @csrf
                                                     @method('PUT')
                                                     <button type="submit" class="btn btn-success ml-auto"
-                                                            id="submit_{{ $item->marketplaceOrder->order_id }}"
+                                                            style=" @if(!$isPrinted && $fulfillmentType === 'FBS') display:none !important;" @endif
+                                                            id="submit_{{ $orderId }}"
                                                             onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">
                                                         <i class="fas fa-check fa-2x"></i>
                                                     </button>
                                                 </form>
-                                                @endif
                                             </td>
-
                                         </tr>
                                     @endforeach
                                     </tbody>
                                 </table>
                             </div>
-
                         </div>
                     </div>
                     @endif
