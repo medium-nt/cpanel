@@ -69,6 +69,7 @@
                                             <th style="text-align: center" scope="col">Номер заказа</th>
                                             <th style="text-align: center" scope="col">Товар</th>
                                             <th style="text-align: center" scope="col">Маркетплейс</th>
+                                            <th style="text-align: center; width: 80px" scope="col"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -119,16 +120,16 @@
                                                                     Стикер не распечатан
                                                                 </button>
 
-                                                                <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
-                                                                      method="POST">
-                                                                    @csrf
-                                                                    @method('PUT')
-                                                                    <button type="submit" class="btn btn-success ml-auto"
-                                                                            id="submit_{{ $item->marketplaceOrder->order_id }}" style="display: none;"
-                                                                            onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">
-                                                                        Сдать заказ
-                                                                    </button>
-                                                                </form>
+{{--                                                                <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"--}}
+{{--                                                                      method="POST">--}}
+{{--                                                                    @csrf--}}
+{{--                                                                    @method('PUT')--}}
+{{--                                                                    <button type="submit" class="btn btn-success ml-auto"--}}
+{{--                                                                            id="submit_{{ $item->marketplaceOrder->order_id }}" style="display: none;"--}}
+{{--                                                                            onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">--}}
+{{--                                                                        Сдать заказ--}}
+{{--                                                                    </button>--}}
+{{--                                                                </form>--}}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -136,22 +137,40 @@
                                             </div>
                                         </div>
 
-                                        <tr class="sticker {{ $item->marketplaceOrder->order_id }}"
-                                            data-toggle="modal" data-target="#modal-static-{{ $item->marketplaceOrder->order_id }}">
-
-                                            <td style="text-align: center; vertical-align: middle; font-size: 30px;">
+                                        <tr>
+                                            <td class="sticker {{ $item->marketplaceOrder->order_id }}"
+                                                data-toggle="modal" data-target="#modal-static-{{ $item->marketplaceOrder->order_id }}"
+                                                style="text-align: center; vertical-align: middle; font-size: 30px;">
                                                 {{ $item->marketplaceOrder->order_id }}
                                                 @if($item->marketplaceOrder->is_printed)
                                                     <i class="fas fa-print ml-1" style="color: red;"></i>
                                                 @endif
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle; font-size: 30px;">
+                                            <td class="sticker {{ $item->marketplaceOrder->order_id }}"
+                                                data-toggle="modal" data-target="#modal-static-{{ $item->marketplaceOrder->order_id }}"
+                                                style="text-align: center; vertical-align: middle; font-size: 30px;">
                                                 {{ $item->item->title }} - {{ $item->item->width / 100 }} х {{ $item->item->height }}
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle;">
+                                            <td class="sticker {{ $item->marketplaceOrder->order_id }}"
+                                                data-toggle="modal" data-target="#modal-static-{{ $item->marketplaceOrder->order_id }}"
+                                                style="text-align: center; vertical-align: middle;">
                                                 <img style="width: 80px;"
                                                      src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
                                                      alt="{{ $item->marketplaceOrder->marketplace_name }}">
+                                            </td>
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                @if($item->marketplaceOrder->is_printed)
+                                                <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
+                                                      method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-success ml-auto"
+                                                            id="submit_{{ $item->marketplaceOrder->order_id }}"
+                                                            onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">
+                                                        <i class="fas fa-check fa-2x"></i>
+                                                    </button>
+                                                </form>
+                                                @endif
                                             </td>
 
                                         </tr>
