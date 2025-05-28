@@ -402,6 +402,33 @@ class MarketplaceApiService
         return true;
     }
 
+    public static function collectOrderOzon($orderId, $product): bool
+    {
+        $body = [
+            "packages" => [
+                "products" => [
+                    "product_id" => $product,
+                    "quantity" => 1
+                ]
+            ],
+            "posting_number" => $orderId,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v4/posting/fbs/ship', $body);
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        return true;
+    }
+
     private static function hasOrderInSystem($id): bool
     {
         return MarketplaceOrder::query()->where('order_id', $id)->exists();

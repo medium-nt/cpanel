@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MarketplaceOrderItemController extends Controller
 {
@@ -74,6 +76,22 @@ class MarketplaceOrderItemController extends Controller
 
     public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
+        $marketplaceId = $marketplaceOrderItem->marketplaceOrder->marketplace_id;
+
+        if ($marketplaceId === 1) {
+            $orderId = $marketplaceOrderItem->marketplaceOrder->order_id;
+            $sku = $marketplaceOrderItem->item->sku()->first()->sku;
+
+            $result = MarketplaceApiService::collectOrderOzon($orderId, $sku);
+
+            if (!$result) {
+                Log::channel('marketplace_api')
+                    ->info('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+                return redirect()->route('marketplace_order_items.index')
+                    ->with('error', 'Не удалось передать заказ на стикеровку');
+            }
+        }
+
         $marketplaceOrderItem->update([
             'status' => 5
         ]);
