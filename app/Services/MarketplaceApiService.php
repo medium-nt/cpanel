@@ -427,6 +427,11 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v4/posting/fbs/ship', $body);
 
         if(!$response->ok()) {
+            if ($response->object()->message === 'POSTING_ALREADY_SHIPPED') {
+                Log::channel('marketplace_api')->info('    Заказа №'.$orderId .' уже ранее был отправлен в сборку.');
+                return true;
+            }
+
             Log::channel('marketplace_api')->error('    Ошибка при отправке заказа №'.$orderId);
             Log::channel('marketplace_api')->error('    Запрос:'.json_encode($body));
             Log::channel('marketplace_api')->error('    Ответ'.$response->body());
