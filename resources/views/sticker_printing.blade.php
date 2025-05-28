@@ -33,6 +33,11 @@
                             <div class="form-group col-md-1 mr-5">
                                 <a class="btn btn-primary btn-lg" href="{{ route('sticker_printing') }}">Обновить</a>
                             </div>
+                            <div class="form-group col-md-1">
+                                <a class="btn btn-outline-primary btn-lg" href="#" onclick="window.location.reload()">
+                                    <i class="fas fa-sync"></i>
+                                </a>
+                            </div>
 
                             <div class="form-group col-md-3 ml-3">
                                 <select name="seamstress_id"
@@ -64,14 +69,6 @@
                         </div>
                     </div>
 
-                    <script>
-                        if (localStorage.getItem('modalId') != null) {
-                            alert('Был отправлен на печать заказ: ' + localStorage.getItem('modalId'));
-                        }
-
-                        localStorage.removeItem('modalId');
-                    </script>
-
                     @if($items->isNotEmpty() || $seamstressId != 0)
                     <div class="card" style="top: 10px;">
                         <div class="card-body">
@@ -97,10 +94,17 @@
                                         <script>
                                             $(document).ready(function() {
                                                 $("#print_{{ $orderId }}").click(function(e) {
-                                                    localStorage.setItem('modalId', '{{ $orderId }}');
+                                                    localStorage.setItem('orderId', '{{ $orderId }}');
                                                     $("#submit_{{ $orderId }}").show();
                                                     $(this).removeClass('btn-outline-secondary').addClass('btn-outline-danger');
                                                 });
+
+                                                if (localStorage.getItem('orderId') === '{{ $orderId }}') {
+                                                    $("#submit_{{ $orderId }}").css("display", "block").attr("style", function(i, style) {
+                                                        return style.replace(/display:\s*none!important;/, '');
+                                                    });
+                                                    localStorage.removeItem('orderId');
+                                                }
                                             });
                                         </script>
 
@@ -219,6 +223,10 @@
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
+            $(document).ready(function() {
+                localStorage.removeItem('orderId');
+            });
+
             window.seamstressesData = {!! $seamstressesJson !!};
             window.dates = {!! $dates !!};
         </script>
