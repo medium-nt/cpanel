@@ -41,6 +41,7 @@
                                         onchange="updatePageWithQueryParam(this)"
                                         required>
                                     <option value="" selected disabled>Выберите швею</option>
+{{--                                    <option value="3" @if(request('seamstress_id') == 3) selected @endif>Тестовая</option>--}}
                                     @foreach($seamstresses as $seamstress)
                                         <option value="{{ $seamstress->id }}"
                                                 @if(request('seamstress_id') == $seamstress->id) selected @endif
@@ -62,6 +63,14 @@
                             </div>
                         </div>
                     </div>
+
+                    <script>
+                        if (localStorage.getItem('modalId') != null) {
+                            alert('Был отправлен на печать заказ: ' + localStorage.getItem('modalId'));
+                        }
+
+                        localStorage.removeItem('modalId');
+                    </script>
 
                     @if($items->isNotEmpty() || $seamstressId != 0)
                     <div class="card" style="top: 10px;">
@@ -88,6 +97,7 @@
                                         <script>
                                             $(document).ready(function() {
                                                 $("#print_{{ $orderId }}").click(function(e) {
+                                                    localStorage.setItem('modalId', '{{ $orderId }}');
                                                     $("#submit_{{ $orderId }}").show();
                                                     $(this).removeClass('btn-outline-secondary').addClass('btn-outline-danger');
                                                 });
