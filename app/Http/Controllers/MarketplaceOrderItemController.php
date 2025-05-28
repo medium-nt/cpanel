@@ -77,8 +77,9 @@ class MarketplaceOrderItemController extends Controller
     public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
         $marketplaceId = $marketplaceOrderItem->marketplaceOrder->marketplace_id;
+        $fulfillmentType = $marketplaceOrderItem->marketplaceOrder->fulfillment_type;
 
-        if ($marketplaceId === 1) {
+        if ($marketplaceId === 1 && $fulfillmentType === 'FBS') {
             $orderId = $marketplaceOrderItem->marketplaceOrder->order_id;
             $sku = $marketplaceOrderItem->item->sku()->first()->sku;
 
