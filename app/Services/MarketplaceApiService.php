@@ -406,9 +406,13 @@ class MarketplaceApiService
     {
         $body = [
             "packages" => [
-                "products" => [
-                    "product_id" => $product,
-                    "quantity" => 1
+                [
+                    "products" => [
+                        [
+                            "product_id" => $product,
+                            "quantity" => 1
+                        ]
+                    ]
                 ]
             ],
             "posting_number" => $orderId,
@@ -423,6 +427,9 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v4/posting/fbs/ship', $body);
 
         if(!$response->ok()) {
+            Log::channel('marketplace_api')->error('    Ошибка при отправке заказа №'.$orderId);
+            Log::channel('marketplace_api')->error('    Запрос:'.json_encode($body));
+            Log::channel('marketplace_api')->error('    Ответ'.$response->body());
             return false;
         }
 
