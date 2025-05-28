@@ -100,7 +100,7 @@ class MarketplaceOrderItemService
             ->where('seamstress_id', auth()->user()->id)
             ->count();
 
-        $maxCountOrderItems = 6;
+        $maxCountOrderItems = 16;
         if ($countOrderItemsBySeamstress > $maxCountOrderItems) {
             return [
                 'success' => false,
