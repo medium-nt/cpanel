@@ -82,7 +82,7 @@ class MarketplaceOrderItemController extends Controller
             $orderId = $marketplaceOrderItem->marketplaceOrder->order_id;
             $sku = $marketplaceOrderItem->item->sku()->first()->sku;
 
-            $result = match ($sku->marketplace_id) {
+            $result = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
                 1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
                 2 => MarketplaceApiService::collectOrderWb($orderId),
                 default => false,
