@@ -76,14 +76,17 @@ class MarketplaceOrderItemController extends Controller
 
     public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
-        $marketplaceId = $marketplaceOrderItem->marketplaceOrder->marketplace_id;
         $fulfillmentType = $marketplaceOrderItem->marketplaceOrder->fulfillment_type;
 
-        if ($marketplaceId === 1 && $fulfillmentType === 'FBS') {
+        if ($fulfillmentType === 'FBS') {
             $orderId = $marketplaceOrderItem->marketplaceOrder->order_id;
             $sku = $marketplaceOrderItem->item->sku()->first()->sku;
 
-            $result = MarketplaceApiService::collectOrderOzon($orderId, $sku);
+            $result = match ($sku->marketplace_id) {
+                1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
+                2 => MarketplaceApiService::collectOrderWb($orderId),
+                default => false,
+            };
 
             if (!$result) {
                 Log::channel('marketplace_api')

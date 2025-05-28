@@ -294,6 +294,20 @@ class MarketplaceApiService
                     $orderItem['created_at'] = Carbon::parse($order->order_created)->setTimezone('Europe/Moscow');
 
                     MarketplaceOrderItem::query()->create($orderItem);
+//
+//                    $result = match ($sku->marketplace_id) {
+//                        1 => self::collectOrderOzon($order->id, $skus->sku),
+//                        2 => self::collectOrderWb($order->id, $skus->sku),
+//                        default => false,
+//                    };
+//
+//                    if($result && $sku->marketplace_id == 1) {
+//                        Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' успешно собран');
+//                    } else {
+//                        Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' НЕ собран');
+//                        DB::rollBack();
+//                        continue 2;
+//                    }
                 }
 
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
@@ -441,6 +455,23 @@ class MarketplaceApiService
         return true;
     }
 
+    public static function collectOrderWb($orderId): bool
+    {
+        // Получаем открытую поставку для WB (если ее нет, то сначала создаем новую).
+        $supplyId = self::getWbSupplyId();
+
+        // Добавляем сборочное задание для WB в эту поставку.
+        $response = Http::withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->patch('https://marketplace-api.wildberries.ru/api/v3/supplies/'.$supplyId.'/orders/'.$orderId);
+
+        if($response->noContent()) {
+            return true;
+        }
+
+        return false;
+    }
+
     private static function hasOrderInSystem($id): bool
     {
         return MarketplaceOrder::query()->where('order_id', $id)->exists();
@@ -449,6 +480,90 @@ class MarketplaceApiService
     private static function hasSkuInSystem($sku): ?Sku
     {
         return Sku::query()->where('sku', $sku)->first();
+    }
+
+    private static function getWbSupplyId(): string
+    {
+        // Проверяем есть ли открытая поставка WB.
+        $suppliesList = self::getAllSuppliesWb();
+        foreach ($suppliesList as $supply) {
+            if (!$supply['done']) {
+                return $supply['id'];
+            }
+        }
+
+        // Если нет - то создаем ее и возвращаем ее номер
+        $newSupply = self::createSupplyWb();
+        return $newSupply->id;
+    }
+
+    private static function getAllSuppliesWb(): array
+    {
+        $next = 0;
+        $suppliesList = [];
+
+        do {
+            $response = self::getSuppliesWb($next);
+
+            if(!$response || empty($response->supplies) || $response->next == 0) {
+                return $suppliesList;
+            }
+
+            foreach ($response->supplies as $supply) {
+                $array = [
+                    'id' => $supply->id,
+                    'done' => $supply->done,
+                ];
+
+                $suppliesList[] = $array;
+            }
+
+            if (isset($response->next)) {
+                $next = $response->next;
+            } else {
+                break;
+            }
+        } while (true);
+
+        return $suppliesList;
+    }
+
+    private static function getSuppliesWb($next = 0): object|false|null
+    {
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->withQueryParameters(
+                [
+                    'limit' => 1000,
+                    'next' => $next,
+                ]
+            )
+            ->get('https://marketplace-api.wildberries.ru/api/v3/supplies');
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        return $response->object();
+    }
+
+    private static function createSupplyWb(): object|false|null
+    {
+        $body = [
+            "name" => "Поставка от " . date('d.m.Y H:i'),
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->post('https://marketplace-api.wildberries.ru/api/v3/supplies', $body);
+
+        if(!$response->created()) {
+            return false;
+        }
+
+        return $response->object();
     }
 
     public static function getBarcodeOzon(mixed $orderId): object|false|null
