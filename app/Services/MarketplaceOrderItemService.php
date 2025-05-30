@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -96,11 +97,12 @@ class MarketplaceOrderItemService
         }
 
         $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
-            ->where('status', 4)
+            ->whereIn('status', [4, 5])
             ->where('seamstress_id', auth()->user()->id)
             ->count();
 
-        $maxCountOrderItems = 7;
+        $maxCountOrderItems = self::getMaxQuantityOrdersToSeamstress();
+
         if ($countOrderItemsBySeamstress > $maxCountOrderItems) {
             return [
                 'success' => false,
@@ -334,5 +336,10 @@ class MarketplaceOrderItemService
         }
 
         return $items->get();
+    }
+
+    private static function getMaxQuantityOrdersToSeamstress()
+    {
+        return Setting::query()->where('name', 'max_quantity_orders_to_seamstress')->first()->value;
     }
 }
