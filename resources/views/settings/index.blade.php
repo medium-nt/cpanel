@@ -61,7 +61,7 @@
                                     </select>
                                 </div>
                             </div>
-
+                            <hr>
                             <div class="row">
                                 <div class="form-group col-md-12">
                                     <label for="title">WB api key</label>
@@ -71,17 +71,6 @@
                                         id="api_key_wb"
                                         name="api_key_wb"
                                         value="{{ $settings->api_key_wb }}"
-                                    >
-                                </div>
-
-                                <div class="form-group col-md-12">
-                                    <label for="title">OZON api key</label>
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="api_key_ozon"
-                                        name="api_key_ozon"
-                                        value="{{ $settings->api_key_ozon }}"
                                     >
                                 </div>
 
@@ -95,7 +84,32 @@
                                         value="{{ $settings->seller_id_ozon }}"
                                     >
                                 </div>
+
+                                <div class="form-group col-md-10">
+                                    <label for="title">OZON api key</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="api_key_ozon"
+                                        name="api_key_ozon"
+                                        value="{{ $settings->api_key_ozon }}"
+                                    >
+                                </div>
                             </div>
+                            <hr>
+                            <div class="row">
+                                <div class="form-group col-md-2">
+                                    <label for="title">Макс. кол-во заказов у швеи</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="max_quantity_orders_to_seamstress"
+                                        name="max_quantity_orders_to_seamstress"
+                                        value="{{ $settings->max_quantity_orders_to_seamstress }}"
+                                    >
+                                </div>
+                            </div>
+                            <hr>
 
                             <button type="submit" class="btn btn-primary">Сохранить</button>
                         </form>
