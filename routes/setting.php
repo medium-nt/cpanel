@@ -10,4 +10,8 @@ Route::prefix('/setting')->group(function () {
     Route::post('save', [App\Http\Controllers\SettingController::class, 'save'])
         ->can('update', Setting::class)
         ->name('setting.save');
+
+    Route::get('test', [App\Http\Controllers\SettingController::class, 'test'])
+        ->can('update', Setting::class)
+        ->name('setting.test');
 });

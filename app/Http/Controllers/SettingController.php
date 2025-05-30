@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveSettingRequest;
 use App\Models\Setting;
+use App\Services\StackService;
 
 class SettingController extends Controller
 {
@@ -33,5 +34,14 @@ class SettingController extends Controller
         }
 
         return redirect()->route('setting.index')->with('success', 'Изменения сохранены');
+    }
+
+    public function test()
+    {
+        //  тестовая функция для запуска других методов только на продакшн сервере.
+        if (!app()->environment('production')) {
+            dd('Is test server');
+        }
+        dd('Is no development server');
     }
 }
