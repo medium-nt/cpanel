@@ -277,22 +277,21 @@
                             </div>
                             <div class="card-body">
                                 <b>{{ $item->marketplaceOrder->order_id }} </b>
-                                <span class="mx-1 badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
-                                <b> {{ $item->marketplaceOrder->fulfillment_type }}</b> <br>
+                                <b> {{ $item->marketplaceOrder->fulfillment_type }}</b><br>
+                                <span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
 
                                 <div class="my-3">
                                     Товар: <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b><br>
                                     Размеры: <b> {{ $item->item->width / 100 }}</b> . <b> {{ $item->item->height }}</b><br>
-                                    <small>
-                                    </small>
                                     <small class="mr-2">
                                         Создан: <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
                                     </small>
                                     <badge class="badge
-                                    @if($item->created_at->addHours(41)->isPast()) badge-hot
-                                    @elseif($item->created_at->addHours(21)->isPast()) badge-old
-                                    @else badge-new
-                                    @endif">
+                                        @if($item->created_at->addHours(41)->isPast()) badge-hot
+                                        @elseif($item->created_at->addHours(21)->isPast()) badge-old
+                                        @else badge-new
+                                        @endif
+                                    ">
                                         {{ $item->created_at->diffForHumans(['parts' => 2]) }}
                                     </badge>
                                 </div>
