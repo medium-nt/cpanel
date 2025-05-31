@@ -9,7 +9,7 @@ class MarketplaceOrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
     }
 
     public function view(User $user, MarketplaceOrder $marketplaceOrder): bool
@@ -29,7 +29,7 @@ class MarketplaceOrderPolicy
 
     public function complete(User $user, MarketplaceOrder $marketplaceOrder): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'seamstress' || $user->role->name == 'storekeeper';
+        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
     }
 
     public function delete(User $user, MarketplaceOrder $marketplaceOrder): bool

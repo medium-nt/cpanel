@@ -369,6 +369,7 @@ return [
                     'text' => 'marketplace_orders',
                     'url' => 'admin/marketplace_orders',
                     'icon' => 'fas fa-fw fa-cart-arrow-down',
+                    'can' => 'is-storekeeper-or-admin',
                 ],
                 [
                     'text' => 'marketplace_order_items',
