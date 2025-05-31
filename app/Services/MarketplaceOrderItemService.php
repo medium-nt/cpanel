@@ -96,19 +96,31 @@ class MarketplaceOrderItemService
             }
         }
 
-        $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
-            ->whereIn('status', [4, 5])
-            ->where('seamstress_id', auth()->user()->id)
-            ->count();
-
         $maxCountOrderItems = self::getMaxQuantityOrdersToSeamstress();
 
-        if ($countOrderItemsBySeamstress > $maxCountOrderItems) {
+        $seamstressId = auth()->user()->id;
+
+        $maxStack = StackService::getMaxStackByUser($seamstressId)->max;
+
+        if ($maxStack >= $maxCountOrderItems){
             return [
                 'success' => false,
-                'message' => 'Вы не можете принять больше ' . $maxCountOrderItems . ' заказов!'
+                'message' => 'Сначала вам необходимо закрыть все текущие заказы.'
             ];
         }
+
+//        TO_DO скорее всего ненужная проверка.
+//        $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
+//            ->whereIn('status', [4, 5])
+//            ->where('seamstress_id', auth()->user()->id)
+//            ->count();
+//
+//        if ($countOrderItemsBySeamstress > $maxCountOrderItems) {
+//            return [
+//                'success' => false,
+//                'message' => 'Вы не можете взять больше ' . $maxCountOrderItems . ' заказов!'
+//            ];
+//        }
 
         $marketplaceItem = $marketplaceOrderItem->item()->first();
         $materialConsumptions = $marketplaceItem->consumption;
@@ -160,6 +172,9 @@ class MarketplaceOrderItemService
                 MovementMaterial::query()->create($movementData);
             }
 
+            //  добавляем +1 к стэку и максимуму в стэке.
+            StackService::incrementStackAndMaxStack($seamstressId);
+
             DB::commit();
 
         } catch (Throwable $e) {
@@ -181,6 +196,9 @@ class MarketplaceOrderItemService
     {
         try {
             DB::beginTransaction();
+
+            //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
+            StackService::reduceStack($marketplaceOrderItem->seamstress_id);
 
             $marketplaceOrderItem->update([
                 'status' => 0,
@@ -338,8 +356,9 @@ class MarketplaceOrderItemService
         return $items->get();
     }
 
-    private static function getMaxQuantityOrdersToSeamstress()
+    public static function getMaxQuantityOrdersToSeamstress()
     {
         return Setting::query()->where('name', 'max_quantity_orders_to_seamstress')->first()->value;
     }
+
 }

@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
+use App\Services\StackService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -50,6 +51,9 @@ class MarketplaceOrderItemController extends Controller
                 'status' => 3,
                 'completed_at' => now()
         ]);
+
+        //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
+        StackService::reduceStack($marketplaceOrderItem->seamstress_id);
 
         $marketplaceOrderItem->update([
             'status' => 3,
