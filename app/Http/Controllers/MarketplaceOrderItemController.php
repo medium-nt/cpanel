@@ -58,7 +58,7 @@ class MarketplaceOrderItemController extends Controller
         ]);
 
         //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
-        StackService::reduceStack($marketplaceOrderItem->seamstress_id);
+//        StackService::reduceStack($marketplaceOrderItem->seamstress_id);
 
         $marketplaceOrderItem->update([
             'status' => 3,

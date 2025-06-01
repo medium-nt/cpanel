@@ -199,7 +199,7 @@ class MarketplaceOrderItemService
             DB::beginTransaction();
 
             //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
-            StackService::reduceStack($marketplaceOrderItem->seamstress_id);
+//            StackService::reduceStack($marketplaceOrderItem->seamstress_id);
 
             $marketplaceOrderItem->update([
                 'status' => 0,
@@ -390,18 +390,29 @@ class MarketplaceOrderItemService
 
     private static function checkMaxStack(): array
     {
+        $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
+            ->whereIn('status', [4, 5])
+            ->where('seamstress_id', auth()->user()->id)
+            ->count();
+
         $maxCountOrderItems = self::getMaxQuantityOrdersToSeamstress();
 
-        $seamstressId = auth()->user()->id;
-
-        $maxStack = StackService::getMaxStackByUser($seamstressId)->max;
-
-        if ($maxStack >= $maxCountOrderItems){
+        if ($countOrderItemsBySeamstress >= $maxCountOrderItems) {
             return [
                 'success' => false,
-                'message' => 'Достигнут максимум заказов. Сначала вам необходимо закрыть все текущие заказы.'
+                'message' => 'Вы не можете взять больше ' . $maxCountOrderItems . ' заказов!'
             ];
         }
+
+//        $seamstressId = auth()->user()->id;
+//
+//        $maxStack = StackService::getMaxStackByUser($seamstressId)->max;
+//        if ($maxStack >= $maxCountOrderItems){
+//            return [
+//                'success' => false,
+//                'message' => 'Достигнут максимум заказов. Сначала вам необходимо закрыть все текущие заказы.'
+//            ];
+//        }
 
         return [
             'success' => true,
@@ -475,7 +486,7 @@ class MarketplaceOrderItemService
             }
 
             //  добавляем +1 к стэку и максимуму в стэке.
-            StackService::incrementStackAndMaxStack($seamstressId);
+//            StackService::incrementStackAndMaxStack($seamstressId);
 
             DB::commit();
 

@@ -6,7 +6,7 @@ use App\Models\Stack;
 
 class StackService
 {
-    public static function getMaxStackByUser($seamstressId)
+    private static function getMaxStackByUser($seamstressId)
     {
         return Stack::query()->firstOrCreate(
             ['seamstress_id' => $seamstressId],
@@ -31,7 +31,7 @@ class StackService
         $stack->save();
 
         if($stack->stack == 0) {
-            $maxStack = StackService::getMaxStackByUser($seamstressId)->max;
+            $maxStack = self::getMaxStackByUser($seamstressId)->max;
             $maxCountOrderItems = MarketplaceOrderItemService::getMaxQuantityOrdersToSeamstress();
 
             if($maxStack >= $maxCountOrderItems) {
