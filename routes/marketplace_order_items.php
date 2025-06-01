@@ -7,9 +7,13 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->can('viewAny', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.index');
 
-    Route::put('/startWork/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'startWork'])
+/*    Route::put('/startWork/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'startWork'])
         ->can('update', 'marketplace_order_item')
-        ->name('marketplace_order_items.startWork');
+        ->name('marketplace_order_items.startWork');*/
+
+    Route::get('/get_new', [App\Http\Controllers\MarketplaceOrderItemController::class, 'getNewOrderItem'])
+        ->can('getNew', MarketplaceOrderItem::class)
+        ->name('marketplace_order_items.getNewOrderItem');
 
     Route::put('/labeling/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'labeling'])
         ->can('update', 'marketplace_order_item')

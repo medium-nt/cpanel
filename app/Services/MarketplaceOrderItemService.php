@@ -38,7 +38,7 @@ class MarketplaceOrderItemService
 
         $items = $items->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
-            ->orderBy('marketplace_orders.marketplace_id', 'asc')
+//            ->orderBy('marketplace_orders.marketplace_id', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*');
@@ -76,6 +76,7 @@ class MarketplaceOrderItemService
         return $items;
     }
 
+/*
     public static function acceptToSeamstress($marketplaceOrderItem): array
     {
         if (ScheduleService::isEnabledSchedule()) {
@@ -190,7 +191,7 @@ class MarketplaceOrderItemService
             'success' => true,
             'message' => 'Заказ принят'
         ];
-    }
+    }*/
 
     public static function cancelToSeamstress(MarketplaceOrderItem $marketplaceOrderItem): array
     {
@@ -359,6 +360,172 @@ class MarketplaceOrderItemService
     public static function getMaxQuantityOrdersToSeamstress()
     {
         return Setting::query()->where('name', 'max_quantity_orders_to_seamstress')->first()->value;
+    }
+
+    private static function checkSchedule(): array
+    {
+        if (ScheduleService::isEnabledSchedule()) {
+            if (!ScheduleService::isWorkDay()) {
+                return [
+                    'success' => false,
+                    'message' => 'Вы не можете взять заказ в нерабочий день!'
+                ];
+            }
+
+            $nowTime = Carbon::now();
+            if ($nowTime->lt(Carbon::createFromFormat('H:i:s', '07:00:00')) ||
+                $nowTime->gte(Carbon::createFromFormat('H:i:s', '20:00:00'))) {
+                return [
+                    'success' => false,
+                    'message' => 'Вы не можете взять заказ в нерабочее время!'
+                ];
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => 'OK'
+        ];
+    }
+
+    private static function checkMaxStack(): array
+    {
+        $maxCountOrderItems = self::getMaxQuantityOrdersToSeamstress();
+
+        $seamstressId = auth()->user()->id;
+
+        $maxStack = StackService::getMaxStackByUser($seamstressId)->max;
+
+        if ($maxStack >= $maxCountOrderItems){
+            return [
+                'success' => false,
+                'message' => 'Достигнут максимум заказов. Сначала вам необходимо закрыть все текущие заказы.'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'OK'
+        ];
+    }
+
+    private static function checkMaterials($marketplaceOrderItem): array
+    {
+        $marketplaceItem = $marketplaceOrderItem->item()->first();
+        $materialConsumptions = $marketplaceItem->consumption;
+
+        if ($materialConsumptions->isEmpty()) {
+            return [
+                'success' => false,
+                'message' => 'Для этого заказа не указаны материалы!'
+            ];
+        }
+
+        $quantityOrderItem = $marketplaceOrderItem->quantity;
+
+        foreach ($materialConsumptions as $materialConsumption) {
+            $materialId = $materialConsumption->material_id;
+            $materialConsumptionQuantity = $materialConsumption->quantity;
+
+            $materialInWorkhouse = InventoryService::materialInWorkshop($materialId);
+
+            if ($materialInWorkhouse < $materialConsumptionQuantity * $quantityOrderItem) {
+                return [
+                    'success' => false,
+                    'message' => 'Для этого заказа на производстве недостаточно материала!'
+                ];
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => 'OK'
+        ];
+    }
+
+    private static function assignOrderToSeamstress($marketplaceOrderItem): array
+    {
+        try {
+            $marketplaceItem = $marketplaceOrderItem->item()->first();
+            $materialConsumptions = $marketplaceItem->consumption;
+            $quantityOrderItem = $marketplaceOrderItem->quantity;
+            $seamstressId = auth()->user()->id;
+
+            DB::beginTransaction();
+
+            $marketplaceOrderItem->update([
+                'status' => 4,
+                'seamstress_id' => auth()->user()->id
+            ]);
+
+            $order = Order::query()->create([
+                'type_movement' => 3,
+                'status' => 4,
+                'seamstress_id' => auth()->user()->id,
+                'comment' => 'По заказу No: ' . $marketplaceOrderItem->marketplaceOrder->order_id,
+                'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id
+            ]);
+
+            foreach ($materialConsumptions as $item) {
+                $movementData['material_id'] = $item->material_id;
+                $movementData['quantity'] = $item->quantity * $quantityOrderItem;
+                $movementData['order_id'] = $order->id;
+
+                MovementMaterial::query()->create($movementData);
+            }
+
+            //  добавляем +1 к стэку и максимуму в стэке.
+            StackService::incrementStackAndMaxStack($seamstressId);
+
+            DB::commit();
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => 'Внутренняя ошибка'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Заказ принят'
+        ];
+    }
+
+    public static function getNewOrderItem(): array
+    {
+        $result = self::checkSchedule();
+        if (!$result['success']) {
+            return $result;
+        }
+
+        $result = self::checkMaxStack();
+        if (!$result['success']) {
+            return $result;
+        }
+
+        $items = MarketplaceOrderItem::query()
+            ->where('marketplace_order_items.status', 0)
+            ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+            ->orderBy('marketplace_orders.fulfillment_type', 'asc')
+            ->orderBy('marketplace_orders.created_at', 'asc')
+            ->orderBy('marketplace_order_items.id', 'asc')
+            ->select('marketplace_order_items.*')
+            ->get();
+
+        foreach ($items as $marketplaceOrderItem) {
+            $result = self::checkMaterials($marketplaceOrderItem);
+            if ($result['success']) {
+                return self::assignOrderToSeamstress($marketplaceOrderItem);
+            }
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Нет доступных заказов'
+        ];
     }
 
 }

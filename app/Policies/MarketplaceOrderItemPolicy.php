@@ -15,6 +15,11 @@ class MarketplaceOrderItemPolicy
         return $user->role->name == 'admin' || $user->role->name == 'seamstress' || $user->role->name == 'storekeeper';
     }
 
+    public function getNew(User $user): bool
+    {
+        return $user->role->name == 'seamstress';
+    }
+
     /**
      * Determine whether the user can view the model.
      */

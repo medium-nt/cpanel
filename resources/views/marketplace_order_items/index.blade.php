@@ -71,6 +71,7 @@
                 ]) }}"
                    class="btn btn-link">В работе</a>
 
+                @if(auth()->user()->role->name === 'admin')
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'new',
                     'seamstress_id' => request('seamstress_id'),
@@ -79,6 +80,7 @@
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link">Новые</a>
+                @endif
 
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'labeling',
@@ -87,7 +89,7 @@
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
-                   class="btn btn-link">На стикеровке</a>
+                   class="btn btn-link">Стикеровка</a>
 
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'done',
@@ -96,13 +98,18 @@
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
-                   class="btn btn-link">Выполненные</a>
+                   class="btn btn-link">Готовые</a>
 
             </div>
         </div>
 
         <div class="card only-on-desktop">
             <div class="card-body">
+
+                @if(auth()->user()->role->name == 'seamstress')
+                <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
+                   class="btn btn-primary mb-3">Получить новый заказ</a>
+                @endif
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
@@ -173,7 +180,7 @@
                                     @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
                                         @switch($item->status)
                                             @case(0)
-                                                @if(auth()->user()->role->name != 'admin')
+                                                {{--@if(auth()->user()->role->name != 'admin')
                                                 <div class="btn-group" role="group">
                                                     <form action="{{ route('marketplace_order_items.startWork', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
@@ -187,7 +194,7 @@
                                                     </form>
                                                 </div>
                                                 @endif
-                                                @break
+                                                @break--}}
                                             @case(4)
                                                 <div class="btn-group" role="group">
                                                     @if(auth()->user()->role->name != 'admin')
@@ -264,6 +271,17 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        @if(auth()->user()->role->name == 'seamstress')
+                            <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
+                               class="btn btn-primary">Получить новый заказ</a>
+                        @endif
+                    </div>
+                </div>
+            </div>
             @foreach ($items as $item)
                 <div class="col-md-4">
                     <div class="card">
@@ -299,7 +317,7 @@
                                 @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
                                     @switch($item->status)
                                         @case(0)
-                                            @if(auth()->user()->role->name != 'admin')
+                                            {{--@if(auth()->user()->role->name != 'admin')
                                                 <div class="btn-group" role="group">
                                                     <form action="{{ route('marketplace_order_items.startWork', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
@@ -313,7 +331,7 @@
                                                     </form>
                                                 </div>
                                             @endif
-                                            @break
+                                            @break--}}
                                         @case(4)
                                             <div class="btn-group" role="group">
                                                 @if(auth()->user()->role->name != 'admin')

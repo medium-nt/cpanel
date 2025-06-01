@@ -15,6 +15,11 @@ class MarketplaceOrderItemController extends Controller
 {
     public function index(Request $request)
     {
+        //  запретить швеям смотреть новые заказы
+        if($request->status == 'new' && auth()->user()->role->name === 'seamstress') {
+            return redirect()->route('marketplace_order_items.index');
+        }
+
         $items = MarketplaceOrderItemService::getFiltered($request);
         $paginatedItems = $items->paginate(50);
 
@@ -28,20 +33,20 @@ class MarketplaceOrderItemController extends Controller
         ]);
     }
 
-    public function startWork(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
-    {
-        $result = MarketplaceOrderItemService::acceptToSeamstress($marketplaceOrderItem);
-
-        if (!$result['success']) {
-            return redirect()
-                ->route('marketplace_order_items.index', ['status' => 'new'])
-                ->with('error', $result['message']);
-        }
-
-        return redirect()
-            ->route('marketplace_order_items.index')
-            ->with('success', $result['message']);
-    }
+//    public function startWork(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
+//    {
+//        $result = MarketplaceOrderItemService::acceptToSeamstress($marketplaceOrderItem);
+//
+//        if (!$result['success']) {
+//            return redirect()
+//                ->route('marketplace_order_items.index', ['status' => 'new'])
+//                ->with('error', $result['message']);
+//        }
+//
+//        return redirect()
+//            ->route('marketplace_order_items.index')
+//            ->with('success', $result['message']);
+//    }
 
     public function done(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
@@ -106,6 +111,20 @@ class MarketplaceOrderItemController extends Controller
 
         return redirect()->route('marketplace_order_items.index')
             ->with('success', 'Заказ передан на стикеровку');
+    }
+
+    public function getNewOrderItem()
+    {
+        $result = MarketplaceOrderItemService::getNewOrderItem();
+        if ($result['success']) {
+            return redirect()
+                ->route('marketplace_order_items.index')
+                ->with('success', $result['message']);
+        }
+
+        return redirect()
+            ->route('marketplace_order_items.index')
+            ->with('error', $result['message']);
     }
 
 }
