@@ -210,6 +210,7 @@
                                                     </form>
                                                     @endif
 
+                                                    @if(auth()->user()->role->name == 'admin')
                                                     <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
@@ -220,6 +221,7 @@
                                                             <i class="fas fa-times"></i>
                                                         </button>
                                                     </form>
+                                                    @endif
                                                 </div>
                                                 @break
                                             @case(3)
@@ -347,6 +349,7 @@
                                                     </form>
                                                 @endif
 
+                                                @if(auth()->user()->role->name == 'admin')
                                                 <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                       method="POST">
                                                     @csrf
@@ -357,6 +360,7 @@
                                                         <i class="fas fa-times"></i> Отменить заказ
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
                                             @break
                                         @case(3)
