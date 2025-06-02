@@ -14,11 +14,11 @@ class DefectMaterialController extends Controller
 {
     public function index(Request $request)
     {
-        match ($request->status)
-        {
+        $statusId = [0, 1];
+        match ($request->status) {
             '-1' => $statusId = [-1],
             '3' => $statusId = [3],
-            default => $statusId = [0, 1],
+            default => $statusId,
         };
 
         $queryParams = $request->except(['page']);
@@ -31,7 +31,7 @@ class DefectMaterialController extends Controller
                 ->whereIn('status', $statusId)
                 ->latest()
                 ->paginate(10)
-                ->appends($queryParams)
+                ->appends($queryParams),
         ]);
     }
 
@@ -46,7 +46,7 @@ class DefectMaterialController extends Controller
 
     public function store(SaveDefectMaterialRequest $request)
     {
-        if (!DefectMaterialService::store($request)) {
+        if (! DefectMaterialService::store($request)) {
             return redirect()
                 ->route('defect_materials.index')
                 ->with('error', 'Внутренняя ошибка');
@@ -79,7 +79,7 @@ class DefectMaterialController extends Controller
     {
         $result = DefectMaterialService::save($request);
 
-        if (!$result) {
+        if (! $result) {
             return redirect()
                 ->route('defect_materials.index')
                 ->with('error', 'Неверное значение');
@@ -91,21 +91,21 @@ class DefectMaterialController extends Controller
 
         return redirect()
             ->route('defect_materials.index')
-            ->with($result['status'], 'Брак ' . $result['text']);
+            ->with($result['status'], 'Брак '.$result['text']);
     }
 
     public function delete(Order $order)
-        {
-            $result = DefectMaterialService::delete($order);
+    {
+        $result = DefectMaterialService::delete($order);
 
-            if (!$result['success']) {
-                return redirect()
-                    ->route('defect_materials.index')
-                    ->with('error', $result['message']);
-            }
-
+        if (! $result['success']) {
             return redirect()
                 ->route('defect_materials.index')
-                ->with('success', $result['message']);
+                ->with('error', $result['message']);
         }
+
+        return redirect()
+            ->route('defect_materials.index')
+            ->with('success', $result['message']);
+    }
 }

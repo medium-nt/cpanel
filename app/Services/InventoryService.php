@@ -62,10 +62,12 @@ class InventoryService
 
         $materialsQuantity = [];
         foreach ($materials as $material) {
+            $quantity = 0;
             match ($type) {
                 'warehouse' => $quantity = self::materialInWarehouse($material->id),
                 'workhouse' => $quantity = self::materialInWorkshop($material->id),
                 'defect_warehouse' => $quantity = self::defectMaterialInWarehouse($material->id),
+                default => 0,
             };
 
             $materialsQuantity[] = [

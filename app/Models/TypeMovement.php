@@ -4,6 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $status_id
+ */
+
+
 class TypeMovement extends Model
 {
     const TYPES = [
@@ -12,11 +17,11 @@ class TypeMovement extends Model
         3 => 'Списание по заказу',
         4 => 'Брак на производстве',
         5 => 'Возврат брака поставщику',
-        6 => 'Списание недосдачи с цеха'
+        6 => 'Списание недосдачи с цеха',
     ];
 
     public function getTypeNameAttribute(): string
     {
-        return self::TYPES[$this->status_id];
+        return self::TYPES[$this->status_id] ?? '';
     }
 }

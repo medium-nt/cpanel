@@ -27,11 +27,12 @@ class OrderPolicy
         if ($user->role->name == 'admin'){
             return true;
         }
+        $return = false;
 
         match ($order->status) {
             1 => $return = $user->role->name == 'storekeeper',
             2 => $return = $user->role->name == 'seamstress',
-            default => $return = false
+            default => false
         };
 
         return $return;

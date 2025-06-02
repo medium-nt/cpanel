@@ -15,10 +15,12 @@ class MovementMaterialToWorkshopService
 {
     public static function getOrdersByStatus($requestStatus)
     {
+        $status = [0, 2];
+
         match ($requestStatus)
         {
             'all' => $status = [-1, 0, 1, 2, 3],
-            default => $status = [0, 2],
+            default => $status,
         };
 
         return Order::query()
