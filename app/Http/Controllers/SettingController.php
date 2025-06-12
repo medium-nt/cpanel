@@ -44,27 +44,27 @@ class SettingController extends Controller
 
             $chatId = 6523232418;
 
-//            Telegram::sendMessage([
-//                'chat_id' => $chatId,
-//                'text' => 'Привет! Я работаю!'
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Привет! Я работаю!'
+            ]);
+
+//            $client = new Client([
+//                'verify' => false,
+//                'timeout' => 30,
+//                'connect_timeout' => 30,
+//                'curl' => [
+//                    CURLOPT_SSL_VERIFYPEER => false,
+//                    CURLOPT_SSL_VERIFYHOST => false,
+//                ]
 //            ]);
-
-            $client = new Client([
-                'verify' => false,
-                'timeout' => 30,
-                'connect_timeout' => 30,
-                'curl' => [
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => false,
-                ]
-            ]);
-
-            $client->post('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
-                'form_params' => [
-                    'chat_id' => $chatId,
-                    'text' => 'Привет! Я работаю!'
-                ]
-            ]);
+//
+//            $client->post('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
+//                'form_params' => [
+//                    'chat_id' => $chatId,
+//                    'text' => 'Привет! Я работаю!'
+//                ]
+//            ]);
 
             dd('Is test server');
         }
