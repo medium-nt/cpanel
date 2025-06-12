@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "irazasyed/telegram-bot-sdk": "^3.15",
         "jeroennoten/laravel-adminlte": "^3.14",
         "laravel/envoy": "^2.10",
         "laravel/framework": "^11.31",

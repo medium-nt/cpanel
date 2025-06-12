@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveSettingRequest;
 use App\Models\Setting;
-use App\Services\StackService;
+use GuzzleHttp\Client;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class SettingController extends Controller
 {
@@ -40,6 +41,31 @@ class SettingController extends Controller
     {
         //  тестовая функция для запуска других методов только на продакшн сервере.
         if (!app()->environment('production')) {
+
+            $chatId = 6523232418;
+
+//            Telegram::sendMessage([
+//                'chat_id' => $chatId,
+//                'text' => 'Привет! Я работаю!'
+//            ]);
+
+            $client = new Client([
+                'verify' => false,
+                'timeout' => 30,
+                'connect_timeout' => 30,
+                'curl' => [
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                ]
+            ]);
+
+            $client->post('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
+                'form_params' => [
+                    'chat_id' => $chatId,
+                    'text' => 'Привет! Я работаю!'
+                ]
+            ]);
+
             dd('Is test server');
         }
         dd('Is no development server');
