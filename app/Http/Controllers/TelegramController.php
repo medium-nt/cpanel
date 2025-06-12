@@ -25,29 +25,29 @@ class TelegramController extends Controller
             $message = $update['message'];
             $chatId = $message['chat']['id'];
 
-            $client = new Client([
-                'verify' => false,
-                'timeout' => 30,
-                'connect_timeout' => 30,
-                'curl' => [
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => false,
-                ]
-            ]);
-
-            $client->post('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
-                'form_params' => [
-                    'chat_id' => $chatId,
-                    'text' => 'Привет! Я работаю!'
-                ]
-            ]);
-
-            Log::channel('tg_api')->info('chat_id: ' . $chatId);
-
-//            Telegram::sendMessage([
-//                'chat_id' => $chatId,
-//                'text' => 'Привет! Я работаю!'
+//            $client = new Client([
+//                'verify' => false,
+//                'timeout' => 30,
+//                'connect_timeout' => 30,
+//                'curl' => [
+//                    CURLOPT_SSL_VERIFYPEER => false,
+//                    CURLOPT_SSL_VERIFYHOST => false,
+//                ]
 //            ]);
+//
+//            $client->post('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
+//                'form_params' => [
+//                    'chat_id' => $chatId,
+//                    'text' => 'Привет! Я работаю!'
+//                ]
+//            ]);
+//
+//            Log::channel('tg_api')->info('chat_id: ' . $chatId);
+
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Твое сообщение: ' . $message['text']
+            ]);
         }
 
         return response()->json(['status' => 'ok']);
