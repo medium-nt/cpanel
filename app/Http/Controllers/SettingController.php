@@ -40,7 +40,7 @@ class SettingController extends Controller
     public function test()
     {
         //  тестовая функция для запуска других методов только на продакшн сервере.
-        if (!app()->environment('production')) {
+        if (app()->environment('production')) {
 
             $chatId = 6523232418;
 
