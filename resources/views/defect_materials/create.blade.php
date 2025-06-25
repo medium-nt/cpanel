@@ -42,11 +42,13 @@
                                   required></textarea>
                     </div>
 
-                    @livewire('material-form', ['sourceType' => 'workshop'])
-                    @livewire('material-form', ['sourceType' => 'workshop'])
-                    @livewire('material-form', ['sourceType' => 'workshop'])
-                    @livewire('material-form', ['sourceType' => 'workshop'])
-                    @livewire('material-form', ['sourceType' => 'workshop'])
+                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
+                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
+                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
+                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
+                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
+
+                    <input type="hidden" name="type_movement_id" value="{{ request('type_movement_id') }}">
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Принять</button>

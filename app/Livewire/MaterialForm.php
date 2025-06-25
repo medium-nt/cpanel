@@ -14,6 +14,7 @@ class MaterialForm extends Component
     public $orderedQuantity;
     public $maxQuantity;
     public $sourceType;
+    public $typeMovement;
     public $isFirst;
 
     protected $rules = [
@@ -21,12 +22,12 @@ class MaterialForm extends Component
         'orderedQuantity' => 'nullable|numeric|min:0|max:maxQuantity',
     ];
 
-    public function mount(string $sourceType = 'warehouse', $isFirst = false): void
+    public function mount(string $typeMovement, string $sourceType = 'warehouse', $isFirst = false): void
     {
         $this->materials = Material::all();
         $this->resetErrorBag();
         $this->sourceType = $sourceType;
-
+        $this->typeMovement = $typeMovement;
         $this->isFirst = $isFirst;
     }
 
@@ -34,16 +35,15 @@ class MaterialForm extends Component
     {
         if ($this->selectedMaterialId) {
             match ($this->sourceType)
-                {
-                    'warehouse' => $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId),
-                    'workshop' => $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId),
-                    'defect' => $this->maxQuantity = InventoryService::defectMaterialInWarehouse($this->selectedMaterialId),
+            {
+                'warehouse' => $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId),
+                'workshop' => $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId),
+                'defect' => $this->maxQuantity = InventoryService::defectMaterialInWarehouse($this->selectedMaterialId),
             };
-//            if ($this->sourceType === 'workshop') {
-//                $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId);
-//            } else {
-//                $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId);
-//            }
+
+            if ($this->typeMovement === '7') {
+                $this->maxQuantity = min(1, $this->maxQuantity);
+            }
         } else {
             $this->maxQuantity = null;
         }

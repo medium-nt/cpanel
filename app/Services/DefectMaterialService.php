@@ -42,13 +42,17 @@ class DefectMaterialService
 
             $order = Order::query()->create([
                 'seamstress_id' => auth()->user()->id,
-                'type_movement' => 4,
+                'type_movement' => $request->type_movement_id,
                 'status' => 0,
                 'comment' => $request->comment,
                 'completed_at' => now()
             ]);
 
             foreach ($movementMaterialIds as $key => $material_id) {
+                if($request->type_movement_id == 7 && $quantities[$key] > 1) {
+                    DB::rollBack();
+                    return false;
+                }
                 MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,

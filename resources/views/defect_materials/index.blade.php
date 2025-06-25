@@ -54,18 +54,84 @@
                 <div class="card-body">
 
                     @if(auth()->user()->role->name == 'seamstress')
-                        <a href="{{ route('defect_materials.create') }}" class="btn btn-primary">Добавить новый брак</a>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <a href="{{ route('defect_materials.create', ['type_movement_id' => 4]) }}" class="btn btn-primary mr-3 mb-3">Добавить новый брак</a>
+                            <a href="{{ route('defect_materials.create', ['type_movement_id' => 7]) }}" class="btn btn-primary mb-3">Добавить новый остаток</a>
+                        </div>
+                    </div>
                     @endif
 
-                    <a href="{{ route('defect_materials.index', ['status' => 0]) }}"
-                       class="btn btn-link">Новые заказы</a>
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <select name="seamstress_id"
+                                    id="seamstress_id"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>Все</option>
+                                @foreach($seamstresses as $seamstress)
+                                    <option value="{{ $seamstress->id }}"
+                                            @if(request('seamstress_id') == $seamstress->id) selected @endif
+                                    >{{ $seamstress->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <a href="{{ route('defect_materials.index', ['status' => 3]) }}"
-                       class="btn btn-link">Завершенные</a>
+                        <div class="form-group col-md-3">
+                            <select name="type_movement"
+                                    id="type_movement"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>Все</option>
+                                <option value="4" @if(request()->get('type_movement') == 4) selected @endif>Брак</option>
+                                <option value="7" @if(request()->get('type_movement') == 7) selected @endif>Остатки</option>
+                            </select>
+                        </div>
 
-                    <a href="{{ route('defect_materials.index', ['status' => -1]) }}"
-                       class="btn btn-link">Отказанные</a>
+                        <div class="form-group col-md-3">
+                            <input type="date"
+                                   name="date_start"
+                                   id="date_start"
+                                   class="form-control"
+                                   onchange="updatePageWithQueryParam(this)"
+                                   value="{{ request('date_start') }}">
+                        </div>
 
+                        <div class="form-group col-md-3">
+                            <input type="date"
+                                   name="date_end"
+                                   id="date_end"
+                                   class="form-control"
+                                   onchange="updatePageWithQueryParam(this)"
+                                   value="{{ request('date_end') }}">
+                        </div>
+                    </div>
+
+                        <a href="{{ route('defect_materials.index', [
+                            'status' => 0,
+                            'type' => request('type'),
+                            'date_start' => request('date_start'),
+                            'date_end' => request('date_end'),
+                        ]) }}"
+                           class="btn btn-link">Новые заказы</a>
+
+                        <a href="{{ route('defect_materials.index', [
+                            'status' => 3,
+                            'type' => request('type'),
+                            'date_start' => request('date_start'),
+                            'date_end' => request('date_end'),
+                        ]) }}"
+                           class="btn btn-link">Завершенные</a>
+
+                        <a href="{{ route('defect_materials.index', [
+                            'status' => -1,
+                            'type' => request('type'),
+                            'date_start' => request('date_start'),
+                            'date_end' => request('date_end'),
+                        ]) }}"
+                           class="btn btn-link">Отказанные</a>
                 </div>
             </div>
 
@@ -138,6 +204,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Материалы</th>
                                 <th scope="col">Статус</th>
+                                <th scope="col">Тип</th>
                                 <th scope="col">Швея</th>
                                 <th scope="col">Комментарий</th>
                                 <th scope="col">Дата</th>
@@ -156,6 +223,7 @@
                                     <td>
                                         <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                     </td>
+                                    <td>{{ $order->type_movement_name }}</td>
                                     <td>{{ $order->seamstress->name ?? '' }}</td>
                                     <td>{{ $order->comment }}</td>
                                     <td>{{ $order->created_date }}</td>
@@ -221,5 +289,5 @@
 {{-- Push extra scripts --}}
 
 @push('js')
-    {{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
+    <script src="{{ asset('js/PageQueryParam.js') }}"></script>
 @endpush

@@ -20,7 +20,7 @@ class Order extends Model
         'completed_at'
     ];
 
-    protected $appends = ['status_name', 'status_color'];
+    protected $appends = ['status_name', 'status_color', 'type_movement_name'];
 
     public function getStatusNameAttribute(): string
     {
@@ -30,6 +30,11 @@ class Order extends Model
     public function getStatusColorAttribute(): string
     {
         return StatusMovement::BADGE_COLORS[$this->status];
+    }
+
+    public function getTypeMovementNameAttribute(): string
+    {
+        return TypeMovement::TYPES[$this->type_movement];
     }
 
     public function user(): BelongsTo

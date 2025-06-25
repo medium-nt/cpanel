@@ -6,39 +6,33 @@ use App\Http\Requests\SaveDefectMaterialRequest;
 use App\Models\Material;
 use App\Models\Order;
 use App\Models\Supplier;
+use App\Models\User;
 use App\Services\DefectMaterialService;
 use App\Services\InventoryService;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 
 class DefectMaterialController extends Controller
 {
     public function index(Request $request)
     {
-        $statusId = [0, 1];
-        match ($request->status) {
-            '-1' => $statusId = [-1],
-            '3' => $statusId = [3],
-            default => $statusId,
-        };
-
+        $orders = OrderService::getFiltered($request);
+        $paginatedItems = $orders->paginate(10);
         $queryParams = $request->except(['page']);
 
         return view('defect_materials.index', [
             'title' => 'Передача брака на склад',
             'materials' => InventoryService::materialsQuantityBy('defect_warehouse'),
-            'orders' => Order::query()
-                ->where('type_movement', 4)
-                ->whereIn('status', $statusId)
-                ->latest()
-                ->paginate(10)
-                ->appends($queryParams),
+            'orders' => $paginatedItems->appends($queryParams),
+            'seamstresses' => User::query()->where('role_id', '1')
+                ->where('name', 'not like', '%Тест%')->get()
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         return view('defect_materials.create', [
-            'title' => 'Добавить новый брак',
+            'title' => ($request->type_movement_id == 4) ? 'Добавить брак' : 'Добавить остаток',
             'materials' => Material::query()->get(),
             'suppliers' => Supplier::query()->get(),
         ]);
