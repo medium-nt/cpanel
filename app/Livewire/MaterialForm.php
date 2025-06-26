@@ -22,7 +22,7 @@ class MaterialForm extends Component
         'orderedQuantity' => 'nullable|numeric|min:0|max:maxQuantity',
     ];
 
-    public function mount(string $typeMovement, string $sourceType = 'warehouse', $isFirst = false): void
+    public function mount(string $typeMovement = '', string $sourceType = 'warehouse', $isFirst = false): void
     {
         $this->materials = Material::all();
         $this->resetErrorBag();
