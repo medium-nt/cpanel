@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\MovementMaterial;
+use App\Models\Order;
 use App\Models\Setting;
 use App\Models\Sku;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -240,6 +242,121 @@ class MarketplaceApiService
             }
 
             $unifiedOrders[] = $array;
+        }
+
+        return json_decode(json_encode($unifiedOrders));
+    }
+
+    public static function uploadingCancelledProducts(): array
+    {
+        $cancelledProductsWbNewStatus = self::getCancelledProductsWB('new');
+        $resultWb1 = self::deleteCancelledProductsWb($cancelledProductsWbNewStatus);
+
+        $cancelledProductsWbInWorkStatus = self::getCancelledProductsWB('in_work');
+        $resultWb2 = self::changeToFBOCancelledProductsWb($cancelledProductsWbInWorkStatus);
+
+        $cancelledProductsOzon = self::getCancelledProductsOZON();
+        $resultOzon = self::checkCancelledProductsOzon($cancelledProductsOzon);
+
+        return array_merge($resultWb1, $resultWb2, $resultOzon);
+    }
+
+    private static function getCancelledProductsWB($status): array
+    {
+        if ($status == 'new') {
+            $orders = self::getNewStatusOrdersWb();
+        } else {
+            $orders = self::getInWorkStatusOrdersWb();
+        }
+
+        $body = [
+            "orders" => $orders
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+
+        if(!$response->ok()) {
+            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
+            return [];
+        }
+
+        $orders = $response->object()->orders;
+
+        $unifiedOrders = [];
+        foreach ($orders as $order) {
+            if ($order->wbStatus == "declined_by_client"){
+                $unifiedOrders[] = [
+                    'id' => $order->id,
+                    'marketplace_id' => '2',
+                    'status' => $order->wbStatus
+                ];
+            }
+        }
+
+        return json_decode(json_encode($unifiedOrders));
+    }
+
+    private static function getNewStatusOrdersWb(): array
+    {
+        return MarketplaceOrder::query()
+            ->where('marketplace_id', 2)
+            ->where('status', 0)
+            ->pluck('order_id')
+            ->map(fn($id) => (int) $id)
+            ->toArray();
+    }
+
+    private static function getInWorkStatusOrdersWb(): array
+    {
+        return MarketplaceOrder::query()
+            ->where('marketplace_id', 2)
+            ->where('status', 4)
+            ->pluck('order_id')
+            ->map(fn($id) => (int) $id)
+            ->toArray();
+    }
+
+    private static function getCancelledProductsOZON(): array
+    {
+        $since = Carbon::now()->subDays(3)->format('Y-m-d\TH:i:s\Z'); // 3 дня назад
+        $to = Carbon::now()->format('Y-m-d\TH:i:s\Z'); // сегодня
+
+        $body = [
+            "dir" => "ASC",
+            "limit" => 1000,
+            "offset" => 0,
+            "filter" => [
+                "since" => $since,
+                "to" => $to,
+                "status" => "cancelled",
+            ],
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v3/posting/fbs/list', $body);
+
+
+        if(!$response->ok()) {
+            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения отмененных заказов из Ozon');
+            return [];
+        }
+
+        $orders = $response->object()->result->postings;
+
+        $unifiedOrders = [];
+        foreach ($orders as $order) {
+            $unifiedOrders[] = [
+                'id' => $order->posting_number,
+                'marketplace_id' => '1',
+            ];
         }
 
         return json_decode(json_encode($unifiedOrders));
@@ -633,6 +750,114 @@ class MarketplaceApiService
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream('barcode.pdf');
+    }
+
+    private static function checkCancelledProductsOzon(array $cancelledProductsOzon): array
+    {
+        $resultArray = [];
+
+        foreach ($cancelledProductsOzon as $product) {
+            $order = MarketplaceOrder::query()
+                ->where('order_id', $product->id)
+                ->first();
+
+            if ($order) {
+                switch ($order->status) {
+                    case 0:
+
+                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' удален.');
+
+                        $resultArray[] = [
+                            'order_id' => $order->order_id,
+                            'status' => 'удален',
+                        ];
+
+                        self::deleteAllOrderItemsMovementsAndOrdersMovements($order->id);
+
+                        $order->delete();
+
+                        break;
+                    case 4:
+
+                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' изменен на FBO.');
+
+                        $resultArray[] = [
+                            'order_id' => $order->order_id,
+                            'status' => 'изменен на FBO',
+                        ];
+                        $order->fulfillment_type = 'FBO';
+                        $order->save();
+                        break;
+                }
+            }
+        }
+
+        return $resultArray;
+    }
+
+    private static function deleteAllOrderItemsMovementsAndOrdersMovements($order_id): void
+    {
+        MarketplaceOrderItem::query()
+            ->where('marketplace_order_id', $order_id)
+            ->delete();
+
+        $orderMovements = Order::query()
+            ->where('marketplace_order_id', $order_id)
+            ->get();
+
+        foreach ($orderMovements as $orderMovement) {
+            MovementMaterial::query()
+                ->where('order_id', $orderMovement->id)
+                ->delete();
+
+            $orderMovement->delete();
+        }
+    }
+
+    private static function deleteCancelledProductsWb(array $cancelledProductsWbNewStatus): array
+    {
+        $resultArray = [];
+
+        foreach ($cancelledProductsWbNewStatus as $product) {
+
+            Log::channel('marketplace_api')->info('    Заказа №'.$product['id'] .' удален.');
+
+            $resultArray = [
+                'order_id' => $product['id'],
+                'status' => 'удален',
+            ];
+
+            $order = MarketplaceOrder::query()
+                ->where('order_id', $product['id'])
+                ->first();
+
+            self::deleteAllOrderItemsMovementsAndOrdersMovements($order->id);
+
+            $order->delete();
+        }
+
+        return $resultArray;
+    }
+
+    private static function changeToFBOCancelledProductsWb(array $cancelledProductsWbInWorkStatus): array
+    {
+        $resultArray = [];
+
+        foreach ($cancelledProductsWbInWorkStatus as $product) {
+
+            Log::channel('marketplace_api')->info('    Заказа №'.$product['id'] .' изменен на FBO.');
+
+            $resultArray = [
+                'order_id' => $product['id'],
+                'status' => 'изменен на FBO',
+            ];
+
+            MarketplaceOrder::query()
+                ->where('order_id', $product['id'])
+                ->update(['fulfillment_type' => 'FBO']);
+        }
+
+        return $resultArray;
     }
 
 }

@@ -45,6 +45,16 @@ class MarketplaceApiController extends Controller
         ]);
     }
 
+    public function uploadingCancelledProducts()
+    {
+        $result = MarketplaceApiService::uploadingCancelledProducts();
+
+        return view('marketplace_api.uploading_cancelled_products', [
+            'title' => 'Отчет о загрузке отмененных заявок',
+            'results' => $result,
+        ]);
+    }
+
     public function getBarcodeFile()
     {
         $orderId = request()->marketplaceOrderId;

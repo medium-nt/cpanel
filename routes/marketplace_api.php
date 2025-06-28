@@ -15,4 +15,8 @@ Route::prefix('/marketplace_api')->group(function () {
 //        ->can('viewAny', User::class)
         ->name('marketplace_api.checkDuplicateSkuz');
 
+    Route::get('check_cancelled', [App\Http\Controllers\MarketplaceApiController::class, 'uploadingCancelledProducts'])
+//        ->can('viewAny', User::class)
+        ->name('marketplace_api.check_cancelled');
+
 });
