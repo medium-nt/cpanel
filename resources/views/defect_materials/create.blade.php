@@ -31,6 +31,9 @@
                 @method('POST')
                 @csrf
                 <div class="card-body">
+
+                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
+
                     <div class="form-group">
                         <label for="comment">Комментарий</label>
                         <textarea class="form-control @error('comment') is-invalid @enderror"
@@ -41,12 +44,6 @@
                                   value="{{ old('comment') }}"
                                   required></textarea>
                     </div>
-
-                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
-                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
-                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
-                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
-                    @livewire('material-form', ['sourceType' => 'workshop', 'typeMovement' => request('type_movement_id')])
 
                     <input type="hidden" name="type_movement_id" value="{{ request('type_movement_id') }}">
 
