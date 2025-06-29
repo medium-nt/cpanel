@@ -201,20 +201,55 @@
                         <table class="table table-hover table-bordered">
                             <thead class="thead-dark">
                             <tr>
-                                <th scope="col">#</th>
+                                <th scope="col"></th>
                                 <th scope="col">Материалы</th>
                                 <th scope="col">Статус</th>
                                 <th scope="col">Тип</th>
                                 <th scope="col">Швея</th>
                                 <th scope="col">Комментарий</th>
                                 <th scope="col">Дата</th>
-                                <th scope="col"></th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach ($orders as $order)
                                 <tr>
-                                    <td>{{ $order->id }}</td>
+                                    <td style="width: 70px">
+                                        @switch($order->status)
+                                            @case(0)
+                                                @if(auth()->user()->role->name == 'admin')
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{{ route('defect_materials.approve_reject', ['order' => $order->id]) }}"
+                                                           class="btn btn-warning mr-1">
+                                                            <i class="fas fa-check"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                                @break
+                                            @case(1)
+                                                @if(auth()->user()->role->name == 'storekeeper')
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{{ route('defect_materials.pick_up', ['order' => $order->id]) }}"
+                                                           class="btn btn-warning mr-1">
+                                                            <i class="fas fa-dolly"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+
+                                                @if(auth()->user()->role->name == 'admin')
+                                                    <form action="{{ route('defect_materials.delete', ['order' => $order->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger mr-1"
+                                                                title="Удалить заявку"
+                                                                onclick="return confirm('Вы уверены что хотите удалить заявку на брак?')">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                @break
+                                        @endswitch
+                                    </td>
                                     <td>
                                         @foreach($order->movementMaterials as $material)
                                             <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }} <br>
@@ -228,44 +263,6 @@
                                     <td>{{ $order->comment }}</td>
                                     <td>{{ $order->created_date }}</td>
 
-                                    <td style="width: 100px">
-                                            @switch($order->status)
-                                                @case(0)
-                                                    @if(auth()->user()->role->name == 'admin')
-                                                        <div class="btn-group" role="group">
-                                                            <a href="{{ route('defect_materials.approve_reject', ['order' => $order->id]) }}"
-                                                               class="btn btn-warning mr-1">
-                                                                <i class="fas fa-check"></i>
-                                                            </a>
-                                                        </div>
-                                                    @endif
-                                                    @break
-                                                @case(1)
-                                                    @if(auth()->user()->role->name == 'storekeeper')
-                                                    <div class="btn-group" role="group">
-                                                        <a href="{{ route('defect_materials.pick_up', ['order' => $order->id]) }}"
-                                                           class="btn btn-warning mr-1">
-                                                            <i class="fas fa-dolly"></i>
-                                                        </a>
-                                                    </div>
-                                                    @endif
-
-                                                    @if(auth()->user()->role->name == 'admin')
-                                                        <form action="{{ route('defect_materials.delete', ['order' => $order->id]) }}"
-                                                              method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger mr-1"
-                                                                    title="Удалить заявку"
-                                                                    onclick="return confirm('Вы уверены что хотите удалить заявку на брак?')">
-                                                                <i class="fas fa-times"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-
-                                                    @break
-                                            @endswitch
-                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>
