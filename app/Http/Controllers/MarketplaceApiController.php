@@ -73,6 +73,19 @@ class MarketplaceApiController extends Controller
         $order->save();
 
         return $result;
+    }
 
+    public function getFBOBarcodeFile()
+    {
+        $orderId = request()->marketplaceOrderId;
+
+        $order = MarketplaceOrder::query()
+            ->where('order_id', $orderId)
+            ->first();
+
+        $order->is_printed = true;
+        $order->save();
+
+        return MarketplaceApiService::getBarcodeOzonFBO($order);
     }
 }

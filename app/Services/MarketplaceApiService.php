@@ -752,6 +752,43 @@ class MarketplaceApiService
         return $pdf->stream('barcode.pdf');
     }
 
+    public static function getBarcodeOzonFBO(MarketplaceOrder $order): \Illuminate\Http\Response
+    {
+        $fullName = $order->items[0]->seamstress->name;
+
+        $parts = explode(' ', $fullName);
+        if (count($parts) >= 1) {
+            $surname = $parts[0];
+            $initials = '';
+
+            if (isset($parts[1])) {
+                $initials .= mb_substr($parts[1], 0, 1) . '.';
+            }
+
+            if (isset($parts[2])) {
+                $initials .= mb_substr($parts[2], 0, 1) . '.';
+            }
+
+            $seamstressName = $surname . ' ' . $initials;
+        } else {
+            $seamstressName = $fullName;
+        }
+
+        $sku = Sku::query()
+            ->where('item_id', $order->items[0]->id)
+            ->where('marketplace_id', $order->marketplace_id)
+            ->first();
+
+        $pdf = PDF::loadView('pdf.fbo_ozon_sticker' , [
+            'barcode' => 'OZN'.$sku->sku,
+            'item' => $order->items[0]->item,
+            'seamstressName' => $seamstressName
+        ]);
+
+        $pdf->setPaper('A4', 'portrait');
+        return $pdf->stream('barcode.pdf');
+    }
+
     private static function checkCancelledProductsOzon(array $cancelledProductsOzon): array
     {
         $resultArray = [];

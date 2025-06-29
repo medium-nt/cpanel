@@ -35,6 +35,11 @@ class MarketplaceOrderItem extends Model
         return $this->hasOne(MarketplaceItem::class, 'id', 'marketplace_item_id');
     }
 
+    public function seamstress()
+    {
+        return $this->hasOne(User::class, 'id', 'seamstress_id');
+    }
+
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status];

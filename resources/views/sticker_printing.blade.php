@@ -118,6 +118,15 @@
                                                     <i class="fas fa-barcode fa-2x"></i>
                                                 </a>
                                                 @endif
+
+                                                @if($fulfillmentType === 'FBO')
+                                                    <a href="{{ route('marketplace_api.fbo_barcode', ['marketplaceOrderId' => $orderId]) }}"
+                                                       class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
+                                                @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                       id="print_{{ $orderId }}">
+                                                        <i class="fas fa-barcode fa-2x"></i>
+                                                    </a>
+                                                @endif
                                             </td>
 
                                             <td class="td_style">
@@ -137,7 +146,7 @@
                                                     @csrf
                                                     @method('PUT')
                                                     <button type="submit" class="btn btn-success ml-auto"
-                                                            style=" @if(!$isPrinted && $fulfillmentType === 'FBS') display:none !important;" @endif
+                                                            style=" @if(!$isPrinted) display:none !important;" @endif
                                                             id="submit_{{ $orderId }}"
                                                             onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">
                                                         <i class="fas fa-check fa-2x"></i>
