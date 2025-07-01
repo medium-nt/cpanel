@@ -269,32 +269,35 @@ class MarketplaceApiService
             $orders = self::getInWorkStatusOrdersWb();
         }
 
-        $body = [
-            "orders" => $orders
-        ];
-
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
-            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
-
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
-            Log::channel('marketplace_api')->info($body);
-            Log::channel('marketplace_api')->info(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            return [];
-        }
-
-        $orders = $response->object()->orders;
-
         $unifiedOrders = [];
-        foreach ($orders as $order) {
-            if ($order->wbStatus == "declined_by_client"){
-                $unifiedOrders[] = [
-                    'id' => $order->id,
-                    'marketplace_id' => '2',
-                    'status' => $order->wbStatus
-                ];
+
+        if($orders != []) {
+            $body = [
+                "orders" => $orders
+            ];
+
+            $response = Http::accept('application/json')
+                ->withOptions(['verify' => false])
+                ->withHeaders(['Authorization' => self::getWbApiKey()])
+                ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+
+            if(!$response->ok()) {
+                Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
+                Log::channel('marketplace_api')->info($body);
+                Log::channel('marketplace_api')->info(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                return [];
+            }
+
+            $orders = $response->object()->orders;
+
+            foreach ($orders as $order) {
+                if ($order->wbStatus == "declined_by_client"){
+                    $unifiedOrders[] = [
+                        'id' => $order->id,
+                        'marketplace_id' => '2',
+                        'status' => $order->wbStatus
+                    ];
+                }
             }
         }
 
