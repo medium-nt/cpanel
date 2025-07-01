@@ -857,15 +857,15 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbNewStatus as $product) {
 
-            Log::channel('marketplace_api')->info('    Заказа №'.$product['id'] .' удален.');
+            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' удален.');
 
             $resultArray = [
-                'order_id' => $product['id'],
+                'order_id' => $product->id,
                 'status' => 'удален',
             ];
 
             $order = MarketplaceOrder::query()
-                ->where('order_id', $product['id'])
+                ->where('order_id', $product->id)
                 ->first();
 
             self::deleteAllOrderItemsMovementsAndOrdersMovements($order->id);
@@ -882,16 +882,19 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbInWorkStatus as $product) {
 
-            Log::channel('marketplace_api')->info('    Заказа №'.$product['id'] .' изменен на FBO.');
+            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' изменен на FBO.');
 
-            $resultArray = [
-                'order_id' => $product['id'],
+            $resultArray[] = [
+                'order_id' => $product->id,
                 'status' => 'изменен на FBO',
             ];
 
-            MarketplaceOrder::query()
-                ->where('order_id', $product['id'])
-                ->update(['fulfillment_type' => 'FBO']);
+            $order = MarketplaceOrder::query()
+                ->where('order_id', $product->id)
+                ->first();
+
+            $order->fulfillment_type = 'FBO';
+            $order->save();
         }
 
         return $resultArray;
