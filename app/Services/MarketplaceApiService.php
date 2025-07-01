@@ -280,6 +280,7 @@ class MarketplaceApiService
 
         if(!$response->ok()) {
             Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
+            Log::channel('marketplace_api')->info(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
             return [];
         }
 
