@@ -344,6 +344,12 @@ return [
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
+                    'text' => 'write_off_remnants',
+                    'url' => 'admin/write_off_remnants',
+                    'icon' => 'fas fa-fw fa-folder-minus',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
+                [
                     'text' => 'movements_to_workshop',
                     'url' => 'admin/movements_to_workshop',
                     'icon' => 'fas fa-fw fa-dolly',

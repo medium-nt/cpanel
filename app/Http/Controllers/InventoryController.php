@@ -22,11 +22,11 @@ class InventoryController extends Controller
         ]);
     }
 
-    public function defectByWarehouse()
-    {
-        return view('inventory.defect_warehouse', [
-            'title' => 'Брак на складе',
-            'materials' => InventoryService::materialsQuantityBy('defect_warehouse'),
-        ]);
-    }
+//    public function defectByWarehouse()
+//    {
+//        return view('inventory.defect_warehouse', [
+//            'title' => 'Брак на складе',
+//            'materials' => InventoryService::materialsQuantityBy('defect_warehouse'),
+//        ]);
+//    }
 }

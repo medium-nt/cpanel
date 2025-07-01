@@ -18,6 +18,11 @@ class MovementMaterialPolicy
         return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
     }
 
+    public function viewAny_remnants(User $user): bool
+    {
+        return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
+    }
+
     public function view(User $user, MovementMaterial $movementMaterial): bool
     {
         return false;
@@ -29,6 +34,11 @@ class MovementMaterialPolicy
     }
 
     public function create_defect(User $user): bool
+    {
+        return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
+    }
+
+    public function create_remnants(User $user): bool
     {
         return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
     }

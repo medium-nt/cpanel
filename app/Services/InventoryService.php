@@ -46,6 +46,15 @@ class InventoryService
         return round($result, 2);
     }
 
+    public static function remnantsMaterialInWarehouse($materialId): float
+    {
+        $inStock = self::countMaterial($materialId, 7, 3);
+        $outStockNew = self::countMaterial($materialId, 8, 3);
+
+        $result = $inStock - $outStockNew;
+        return round($result, 2);
+    }
+
     public static function countMaterial($materialId, $type, $status): float
     {
         return MovementMaterial::query()
@@ -70,9 +79,15 @@ class InventoryService
                 default => 0,
             };
 
+            $remnantsQuantity = 0;
+            if($type == 'defect_warehouse') {
+                $remnantsQuantity = self::remnantsMaterialInWarehouse($material->id);
+            }
+
             $materialsQuantity[] = [
                 'material' => $material,
                 'quantity' => $quantity,
+                'remnants' => $remnantsQuantity,
             ];
         }
 

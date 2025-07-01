@@ -19,6 +19,7 @@ class TypeMovement extends Model
         5 => 'Возврат брака поставщику',
         6 => 'Списание недосдачи с цеха',
         7 => 'Остатки на производстве',
+        8 => 'Утилизированные остатки',
     ];
 
     public function getTypeNameAttribute(): string
