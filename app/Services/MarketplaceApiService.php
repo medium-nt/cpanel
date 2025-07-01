@@ -309,6 +309,8 @@ class MarketplaceApiService
         return MarketplaceOrder::query()
             ->where('marketplace_id', 2)
             ->where('status', 0)
+            ->where('created_at', '>', Carbon::now()->subDays(3)->format('Y-m-d\TH:i:s\Z'))
+            ->where('fulfillment_type', 'FBS')
             ->pluck('order_id')
             ->map(fn($id) => (int) $id)
             ->toArray();
@@ -319,6 +321,8 @@ class MarketplaceApiService
         return MarketplaceOrder::query()
             ->where('marketplace_id', 2)
             ->where('status', 4)
+            ->where('created_at', '>', Carbon::now()->subDays(3)->format('Y-m-d\TH:i:s\Z'))
+            ->where('fulfillment_type', 'FBS')
             ->pluck('order_id')
             ->map(fn($id) => (int) $id)
             ->toArray();
