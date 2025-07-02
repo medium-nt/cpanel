@@ -788,7 +788,7 @@ class MarketplaceApiService
         }
 
         $sku = Sku::query()
-            ->where('item_id', $order->items[0]->id)
+            ->where('item_id', $order->items[0]->item->id)
             ->where('marketplace_id', $order->marketplace_id)
             ->first();
 
