@@ -324,9 +324,9 @@ class MarketplaceApiService
     {
         return MarketplaceOrderItem::query()
             ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
-            ->where('marketplace_orders.marketplace_id', 4)
+            ->where('marketplace_orders.marketplace_id', 2)
             ->where('marketplace_orders.fulfillment_type', 'FBS')
-            ->where('marketplace_order_items.status', 0)
+            ->where('marketplace_order_items.status', 4)
             ->pluck('marketplace_orders.order_id')
             ->map(fn($id) => (int) $id)
             ->toArray();
@@ -874,7 +874,7 @@ class MarketplaceApiService
 
             Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' удален.');
 
-            $resultArray = [
+            $resultArray[] = [
                 'order_id' => $product->id,
                 'status' => 'удален',
             ];
