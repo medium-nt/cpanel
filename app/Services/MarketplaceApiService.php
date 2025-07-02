@@ -249,6 +249,8 @@ class MarketplaceApiService
 
     public static function uploadingCancelledProducts(): array
     {
+        Log::channel('marketplace_api')->info('    Загрузка отмененных заказов...');
+
         $cancelledProductsWbNewStatus = self::getCancelledProductsWB('new');
         $resultWb1 = self::deleteCancelledProductsWb($cancelledProductsWbNewStatus);
 
@@ -257,6 +259,8 @@ class MarketplaceApiService
 
         $cancelledProductsOzon = self::getCancelledProductsOZON();
         $resultOzon = self::checkCancelledProductsOzon($cancelledProductsOzon);
+
+        Log::channel('marketplace_api')->info('    Загрузка отмененных заказов завершена.');
 
         return array_merge($resultWb1, $resultWb2, $resultOzon);
     }
