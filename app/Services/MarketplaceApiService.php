@@ -306,24 +306,24 @@ class MarketplaceApiService
 
     private static function getNewStatusOrdersWb(): array
     {
-        return MarketplaceOrder::query()
-            ->where('marketplace_id', 2)
-            ->where('status', 0)
-            ->where('created_at', '>', Carbon::now()->subDays(3)->format('Y-m-d\TH:i:s\Z'))
-            ->where('fulfillment_type', 'FBS')
-            ->pluck('order_id')
+        return MarketplaceOrderItem::query()
+            ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->where('marketplace_orders.marketplace_id', 2)
+            ->where('marketplace_orders.fulfillment_type', 'FBS')
+            ->where('marketplace_order_items.status', 0)
+            ->pluck('marketplace_orders.order_id')
             ->map(fn($id) => (int) $id)
             ->toArray();
     }
 
     private static function getInWorkStatusOrdersWb(): array
     {
-        return MarketplaceOrder::query()
-            ->where('marketplace_id', 2)
-            ->where('status', 4)
-            ->where('created_at', '>', Carbon::now()->subDays(3)->format('Y-m-d\TH:i:s\Z'))
-            ->where('fulfillment_type', 'FBS')
-            ->pluck('order_id')
+        return MarketplaceOrderItem::query()
+            ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->where('marketplace_orders.marketplace_id', 4)
+            ->where('marketplace_orders.fulfillment_type', 'FBS')
+            ->where('marketplace_order_items.status', 0)
+            ->pluck('marketplace_orders.order_id')
             ->map(fn($id) => (int) $id)
             ->toArray();
     }
@@ -808,7 +808,9 @@ class MarketplaceApiService
                 ->first();
 
             if ($order) {
-                switch ($order->status) {
+                $item = $order->items->first();
+
+                switch ($item->status) {
                     case 0:
 
                         Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' удален.');
