@@ -792,8 +792,10 @@ class MarketplaceApiService
             ->where('marketplace_id', $order->marketplace_id)
             ->first();
 
+        $barcode = ($order->marketplace_id == 1) ? 'OZN'.$sku->sku : $sku->sku;
+
         $pdf = PDF::loadView('pdf.fbo_ozon_sticker' , [
-            'barcode' => 'OZN'.$sku->sku,
+            'barcode' => $barcode,
             'item' => $order->items[0]->item,
             'seamstressName' => $seamstressName
         ]);
