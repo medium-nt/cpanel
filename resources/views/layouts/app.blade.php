@@ -71,6 +71,8 @@
     @endif
 @endpush
 
+@stack('scripts')
+
 {{-- Add common CSS customizations --}}
 
 @push('css')

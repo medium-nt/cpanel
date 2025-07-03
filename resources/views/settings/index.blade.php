@@ -131,6 +131,9 @@
                            class="btn btn-outline-primary mb-3">
                             Проверить наличие всех skuz в системе
                         </a>
+
+                        <x-barcode-scanner name="barcode" />
+
                     </div>
                 </div>
             </div>
