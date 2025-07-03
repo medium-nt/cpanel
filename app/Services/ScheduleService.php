@@ -44,4 +44,14 @@ class ScheduleService
         return Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
     }
 
+    public static function getStartWorkDay()
+    {
+        return Setting::query()->where('name', 'working_day_start')->first()->value;
+    }
+
+    public static function getEndWorkDay()
+    {
+        return Setting::query()->where('name', 'working_day_end')->first()->value;
+    }
+
 }

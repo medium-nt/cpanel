@@ -373,8 +373,13 @@ class MarketplaceOrderItemService
             }
 
             $nowTime = Carbon::now();
-            if ($nowTime->lt(Carbon::createFromFormat('H:i:s', '06:00:00')) ||
-                $nowTime->gte(Carbon::createFromFormat('H:i:s', '20:00:00'))) {
+            $startWorkDay = ScheduleService::getStartWorkDay();
+            $endWorkDay = ScheduleService::getEndWorkDay();
+
+            if (
+                $nowTime->lt(Carbon::createFromFormat('H:i', $startWorkDay))
+                || $nowTime->gte(Carbon::createFromFormat('H:i', $endWorkDay))
+            ) {
                 return [
                     'success' => false,
                     'message' => 'Вы не можете взять заказ в нерабочее время!'
