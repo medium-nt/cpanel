@@ -82,7 +82,6 @@
                     }
 
                     scanned = false;
-                    scanButton.disabled = false;
 
                     try {
                         const stream = await navigator.mediaDevices.getUserMedia({
@@ -109,9 +108,6 @@
                         await codeReader.decodeFromVideoElement(preview, (result, err) => {
                             if (result && !scanned) {
                                 scanned = true;
-
-                                codeReader.reset();
-
                                 input.value = result.getText();
 
                                 if (beep) {
@@ -124,9 +120,6 @@
                                     preview.srcObject = null;
                                     currentStream = null;
                                 }
-
-                                scanButton.disabled = true;
-
                             }
                         });
 
