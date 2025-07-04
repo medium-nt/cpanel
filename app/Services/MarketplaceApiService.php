@@ -754,6 +754,14 @@ class MarketplaceApiService
             exit;
         }
 
+        $marketplaceOrder = MarketplaceOrder::query()
+            ->where('order_id', $orderId)
+            ->first();
+
+        $marketplaceOrder->barcode = $response->object()->stickers[0]->barcode;
+        $marketplaceOrder->part_b = $response->object()->stickers[0]->partB;
+        $marketplaceOrder->save();
+
         $decodedData = base64_decode($response->object()->stickers[0]->file);
 
         $tempImagePath = sys_get_temp_dir() . '/image.png';

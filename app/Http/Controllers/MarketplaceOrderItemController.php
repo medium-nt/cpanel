@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
 use App\Models\User;
@@ -56,6 +57,13 @@ class MarketplaceOrderItemController extends Controller
                 'status' => 3,
                 'completed_at' => now()
         ]);
+
+        MarketplaceOrder::query()
+            ->where('id', $marketplaceOrderItem->marketplaceOrder->id)
+            ->update([
+                'status' => 6,
+                'completed_at' => now()
+            ]);
 
         //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
 //        StackService::reduceStack($marketplaceOrderItem->seamstress_id);

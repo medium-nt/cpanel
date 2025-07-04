@@ -30,4 +30,8 @@ Route::prefix('/marketplace_orders')->group(function () {
     Route::delete('/delete/{marketplace_order}', [App\Http\Controllers\MarketplaceOrderController::class, 'destroy'])
         ->can('delete', 'marketplace_order')
         ->name('marketplace_orders.destroy');
+
+    Route::delete('/{marketplace_order}/remove', [App\Http\Controllers\MarketplaceOrderController::class, 'remove'])
+        ->can('remove', 'marketplace_order')
+        ->name('marketplace_orders.remove');
 });

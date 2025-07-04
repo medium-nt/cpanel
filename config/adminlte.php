@@ -365,6 +365,11 @@ return [
                     'url' => 'admin/defect_materials',
                     'icon' => 'fas fa-fw fa-trash-alt',
                 ],
+                [
+                    'text' => 'marketplace_supplies',
+                    'url' => 'admin/marketplace_supplies',
+                    'icon' => 'fas fa-fw fa-warehouse',
+                ],
             ]
         ],
         [

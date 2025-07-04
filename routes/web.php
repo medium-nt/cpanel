@@ -44,5 +44,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     require base_path('routes/marketplace_api.php');
     require base_path('routes/setting.php');
     require base_path('routes/write_off_remnants.php');
+    require base_path('routes/marketplace_supplies.php');
 
 });

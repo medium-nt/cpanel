@@ -42,4 +42,5 @@ return [
     'salary' => 'Зарплата',
     'movements_by_marketplace_order' => 'Расход на заказы',
     'write_off_remnants' => 'Списание остатков',
+    'marketplace_supplies' => 'Поставки в маркетплейс',
 ];

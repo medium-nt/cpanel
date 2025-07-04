@@ -37,13 +37,8 @@ class MarketplaceOrderPolicy
         return $user->role->name === 'admin';
     }
 
-    public function restore(User $user, MarketplaceOrder $marketplaceOrder): bool
+    public function remove(User $user, MarketplaceOrder $marketplaceOrder): bool
     {
-        return false;
-    }
-
-    public function forceDelete(User $user, MarketplaceOrder $marketplaceOrder): bool
-    {
-        return false;
+        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
     }
 }

@@ -148,4 +148,17 @@ class MarketplaceOrderController extends Controller
             ->route('marketplace_orders.index')
             ->with('success', 'Заказ удален.');
     }
+
+    public function remove(MarketplaceOrder $marketplace_order)
+    {
+        $marketplace_supply = $marketplace_order->supply->id;
+
+        $marketplace_order->supply_id = null;
+        $marketplace_order->save();
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+            ->with('success', 'Заказ удален из поставки.');
+
+    }
 }

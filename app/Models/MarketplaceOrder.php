@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MarketplaceOrder extends Model
 {
@@ -37,6 +38,11 @@ class MarketplaceOrder extends Model
     public function getStatusColorAttribute(): string
     {
         return StatusMovement::BADGE_COLORS[$this->status];
+    }
+
+    public function supply(): BelongsTo
+    {
+        return $this->belongsTo(MarketplaceSupply::class);
     }
 
 }
