@@ -10,5 +10,5 @@ Artisan::command('inspire', function () {
 
 Schedule::call(function () {
     MarketplaceApiService::uploadingNewProducts();
-//    MarketplaceApiService::uploadingCancelledProducts();
+    MarketplaceApiService::uploadingCancelledProducts();
 })->everyFiveMinutes();
