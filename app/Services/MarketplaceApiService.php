@@ -819,6 +819,7 @@ class MarketplaceApiService
         foreach ($cancelledProductsOzon as $product) {
             $order = MarketplaceOrder::query()
                 ->where('order_id', $product->id)
+                ->where('fulfillment_type', 'FBS')
                 ->first();
 
             if ($order) {
