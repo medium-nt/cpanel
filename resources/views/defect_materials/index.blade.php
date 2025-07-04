@@ -14,11 +14,11 @@
             <div class="card">
                 <div class="card-body">
                     <a href="{{ route('movements_defect_to_supplier.create') }}"
-                       class="btn btn-primary mr-3">
+                       class="btn btn-primary mr-3 mb-2">
                         Добавить возврат поставщику
                     </a>
 
-                    <a href="{{ route('write_off_remnants.create') }}" class="btn btn-primary mr-3">
+                    <a href="{{ route('write_off_remnants.create') }}" class="btn btn-primary mb-2">
                         Списать остатки
                     </a>
                 </div>
