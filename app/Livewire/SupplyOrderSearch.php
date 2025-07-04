@@ -38,6 +38,7 @@ class SupplyOrderSearch extends Component
         $matches = MarketplaceOrder::where(function ($query) {
             $query->where('order_id', 'like', '%' . $this->orderId . '%')
                 ->where('status', 6)
+                ->where('fulfillment_type', 'FBS')
                 ->where('marketplace_id', $this->supply->marketplace_id)
                 ->orWhere('part_b', $this->orderId)
                 ->orWhere('barcode', $this->orderId);
