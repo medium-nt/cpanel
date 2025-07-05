@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\MarketplaceSupply;
 use Livewire\Component;
 use App\Models\MarketplaceOrder;
 
@@ -9,7 +10,10 @@ class SupplyOrderList extends Component
 {
     public $supplyId;
 
-    protected $listeners = ['orderAdded' => '$refresh'];
+    protected $listeners = [
+        'removeOrder' => 'removeOrder',
+        'orderAdded' => '$refresh',
+    ];
 
     public function mount($supplyId)
     {
@@ -34,6 +38,17 @@ class SupplyOrderList extends Component
             ->where('supply_id', $this->supplyId)
             ->get();
 
-        return view('livewire.supply-order-list', compact('supply_orders'));
+        $marketplaceSupply = MarketplaceSupply::query()->find($this->supplyId);
+
+        $totalReady = MarketplaceOrder::query()
+            ->where('status', 6)
+            ->where('marketplace_id', $marketplaceSupply->marketplace_id)
+            ->count();
+
+        $totalItems = $supply_orders->sum(function ($order) {
+            return $order->items->count();
+        });
+
+        return view('livewire.supply-order-list', compact('supply_orders', 'totalItems', 'totalReady'));
     }
 }

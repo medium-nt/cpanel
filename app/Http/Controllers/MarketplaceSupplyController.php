@@ -38,16 +38,10 @@ class MarketplaceSupplyController extends Controller
             2 => 'WB',
         };
 
-        $totalReady = MarketplaceOrder::query()
-            ->where('status', 6)
-            ->where('marketplace_id', $marketplaceSupply->marketplace_id)
-            ->count();
-
         return view('marketplace_supply.show', [
             'title' => 'Поставка для маркетплейса ' . $marketplaceName,
             'supply' => $marketplaceSupply,
             'supply_orders' => $marketplaceSupply->marketplace_orders()->get(),
-            'totalReady' => $totalReady,
         ]);
     }
 
