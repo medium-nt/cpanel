@@ -926,4 +926,28 @@ class MarketplaceApiService
         return $resultArray;
     }
 
+    public static function getOzonPostingNumberByBarcode($barcode): array|string
+    {
+        $body = [
+            "barcode" => $barcode,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v2/posting/fbs/get-by-barcode', $body);
+
+        if(!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->info('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара');
+            return [];
+        }
+
+        $posting_number = $response->object()->result->posting_number;
+
+        return json_decode(json_encode($posting_number));
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Services\MarketplaceApiService;
 use Livewire\Component;
 use App\Models\MarketplaceOrder;
 
@@ -33,6 +34,10 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('clearMessage');
             return;
+        }
+
+        if (mb_strlen(trim($this->orderId)) == 15) {
+            $this->orderId = MarketplaceApiService::getOzonPostingNumberByBarcode($this->orderId);
         }
 
         $matches = MarketplaceOrder::where(function ($query) {
