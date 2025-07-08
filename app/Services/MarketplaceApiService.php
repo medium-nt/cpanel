@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\MarketplaceSupply;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Setting;
@@ -949,5 +950,308 @@ class MarketplaceApiService
         $posting_number = $response->object()->result->posting_number;
 
         return json_decode(json_encode($posting_number));
+    }
+
+    public static function ozonSupply(MarketplaceSupply $marketplace_supply): bool
+    {
+        $newSupply = self::createSupplyOzon($marketplace_supply);
+
+        if (empty($newSupply)) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось создать новую поставку Ozon.');
+            return false;
+        }
+
+        $marketplace_supply->supply_id = $newSupply->id;
+        $marketplace_supply->save();
+
+        $res = self::addOrdersToSupplyOzon($marketplace_supply);
+        if(!empty($res)) {
+            Log::channel('marketplace_api')
+                ->error('    Ошибка при добавлении заказов в поставку '. $marketplace_supply->id);
+            return false;
+        }
+
+        $res = self::sendForDeliveryOzon($marketplace_supply);
+        if(!$res) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку Ozon.');
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function wbSupply(MarketplaceSupply $marketplace_supply): bool
+    {
+        $newSupply = self::createSupplyWb();
+
+        if (empty($newSupply)) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось создать новую поставку WB.');
+            return false;
+        }
+
+        $marketplace_supply->supply_id = $newSupply->id;
+        $marketplace_supply->save();
+
+        $res = self::addOrdersToSupplyWb($marketplace_supply);
+        if(!empty($res)) {
+            Log::channel('marketplace_api')
+                ->error('    Ошибка при добавлении заказов в поставку '. $marketplace_supply->id);
+            return false;
+        }
+
+        $res = self::sendForDeliveryWB($marketplace_supply);
+
+        if(!$res) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку WB.');
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function addOrdersToSupplyWb(MarketplaceSupply $marketplace_supply): array
+    {
+        $allOrders = MarketplaceOrder::query()
+            ->where('supply_id', $marketplace_supply->id)
+            ->get();
+
+        $notAddedOrders = [];
+        foreach ($allOrders as $order) {
+            $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/orders/'.$order->order_id;
+            $response = Http::accept('application/json')
+                ->withOptions(['verify' => false])
+                ->withHeaders(['Authorization' => self::getWbApiKey()])
+                ->patch($url);
+
+            if(!$response->noContent()) {
+               $notAddedOrders[] = $order->order_id;
+                Log::channel('marketplace_api')
+                    ->error('    Заказа №'.$order->order_id.' не добавлен в поставку '. $marketplace_supply->id);
+            }
+        }
+
+        return $notAddedOrders;
+    }
+
+    private static function sendForDeliveryWB(MarketplaceSupply $marketplace_supply): bool
+    {
+        $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/deliver';
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->post($url);
+
+        if(!$response->noContent()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function createSupplyOzon(MarketplaceSupply $marketplace_supply)
+    {
+        $body = [
+            "delivery_method_id" => $marketplace_supply->warehouse_id,
+            "departure_date" => $marketplace_supply->warehouse_id,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v1/carriage/create', $body);
+
+        if(!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->info('ВНИМАНИЕ! Ошибка создания новой поставки Ozon');
+            return false;
+        }
+
+        return json_decode(json_encode($response->object()->carriage_id));
+    }
+
+    private static function addOrdersToSupplyOzon(MarketplaceSupply $marketplace_supply): array
+    {
+        $allOrders = MarketplaceOrder::query()
+            ->where('supply_id', $marketplace_supply->id)
+            ->get()
+            ->toArray();
+
+        $notAddedOrders = [];
+
+            $body = [
+                "carriage_id" => $marketplace_supply->supply_id,
+                "posting_number" => $allOrders,
+            ];
+
+            $response = Http::accept('application/json')
+                ->withOptions(['verify' => false])
+                ->withHeaders([
+                    'Client-Id' => self::getOzonSellerId(),
+                    'Api-Key' => self::getOzonApiKey(),
+                ])
+                ->post('https://api-seller.ozon.ru/v1/carriage/set-postings', $body);
+
+            if(!$response->ok()) {
+                $notAddedOrders = $allOrders;
+            }
+
+        return $notAddedOrders;
+    }
+
+    private static function sendForDeliveryOzon(MarketplaceSupply $marketplace_supply): bool
+    {
+        $body = [
+            "carriage_id" => $marketplace_supply->supply_id,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v1/carriage/approve', $body);
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function checkStatusSupplyOzon(MarketplaceSupply $marketplace_supply): bool
+    {
+        $body = [
+            "id" => $marketplace_supply->supply_id,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/check-status', $body);
+
+        if(!$response->ok()) {
+            return false;
+        }
+
+        if($response->object()->status != 'FORMED'){
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function getDocsSupplyOzon(MarketplaceSupply $marketplace_supply)
+    {
+        $body = [
+            "id" => $marketplace_supply->supply_id,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-pdf', $body);
+
+        if (!$response->ok()) {
+            return response()->json(['error' => 'Не удалось получить документы от Ozon'], 500);
+        }
+
+        $contentType = $response->object()->content_type ?? 'application/pdf';
+        $fileName = $response->object()->file_name ?? 'document.pdf';
+        $fileContent = $response->object()->file_content;
+
+        $binaryContent = base64_decode($fileContent);
+
+        return response($binaryContent)
+            ->header('Content-Type', $contentType)
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->header('Content-Length', strlen($binaryContent));
+    }
+
+    public static function getBarcodeSupplyOzon(MarketplaceSupply $marketplace_supply)
+    {
+        $isFormed = MarketplaceApiService::checkStatusSupplyOzon($marketplace_supply);
+        if (!$isFormed){
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Документы еще не сформированы.');
+        }
+
+        $body = [
+            "id" => $marketplace_supply->supply_id,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-barcode', $body);
+
+        if (!$response->ok()) {
+            Log::channel('marketplace_api')->info('Ответ OZON ', [
+                'code' => $response->object()->code,
+                'message' => $response->object()->message,
+            ]);
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Не удалось получить штрихкод поставки от Ozon');
+        }
+
+        $contentType = $response->object()->content_type ?? 'image/png';
+        $fileName = $response->object()->file_name ?? 'barcode.png';
+        $fileContent = $response->object()->file_content;
+
+        $binaryContent = base64_decode($fileContent);
+
+        return response($binaryContent)
+            ->header('Content-Type', $contentType)
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->header('Content-Length', strlen($binaryContent));
+    }
+
+    public static function getBarcodeSupplyWB(MarketplaceSupply $marketplace_supply)
+    {
+        $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/barcode?type=png';
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->get($url);
+
+        if (!$response->ok()) {
+            Log::channel('marketplace_api')->info('Ответ WB ', [
+                'code' => $response->object()->code,
+                'message' => $response->object()->message,
+            ]);
+
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Не удалось получить штрихкод поставки от WB');
+        }
+
+        $decodedData = base64_decode($response->object()->file);
+
+        $tempImagePath = sys_get_temp_dir() . '/image.png';
+        file_put_contents($tempImagePath, $decodedData);
+
+        $pdf = PDF::loadView('pdf.wb_sticker', ['imagePath' => $tempImagePath]);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('barcode.pdf');
     }
 }

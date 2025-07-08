@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
+use App\Services\MarketplaceApiService;
 use Illuminate\Http\Request;
 
 class MarketplaceSupplyController extends Controller
@@ -69,6 +69,57 @@ class MarketplaceSupplyController extends Controller
         return redirect()
             ->route('marketplace_supplies.index')
             ->with('success', 'Поставка удалена.');
+    }
+
+    public function complete(MarketplaceSupply $marketplace_supply)
+    {
+        $result = match ($marketplace_supply->marketplace_id) {
+            1 => MarketplaceApiService::ozonSupply($marketplace_supply),
+            2 => MarketplaceApiService::wbSupply($marketplace_supply),
+        };
+
+        if(!$result) {
+            return redirect()
+                ->route('marketplace_supplies.index')
+                ->with('error', 'Ошибка! Не удалось выполнить сборку поставки.');
+        }
+
+        $marketplace_supply->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
+        $marketplace_supply->marketplace_orders()->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('marketplace_supplies.index')
+            ->with('success', 'Поставка сформирована.');
+    }
+
+    public function getDocs(MarketplaceSupply $marketplace_supply)
+    {
+        $isFormed = MarketplaceApiService::checkStatusSupplyOzon($marketplace_supply);
+        if (!$isFormed){
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Документы еще не сформированы.');
+        }
+
+        return MarketplaceApiService::getDocsSupplyOzon($marketplace_supply);
+    }
+
+    public function getBarcode(MarketplaceSupply $marketplace_supply)
+    {
+        return match ($marketplace_supply->marketplace_id) {
+            1 => MarketplaceApiService::getBarcodeSupplyOzon($marketplace_supply),
+            2 => MarketplaceApiService::getBarcodeSupplyWB($marketplace_supply),
+            default => redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'В поставке указан некорректный маркетплейс!'),
+        };
     }
 
 }

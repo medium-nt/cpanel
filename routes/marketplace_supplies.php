@@ -23,4 +23,12 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('destroy', 'marketplace_supply')
         ->name('marketplace_supplies.destroy');
 
+    Route::get('/{marketplace_supply}/get_docs', [App\Http\Controllers\MarketplaceSupplyController::class, 'getDocs'])
+        ->can('complete', 'marketplace_supply')
+        ->name('marketplace_supplies.get_docs');
+
+    Route::get('/{marketplace_supply}/get_barcode', [App\Http\Controllers\MarketplaceSupplyController::class, 'getBarcode'])
+        ->can('complete', 'marketplace_supply')
+        ->name('marketplace_supplies.get_barcode');
+
 });

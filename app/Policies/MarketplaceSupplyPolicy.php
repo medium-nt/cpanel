@@ -27,4 +27,9 @@ class MarketplaceSupplyPolicy
         return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
     }
 
+    public function complete(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+    }
+
 }

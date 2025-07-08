@@ -9,17 +9,34 @@
 
 @section('content_body')
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-
-                @livewire('supply-order-search', ['supply' => $supply])
-
-                Всего готово товаров: {{ $totalReady }}
+        @if($supply->status == 0)
+            <div class="card">
+                <div class="card-body">
+                    @livewire('supply-order-search', ['supply' => $supply])
+                </div>
             </div>
-        </div>
+        @endif
 
         @livewire('supply-order-list', ['supplyId' => $supply->id])
 
+        @if($supply->status == 0)
+        <div class="card">
+            <div class="card-body">
+                <a href="{{ route('marketplace_supplies.complete', ['marketplace_supply' => $supply]) }}" class="btn btn-primary">Закрыть поставку и передать в доставку</a>
+            </div>
+        </div>
+        @endif
+
+        @if($supply->status == 3)
+            <div class="card">
+                <div class="card-body">
+                    @if($supply->marketplace_id == 1)
+                    <a href="{{ route('marketplace_supplies.get_docs', ['marketplace_supply' => $supply]) }}" class="btn btn-primary mr-3 mb-2">Получить документы</a>
+                    @endif
+                    <a href="{{ route('marketplace_supplies.get_barcode', ['marketplace_supply' => $supply]) }}" class="btn btn-primary mb-2">Получить штрихкод поставки</a>
+                </div>
+            </div>
+        @endif
     </div>
 @stop
 

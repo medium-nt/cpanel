@@ -49,6 +49,8 @@ class SupplyOrderList extends Component
             return $order->items->count();
         });
 
-        return view('livewire.supply-order-list', compact('supply_orders', 'totalItems', 'totalReady'));
+        $status = $marketplaceSupply->status;
+
+        return view('livewire.supply-order-list', compact('supply_orders', 'totalItems', 'totalReady', 'status'));
     }
 }
