@@ -1050,8 +1050,8 @@ class MarketplaceApiService
     private static function createSupplyOzon(MarketplaceSupply $marketplace_supply)
     {
         $body = [
-            "delivery_method_id" => $marketplace_supply->warehouse_id,
-            "departure_date" => $marketplace_supply->warehouse_id,
+//            "delivery_method_id" => $marketplace_supply->warehouse_id,
+//            "departure_date" => $marketplace_supply->warehouse_id,
         ];
 
         $response = Http::accept('application/json')
