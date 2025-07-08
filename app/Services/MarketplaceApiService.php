@@ -1033,7 +1033,7 @@ class MarketplaceApiService
         $response = Http::accept('application/json')
             ->withOptions(['verify' => false])
             ->withHeaders(['Authorization' => self::getWbApiKey()])
-            ->post($url);
+            ->patch($url);
 
         if(!$response->noContent()) {
             Log::channel('marketplace_api')
@@ -1051,7 +1051,7 @@ class MarketplaceApiService
     {
         $body = [
 //            "delivery_method_id" => $marketplace_supply->warehouse_id,
-//            "departure_date" => $marketplace_supply->warehouse_id,
+            "departure_date" => now()->addDays(1)->toIso8601String(),
         ];
 
         $response = Http::accept('application/json')
