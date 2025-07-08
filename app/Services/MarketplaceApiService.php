@@ -959,7 +959,7 @@ class MarketplaceApiService
 
     public static function ozonSupply(MarketplaceSupply $marketplace_supply): bool
     {
-        $newSupply = self::createSupplyOzon($marketplace_supply);
+        $newSupply = self::createSupplyOzon();
         if (empty($newSupply)) {
             return false;
         }
@@ -1047,10 +1047,10 @@ class MarketplaceApiService
         return true;
     }
 
-    private static function createSupplyOzon(MarketplaceSupply $marketplace_supply)
+    private static function createSupplyOzon()
     {
         $body = [
-//            "delivery_method_id" => $marketplace_supply->warehouse_id,
+            "delivery_method_id" => 1020000849274000,
             "departure_date" => now()->addDays(1)->toIso8601String(),
         ];
 
