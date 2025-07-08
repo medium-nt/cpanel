@@ -691,6 +691,11 @@ class MarketplaceApiService
             ->post('https://marketplace-api.wildberries.ru/api/v3/supplies', $body);
 
         if(!$response->created()) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось создать новую поставку WB: ', [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
             return false;
         }
 
@@ -955,27 +960,18 @@ class MarketplaceApiService
     public static function ozonSupply(MarketplaceSupply $marketplace_supply): bool
     {
         $newSupply = self::createSupplyOzon($marketplace_supply);
-
         if (empty($newSupply)) {
-            Log::channel('marketplace_api')
-                ->error('    Не удалось создать новую поставку Ozon.');
             return false;
         }
 
         $marketplace_supply->supply_id = $newSupply->id;
         $marketplace_supply->save();
 
-        $res = self::addOrdersToSupplyOzon($marketplace_supply);
-        if(!empty($res)) {
-            Log::channel('marketplace_api')
-                ->error('    Ошибка при добавлении заказов в поставку '. $marketplace_supply->id);
+        if(!empty(self::addOrdersToSupplyOzon($marketplace_supply))) {
             return false;
         }
 
-        $res = self::sendForDeliveryOzon($marketplace_supply);
-        if(!$res) {
-            Log::channel('marketplace_api')
-                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку Ozon.');
+        if(!self::sendForDeliveryOzon($marketplace_supply)) {
             return false;
         }
 
@@ -985,28 +981,18 @@ class MarketplaceApiService
     public static function wbSupply(MarketplaceSupply $marketplace_supply): bool
     {
         $newSupply = self::createSupplyWb();
-
         if (empty($newSupply)) {
-            Log::channel('marketplace_api')
-                ->error('    Не удалось создать новую поставку WB.');
             return false;
         }
 
         $marketplace_supply->supply_id = $newSupply->id;
         $marketplace_supply->save();
 
-        $res = self::addOrdersToSupplyWb($marketplace_supply);
-        if(!empty($res)) {
-            Log::channel('marketplace_api')
-                ->error('    Ошибка при добавлении заказов в поставку '. $marketplace_supply->id);
+        if(!empty(self::addOrdersToSupplyWb($marketplace_supply))) {
             return false;
         }
 
-        $res = self::sendForDeliveryWB($marketplace_supply);
-
-        if(!$res) {
-            Log::channel('marketplace_api')
-                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку WB.');
+        if(!self::sendForDeliveryWB($marketplace_supply)) {
             return false;
         }
 
@@ -1028,9 +1014,12 @@ class MarketplaceApiService
                 ->patch($url);
 
             if(!$response->noContent()) {
-               $notAddedOrders[] = $order->order_id;
                 Log::channel('marketplace_api')
-                    ->error('    Заказа №'.$order->order_id.' не добавлен в поставку '. $marketplace_supply->id);
+                    ->error('    Заказа №'.$order->order_id.' не добавлен в поставку '. $marketplace_supply->id, [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
+               $notAddedOrders[] = $order->order_id;
             }
         }
 
@@ -1047,6 +1036,11 @@ class MarketplaceApiService
             ->post($url);
 
         if(!$response->noContent()) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку WB.', [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
             return false;
         }
 
@@ -1070,7 +1064,10 @@ class MarketplaceApiService
 
         if(!$response->ok()) {
             Log::channel('marketplace_api')
-                ->info('ВНИМАНИЕ! Ошибка создания новой поставки Ozon');
+                ->error('Не удалось создать новую поставку Ozon: ', [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
             return false;
         }
 
@@ -1100,6 +1097,11 @@ class MarketplaceApiService
                 ->post('https://api-seller.ozon.ru/v1/carriage/set-postings', $body);
 
             if(!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('Ошибка при добавлении заказов в поставку OZON '. $marketplace_supply->id, [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
                 $notAddedOrders = $allOrders;
             }
 
@@ -1121,6 +1123,11 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v1/carriage/approve', $body);
 
         if(!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку Ozon.', [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
             return false;
         }
 
