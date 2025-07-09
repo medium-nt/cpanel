@@ -93,9 +93,6 @@ class MarketplaceOrderItemController extends Controller
 
     public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
-        return redirect()->route('marketplace_order_items.index')
-            ->with('error', 'Закрытие заказов заблокировано');
-
         $fulfillmentType = $marketplaceOrderItem->marketplaceOrder->fulfillment_type;
 
         if ($fulfillmentType === 'FBS') {
