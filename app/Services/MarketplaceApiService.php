@@ -1094,7 +1094,7 @@ class MarketplaceApiService
 
             $body = [
                 "carriage_id" => $marketplace_supply->supply_id,
-                "posting_number" => $allOrders,
+                "posting_numbers" => $allOrders,
             ];
 
             $response = Http::accept('application/json')
