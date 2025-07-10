@@ -1193,7 +1193,15 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-pdf', $body);
 
         if (!$response->ok()) {
-            return response()->json(['error' => 'Не удалось получить документы от Ozon'], 500);
+            Log::channel('marketplace_api')
+                ->error('Не удалось получить документы от Ozon к поставке '. $marketplace_supply->id, [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
+
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Не удалось получить документы от Ozon.');
         }
 
         $contentType = $response->object()->content_type ?? 'application/pdf';
@@ -1238,6 +1246,12 @@ class MarketplaceApiService
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'Не удалось получить штрихкод поставки от Ozon');
         }
+
+        Log::channel('marketplace_api')->error('Штрихкод для отгрузки отправления: ', [
+            'content_type' => $response->object()->content_type,
+            'file_name' => $response->object()->file_name,
+            'file_content' => $response->object()->file_content,
+        ]);
 
         $contentType = $response->object()->content_type ?? 'image/png';
         $fileName = $response->object()->file_name ?? 'barcode.png';
