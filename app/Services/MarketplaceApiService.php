@@ -1166,7 +1166,7 @@ class MarketplaceApiService
             return false;
         }
 
-        if($response->object()->status != 'FORMED'){
+        if (!in_array($response->object()->status, ['FORMED', 'CONFIRMED', 'CONFIRMED_WITH_MISMATCH'])) {
             Log::channel('marketplace_api')
                 ->error('Документы к поставке '. $marketplace_supply->id . ' еще не сформированы.', [
                     'id' => $response->object()->id,
