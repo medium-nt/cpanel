@@ -1087,7 +1087,7 @@ class MarketplaceApiService
     {
         $allOrders = MarketplaceOrder::query()
             ->where('supply_id', $marketplace_supply->id)
-            ->get()
+            ->pluck('order_id')
             ->toArray();
 
         $notAddedOrders = [];
