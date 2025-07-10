@@ -11,7 +11,7 @@ class MarketplaceSupplyController extends Controller
     public function index(Request $request)
     {
         $supplies = MarketplaceSupply::query()
-            ->orderBy('created_at');
+            ->orderBy('created_at', 'desc');
 
         if($request->status != 0) {
             $supplies = $supplies->where('status', '!=', 0);
