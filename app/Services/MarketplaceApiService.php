@@ -975,6 +975,9 @@ class MarketplaceApiService
             return false;
         }
 
+        Log::channel('marketplace_api')
+            ->notice('    Поставка '.  $marketplace_supply->id.' успешно передана доставку OZON.');
+
         return true;
     }
 
@@ -995,6 +998,9 @@ class MarketplaceApiService
         if(!self::sendForDeliveryWB($marketplace_supply)) {
             return false;
         }
+
+        Log::channel('marketplace_api')
+            ->notice('    Поставка '.  $marketplace_supply->id.' успешно передана доставку WB.');
 
         return true;
     }

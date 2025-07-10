@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Telegram\Bot\Laravel\Facades\Telegram;
 use Throwable;
 
 class MarketplaceOrderItemService
@@ -533,9 +534,27 @@ class MarketplaceOrderItemService
 
         foreach ($items as $marketplaceOrderItem) {
             $result = self::checkMaterials($marketplaceOrderItem);
+
+            $item = $marketplaceOrderItem->item()->first();
+
             if ($result['success']) {
+
+                $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' достаточно материала. Его взяли в работу.';
+
+                Telegram::sendMessage([
+                    'chat_id' => 6523232418,
+                    'text' => $text
+                ]);
+
                 return self::assignOrderToSeamstress($marketplaceOrderItem);
             }
+
+            $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала';
+
+            Telegram::sendMessage([
+                'chat_id' => 6523232418,
+                'text' => $text
+            ]);
         }
 
         return [
