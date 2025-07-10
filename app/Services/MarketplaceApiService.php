@@ -167,7 +167,7 @@ class MarketplaceApiService
             ->get('https://marketplace-api.wildberries.ru/api/v3/orders/new');
 
         if(!$response->ok()) {
-            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения новых заказов из Wb');
+            Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения новых заказов из Wb');
             return [];
         }
 
@@ -220,7 +220,7 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v3/posting/fbs/unfulfilled/list', $body);
 
         if(!$response->ok()) {
-            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения новых заказов из Ozon');
+            Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения новых заказов из Ozon');
             return [];
         }
 
@@ -250,7 +250,7 @@ class MarketplaceApiService
 
     public static function uploadingCancelledProducts(): array
     {
-        Log::channel('marketplace_api')->info('    Загрузка отмененных заказов...');
+        Log::channel('marketplace_api')->notice('    Загрузка отмененных заказов...');
 
         $cancelledProductsWbNewStatus = self::getCancelledProductsWB('new');
         $resultWb1 = self::deleteCancelledProductsWb($cancelledProductsWbNewStatus);
@@ -261,7 +261,7 @@ class MarketplaceApiService
         $cancelledProductsOzon = self::getCancelledProductsOZON();
         $resultOzon = self::checkCancelledProductsOzon($cancelledProductsOzon);
 
-        Log::channel('marketplace_api')->info('    Загрузка отмененных заказов завершена.');
+        Log::channel('marketplace_api')->notice('    Загрузка отмененных заказов завершена.');
 
         return array_merge($resultWb1, $resultWb2, $resultOzon);
     }
@@ -287,9 +287,9 @@ class MarketplaceApiService
                 ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
             if(!$response->ok()) {
-                Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
-                Log::channel('marketplace_api')->info($body);
-                Log::channel('marketplace_api')->info(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
+                Log::channel('marketplace_api')->error($body);
+                Log::channel('marketplace_api')->error(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
                 return [];
             }
 
@@ -359,7 +359,7 @@ class MarketplaceApiService
 
 
         if(!$response->ok()) {
-            Log::channel('marketplace_api')->info('ВНИМАНИЕ! Ошибка получения отмененных заказов из Ozon');
+            Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Ozon');
             return [];
         }
 
@@ -378,7 +378,7 @@ class MarketplaceApiService
 
     public static function uploadingNewProducts(): array
     {
-        Log::channel('marketplace_api')->info('Начало загрузки новых заказов...');
+        Log::channel('marketplace_api')->notice('Начало загрузки новых заказов...');
 
         $newOrdersOzon = self::getAllNewOrdersOzon();
         $newOrdersOzonWithOneQuantity = self::splittingOrdersWithMoreThanOneQuantity($newOrdersOzon);
@@ -433,15 +433,15 @@ class MarketplaceApiService
 //                    };
 //
 //                    if($result && $sku->marketplace_id == 1) {
-//                        Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' успешно собран');
+//                        Log::channel('marketplace_api')->notice('    Заказ №' . $order->id . ' успешно собран');
 //                    } else {
-//                        Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' НЕ собран');
+//                        Log::channel('marketplace_api')->notice('    Заказ №' . $order->id . ' НЕ собран');
 //                        DB::rollBack();
 //                        continue 2;
 //                    }
                 }
 
-                Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
+                Log::channel('marketplace_api')->notice('    Заказ №' . $order->id . ' добавлен в систему.');
 
                 DB::commit();
             } catch (Throwable $e) {
@@ -456,7 +456,7 @@ class MarketplaceApiService
             }
         }
 
-        Log::channel('marketplace_api')->info('Конец загрузки новых заказов.');
+        Log::channel('marketplace_api')->notice('Конец загрузки новых заказов.');
 
         return [
             'not_found_skus' => $arrayNotFoundSkus,
@@ -485,7 +485,7 @@ class MarketplaceApiService
 
                 if ($splitResult !== null) {
                     if ($splitResult) {
-                        Log::channel('marketplace_api')->info('Разбит заказ №'.$order->id);
+                        Log::channel('marketplace_api')->notice('Разбит заказ №'.$order->id);
                     } else {
                         Log::channel('marketplace_api')->error('Ошибка при разбивке заказа №'.$order->id);
                     }
@@ -573,7 +573,7 @@ class MarketplaceApiService
 
         if(!$response->ok()) {
             if ($response->object()->message === 'POSTING_ALREADY_SHIPPED') {
-                Log::channel('marketplace_api')->info('    Заказа №'.$orderId .' уже ранее был отправлен в сборку.');
+                Log::channel('marketplace_api')->error('    Заказа №'.$orderId .' уже ранее был отправлен в сборку.');
                 return true;
             }
 
@@ -834,7 +834,7 @@ class MarketplaceApiService
                 switch ($item->status) {
                     case 0:
 
-                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' удален.');
+                        Log::channel('marketplace_api')->notice('    Заказа №'.$order->order_id .' удален.');
 
                         $resultArray[] = [
                             'order_id' => $order->order_id,
@@ -848,7 +848,7 @@ class MarketplaceApiService
                         break;
                     case 4:
 
-                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' изменен на FBO.');
+                        Log::channel('marketplace_api')->notice('    Заказа №'.$order->order_id .' изменен на FBO.');
 
                         $resultArray[] = [
                             'order_id' => $order->order_id,
@@ -889,7 +889,7 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbNewStatus as $product) {
 
-            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' удален.');
+            Log::channel('marketplace_api')->notice('    Заказа №'.$product->id .' удален.');
 
             $resultArray[] = [
                 'order_id' => $product->id,
@@ -914,7 +914,7 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbInWorkStatus as $product) {
 
-            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' изменен на FBO.');
+            Log::channel('marketplace_api')->notice('    Заказа №'.$product->id .' изменен на FBO.');
 
             $resultArray[] = [
                 'order_id' => $product->id,
@@ -948,7 +948,7 @@ class MarketplaceApiService
 
         if(!$response->ok()) {
             Log::channel('marketplace_api')
-                ->info('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара');
+                ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара');
             return [];
         }
 
@@ -1217,7 +1217,7 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-barcode', $body);
 
         if (!$response->ok()) {
-            Log::channel('marketplace_api')->info('Ответ OZON ', [
+            Log::channel('marketplace_api')->error('Ответ OZON ', [
                 'code' => $response->object()->code,
                 'message' => $response->object()->message,
             ]);
@@ -1247,7 +1247,7 @@ class MarketplaceApiService
             ->get($url);
 
         if (!$response->ok()) {
-            Log::channel('marketplace_api')->info('Ответ WB ', [
+            Log::channel('marketplace_api')->error('Ответ WB ', [
                 'code' => $response->object()->code,
                 'message' => $response->object()->message,
             ]);

@@ -107,7 +107,7 @@ class MarketplaceOrderItemController extends Controller
 
             if (!$result) {
                 Log::channel('marketplace_api')
-                    ->info('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+                    ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
                 return redirect()->route('marketplace_order_items.index')
                     ->with('error', 'Не удалось передать заказ на стикеровку');
             }
