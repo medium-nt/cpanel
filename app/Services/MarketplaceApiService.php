@@ -964,7 +964,7 @@ class MarketplaceApiService
             return false;
         }
 
-        $marketplace_supply->supply_id = $newSupply->id;
+        $marketplace_supply->supply_id = $newSupply;
         $marketplace_supply->save();
 
         if(!empty(self::addOrdersToSupplyOzon($marketplace_supply))) {
@@ -1078,7 +1078,7 @@ class MarketplaceApiService
         }
 
         Log::channel('marketplace_api')
-            ->info('Новая поставка Ozon создалась успешно: ');
+            ->info('Новая поставка Ozon создалась успешно с номером: ' . $response->object()->carriage_id);
 
         return json_decode(json_encode($response->object()->carriage_id));
     }
