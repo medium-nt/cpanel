@@ -441,7 +441,7 @@ class MarketplaceApiService
 //                    }
                 }
 
-                Log::channel('marketplace_api')->notice('    Заказ №' . $order->id . ' добавлен в систему.');
+                Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
                 DB::commit();
             } catch (Throwable $e) {
@@ -485,7 +485,7 @@ class MarketplaceApiService
 
                 if ($splitResult !== null) {
                     if ($splitResult) {
-                        Log::channel('marketplace_api')->notice('Разбит заказ №'.$order->id);
+                        Log::channel('marketplace_api')->info('Разбит заказ №'.$order->id);
                     } else {
                         Log::channel('marketplace_api')->error('Ошибка при разбивке заказа №'.$order->id);
                     }
@@ -834,7 +834,7 @@ class MarketplaceApiService
                 switch ($item->status) {
                     case 0:
 
-                        Log::channel('marketplace_api')->notice('    Заказа №'.$order->order_id .' удален.');
+                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' удален.');
 
                         $resultArray[] = [
                             'order_id' => $order->order_id,
@@ -848,7 +848,7 @@ class MarketplaceApiService
                         break;
                     case 4:
 
-                        Log::channel('marketplace_api')->notice('    Заказа №'.$order->order_id .' изменен на FBO.');
+                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' изменен на FBO.');
 
                         $resultArray[] = [
                             'order_id' => $order->order_id,
@@ -889,7 +889,7 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbNewStatus as $product) {
 
-            Log::channel('marketplace_api')->notice('    Заказа №'.$product->id .' удален.');
+            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' удален.');
 
             $resultArray[] = [
                 'order_id' => $product->id,
@@ -914,7 +914,7 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbInWorkStatus as $product) {
 
-            Log::channel('marketplace_api')->notice('    Заказа №'.$product->id .' изменен на FBO.');
+            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' изменен на FBO.');
 
             $resultArray[] = [
                 'order_id' => $product->id,
