@@ -547,7 +547,7 @@ class MarketplaceOrderItemService
                     'text' => $text
                 ]);
 
-                Log::channel('marketplace_api')->notice($text);
+                Log::channel('marketplace_api')->info($text);
 
                 return self::assignOrderToSeamstress($marketplaceOrderItem);
             }
