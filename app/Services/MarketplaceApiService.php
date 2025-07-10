@@ -1158,10 +1158,17 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/check-status', $body);
 
         if(!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->error('Ошибка при скачивании документов поставки OZON '. $marketplace_supply->id, [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
             return false;
         }
 
         if($response->object()->status != 'FORMED'){
+            Log::channel('marketplace_api')
+                ->error('Документы к поставке '. $marketplace_supply->id . ' еще не сформированы.');
             return false;
         }
 
