@@ -18,7 +18,7 @@ class MarketplaceItemSeeder extends Seeder
         $heights = [220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295];
 
         // Массив с названиями тканей
-        $fabrics = ['Бамбук', 'Сетка', 'Лен', 'Вуаль', 'Шифон'];
+        $fabrics = ['Молния', 'Мрамор'];
 
         // Массив с id маркетплейсов
         $marketplaceItems = [1, 2];
@@ -26,8 +26,6 @@ class MarketplaceItemSeeder extends Seeder
         foreach ($fabrics as $fabric) {
             foreach ($widths as $width) {
                 foreach ($heights as $height) {
-
-                    $sku = substr(md5(rand()), 0, 9);
 
                     $item = MarketplaceItem::query()->create([
                         'title' => $fabric,
@@ -38,7 +36,7 @@ class MarketplaceItemSeeder extends Seeder
                     foreach ($marketplaceItems as $marketplaceItem) {
                         Sku::query()->create([
                             'item_id' => $item->id,
-                            'sku' => $sku,
+                            'sku' => '',
                             'marketplace_id' => $marketplaceItem
                         ]);
                     }
