@@ -44,5 +44,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('is-seamstress-or-admin', function (User $user) {
             return $user->role->name === 'seamstress' || $user->role->name === 'admin';
         });
+
+        Gate::define('viewLogViewer', function ($user) {
+            return $user->role->name === 'admin';
+        });
     }
 }
