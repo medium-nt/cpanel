@@ -1057,7 +1057,7 @@ class MarketplaceApiService
     {
         $body = [
             "delivery_method_id" => 1020000849274000,
-            "departure_date" => now()->addDays(1)->toIso8601String(),
+            "departure_date" => now()->toIso8601String(),
         ];
 
         $response = Http::accept('application/json')
@@ -1076,6 +1076,9 @@ class MarketplaceApiService
                 ]);
             return false;
         }
+
+        Log::channel('marketplace_api')
+            ->info('Новая поставка Ozon создалась успешно: ');
 
         return json_decode(json_encode($response->object()->carriage_id));
     }
