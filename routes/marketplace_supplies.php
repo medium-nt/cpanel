@@ -31,4 +31,8 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('complete', 'marketplace_supply')
         ->name('marketplace_supplies.get_barcode');
 
+    Route::get('/{marketplace_supply}/update_status_orders', [App\Http\Controllers\MarketplaceSupplyController::class, 'updateStatusOrders'])
+        ->can('complete', 'marketplace_supply')
+        ->name('marketplace_supplies.update_status_orders');
+
 });

@@ -15,7 +15,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <b>{{ $order->order_id }}</b>
+                        <b>{{ $order->order_id }}</b> {{ $order->marketplace_status }}
                         <div class="my-3">
                             {{ $order->items[0]->item->title }} {{ $order->items[0]->item->width }}х{{ $order->items[0]->item->height }}
                         </div>
@@ -59,6 +59,7 @@
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
                         <tr>
+                            <th>Статус</th>
                             <th>Номер заказа</th>
                             <th>Товар</th>
                             <th></th>
@@ -67,6 +68,7 @@
                         <tbody>
                         @foreach ($supply_orders as $order)
                             <tr>
+                                <td>{{ $order->marketplace_status }}</td>
                                 <td>{{ $order->order_id }}</td>
                                 <td>{{ $order->items[0]->item->title }} {{ $order->items[0]->item->width }}х{{ $order->items[0]->item->height }}</td>
                                 <td style="width: 100px">

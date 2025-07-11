@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Setting;
 use App\Models\Sku;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -1274,5 +1275,96 @@ class MarketplaceApiService
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream('barcode.pdf');
+    }
+
+    public static function updateStatusOrderBySupplyWB(MarketplaceSupply $marketplace_supply): RedirectResponse
+    {
+        $orders = MarketplaceOrder::query()
+            ->where('supply_id', $marketplace_supply->id)
+            ->pluck('order_id')
+            ->map(fn($id) => (int) $id)
+            ->toArray();
+
+        $body = [
+            "orders" => $orders
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+
+        if(!$response->ok()) {
+            Log::channel('marketplace_api')->error('Не удалось получить новые статусы заказов по WB', [
+                'code' => $response->object()->code,
+                'message' => $response->object()->message,
+            ]);
+
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Не удалось получить новые статусы заказов по WB');
+        }
+
+        $orders = $response->object()->orders;
+
+        foreach ($orders as $order) {
+            MarketplaceOrder::query()
+                ->where('order_id', (string) $order->id)
+                ->update([
+                    'marketplace_status' => $order->supplierStatus,
+                ]);
+        }
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+            ->with('success', 'Статусы заказов по WB обновлены');
+    }
+
+    public static function updateStatusOrderBySupplyOzon(MarketplaceSupply $marketplace_supply): RedirectResponse
+    {
+        $orders = MarketplaceOrder::query()
+            ->where('supply_id', $marketplace_supply->id)
+            ->pluck('order_id')
+            ->toArray();
+
+        $hasError = false;
+
+        foreach ($orders as $order) {
+            $body = [
+                "posting_number" => $order,
+            ];
+
+            $response = Http::accept('application/json')
+                ->withOptions(['verify' => false])
+                ->withHeaders([
+                    'Client-Id' => self::getOzonSellerId(),
+                    'Api-Key' => self::getOzonApiKey(),
+                ])
+                ->post('https://api-seller.ozon.ru/v3/posting/fbs/get', $body);
+
+            if(!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('Ошибка обновления статуса заказа #'. $order .' в Ozon');
+                $hasError = true;
+                continue;
+            }
+
+            MarketplaceOrder::query()
+                ->where('order_id', $order)
+                ->update([
+                    'marketplace_status' => $response->object()->result->status,
+                ]);
+        }
+
+        if($hasError){
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Не удалось получить новые статусы для всех заказов Ozon');
+        }
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+            ->with('success', 'Статусы заказов по Ozon обновлены');
+
     }
 }

@@ -135,4 +135,15 @@ class MarketplaceSupplyController extends Controller
         };
     }
 
+    public function updateStatusOrders(MarketplaceSupply $marketplace_supply)
+    {
+        return match ($marketplace_supply->marketplace_id){
+            1 => MarketplaceApiService::updateStatusOrderBySupplyOzon($marketplace_supply),
+            2 => MarketplaceApiService::updateStatusOrderBySupplyWB($marketplace_supply),
+            default => redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'В поставке указан некорректный маркетплейс!'),
+        };
+    }
+
 }

@@ -33,7 +33,8 @@
                     @if($supply->marketplace_id == 1)
                     <a href="{{ route('marketplace_supplies.get_docs', ['marketplace_supply' => $supply]) }}" class="btn btn-primary mr-3 mb-2">Получить документы</a>
                     @endif
-                    <a href="{{ route('marketplace_supplies.get_barcode', ['marketplace_supply' => $supply]) }}" class="btn btn-primary mb-2">Получить штрихкод поставки</a>
+                    <a href="{{ route('marketplace_supplies.get_barcode', ['marketplace_supply' => $supply]) }}" class="btn btn-primary mr-3 mb-2">Получить штрихкод поставки</a>
+                    <a href="{{ route('marketplace_supplies.update_status_orders', ['marketplace_supply' => $supply]) }}" class="btn btn-outline-primary mb-2">Обновить статусы заказов</a>
                 </div>
             </div>
         @endif
