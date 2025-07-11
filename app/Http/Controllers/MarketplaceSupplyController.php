@@ -47,6 +47,19 @@ class MarketplaceSupplyController extends Controller
 
     public function create(string $marketplace_id)
     {
+        if($marketplace_id == 1){
+            $openSupplyOzon = MarketplaceSupply::query()
+                ->where('marketplace_id', 1)
+                ->where('status', 0)
+                ->count();
+
+            if($openSupplyOzon > 0) {
+                return redirect()
+                    ->route('marketplace_supplies.index')
+                    ->with('error', 'Уже есть открытая поставка OZON.');
+            }
+        }
+
         MarketplaceSupply::query()->create([
             'marketplace_id' => $marketplace_id,
         ]);
