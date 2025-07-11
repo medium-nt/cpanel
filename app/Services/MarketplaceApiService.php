@@ -1182,6 +1182,7 @@ class MarketplaceApiService
     {
         $body = [
             "id" => $marketplace_supply->supply_id,
+            "doc_type" => "act_of_acceptance",
         ];
 
         $response = Http::accept('application/json')
@@ -1190,7 +1191,7 @@ class MarketplaceApiService
                 'Client-Id' => self::getOzonSellerId(),
                 'Api-Key' => self::getOzonApiKey(),
             ])
-            ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-pdf', $body);
+            ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/get-pdf', $body);
 
         if (!$response->ok()) {
             Log::channel('marketplace_api')
@@ -1204,16 +1205,9 @@ class MarketplaceApiService
                 ->with('error', 'Не удалось получить документы от Ozon.');
         }
 
-        $contentType = $response->object()->content_type ?? 'application/pdf';
-        $fileName = $response->object()->file_name ?? 'document.pdf';
-        $fileContent = $response->object()->file_content;
-
-        $binaryContent = base64_decode($fileContent);
-
-        return response($binaryContent)
-            ->header('Content-Type', $contentType)
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
-            ->header('Content-Length', strlen($binaryContent));
+        return response($response->body(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="act_'. $marketplace_supply->id .'.pdf"');
     }
 
     public static function getBarcodeSupplyOzon(MarketplaceSupply $marketplace_supply)
@@ -1238,7 +1232,7 @@ class MarketplaceApiService
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-barcode', $body);
 
         if (!$response->ok()) {
-            Log::channel('marketplace_api')->error('Ответ OZON ', [
+            Log::channel('marketplace_api')->error('Не удалось получить штрихкод поставки от Ozon', [
                 'code' => $response->object()->code,
                 'message' => $response->object()->message,
             ]);
@@ -1247,22 +1241,9 @@ class MarketplaceApiService
                 ->with('error', 'Не удалось получить штрихкод поставки от Ozon');
         }
 
-        Log::channel('marketplace_api')->error('Штрихкод для отгрузки отправления: ', [
-            'content_type' => $response->object()->content_type,
-            'file_name' => $response->object()->file_name,
-            'file_content' => $response->object()->file_content,
-        ]);
-
-        $contentType = $response->object()->content_type ?? 'image/png';
-        $fileName = $response->object()->file_name ?? 'barcode.png';
-        $fileContent = $response->object()->file_content;
-
-        $binaryContent = base64_decode($fileContent);
-
-        return response($binaryContent)
-            ->header('Content-Type', $contentType)
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
-            ->header('Content-Length', strlen($binaryContent));
+        return response($response->body(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="act_'. $marketplace_supply->id .'.pdf"');
     }
 
     public static function getBarcodeSupplyWB(MarketplaceSupply $marketplace_supply)
