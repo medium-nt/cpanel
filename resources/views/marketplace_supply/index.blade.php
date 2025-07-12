@@ -76,22 +76,22 @@
                                     </div>
                                 </div>
 
-                                @if(auth()->user()->role->name == 'admin')
+                                @if(auth()->user()->role->name == 'admin' || auth()->user()->role->name == 'storekeeper')
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply->id]) }}"
                                            class="btn btn-primary mr-3">
                                             <i class="fas fa-edit"></i> Редактировать
                                         </a>
-
-{{--                                        <form method="POST"--}}
-{{--                                              action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply->id]) }}">--}}
-{{--                                            @csrf--}}
-{{--                                            @method('DELETE')--}}
-{{--                                            <button type="submit" class="btn btn-danger mr-3"--}}
-{{--                                                    onclick="return confirm('Вы уверены что хотите удалить данный заказ из системы?')">--}}
-{{--                                                <i class="fas fa-trash"></i> Удалить--}}
-{{--                                            </button>--}}
-{{--                                        </form>--}}
+                                        @if($marketplace_supply->status == 0)
+                                        <form action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('Вы уверены что хотите удалить данную поставку из системы?')">
+                                                <i class="fas fa-trash"></i> Удалить
+                                            </button>
+                                        </form>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
@@ -155,6 +155,7 @@
                                                class="btn btn-primary mr-1">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            @if($marketplace_supply->status == 0)
                                             <form action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
@@ -163,6 +164,7 @@
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     @endif
                                 </td>
