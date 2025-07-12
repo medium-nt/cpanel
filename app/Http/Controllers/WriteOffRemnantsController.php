@@ -32,13 +32,7 @@ class WriteOffRemnantsController extends Controller
 
     public function store(StoreRemnantsRequest $request)
     {
-        if(!WriteOffRemnantService::store($request)) {
-            return back()->withErrors(['error' => 'Внутренняя ошибка']);
-        }
-
-        return redirect()
-            ->route('write_off_remnants.index')
-            ->with('success', 'Остатки успешно списаны');
+        return WriteOffRemnantService::store($request);
     }
 
 //    public function edit(Order $order)

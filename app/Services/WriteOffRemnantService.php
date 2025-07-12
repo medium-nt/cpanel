@@ -11,7 +11,7 @@ use Throwable;
 
 class WriteOffRemnantService
 {
-    public static function store(StoreRemnantsRequest $request): bool|RedirectResponse
+    public static function store(StoreRemnantsRequest $request): RedirectResponse
     {
         $materialIds = $request->input('material_id', []);
         $quantities = $request->input('ordered_quantity', []);
@@ -36,6 +36,16 @@ class WriteOffRemnantService
             ]);
 
             foreach ($materialIds as $key => $material_id) {
+
+                $maxQuantity = InventoryService::remnantsMaterialInWarehouse($material_id);
+
+                if ((float)$quantities[$key] > $maxQuantity) {
+                    DB::rollBack();
+                    return back()->withErrors([
+                        'error' => 'Невозможно списать больше материала, чем есть в наличии.'
+                    ]);
+                }
+
                 MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,
@@ -47,9 +57,11 @@ class WriteOffRemnantService
         } catch (Throwable $e) {
             DB::rollBack();
 
-            return false;
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
-        return true;
+        return redirect()
+            ->route('movements_defect_to_supplier.index')
+            ->with('success', 'Поступление добавлено');
     }
 }

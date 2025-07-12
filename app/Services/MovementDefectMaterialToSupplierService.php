@@ -12,7 +12,7 @@ use Throwable;
 
 class MovementDefectMaterialToSupplierService
 {
-    public static function store(StoreDefectMaterialToSupplierRequest $request): bool|RedirectResponse
+    public static function store(StoreDefectMaterialToSupplierRequest $request): RedirectResponse
     {
         $materialIds = $request->input('material_id', []);
         $quantities = $request->input('ordered_quantity', []);
@@ -38,6 +38,16 @@ class MovementDefectMaterialToSupplierService
             ]);
 
             foreach ($materialIds as $key => $material_id) {
+
+                $maxQuantity = InventoryService::defectMaterialInWarehouse($material_id);
+
+                if ((float)$quantities[$key] > $maxQuantity) {
+                    DB::rollBack();
+                    return back()->withErrors([
+                        'error' => 'Невозможно списать больше материала, чем есть в наличии.'
+                    ]);
+                }
+
                 MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,
@@ -49,10 +59,12 @@ class MovementDefectMaterialToSupplierService
         } catch (Throwable $e) {
             DB::rollBack();
 
-            return false;
+            return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
-        return true;
+        return redirect()
+            ->route('movements_defect_to_supplier.index')
+            ->with('success', 'Поступление добавлено');
     }
 
     public static function update(UpdateMovementMaterialFromSupplierRequest $request, Order $order): bool|RedirectResponse

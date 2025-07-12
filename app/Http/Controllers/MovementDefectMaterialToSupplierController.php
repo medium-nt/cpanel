@@ -32,13 +32,7 @@ class MovementDefectMaterialToSupplierController extends Controller
 
     public function store(StoreDefectMaterialToSupplierRequest $request)
     {
-        if(!MovementDefectMaterialToSupplierService::store($request)) {
-            return back()->withErrors(['error' => 'Внутренняя ошибка']);
-        }
-
-        return redirect()
-            ->route('movements_defect_to_supplier.index')
-            ->with('success', 'Поступление добавлено');
+        return MovementDefectMaterialToSupplierService::store($request);
     }
 
 //    public function edit(Order $order)
