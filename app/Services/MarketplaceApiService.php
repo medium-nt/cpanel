@@ -1367,4 +1367,54 @@ class MarketplaceApiService
             ->with('success', 'Статусы заказов по Ozon обновлены');
 
     }
+
+    public static function getStatusOrder(MarketplaceOrder $order)
+    {
+        return match ($order->marketplace_id){
+            1 => self::getStatusOrderOzon($order),
+            2 => self::getStatusOrderWB($order),
+            default => null
+        };
+    }
+
+    private static function getStatusOrderOzon(MarketplaceOrder $order)
+    {
+        $body = [
+            "posting_number" => $order->order_id,
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ])
+            ->post('https://api-seller.ozon.ru/v3/posting/fbs/get', $body);
+
+        if(!$response->ok()) {
+            return null;
+        }
+
+        return $response->object()->result->status;
+    }
+
+    private static function getStatusOrderWB(MarketplaceOrder $order)
+    {
+        $body = [
+            "orders" => [
+                (int) $order->order_id,
+            ]
+        ];
+
+        $response = Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()])
+            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+
+        if(!$response->ok()) {
+            return null;
+        }
+
+        return $response->object()->orders[0]->supplierStatus;
+    }
 }

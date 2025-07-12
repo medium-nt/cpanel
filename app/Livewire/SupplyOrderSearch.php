@@ -109,6 +109,7 @@ class SupplyOrderSearch extends Component
         }
 
         $order->supply_id = $this->supply->id;
+        $order->marketplace_status = MarketplaceApiService::getStatusOrder($order);
         $order->save();
 
         $this->orderId = '';
