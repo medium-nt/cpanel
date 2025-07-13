@@ -542,10 +542,10 @@ class MarketplaceOrderItemService
 
                 $text = 'Товар #' . $marketplaceOrderItem->id . ' (' . $item->title . ' '. $item->width . 'x' . $item->height . ') взяла в работу швея: ' . auth()->user()->name;
 
-                Telegram::sendMessage([
-                    'chat_id' => config('telegram.admin_id'),
-                    'text' => $text
-                ]);
+//                Telegram::sendMessage([
+//                    'chat_id' => config('telegram.admin_id'),
+//                    'text' => $text
+//                ]);
 
                 Log::channel('marketplace_api')->info($text);
 
@@ -554,10 +554,10 @@ class MarketplaceOrderItemService
 
             $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала';
 
-            Telegram::sendMessage([
-                'chat_id' => config('telegram.admin_id'),
-                'text' => $text
-            ]);
+//            Telegram::sendMessage([
+//                'chat_id' => config('telegram.admin_id'),
+//                'text' => $text
+//            ]);
         }
 
         return [
