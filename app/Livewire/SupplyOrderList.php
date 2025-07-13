@@ -42,6 +42,7 @@ class SupplyOrderList extends Component
 
         $totalReady = MarketplaceOrder::query()
             ->where('status', 6)
+            ->where('fulfillment_type', 'FBS')
             ->where('marketplace_id', $marketplaceSupply->marketplace_id)
             ->count();
 
