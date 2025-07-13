@@ -24,8 +24,11 @@
                     <a href="{{ route('marketplace_orders.index', ['status' => 0, 'marketplace_id' => request('marketplace_id')]) }}"
                        class="btn btn-link mr-3 mb-3">Новые заказы</a>
 
-                    <a href="{{ route('marketplace_orders.index', ['status' => 3, 'marketplace_id' => request('marketplace_id')]) }}"
-                       class="btn btn-link mr-3 mb-3">Выполненные</a>
+                    <a href="{{ route('marketplace_orders.index', ['status' => 6, 'marketplace_id' => request('marketplace_id')]) }}"
+                       class="btn btn-link mr-3 mb-3">На поставку</a>
+
+                        <a href="{{ route('marketplace_orders.index', ['status' => 3, 'marketplace_id' => request('marketplace_id')]) }}"
+                           class="btn btn-link mr-3 mb-3">Выполненные</a>
 
                     <div class="form-group col-md-2">
                         <select name="marketplace_id"

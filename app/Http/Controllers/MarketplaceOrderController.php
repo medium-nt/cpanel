@@ -17,11 +17,11 @@ class MarketplaceOrderController extends Controller
         $orders = MarketplaceOrder::query()
             ->orderBy('marketplace_orders.created_at');
 
-        if($request->status != 0) {
-            $orders = $orders->where('marketplace_orders.status', '!=', 0);
-        } else {
-            $orders = $orders->where('marketplace_orders.status', 0);
-        }
+        $orders = match ($request->status){
+            "3" => $orders->where('marketplace_orders.status', 3),
+            "6" => $orders->where('marketplace_orders.status', 6),
+            default => $orders->where('marketplace_orders.status', 0)
+        };
 
         if (isset($request->marketplace_id)) {
             $orders = $orders->where('marketplace_orders.marketplace_id', $request->marketplace_id);
