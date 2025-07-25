@@ -62,7 +62,7 @@ class User extends Authenticatable
 
     public function adminlte_profile_url(): string
     {
-        return '/admin/profile';
+        return '/megatulle/profile';
     }
 
     public function adminlte_desc(): string

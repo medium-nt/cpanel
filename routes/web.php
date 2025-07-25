@@ -22,7 +22,7 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::prefix('admin')->middleware('auth')->group(function () {
+Route::prefix('megatulle')->middleware('auth')->group(function () {
 
     require base_path('routes/users.php');
     require base_path('routes/profile.php');

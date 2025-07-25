@@ -310,18 +310,18 @@ return [
             'submenu' => [
                 [
                     'text' => 'inventory_by_warehouse',
-                    'url' => 'admin/inventory/warehouse',
+                    'url' => 'megatulle/inventory/warehouse',
                     'icon' => 'fas fa-fw fa-boxes',
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
                     'text' => 'inventory_by_workshop',
-                    'url' => 'admin/inventory/workshop',
+                    'url' => 'megatulle/inventory/workshop',
                     'icon' => 'fas fa-fw fa-boxes',
                 ],
 //              [
 //                  'text' => 'inventory_by_defect_warehouse',
-//                  'url' => 'admin/inventory/defect_warehouse',
+//                  'url' => 'megatulle/inventory/defect_warehouse',
 //                  'icon' => 'fas fa-fw fa-boxes',
 //                  'can' => 'is-storekeeper-or-admin',
 //              ],
@@ -333,41 +333,41 @@ return [
             'submenu' => [
                 [
                     'text' => 'movements_from_supplier',
-                    'url' => 'admin/movements_from_supplier',
+                    'url' => 'megatulle/movements_from_supplier',
                     'icon' => 'fas fa-fw fa-truck-loading',
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
                     'text' => 'movements_defect_to_supplier',
-                    'url' => 'admin/movements_defect_to_supplier',
+                    'url' => 'megatulle/movements_defect_to_supplier',
                     'icon' => 'fas fa-fw fa-dolly',
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
                     'text' => 'write_off_remnants',
-                    'url' => 'admin/write_off_remnants',
+                    'url' => 'megatulle/write_off_remnants',
                     'icon' => 'fas fa-fw fa-folder-minus',
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
                     'text' => 'movements_to_workshop',
-                    'url' => 'admin/movements_to_workshop',
+                    'url' => 'megatulle/movements_to_workshop',
                     'icon' => 'fas fa-fw fa-dolly',
                 ],
                 [
                     'text' => 'movements_by_marketplace_order',
-                    'url' => 'admin/movements_by_marketplace_order',
+                    'url' => 'megatulle/movements_by_marketplace_order',
                     'icon' => 'fas fa-fw fa-pencil-ruler',
                     'can' => 'is-admin',
                 ],
                 [
                     'text' => 'defect_materials',
-                    'url' => 'admin/defect_materials',
+                    'url' => 'megatulle/defect_materials',
                     'icon' => 'fas fa-fw fa-trash-alt',
                 ],
                 [
                     'text' => 'marketplace_supplies',
-                    'url' => 'admin/marketplace_supplies',
+                    'url' => 'megatulle/marketplace_supplies',
                     'icon' => 'fas fa-fw fa-warehouse',
                 ],
             ]
@@ -378,13 +378,13 @@ return [
             'submenu' => [
                 [
                     'text' => 'marketplace_orders',
-                    'url' => 'admin/marketplace_orders',
+                    'url' => 'megatulle/marketplace_orders',
                     'icon' => 'fas fa-fw fa-cart-arrow-down',
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
                     'text' => 'marketplace_order_items',
-                    'url' => 'admin/marketplace_order_items',
+                    'url' => 'megatulle/marketplace_order_items',
                     'icon' => 'fas fa-fw fa-stream',
 //                    'can' => 'is-seamstress-or-admin',
                 ],
@@ -393,13 +393,13 @@ return [
 
         [
             'text' => 'transactions',
-            'url' => 'admin/transactions',
+            'url' => 'megatulle/transactions',
             'icon' => 'fas fa-fw fa-coins',
             'can' => 'is-admin',
         ],
 //        [
 //            'text' => 'salary',
-//            'url' => 'admin/salary',
+//            'url' => 'megatulle/salary',
 //            'icon' => 'fas fa-fw fa-hand-holding-usd',
 //        ],
         [
@@ -409,27 +409,27 @@ return [
             'submenu' => [
                 [
                     'text' => 'system_settings',
-                    'url' => 'admin/setting',
+                    'url' => 'megatulle/setting',
                     'icon' => 'fas fa-fw fa-tools',
                 ],
                 [
                     'text' => 'users',
-                    'url' => 'admin/users',
+                    'url' => 'megatulle/users',
                     'icon' => 'fas fa-fw fa-user',
                 ],
                 [
                     'text' => 'materials',
-                    'url' => 'admin/materials',
+                    'url' => 'megatulle/materials',
                     'icon' => 'fas fa-fw fa-toilet-paper',
                 ],
                 [
                     'text' => 'suppliers',
-                    'url' => 'admin/suppliers',
+                    'url' => 'megatulle/suppliers',
                     'icon' => 'fas fa-fw fa-truck',
                 ],
                 [
                     'text' => 'marketplace_items',
-                    'url' => 'admin/marketplace_items',
+                    'url' => 'megatulle/marketplace_items',
                     'icon' => 'fas fa-fw fa-shopping-basket',
                 ]
             ]

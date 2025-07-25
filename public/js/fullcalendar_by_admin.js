@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         dateClick: function(info) {
-            $.post('/admin/schedule/changeDate', {
+            $.post('/megatulle/schedule/changeDate', {
                 user_id: user_id,
                 date: info.dateStr,
                 _token: csrf_token
