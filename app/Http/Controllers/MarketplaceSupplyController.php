@@ -13,10 +13,10 @@ class MarketplaceSupplyController extends Controller
         $supplies = MarketplaceSupply::query()
             ->orderBy('created_at', 'desc');
 
-        if($request->status != 0) {
-            $supplies = $supplies->where('status', '!=', 0);
+        if($request->status == 3) {
+            $supplies = $supplies->where('status', 3);
         } else {
-            $supplies = $supplies->where('status', 0);
+            $supplies = $supplies->where('status', '!=', 3);
         }
 
         if (isset($request->marketplace_id)) {
@@ -98,7 +98,7 @@ class MarketplaceSupplyController extends Controller
         }
 
         $marketplace_supply->update([
-            'status' => 3,
+            'status' => 4,
             'completed_at' => now(),
         ]);
 
@@ -110,6 +110,18 @@ class MarketplaceSupplyController extends Controller
         return redirect()
             ->route('marketplace_supplies.index')
             ->with('success', 'Поставка сформирована.');
+    }
+
+    public function done(MarketplaceSupply $marketplace_supply)
+    {
+        $marketplace_supply->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('marketplace_supplies.index')
+            ->with('success', 'Поставка сдана в маркетплейс.');
     }
 
     public function getDocs(MarketplaceSupply $marketplace_supply)

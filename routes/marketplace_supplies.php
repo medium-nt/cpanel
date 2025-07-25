@@ -35,4 +35,8 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('complete', 'marketplace_supply')
         ->name('marketplace_supplies.update_status_orders');
 
+    Route::get('/{marketplace_supply}/done', [App\Http\Controllers\MarketplaceSupplyController::class, 'done'])
+        ->can('complete', 'marketplace_supply')
+        ->name('marketplace_supplies.done');
+
 });

@@ -26,7 +26,7 @@
                     <a href="{{ route('marketplace_supplies.index', ['status' => 0, 'marketplace_id' => request('marketplace_id')]) }}"
                        class="btn btn-link mr-3 mb-3">Открытые поставки</a>
 
-                    <a href="{{ route('marketplace_supplies.index', ['status' => 1, 'marketplace_id' => request('marketplace_id')]) }}"
+                    <a href="{{ route('marketplace_supplies.index', ['status' => 3, 'marketplace_id' => request('marketplace_id')]) }}"
                        class="btn btn-link mr-3 mb-3">Выполненные</a>
 
                     <div class="form-group col-md-2">
@@ -57,9 +57,18 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <b>{{ $marketplace_supply->supply_id }} </b>
-                                <span class="mx-1 badge {{ $marketplace_supply->status_color }}"> {{ $marketplace_supply->status_name }}</span>
-
+                                @switch($marketplace_supply->status)
+                                    @case(0)
+                                        <span class="badge bg-secondary"> Открытая </span>
+                                        @break
+                                    @case(3)
+                                        <span class="badge bg-success"> Закрытая </span>
+                                        @break
+                                    @case(4)
+                                        <span class="badge bg-warning"> Отгрузка </span>
+                                        @break
+                                @endswitch
+                                <b class="ml-2">{{ $marketplace_supply->supply_id }} </b>
                                 <div class="my-3">
 
                                     <div class="mt-2">
@@ -123,11 +132,17 @@
                             <tr>
                                 <td>{{ $marketplace_supply->id }}</td>
                                 <td>
-                                    @if($marketplace_supply->status == 0)
+                                    @switch($marketplace_supply->status)
+                                        @case(0)
                                         <span class="badge bg-secondary"> Открытая </span>
-                                    @else
+                                        @break
+                                        @case(3)
                                         <span class="badge bg-success"> Закрытая </span>
-                                    @endif
+                                        @break
+                                        @case(4)
+                                        <span class="badge bg-warning"> Отгрузка </span>
+                                        @break
+                                    @endswitch
                                 </td>
                                 <td>{{ $marketplace_supply->supply_id }}</td>
                                 <td>
