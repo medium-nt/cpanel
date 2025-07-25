@@ -992,6 +992,8 @@ class MarketplaceApiService
         $marketplace_supply->supply_id = $newSupply->id;
         $marketplace_supply->save();
 
+        sleep(1);
+
         if(!empty(self::addOrdersToSupplyWb($marketplace_supply))) {
             return false;
         }
