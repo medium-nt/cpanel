@@ -2,14 +2,14 @@
     {{-- Смартфон-карточки --}}
     <div class="row only-on-smartphone">
         <div class="col-md-4">
-            @if($status == 0)
             <div class="card">
                 <div class="card-body">
+                @if($status == 0)
                 Всего готово товаров: <strong>{{ $totalReady }}</strong> <br>
+                @endif
                 Добавлено товаров: <strong>{{ $totalItems }}</strong>
                 </div>
             </div>
-            @endif
         </div>
         @foreach ($supply_orders as $order)
             <div class="col-md-4">
@@ -44,14 +44,14 @@
 
     {{-- Десктоп-таблица --}}
     <div class="only-on-desktop">
-        @if($status == 0)
         <div class="card">
             <div class="card-body">
+                @if($status == 0)
                 Всего готово товаров: <strong>{{ $totalReady }}</strong> <br>
+                @endif
                 Добавлено товаров: <strong>{{ $totalItems }}</strong>
             </div>
         </div>
-        @endif
 
         <div class="card">
             <div class="card-body">
