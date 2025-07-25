@@ -12,6 +12,9 @@
         </div>
     </div>
 
+    <audio id="order-added-sound" src="{{ asset('sounds/success.mp3') }}" preload="auto"></audio>
+    <audio id="error-sound" src="{{ asset('sounds/error.mp3') }}" preload="auto"></audio>
+
     @if (!empty($matchingOrders))
         <div class="row mt-3">
             <div class="col-md-9 mb-1">
@@ -39,13 +42,37 @@
 
 @push('scripts')
     <script>
+
+        function playSound(id) {
+            const audio = document.getElementById(id);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            } else {
+                console.warn(`Аудио элемент с id="${id}" не найден`);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof Livewire !== 'undefined') {
+
+                // Сброс сообщений через 3 секунды
                 Livewire.on('clearMessage', () => {
                     setTimeout(() => {
                         @this.call('resetMessage');
                     }, 3000);
                 });
+
+                // Звук успешного добавления
+                Livewire.on('orderAdded', () =>
+                    playSound('order-added-sound')
+                );
+
+                // Звук ошибки
+                Livewire.on('orderError', () =>
+                    playSound('error-sound')
+                );
+
             } else {
                 console.warn('Livewire не загружен');
             }

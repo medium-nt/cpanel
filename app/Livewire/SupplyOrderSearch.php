@@ -32,6 +32,7 @@ class SupplyOrderSearch extends Component
         if (mb_strlen(trim($this->orderId)) < 4) {
             $this->message = 'Введите минимум 4 символа для поиска.';
             $this->messageType = 'error';
+            $this->dispatch('orderError');
             $this->dispatch('clearMessage');
             return;
         }
@@ -52,6 +53,7 @@ class SupplyOrderSearch extends Component
         if ($matches->isEmpty()) {
             $this->message = 'Нет такого заказа.';
             $this->messageType = 'error';
+            $this->dispatch('orderError');
             $this->dispatch('clearMessage');
             return;
         }
@@ -60,6 +62,7 @@ class SupplyOrderSearch extends Component
             $this->matchingOrders = $matches;
             $this->message = 'Найдено несколько заказов. Выберите нужный.';
             $this->messageType = 'info';
+            $this->dispatch('orderError');
             return;
         }
 
@@ -92,6 +95,7 @@ class SupplyOrderSearch extends Component
         if (!$order) {
             $this->message = 'Выбранный заказ не найден.';
             $this->messageType = 'error';
+            $this->dispatch('orderError');
             $this->dispatch('clearMessage');
             return;
         }
@@ -104,6 +108,7 @@ class SupplyOrderSearch extends Component
         if ($order->supply_id === $this->supply->id) {
             $this->message = 'Уже добавлен.';
             $this->messageType = 'error';
+            $this->dispatch('orderError');
             $this->dispatch('clearMessage');
             return;
         }
