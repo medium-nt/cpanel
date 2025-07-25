@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveSettingRequest;
 use App\Models\Setting;
+use App\Services\TgService;
 use GuzzleHttp\Client;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -44,10 +45,7 @@ class SettingController extends Controller
 
             $chatId = 6523232418;
 
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'Привет! Я работаю!'
-            ]);
+            TgService::sendMessage($chatId, 'Привет! Я работаю!');
 
 //            $client = new Client([
 //                'verify' => false,
