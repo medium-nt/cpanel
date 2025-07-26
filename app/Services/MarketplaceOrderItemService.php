@@ -200,6 +200,13 @@ class MarketplaceOrderItemService
         try {
             DB::beginTransaction();
 
+            $logMessage =
+                '    Отменен заказ № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
+                ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено' . PHP_EOL .
+                'Швея: ' . $marketplaceOrderItem->seamstress->name .
+                ' (' . $marketplaceOrderItem->seamstress->id . ')' . PHP_EOL .
+                'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
+
             //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
 //            StackService::reduceStack($marketplaceOrderItem->seamstress_id);
 
@@ -219,10 +226,17 @@ class MarketplaceOrderItemService
 
             $order->delete();
 
+            Log::channel('erp')
+                ->notice($logMessage);
+
             DB::commit();
 
         } catch (Throwable $e) {
             DB::rollBack();
+
+            Log::channel('erp')
+                ->error('    Заказ № '.$marketplaceOrderItem->marketplaceOrder->order_id .' не удалось отменить!');
+
 
             return [
                 'success' => false,
@@ -544,7 +558,7 @@ class MarketplaceOrderItemService
 
                 TgService::sendMessage(config('telegram.admin_id'), $text);
 
-                Log::channel('marketplace_api')->info($text);
+                Log::channel('erp')->info($text);
 
                 return self::assignOrderToSeamstress($marketplaceOrderItem);
             }

@@ -56,7 +56,14 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/api.log'),
             'level' => 'debug',
-            'days' => 14,
+            'days' => 30,
+        ],
+
+        'erp' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/erp.log'),
+            'level' => 'debug',
+            'days' => 30,
         ],
 
         'tg_api' => [
