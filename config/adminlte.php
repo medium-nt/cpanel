@@ -369,6 +369,7 @@ return [
                     'text' => 'marketplace_supplies',
                     'url' => 'megatulle/marketplace_supplies',
                     'icon' => 'fas fa-fw fa-warehouse',
+                    'can' => 'is-storekeeper-or-admin',
                 ],
             ]
         ],
