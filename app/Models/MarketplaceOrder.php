@@ -35,6 +35,22 @@ class MarketplaceOrder extends Model
         return StatusMovement::STATUSES[$this->status];
     }
 
+    public function getMarketplaceStatusLabelAttribute(): string
+    {
+        return match ($this->marketplace_status) {
+//            'acceptance_in_progress' => '<span class="badge bg-secondary">идёт приёмка</span>',
+//            'awaiting_approve' => '<span class="badge bg-secondary">ожидает подтверждения</span>',
+//            'awaiting_packaging' => '<span class="badge bg-secondary">ожидает упаковки</span>',
+            'awaiting_deliver' => '<span class="badge bg-secondary">ожидает отгрузки</span>',
+            'delivered' => '<span class="badge bg-success">доставлено</span>',
+
+            'confirm' => '<span class="badge bg-secondary">на сборке</span>',
+            'complete', 'delivering' => '<span class="badge bg-secondary">в доставке</span>',
+            'cancel', 'cancelled', => '<span class="badge bg-secondary">отменено</span>',
+            default => $this->marketplace_status,
+        };
+    }
+
     public function getStatusColorAttribute(): string
     {
         return StatusMovement::BADGE_COLORS[$this->status];
