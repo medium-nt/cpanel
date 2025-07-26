@@ -42,11 +42,10 @@ class MarketplaceOrder extends Model
 //            'awaiting_approve' => '<span class="badge bg-secondary">ожидает подтверждения</span>',
 //            'awaiting_packaging' => '<span class="badge bg-secondary">ожидает упаковки</span>',
             'awaiting_deliver' => '<span class="badge bg-secondary">ожидает отгрузки</span>',
-            'delivered' => '<span class="badge bg-success">доставлено</span>',
-
             'confirm' => '<span class="badge bg-secondary">на сборке</span>',
-            'complete', 'delivering' => '<span class="badge bg-secondary">в доставке</span>',
-            'cancel', 'cancelled', => '<span class="badge bg-secondary">отменено</span>',
+            'complete', 'delivering' => '<span class="badge bg-success">в доставке</span>',
+            'delivered' => '<span class="badge bg-success">доставлено</span>',
+            'cancel', 'cancelled', => '<span class="badge bg-danger">отменено</span>',
             default => $this->marketplace_status,
         };
     }
