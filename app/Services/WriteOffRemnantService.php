@@ -61,7 +61,7 @@ class WriteOffRemnantService
         }
 
         return redirect()
-            ->route('movements_defect_to_supplier.index')
+            ->route('write_off_remnants.index')
             ->with('success', 'Поступление добавлено');
     }
 }
