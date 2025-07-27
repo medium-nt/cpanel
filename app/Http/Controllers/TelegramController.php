@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\TgService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -43,7 +44,9 @@ class TelegramController extends Controller
                 Log::channel('tg_api')->info('user: есть');
                 TgService::sendMessage(
                     $tgId,
-                    'Привет, ' . $user->name . '! Вы уже авторизованы в системе как ' . $user->role->name . ' и теперь будете получать все уведомления системы через меня.'
+                    'Привет, ' . $user->name . '! Вы уже авторизованы в системе как '
+                    . UserService::translateRoleName($user->role->name) .
+                    ' и теперь будете получать все уведомления системы через меня.'
                 );
             }
         }
