@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\TgService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -23,9 +24,22 @@ class TelegramController extends Controller
 
         if (isset($update['message'])) {
             $message = $update['message'];
-            $chatId = $message['chat']['id'];
+            $tgId = $message['chat']['id'];
+            $text = $message['text'];
 
-            TgService::sendMessage($chatId, 'Привет! Я работаю!');
+            $user = User::query()->where('tg_id', $tgId)->first();
+
+            if (!$user) {
+                TgService::sendMessage(
+                    $tgId,
+                    'Привет! Я бот компании Мегатюль. Для начала работы вы должны авторизоваться по этой ссылке: ' . route('users.login', ['tgId' => $tgId])
+                );
+            } else {
+                TgService::sendMessage(
+                    $tgId,
+                    'Привет, ' . $user->name . '! Вы уже авторизованы в системе как ' . $user->role->name . ' и теперь будете получать все уведомления системы через меня.'
+                );
+            }
         }
 
         return response()->json(['status' => 'ok']);
