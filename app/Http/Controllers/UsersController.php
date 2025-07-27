@@ -73,8 +73,7 @@ class UsersController extends Controller
 
             Log::channel('tg_api')
                 ->info(
-                    'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ')
-                     подключился к боту с tg_id: ' . $tgId
+                    'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') подключился к боту с tg_id: ' . $tgId
                 );
         }
 
@@ -132,8 +131,7 @@ class UsersController extends Controller
 
         Log::channel('tg_api')
             ->info(
-                'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ')
-                     отключился от бота.'
+                'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') отключился от бота.'
             );
 
         return redirect()->route('profile');
