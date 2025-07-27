@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUsersRequest;
 use App\Models\User;
 use App\Services\ScheduleService;
+use App\Services\TgService;
+use App\Services\UserService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -70,6 +72,13 @@ class UsersController extends Controller
             auth()->user()->update([
                 'tg_id' => $tgId,
             ]);
+
+            TgService::sendMessage(
+                $tgId,
+                'Поздравляю, ' . auth()->user()->name . '! Вы авторизовались в системе как '
+                . UserService::translateRoleName(auth()->user()->role->name) .
+                ' и теперь будете получать все уведомления системы через меня.'
+            );
 
             Log::channel('tg_api')
                 ->info(
