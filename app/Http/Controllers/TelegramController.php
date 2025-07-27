@@ -29,6 +29,9 @@ class TelegramController extends Controller
 
             $user = User::query()->where('tg_id', $tgId)->first();
 
+            Log::channel('tg_api')->info('tgId: ' . $tgId);
+            Log::channel('tg_api')->info('user: ' . json_encode($user));
+
             if (!$user) {
                 TgService::sendMessage(
                     $tgId,
