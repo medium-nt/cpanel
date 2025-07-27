@@ -31,17 +31,12 @@ class TelegramController extends Controller
             $user = User::query()->where('tg_id', $tgId)->first();
 
             if (!$user) {
-                Log::channel('tg_api')->info('user: ' . json_encode($user));
-                Log::channel('tg_api')->info('user: нету');
-
                 TgService::sendMessage(
                     $tgId,
                     'Привет! Я бот компании Мегатюль. Для начала работы вы должны авторизоваться по этой ссылке: '
                     . url()->route('profile', ['tg_id' => $tgId])
                 );
             } else {
-                Log::channel('tg_api')->info('user: ' . json_encode($user));
-                Log::channel('tg_api')->info('user: есть');
                 TgService::sendMessage(
                     $tgId,
                     'Привет, ' . $user->name . '! Вы уже авторизованы в системе как '

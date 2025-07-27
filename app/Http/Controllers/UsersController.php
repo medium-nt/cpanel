@@ -8,6 +8,7 @@ use App\Services\ScheduleService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
@@ -69,6 +70,12 @@ class UsersController extends Controller
             auth()->user()->update([
                 'tg_id' => $tgId,
             ]);
+
+            Log::channel('tg_api')
+                ->info(
+                    'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ')
+                     подключился к боту с tg_id: ' . $tgId
+                );
         }
 
         return view('users.profile', [
@@ -122,6 +129,12 @@ class UsersController extends Controller
         auth()->user()->update([
             'tg_id' => null,
         ]);
+
+        Log::channel('tg_api')
+            ->info(
+                'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ')
+                     отключился от бота.'
+            );
 
         return redirect()->route('profile');
     }
