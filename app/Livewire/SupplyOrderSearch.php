@@ -41,14 +41,14 @@ class SupplyOrderSearch extends Component
             $this->orderId = MarketplaceApiService::getOzonPostingNumberByBarcode($this->orderId);
         }
 
-        $matches = MarketplaceOrder::where(function ($query) {
+        $matches = MarketplaceOrder::query()->where(function ($query) {
             $query->where('order_id', 'like', '%' . $this->orderId . '%')
-                ->where('status', 6)
-                ->where('fulfillment_type', 'FBS')
-                ->where('marketplace_id', $this->supply->marketplace_id)
                 ->orWhere('part_b', $this->orderId)
                 ->orWhere('barcode', $this->orderId);
-        })->get();
+        })->where('status', 6)
+            ->where('fulfillment_type', 'FBS')
+            ->where('marketplace_id', $this->supply->marketplace_id)
+            ->get();
 
         if ($matches->isEmpty()) {
             $this->message = 'Нет такого заказа.';
