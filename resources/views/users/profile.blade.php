@@ -10,11 +10,6 @@
 @section('content_body')
     <div class="col-md-6">
         <div class="card">
-            @if(session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
 
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -30,6 +25,23 @@
                 @method('PUT')
                 @csrf
                 <div class="card-body">
+
+                    @if($user->tg_id == '')
+                        <div class="alert alert-danger" role="alert">
+                            <h4 class="alert-heading">Telegram не подключен</h4>
+                            Для получения уведомлений через Telegram необходимо
+                            <a href="{{ config('telegram.bots.mybot.link') }}" target="_blank">подключить бота</a>
+                            <br>
+                            <a href="{{ route('profile') }}">(проверить подключение)</a>
+                        </div>
+                    @else
+                        <div class="alert alert-success" role="alert">
+                            <h4 class="alert-heading">Telegram подключен</h4>
+                            Для отключения уведомлений через Telegram <a href="{{ route('profile.disconnectTg') }}">нажмите тут</a>
+                        </div>
+                    @endif
+
+
                     <div class="form-group">
                         <label for="name">Имя</label>
                         <input type="text" class="form-control" id="name" value="{{ $user->name }}"

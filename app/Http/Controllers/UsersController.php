@@ -61,8 +61,16 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'Пользователь удален');
     }
 
-    public function profile()
+    public function profile(Request $request)
     {
+        $tgId = $request->all()['tg_id'] ?? null;
+
+        if ($tgId) {
+            auth()->user()->update([
+                'tg_id' => $tgId,
+            ]);
+        }
+
         return view('users.profile', [
             'title' => 'Профиль',
             'user' => auth()->user()
@@ -107,5 +115,14 @@ class UsersController extends Controller
         }
 
         $user->update($validatedData);
+    }
+
+    public function disconnectTg()
+    {
+        auth()->user()->update([
+            'tg_id' => null,
+        ]);
+
+        return redirect()->route('profile');
     }
 }
