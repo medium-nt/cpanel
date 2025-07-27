@@ -30,6 +30,7 @@ class User extends Authenticatable
         'role_id',
         'salary_rate',
         'avatar',
+        'tg_id',
     ];
 
     /**
