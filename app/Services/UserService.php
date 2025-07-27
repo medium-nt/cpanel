@@ -35,7 +35,8 @@ class UserService
         return Schedule::query()
             ->where('date', now()->toDateString())
             ->whereHas('user', function ($query) use ($roleId) {
-                $query->where('role_id', $roleId);
+                $query->where('role_id', $roleId)
+                    ->where('tg_id', '!=', null);
             })
             ->with('user')
             ->distinct()
