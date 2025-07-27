@@ -35,7 +35,7 @@ class TelegramController extends Controller
 
                 TgService::sendMessage(
                     $tgId,
-                    'Привет! Я бот компании Мегатюль. Для начала работы вы должны авторизоваться по этой ссылке: ' . route('users.login', ['tgId' => $tgId])
+                    'Привет! Я бот компании Мегатюль. Для начала работы вы должны авторизоваться по этой ссылке: '
                 );
             } else {
                 Log::channel('tg_api')->info('user: ' . json_encode($user));
