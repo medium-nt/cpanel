@@ -26,7 +26,6 @@ class TelegramController extends Controller
         if (isset($update['message'])) {
             $message = $update['message'];
             $tgId = $message['chat']['id'];
-            $text = $message['text'];
 
             $user = User::query()->where('tg_id', $tgId)->first();
 
