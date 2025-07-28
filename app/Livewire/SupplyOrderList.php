@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\MarketplaceSupply;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use App\Models\MarketplaceOrder;
 
@@ -27,9 +28,11 @@ class SupplyOrderList extends Component
         if ($order && $order->supply_id === $this->supplyId) {
             $order->supply_id = null;
             $order->save();
+
+            Log::channel('erp')->notice('    Заказ №'.$order->order_id.' успешно удален из поставки.');
         }
 
-        $this->dispatch('orderRemoved'); // можно использовать для уведомлений
+        $this->dispatch('orderRemoved');
     }
 
     public function render()

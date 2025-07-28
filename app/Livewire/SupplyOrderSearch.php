@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Services\MarketplaceApiService;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use App\Models\MarketplaceOrder;
 
@@ -116,6 +117,8 @@ class SupplyOrderSearch extends Component
         $order->supply_id = $this->supply->id;
         $order->marketplace_status = MarketplaceApiService::getStatusOrder($order);
         $order->save();
+
+        Log::channel('erp')->notice('    Заказ №'.$order->order_id.' успешно добавлен в поставку.');
 
         $this->orderId = '';
         $this->selectedOrderId = null;
