@@ -8,7 +8,10 @@ use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\Material;
 use App\Models\Order;
 use App\Services\MovementMaterialToWorkshopService;
+use App\Services\TgService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MovementMaterialToWorkshopController extends Controller
 {
@@ -95,6 +98,26 @@ class MovementMaterialToWorkshopController extends Controller
             'status' => 3,
             'completed_at' => now(),
         ]);
+
+        $list = '';
+        foreach ($order->movementMaterials as $movementMaterial) {
+            $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+        }
+
+        $text = 'Швея ' . auth()->user()->name . ' приняла поставку в цехе: ' . "\n"  . $list;
+
+        Log::channel('erp')
+            ->notice('    Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: ' . $text);
+
+        TgService::sendMessage(config('telegram.admin_id'), $text);
+
+        foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
+            TgService::sendMessage($tgId, $text);
+        }
+
+        foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
+            TgService::sendMessage($tgId, $text);
+        }
 
         return redirect()->route('movements_to_workshop.index')->with('success', 'Поставка принята');
     }
