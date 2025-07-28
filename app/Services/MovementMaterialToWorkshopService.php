@@ -9,6 +9,7 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class MovementMaterialToWorkshopService
@@ -51,12 +52,27 @@ class MovementMaterialToWorkshopService
                 'comment' => $request->comment
             ]);
 
+            $list = '';
+
             foreach ($materialIds as $key => $material_id) {
                 $movementData['order_id'] = $order->id;
                 $movementData['material_id'] = $material_id;
                 $movementData['ordered_quantity'] = $quantities[$key];
 
-                MovementMaterial::query()->create($movementData);
+                $movementMaterial = MovementMaterial::query()->create($movementData);
+
+                $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->ordered_quantity . ' ' . $movementMaterial->material->unit . "\n";
+            }
+
+            $text = 'Швея ' . auth()->user()->name . ' запросила: ' . "\n"  . $list;
+
+            Log::channel('erp')
+                ->notice('    Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+
+            TgService::sendMessage(config('telegram.admin_id'), $text);
+
+            foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
+                TgService::sendMessage($tgId, $text);
             }
 
             DB::commit();
