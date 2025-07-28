@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'main_navigation' => 'ГЛАВНОЕ МЕНЮ',
     'blog' => 'Блог',
     'main' => 'Главная',
@@ -43,4 +42,5 @@ return [
     'movements_by_marketplace_order' => 'Расход на заказы',
     'write_off_remnants' => 'Списание остатков',
     'marketplace_supplies' => 'Поставки в маркетплейс',
+    'logs' => 'Просмотр логов',
 ];

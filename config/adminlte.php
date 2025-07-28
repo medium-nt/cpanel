@@ -432,9 +432,16 @@ return [
                     'text' => 'marketplace_items',
                     'url' => 'megatulle/marketplace_items',
                     'icon' => 'fas fa-fw fa-shopping-basket',
-                ]
+                ],
             ]
         ],
+        [
+            'text' => 'logs',
+            'url' => 'log',
+            'icon' => 'fas fa-fw fa-history',
+            'target' => '_blank',
+            'can' => 'is-admin',
+        ]
     ],
 
     /*
