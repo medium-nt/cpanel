@@ -426,23 +426,28 @@ class MarketplaceApiService
                     $orderItem['created_at'] = Carbon::parse($order->order_created)->setTimezone('Europe/Moscow');
 
                     MarketplaceOrderItem::query()->create($orderItem);
-//
-//                    $result = match ($sku->marketplace_id) {
-//                        1 => self::collectOrderOzon($order->id, $skus->sku),
-//                        2 => self::collectOrderWb($order->id, $skus->sku),
-//                        default => false,
-//                    };
-//
-//                    if($result && $sku->marketplace_id == 1) {
-//                        Log::channel('marketplace_api')->notice('    Заказ №' . $order->id . ' успешно собран');
-//                    } else {
-//                        Log::channel('marketplace_api')->notice('    Заказ №' . $order->id . ' НЕ собран');
-//                        DB::rollBack();
-//                        continue 2;
-//                    }
                 }
 
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
+
+                $marketplaceName = match($marketplaceOrder->marketplace_id) {
+                    '1' => 'OZON',
+                    '2' => 'WB',
+                    default => '---',
+                };
+
+                $materialName = $marketplaceOrder->items->first()->item->title;
+
+                $text = 'Поступил новый заказ ' . $materialName . ' на ' . $marketplaceName;
+
+                Log::channel('marketplace_api')
+                    ->notice('    Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+
+                TgService::sendMessage(config('telegram.admin_id'), $text);
+
+                foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
+                    TgService::sendMessage($tgId, $text);
+                }
 
                 DB::commit();
             } catch (Throwable $e) {
