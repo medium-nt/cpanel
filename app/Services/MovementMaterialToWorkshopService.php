@@ -106,12 +106,29 @@ class MovementMaterialToWorkshopService
                 'storekeeper_id' => auth()->user()->id
             ]);
 
+            $list = '';
             foreach ($movementMaterialIds as $key => $movementMaterialId) {
                 MovementMaterial::query()
                     ->where('id', $movementMaterialId)
                     ->update([
                         'quantity' => $quantities[$key],
                     ]);
+
+                $movementMaterial = MovementMaterial::query()
+                    ->find($movementMaterialId);
+
+                $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+            }
+
+            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил материал на производство: ' . "\n"  . $list;
+
+            Log::channel('erp')
+                ->notice('    Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+
+            TgService::sendMessage(config('telegram.admin_id'), $text);
+
+            foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
+                TgService::sendMessage($tgId, $text);
             }
 
             DB::commit();
