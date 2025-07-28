@@ -23,8 +23,6 @@ class TelegramController extends Controller
 
         Log::channel('tg_api')->info(json_encode($update));
 
-        return response()->json(['status' => 'ok']);
-
         if (isset($update['message'])) {
             $message = $update['message'];
             $tgId = $message['chat']['id'];
