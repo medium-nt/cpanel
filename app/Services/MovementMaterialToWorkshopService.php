@@ -127,7 +127,7 @@ class MovementMaterialToWorkshopService
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
-            foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
+            foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
                 TgService::sendMessage($tgId, $text);
             }
 
