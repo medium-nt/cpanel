@@ -73,6 +73,11 @@ class MarketplaceOrderItemController extends Controller
             'completed_at' => now()
         ]);
 
+        $text = 'Швея ' . $marketplaceOrderItem->seamstress->name .
+            ' (' . $marketplaceOrderItem->seamstress->id . ') выполнила заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id .
+            ' (товар #' . $marketplaceOrderItem->id . ')';
+        Log::channel('erp')->notice($text);
+
         return back()->with('success', 'Заказ успешно выполнен');
     }
 
