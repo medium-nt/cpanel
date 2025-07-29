@@ -113,6 +113,12 @@ class MarketplaceOrderItemController extends Controller
             }
         }
 
+        $text = 'Швея ' . $marketplaceOrderItem->seamstress->name .
+            ' (' . $marketplaceOrderItem->seamstress->id . ') передала товар #' . $marketplaceOrderItem->id .
+            ' (заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id . ') на стикеровку';
+
+        Log::channel('erp')->info($text);
+
         $marketplaceOrderItem->update([
             'status' => 5
         ]);
