@@ -71,7 +71,7 @@ class DefectMaterialController extends Controller
 
     public function save(Order $order, Request $request)
     {
-        $result = DefectMaterialService::save($request);
+        $result = DefectMaterialService::save($request, $order);
 
         if (! $result) {
             return redirect()
