@@ -218,4 +218,11 @@
     <link href="{{ asset('css/fullcalendar.css') }}" rel="stylesheet"/>
     <link href="{{ asset('css/link_black.css') }}" rel="stylesheet"/>
 
+    <style>
+        .info-box-number {
+            font-size: 1.5rem;
+        }
+    </style>
+
+
 @endpush
