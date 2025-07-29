@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceApiService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MarketplaceSupplyController extends Controller
 {
@@ -60,9 +61,17 @@ class MarketplaceSupplyController extends Controller
             }
         }
 
-        MarketplaceSupply::query()->create([
+        $marketplaceSupply = MarketplaceSupply::query()->create([
             'marketplace_id' => $marketplace_id,
         ]);
+
+        $marketplaceName = match ($marketplaceSupply->marketplace_id) {
+            '1' => 'OZON',
+            '2' => 'WB',
+            default => '---',
+        };
+
+        Log::channel('erp')->notice('    ' . auth()->user()->name . ' создал поставку для маркетплейса ' . $marketplaceName . ' (#' . $marketplaceSupply->id . ').');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -107,6 +116,14 @@ class MarketplaceSupplyController extends Controller
             'completed_at' => now(),
         ]);
 
+        $marketplaceName = match ($marketplace_supply->marketplace_id) {
+            '1' => 'OZON',
+            '2' => 'WB',
+            default => '---',
+        };
+
+        Log::channel('erp')->notice('    ' . auth()->user()->name . ' передал в отгрузку поставку #' . $marketplace_supply->id . ' для маркетплейса ' . $marketplaceName . '.');
+
         return redirect()
             ->route('marketplace_supplies.index')
             ->with('success', 'Поставка сформирована.');
@@ -118,6 +135,14 @@ class MarketplaceSupplyController extends Controller
             'status' => 3,
             'completed_at' => now(),
         ]);
+
+        $marketplaceName = match ($marketplace_supply->marketplace_id) {
+            '1' => 'OZON',
+            '2' => 'WB',
+            default => '---',
+        };
+
+        Log::channel('erp')->notice('    ' . auth()->user()->name . ' сдал поставку #' . $marketplace_supply->id . ' в маркетплейс ' . $marketplaceName . '.');
 
         return redirect()
             ->route('marketplace_supplies.index')
