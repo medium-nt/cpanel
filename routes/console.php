@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Setting;
 use App\Services\MarketplaceApiService;
+use App\Services\UserService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -12,3 +14,8 @@ Schedule::call(function () {
     MarketplaceApiService::uploadingNewProducts();
     MarketplaceApiService::uploadingCancelledProducts();
 })->everyFiveMinutes();
+
+$workingDayStart = Setting::query()->where('name', 'working_day_start')->first()->value;
+Schedule::call(function () {
+    UserService::sendMessageForWorkingTodayEmployees();
+})->dailyAt($workingDayStart);
