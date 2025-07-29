@@ -7,6 +7,7 @@ use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class MarketplaceOrderService
@@ -44,6 +45,15 @@ class MarketplaceOrderService
                     MarketplaceOrderItem::query()->create($movementData);
                 }
             }
+
+            $marketplaceName = match ($marketplaceOrder->marketplace_id) {
+                '1' => 'OZON',
+                '2' => 'WB',
+                default => '---',
+            };
+
+            Log::channel('erp')
+                ->notice('    Вручную добавлен новый заказ: ' . $marketplaceOrder->order_id . ' (' . $marketplaceName . ')');
 
             DB::commit();
         } catch (Throwable $e) {
