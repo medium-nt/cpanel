@@ -46,7 +46,7 @@ class MarketplaceOrderController extends Controller
     public function store(StoreMarketplaceOrderRequest $request)
     {
         if(!MarketplaceOrderService::store($request)) {
-            return back()->withErrors(['error' => 'Внутренняя ошибка']);
+            return back()->with(['error' => 'Внутренняя ошибка']);
         }
 
         return redirect()

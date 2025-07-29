@@ -27,7 +27,7 @@ class StoreMarketplaceOrderRequest extends FormRequest
             'order_id' => 'required|unique:marketplace_orders,order_id',
             'marketplace_id' => 'required',
             'item_id' => 'required|exists:marketplace_items,id',
-            'quantity.*' => 'nullable|integer|min:1',
+            'quantity.*' => 'integer|min:1',
             'fulfillment_type' => 'required|in:FBO,FBS',
         ];
     }
@@ -46,8 +46,8 @@ class StoreMarketplaceOrderRequest extends FormRequest
             'item_id.required' => 'Пожалуйста, выберите товар.',
             'item_id.exists' => 'Такой товар не найден.',
             'quantity.required' => 'Пожалуйста, введите количество товара.',
-            'quantity.integer' => 'Количество должно быть целым числом.',
-            'quantity.min' => 'Количество должно быть больше 0.',
+            'quantity.*.integer' => 'Количество товара должно быть целым числом.',
+            'quantity.*.min' => 'Количество товара должно быть больше 0.',
             'fulfillment_type.required' => 'Тип фулфилмента обязателен.',
             'fulfillment_type.in' => 'Тип фулфилмента должен быть "FBO" или "FBS".',
         ];
