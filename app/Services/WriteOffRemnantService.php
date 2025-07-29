@@ -7,6 +7,7 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class WriteOffRemnantService
@@ -35,6 +36,7 @@ class WriteOffRemnantService
                 'completed_at' => now()
             ]);
 
+            $list = '';
             foreach ($materialIds as $key => $material_id) {
 
                 $maxQuantity = InventoryService::remnantsMaterialInWarehouse($material_id);
@@ -46,12 +48,21 @@ class WriteOffRemnantService
                     ]);
                 }
 
-                MovementMaterial::query()->create([
+                $movementMaterial = MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,
                     'quantity' => $quantities[$key],
                 ]);
+
+                $list .= '• ' . $movementMaterial->material->title . ' '
+                    . $movementMaterial->quantity . ' '
+                    . $movementMaterial->material->unit . ' '
+                    . "\n";
             }
+
+            Log::channel('erp')
+                ->notice('   Кладовщик ' . auth()->user()->name .
+                    ' создал новое списание остатков:' . "\n"  . $list);
 
             DB::commit();
         } catch (Throwable $e) {
