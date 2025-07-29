@@ -6,8 +6,10 @@ use App\Http\Requests\StoreDefectMaterialToSupplierRequest;
 use App\Http\Requests\UpdateMovementMaterialFromSupplierRequest;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class MovementDefectMaterialToSupplierService
@@ -37,6 +39,8 @@ class MovementDefectMaterialToSupplierService
                 'completed_at' => now()
             ]);
 
+            $list = '';
+
             foreach ($materialIds as $key => $material_id) {
 
                 $maxQuantity = InventoryService::defectMaterialInWarehouse($material_id);
@@ -48,11 +52,26 @@ class MovementDefectMaterialToSupplierService
                     ]);
                 }
 
-                MovementMaterial::query()->create([
+                $movementMaterial = MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,
                     'quantity' => $quantities[$key],
                 ]);
+
+                $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+            }
+
+            $supplierName = Supplier::query()->find($request->supplier_id)->title;
+
+            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил возврат поставщику ' . $supplierName . ': ' . "\n"  . $list;
+
+            Log::channel('erp')
+                ->notice('    Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+
+            TgService::sendMessage(config('telegram.admin_id'), $text);
+
+            foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
+                TgService::sendMessage($tgId, $text);
             }
 
             DB::commit();
