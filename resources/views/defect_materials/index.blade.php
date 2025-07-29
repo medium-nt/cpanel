@@ -165,6 +165,9 @@
                                             Швея: <b>{{ $order->seamstress->name }}</b>
                                         </div>
                                         <div class="my-2">
+                                            Тип: <b>{{ $order->type_movement_name }}</b>
+                                        </div>
+                                        <div class="my-2">
                                             Комментарий: <b>{{ $order->comment }}</b>
                                         </div>
 
