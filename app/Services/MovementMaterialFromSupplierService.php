@@ -8,6 +8,7 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class MovementMaterialFromSupplierService
@@ -37,13 +38,23 @@ class MovementMaterialFromSupplierService
                 'completed_at' => now()
             ]);
 
+            $list = '';
             foreach ($materialIds as $key => $material_id) {
-                MovementMaterial::query()->create([
+                $movementMaterial = MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,
                     'quantity' => $quantities[$key],
                 ]);
+
+                $list .= '• ' . $movementMaterial->material->title . ' '
+                    . $movementMaterial->quantity . ' '
+                    . $movementMaterial->material->unit . "\n";
             }
+
+            Log::channel('erp')
+                ->notice('   Кладовщик ' . auth()->user()->name .
+                    ' добавил поступление материала на склад от поставщика '
+                    . $order->supplier->title .' :' . "\n"  . $list);
 
             DB::commit();
         } catch (Throwable $e) {
@@ -75,13 +86,27 @@ class MovementMaterialFromSupplierService
                 'status' => 3,
             ]);
 
+            $list = '';
             foreach ($materialIds as $key => $material_id) {
                 MovementMaterial::query()
                     ->where('id', $material_id)
                     ->update([
                         'price' => $prices[$key],
                     ]);
+
+                $movementMaterial = MovementMaterial::query()->find($material_id);
+
+                $list .= '• ' . $movementMaterial->material->title . ' '
+                    . $movementMaterial->quantity . ' '
+                    . $movementMaterial->material->unit . ' цена: '
+                    . $movementMaterial->price . ' '
+                    . "\n";
             }
+
+            Log::channel('erp')
+                ->notice('   Админ ' . auth()->user()->name .
+                    ' одобрил поступление материала на склад от поставщика '
+                    . $order->supplier->title .' :' . "\n"  . $list);
 
             DB::commit();
         } catch (Throwable $e) {
