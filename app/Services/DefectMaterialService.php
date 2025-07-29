@@ -14,45 +14,72 @@ class DefectMaterialService
 {
     public static function save(Request $request, Order $order): false|array
     {
-        if ($request->status == 3) {
+        $typeName = match ($order->type_movement) {
+            4 => 'брак',
+            7 => 'остаток',
+            default => '---',
+        };
 
-            $movementMaterial = $order->movementMaterials()->first();
+        $movementMaterial = $order->movementMaterials()->first();
+        $list = '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
 
-            $typeName = match ($order->type_movement) {
-                4 => 'брак',
-                7 => 'остаток',
-                default => '---',
-            };
+        switch ($request->status) {
+            case '-1':
+                Log::channel('erp')
+                    ->notice('    Админ отменил '.$typeName.' (#'.$order->id.'):' . "\n"  . $list);
 
-            $list = '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+                $return = [
+                    'status' => 'error',
+                    'text' => 'отменен',
+                ];
+                break;
+            case '1':
+                Log::channel('erp')
+                    ->notice('    Админ одобрил '.$typeName.' (#'.$order->id.'):' . "\n"  . $list);
 
-            $text = 'Кладовщик ' . auth()->user()->name . ' забрал ' . $typeName . ' с производства:' . "\n"  . $list;
+                $return = [
+                    'status' => 'success',
+                    'text' => 'одобрен',
+                ];
+                break;
+            case '3':
+                $text = 'Кладовщик ' . auth()->user()->name . ' забрал ' . $typeName . ' с производства:' . "\n"  . $list;
 
-            Log::channel('erp')
-                ->notice('    Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+                Log::channel('erp')
+                    ->notice('    Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
+                TgService::sendMessage(config('telegram.admin_id'), $text);
 
-            foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
-                TgService::sendMessage($tgId, $text);
-            }
+                foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
+                    TgService::sendMessage($tgId, $text);
+                }
+
+                $return = [
+                    'status' => 'success',
+                    'text' => 'принят на складе',
+                ];
+                break;
+            default:
+                return false;
         }
 
-        return match($request->status) {
-            '-1' => [
-                'status' => 'error',
-                'text' => 'отменен',
-            ],
-            '1' => [
-                'status' => 'success',
-                'text' => 'одобрен',
-            ],
-            '3' => [
-                'status' => 'success',
-                'text' => 'принят на складе',
-            ],
-            default => false,
-        };
+//        match($request->status) {
+//            '-1' => [
+//                'status' => 'error',
+//                'text' => 'отменен',
+//            ],
+//            '1' => [
+//                'status' => 'success',
+//                'text' => 'одобрен',
+//            ],
+//            '3' => [
+//                'status' => 'success',
+//                'text' => 'принят на складе',
+//            ],
+//            default => false,
+//        };
+
+        return $return;
     }
 
     public static function store(SaveDefectMaterialRequest $request): bool
