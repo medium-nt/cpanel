@@ -13,6 +13,7 @@ class MarketplaceSupply extends Model
         'marketplace_id',
         'status',
         'completed_at',
+        'video',
     ];
 
     public function getMarketplaceNameAttribute(): string

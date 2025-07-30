@@ -2,6 +2,7 @@
 
 use App\Models\Setting;
 use App\Services\MarketplaceApiService;
+use App\Services\MarketplaceSupplyService;
 use App\Services\UserService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -19,3 +20,7 @@ $workingDayStart = Setting::query()->where('name', 'working_day_start')->first()
 Schedule::call(function () {
     UserService::sendMessageForWorkingTodayEmployees();
 })->dailyAt($workingDayStart);
+
+Schedule::call(function () {
+    MarketplaceSupplyService::deleteOldVideos();
+})->dailyAt('01:00');

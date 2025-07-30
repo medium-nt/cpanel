@@ -6,6 +6,7 @@ use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class MarketplaceSupplyController extends Controller
 {
@@ -95,6 +96,18 @@ class MarketplaceSupplyController extends Controller
 
     public function complete(MarketplaceSupply $marketplace_supply)
     {
+        if ($marketplace_supply->marketplace_orders->count() == 0) {
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Поставка не содержит заказов.');
+        }
+
+        if ($marketplace_supply->video == null) {
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Необходимо загрузить видео перед отправкой поставки.');
+        }
+
         $result = match ($marketplace_supply->marketplace_id) {
             1 => MarketplaceApiService::ozonSupply($marketplace_supply),
             2 => MarketplaceApiService::wbSupply($marketplace_supply),
@@ -181,6 +194,57 @@ class MarketplaceSupplyController extends Controller
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'В поставке указан некорректный маркетплейс!'),
         };
+    }
+
+    public function download_video(MarketplaceSupply $marketplace_supply, Request $request)
+    {
+        $request->validate([
+            'video' => 'required|file|mimes:mp4|max:512000', // макс. 500MB
+        ], [
+            'video.required' => 'Необходимо выбрать видео файл',
+            'video.file' => 'Необходимо выбрать видео файл',
+            'video.mimes' => 'Разрешен только формат mp4',
+            'video.max' => 'Максимальный размер файла: 500MB',
+        ]);
+
+        if (!Storage::disk('public')->exists('videos')) {
+            Storage::disk('public')->makeDirectory('videos');
+        }
+
+        $video = $request->file('video');
+        $filename = $marketplace_supply->id . '.' . $video->getClientOriginalExtension();
+        $video->storeAs('videos', $filename, 'public');
+
+        if (!$video->isValid()) {
+            Log::error('Видео не удалось загрузить:', ['error' => $video->getErrorMessage()]);
+        }
+
+        $marketplace_supply->update([
+            'video' => $filename
+        ]);
+
+        Log::channel('erp')
+            ->notice('    ' . auth()->user()->name . ' загрузил видео для поставки #' . $marketplace_supply->id . '.');
+
+        return back()->with('success', 'Видео загружено!');
+    }
+
+    public function delete_video(MarketplaceSupply $marketplace_supply)
+    {
+        $video = $marketplace_supply->video;
+
+        if (Storage::disk('public')->exists('videos/' . $video)) {
+            Storage::disk('public')->delete('videos/' . $video);
+        }
+
+        $marketplace_supply->update([
+            'video' => null
+        ]);
+
+        Log::channel('erp')
+            ->notice('    ' . auth()->user()->name . ' удалил видео для поставки #' . $marketplace_supply->id . '.');
+
+        return back()->with('success', 'Видео удалено!');
     }
 
 }

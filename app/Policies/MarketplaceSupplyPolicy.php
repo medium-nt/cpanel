@@ -32,4 +32,14 @@ class MarketplaceSupplyPolicy
         return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
     }
 
+    public function download_video(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+    }
+
+    public function delete_video(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+    }
+
 }
