@@ -15,6 +15,8 @@ class SettingController extends Controller
      */
     public function index()
     {
+        dd(ini_get('upload_max_filesize'), ini_get('post_max_size'));
+
         return view('settings.index', [
             'title' => 'Настройки системы',
             'settings' => (object)Setting::query()->pluck('value', 'name')->toArray()
