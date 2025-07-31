@@ -163,4 +163,17 @@
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
     <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
     <link href="{{ asset('css/dropzone.css') }}" rel="stylesheet"/>
+
+    <style>
+        .video-container {
+            width: 400px;
+            max-width: 100%;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+    </style>
 @endpush
