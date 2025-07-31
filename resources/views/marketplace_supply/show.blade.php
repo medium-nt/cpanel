@@ -26,6 +26,7 @@
                    class="btn btn-primary">Закрыть поставку и передать в доставку</a>
             </div>
         </div>
+        @endif
 
         <div class="card">
             <div class="card-header">
@@ -48,28 +49,32 @@
                             <source src="{{ asset('storage/videos/' . $supply->video) }}" size="1080">
                         </video>
                     </div>
-
-                    <a href="{{ route('marketplace_supplies.delete_video', ['marketplace_supply' => $supply]) }}"
-                       class="btn btn-danger mr-3 mb-2" onclick="return confirm('Вы уверены что хотите удалить видео?')">
-                        Удалить видео
-                    </a>
+                    @if($supply->status == 0)
+                        <a href="{{ route('marketplace_supplies.delete_video', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-danger mr-3 mb-2" onclick="return confirm('Вы уверены что хотите удалить видео?')">
+                            Удалить видео
+                        </a>
+                    @endif
                 @else
-                    <span class="text-muted">
-                        разрешено загружать максимум 1 видео в формате mp4 (720p), длинной не более 2х минут и размером не более 500мб
-                    </span>
+                    @if($supply->status == 0)
+                        <span class="text-muted">
+                            разрешено загружать максимум 1 видео в формате mp4 (720p), длинной не более 2х минут и размером не более 500мб
+                        </span>
 
-                    <form action="{{ route('marketplace_supplies.upload-chunk') }}"
-                          class="dropzone"
-                          id="videoDropzone">
-                        <div class="dz-message">
-                            <strong>🎬 Перетащи видео сюда</strong><br>
-                            или нажми для выбора файла
-                        </div>
-                    </form>
+                        <form action="{{ route('marketplace_supplies.upload-chunk') }}"
+                              class="dropzone"
+                              id="videoDropzone">
+                            <div class="dz-message">
+                                <strong>🎬 Перетащи видео сюда</strong><br>
+                                или нажми для выбора файла
+                            </div>
+                        </form>
+                    @else
+                        <span class="text-muted">Видео не было загружено</span>
+                    @endif
                 @endif
             </div>
         </div>
-        @endif
 
         @if($supply->status == 3)
             <div class="card">
@@ -116,8 +121,8 @@
             forceChunking: true,
             chunkSize: 2 * 1024 * 1024,
             retryChunks: true,
-            retryChunksLimit: 3,
-            parallelChunkUploads: 5,
+            retryChunksLimit: 2,
+            parallelChunkUploads: 3,
             acceptedFiles: "video/mp4",
             dictInvalidFileType: "Формат видео неверный. Попробуй снова!",
             headers: {
