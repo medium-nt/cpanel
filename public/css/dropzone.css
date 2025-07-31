@@ -1,0 +1,55 @@
+.video-container {
+    width: 600px;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#videoDropzone {
+    background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+    border: 3px dashed #00796b;
+    border-radius: 10px;
+    color: #004d40;
+    font-family: "Segoe UI", sans-serif;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+#videoDropzone.dz-drag-hover {
+    background-color: #c8e6c9;
+    border-color: #388e3c;
+}
+
+#videoDropzone .dz-message {
+    font-size: 18px;
+    color: #00695c;
+}
+
+#videoDropzone.dz-disabled {
+    background-color: #f9f9f9;
+    border-color: #ccc;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+#videoDropzone .dz-preview {
+    margin-top: 20px;
+}
+
+#videoDropzone .dz-success-mark svg {
+    fill: #4CAF50; /* насыщенный зелёный */
+    width: 30px;
+    height: 30px;
+}
+
+#videoDropzone .dz-success-mark {
+    background-color: #4CAF50; /* насыщенный зелёный */
+    border-radius: 50%;
+    padding: 5px;
+}

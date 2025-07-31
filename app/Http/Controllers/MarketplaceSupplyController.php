@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceApiService;
+use App\Services\MarketplaceSupplyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -196,39 +197,6 @@ class MarketplaceSupplyController extends Controller
         };
     }
 
-    public function download_video(MarketplaceSupply $marketplace_supply, Request $request)
-    {
-        $request->validate([
-            'video' => 'required|file|mimes:mp4|max:512000', // макс. 500MB
-        ], [
-            'video.required' => 'Необходимо выбрать видео файл',
-            'video.file' => 'Необходимо выбрать видео файл',
-            'video.mimes' => 'Разрешен только формат mp4',
-            'video.max' => 'Максимальный размер файла: 500MB',
-        ]);
-
-        if (!Storage::disk('public')->exists('videos')) {
-            Storage::disk('public')->makeDirectory('videos');
-        }
-
-        $video = $request->file('video');
-        $filename = $marketplace_supply->id . '.' . $video->getClientOriginalExtension();
-        $video->storeAs('videos', $filename, 'public');
-
-        if (!$video->isValid()) {
-            Log::error('Видео не удалось загрузить:', ['error' => $video->getErrorMessage()]);
-        }
-
-        $marketplace_supply->update([
-            'video' => $filename
-        ]);
-
-        Log::channel('erp')
-            ->notice('    ' . auth()->user()->name . ' загрузил видео для поставки #' . $marketplace_supply->id . '.');
-
-        return back()->with('success', 'Видео загружено!');
-    }
-
     public function delete_video(MarketplaceSupply $marketplace_supply)
     {
         $video = $marketplace_supply->video;
@@ -247,4 +215,8 @@ class MarketplaceSupplyController extends Controller
         return back()->with('success', 'Видео удалено!');
     }
 
+    public function chunkedUpload(Request $request)
+    {
+        return MarketplaceSupplyService::chunkedUpload($request);
+    }
 }

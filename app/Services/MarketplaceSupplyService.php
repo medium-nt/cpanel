@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\MarketplaceSupply;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -33,6 +35,69 @@ class MarketplaceSupplyService
 
         Log::channel('erp')
             ->info('    Очистка старых видео завершена.');
+    }
+
+    public static function chunkedUpload(Request $request): JsonResponse
+    {
+        $file = $request->file('video');
+        $index = $request->get('dzchunkindex');
+        $totalChunks = $request->get('dztotalchunkcount');
+        $uuid = $request->get('dzuuid');
+        $marketplaceSupplyId = $request->get('marketplace_supply_id');
+
+        $marketplaceSupply = MarketplaceSupply::find($marketplaceSupplyId);
+
+        Log::info("Чанк #{$index} / {$totalChunks} получен.");
+
+        $fileName = $request->get('marketplace_supply_id') . '.' . $file->getClientOriginalExtension();
+        $chunkPath = "chunks/{$uuid}";
+        $chunkName = "{$index}.part";
+
+        Storage::putFileAs($chunkPath, $file, $chunkName);
+
+        $savedChunks = Storage::files($chunkPath);
+
+        if (count($savedChunks) == $totalChunks) {
+            Log::info("Все чанки получены. Начинаем сборку...");
+
+            $finalPath = "videos/{$fileName}";
+            $stream = fopen('php://temp', 'w+b');
+
+            for ($i = 0; $i < $totalChunks; $i++) {
+                $chunkFile = "{$chunkPath}/{$i}.part";
+                if (Storage::exists($chunkFile)) {
+                    $chunkStream = Storage::readStream($chunkFile);
+                    stream_copy_to_stream($chunkStream, $stream);
+                    fclose($chunkStream);
+                } else {
+                    Log::warning("Пропущен чанк: {$chunkFile}");
+                }
+            }
+
+            rewind($stream);
+            Storage::disk('public')->put($finalPath, $stream);
+            fclose($stream);
+
+            Log::info("Видео собрано и сохранено: {$finalPath}");
+
+            $marketplaceSupply->update([
+                'video' => $fileName
+            ]);
+
+            if (Storage::exists($chunkPath)) {
+                Storage::deleteDirectory($chunkPath);
+                Log::info("Удалены чанки: {$chunkPath}");
+            }
+
+            return response()->json([
+                'status' => 'Видео загружено и собрано',
+                'filename' => $fileName
+            ]);
+        }
+
+        return response()->json([
+            'status' => "Чанк {$index} сохранён"
+        ]);
     }
 
 }

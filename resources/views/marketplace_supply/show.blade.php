@@ -57,19 +57,13 @@
                     <span class="text-muted">
                         разрешено загружать максимум 1 видео в формате mp4 (720p), длинной не более 2х минут и размером не более 500мб
                     </span>
-                    <form method="POST" enctype="multipart/form-data"
-                        action="{{ route('marketplace_supplies.download_video', ['marketplace_supply' => $supply]) }}">
-                        @csrf
-                        @method('PUT')
-                        <div class="row mt-1">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <input type="file" class="form-control" id="video" name="video">
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary">Загрузить</button>
-                            </div>
+
+                    <form action="{{ route('marketplace_supplies.upload-chunk') }}"
+                          class="dropzone"
+                          id="videoDropzone">
+                        <div class="dz-message">
+                            <strong>🎬 Перетащи видео сюда</strong><br>
+                            или нажми для выбора файла
                         </div>
                     </form>
                 @endif
@@ -108,20 +102,65 @@
     </div>
 @stop
 
+@section('js')
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+    <script>
+        Dropzone.autoDiscover = false;
+
+        new Dropzone("#videoDropzone", {
+            url: "/megatulle/marketplace_supplies/upload-chunk",
+            paramName: "video",
+            maxFiles: 1,
+            chunking: true,
+            forceChunking: true,
+            chunkSize: 2 * 1024 * 1024,
+            retryChunks: true,
+            retryChunksLimit: 3,
+            parallelChunkUploads: 5,
+            acceptedFiles: "video/mp4",
+            dictInvalidFileType: "Формат видео неверный. Попробуй снова!",
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            accept: function(file, done) {
+                const maxSize = 500 * 1024 * 1024; // 500 MB в байтах
+
+                if (file.size > maxSize) {
+                    done("Файл превышает допустимый размер 500 МБ.");
+                } else {
+                    done(); // Всё нормально, продолжаем загрузку
+                }
+            },
+            init: function () {
+                this.on("sending", function(file, xhr, formData) {
+                    formData.append("marketplace_supply_id", "{{ $supply->id }}");
+                });
+
+                this.on("maxfilesexceeded", function(file) {
+                    this.removeFile(file);
+                    alert("Можно загружать только один файл.");
+                });
+
+                this.on("success", function(file, response) {
+                    // Блокируем дальнейшую загрузку
+                    this.removeEventListeners();
+                    this.disable();
+                    document.querySelector("#videoDropzone").classList.add("dz-disabled");
+
+                    // Выводим сообщение
+                    const reloadUrl = "{{ route('marketplace_supplies.show', ['marketplace_supply' => $supply]) }}";
+                    document.querySelector("#videoDropzone").insertAdjacentHTML("beforeend", `
+                      <div class="reload-message">✅ Видео загружено! <a href="${reloadUrl}">Обновить страницу</a></div>
+                    `);
+                });
+            }
+        });
+    </script>
+@stop
+
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
-
-    <style>
-        .video-container {
-            width: 600px;
-            max-width: 100%;
-            aspect-ratio: 16 / 9;
-        }
-
-        .video-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-    </style>
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+    <link href="{{ asset('css/dropzone.css') }}" rel="stylesheet"/>
 @endpush
