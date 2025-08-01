@@ -127,9 +127,7 @@ class MarketplaceOrderController extends Controller
             'completed_at' => now(),
         ]);
 
-        return redirect()
-            ->route('marketplace_orders.index')
-            ->with('success', 'Заказ выполнен.');
+        return back()->with('success', 'Заказ выполнен.');
     }
 
     public function destroy(MarketplaceOrder $marketplaceOrder)
