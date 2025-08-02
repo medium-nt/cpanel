@@ -318,22 +318,6 @@
 
                                 @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
                                     @switch($item->status)
-                                        @case(0)
-                                            {{--@if(auth()->user()->role->name != 'admin')
-                                                <div class="btn-group" role="group">
-                                                    <form action="{{ route('marketplace_order_items.startWork', ['marketplace_order_item' => $item->id]) }}"
-                                                          method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-success mr-1"
-                                                                title="Взять работу"
-                                                                onclick="return confirm('Вы уверены что хотите взять данный товар в работу?')">
-                                                            <i class="fas fa-drafting-compass"></i> Взять работу
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            @endif
-                                            @break--}}
                                         @case(4)
                                             <div class="btn-group" role="group">
                                                 @if(auth()->user()->role->name != 'admin')
@@ -356,10 +340,26 @@
                                                     @method('PUT')
                                                     <button type="submit" class="btn btn-danger mr-1"
                                                             title="Отменить заказ"
-                                                            onclick="return confirm('Вы уверены что хотите отказаться от заказа?')">
+                                                            onclick="return confirm('Вы уверены что хотите снять товар со швеи?')">
                                                         <i class="fas fa-times"></i> Отменить заказ
                                                     </button>
                                                 </form>
+                                                @endif
+                                            </div>
+                                            @break
+                                        @case(5)
+                                            <div class="btn-group" role="group">
+                                                @if(auth()->user()->role->name == 'admin')
+                                                    <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-danger mr-1"
+                                                                title="Отменить заказ"
+                                                                onclick="return confirm('Вы уверены что хотите снять товар со швеи?')">
+                                                            <i class="fas fa-times"></i> Отменить заказ
+                                                        </button>
+                                                    </form>
                                                 @endif
                                             </div>
                                             @break
@@ -371,9 +371,9 @@
                                                         @csrf
                                                         @method('PUT')
                                                         <button type="submit" class="btn btn-danger mr-1"
-                                                                title="Удалить заказ"
-                                                                onclick="return confirm('Вы уверены что хотите удалить уже выполненный заказа?')">
-                                                            <i class="fas fa-times"></i> Удалить заказ
+                                                                title="Отменить заказ"
+                                                                onclick="return confirm('Вы уверены что хотите отменить уже выполненный заказа?')">
+                                                            <i class="fas fa-times"></i> Отменить заказ
                                                         </button>
                                                     </form>
                                                 @endif
