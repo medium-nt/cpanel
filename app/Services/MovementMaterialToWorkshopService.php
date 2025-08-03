@@ -55,6 +55,10 @@ class MovementMaterialToWorkshopService
             $list = '';
 
             foreach ($materialIds as $key => $material_id) {
+                if($material_id == 0) {
+                    continue;
+                }
+
                 $movementData['order_id'] = $order->id;
                 $movementData['material_id'] = $material_id;
                 $movementData['ordered_quantity'] = $quantities[$key];

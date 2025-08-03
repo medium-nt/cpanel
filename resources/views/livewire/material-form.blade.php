@@ -7,7 +7,7 @@
 
             <select wire:model.live="selectedMaterialId" id="material_id"
                     name="material_id[]" class="form-control">
-                <option value="" disabled selected>---</option>
+                <option value="" selected>---</option>
                 @foreach($materials as $material)
                     <option value="{{ $material->id }}">{{ $material->title }}</option>
                 @endforeach
