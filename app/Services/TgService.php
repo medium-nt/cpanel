@@ -11,6 +11,10 @@ class TgService
 {
     public static function sendMessage($chatId, $message): void
     {
+        if (!$chatId) {
+            return;
+        }
+
         //  если development сервер, то отправляем сообщение в телеграм через guzzle.
         if (!app()->environment('production')) {
             $client = new Client([

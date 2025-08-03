@@ -550,15 +550,28 @@ class MarketplaceOrderItemService
             ->get();
 
         foreach ($items as $marketplaceOrderItem) {
+            $item = $marketplaceOrderItem->item()->first();
             $result = self::checkMaterials($marketplaceOrderItem);
 
-            $item = $marketplaceOrderItem->item()->first();
-
             if ($result['success']) {
+                $marketplaceName = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
+                    1 => 'OZON',
+                    2 => 'WB',
+                    default => '---',
+                };
 
-                $text = 'Товар #' . $marketplaceOrderItem->id . ' (' . $item->title . ' '. $item->width . 'x' . $item->height . ') взяла в работу швея: ' . auth()->user()->name;
+                $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
+                    ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
+                    ') взяла в работу швея: ' . auth()->user()->name;
 
                 TgService::sendMessage(config('telegram.admin_id'), $text);
+
+                TgService::sendMessage(
+                    auth()->user()->tg_id,
+                    'Вы взяли в работу заказ # '
+                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' ('. $marketplaceName .'): '
+                    . $item->title . ' '. $item->width . 'x' . $item->height
+                );
 
                 Log::channel('erp')->info($text);
 
