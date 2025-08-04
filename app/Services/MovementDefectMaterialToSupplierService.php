@@ -78,6 +78,9 @@ class MovementDefectMaterialToSupplierService
         } catch (Throwable $e) {
             DB::rollBack();
 
+            Log::channel('erp')
+                ->error('    Ошибка при попытке создать отгрузку возврата поставщику: ' . $e->getMessage());
+
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
