@@ -106,6 +106,10 @@ class DefectMaterialService
                     return false;
                 }
 
+                if($material_id == 0) {
+                    continue;
+                }
+
                 $movementMaterial = MovementMaterial::query()->create([
                     'order_id' => $order->id,
                     'material_id' => $material_id,

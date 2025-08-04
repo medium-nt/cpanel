@@ -39,6 +39,10 @@ class WriteOffRemnantService
             $list = '';
             foreach ($materialIds as $key => $material_id) {
 
+                if($material_id == 0) {
+                    continue;
+                }
+
                 $maxQuantity = InventoryService::remnantsMaterialInWarehouse($material_id);
 
                 if ((float)$quantities[$key] > $maxQuantity) {
