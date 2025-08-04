@@ -13,9 +13,10 @@ class InventoryService
         $holdWorkshopToItems = self::countMaterial($materialId, 3, 4);
         $outWorkshopToItems = self::countMaterial($materialId, 3, 3);
         $outToDefectMaterials = self::countMaterial($materialId, 4, 3);
+        $outToWriteOffMaterials = self::countMaterial($materialId, 7, 3);
         $writeOff = self::countMaterial($materialId, 6, 3);
 
-        $result = $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems - $outToDefectMaterials - $writeOff;
+        $result = $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems - $outToDefectMaterials - $outToWriteOffMaterials - $writeOff;
 
         return round($result, 2);
     }
