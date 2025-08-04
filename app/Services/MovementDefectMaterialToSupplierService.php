@@ -42,6 +42,9 @@ class MovementDefectMaterialToSupplierService
             $list = '';
 
             foreach ($materialIds as $key => $material_id) {
+                if($material_id == 0) {
+                    continue;
+                }
 
                 $maxQuantity = InventoryService::defectMaterialInWarehouse($material_id);
 
