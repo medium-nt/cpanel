@@ -22,8 +22,8 @@
             @if (Illuminate\Support\Facades\App::environment(['local']))
                 <div class="mb-1">
                     <a href="{{ route('users.autologin', ['email' => '1@1.ru']) }}" class="mr-3 bg-gray-100 text-gray-500">Админ</a>
-                    <a href="{{ route('users.autologin', ['email' => '2@2.ru']) }}" class="mr-3 bg-gray-100 text-gray-500" >Эксперт</a>
-                    <a href="{{ route('users.autologin', ['email' => '3@3.ru']) }}" class="mr-3 bg-gray-100 text-gray-500" >Менеджер</a>
+                    <a href="{{ route('users.autologin', ['email' => '2@2.ru']) }}" class="mr-3 bg-gray-100 text-gray-500" >Кладовщик</a>
+                    <a href="{{ route('users.autologin', ['email' => '3@3.ru']) }}" class="mr-3 bg-gray-100 text-gray-500" >Швея</a>
                 </div>
             @endif
         </form>
