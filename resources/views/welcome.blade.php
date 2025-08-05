@@ -18,6 +18,14 @@
             <h2 class="text-2xl font-bold text-center mb-3">Войти в систему</h2>
 
             <a href="{{ route('login') }}" class="w-full inline-block py-3 text-center text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 leading-tight">Войти</a>
+
+            @if (Illuminate\Support\Facades\App::environment(['local']))
+                <div class="mb-1">
+                    <a href="{{ route('users.autologin', ['email' => '1@1.ru']) }}" class="mr-3 bg-gray-100 text-gray-500">Админ</a>
+                    <a href="{{ route('users.autologin', ['email' => '2@2.ru']) }}" class="mr-3 bg-gray-100 text-gray-500" >Эксперт</a>
+                    <a href="{{ route('users.autologin', ['email' => '3@3.ru']) }}" class="mr-3 bg-gray-100 text-gray-500" >Менеджер</a>
+                </div>
+            @endif
         </form>
     </div>
 </body>

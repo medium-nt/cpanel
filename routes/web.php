@@ -7,6 +7,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+if (App::environment(['local'])) {
+    Route::prefix('autologin')->group(function () {
+        Route::get('/{email}', [App\Http\Controllers\UsersController::class, 'autologin'])
+            ->name('users.autologin');
+    });
+}
+
 Route::get('/sticker_printing', [App\Http\Controllers\StickerPrintingController::class, 'index'])->name('sticker_printing');
 
 Route::get('barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getBarcodeFile'])
