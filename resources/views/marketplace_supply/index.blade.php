@@ -23,10 +23,10 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('marketplace_supplies.index', ['status' => 0, 'marketplace_id' => request('marketplace_id')]) }}"
+                    <a href="{{ route('marketplace_supplies.index', ['status' => 0, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
                        class="btn btn-link mr-3 mb-3">Открытые поставки</a>
 
-                    <a href="{{ route('marketplace_supplies.index', ['status' => 3, 'marketplace_id' => request('marketplace_id')]) }}"
+                    <a href="{{ route('marketplace_supplies.index', ['status' => 3, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
                        class="btn btn-link mr-3 mb-3">Выполненные</a>
 
                     <div class="form-group col-md-2">
@@ -40,6 +40,25 @@
                             <option value="2" @if(request()->get('marketplace_id') == 2) selected @endif>WB</option>
                         </select>
                     </div>
+
+                    <div class="form-group col-md-2">
+                        <form action="{{ route('marketplace_supplies.index', ['status' => request('status'), 'marketplace_id' => request('marketplace_id')]) }}"
+                              method="GET" class="form-inline">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control" placeholder="укажите номер поставки"
+                                       value="{{ request()->get('search') }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <a href="{{ route('marketplace_supplies.index') }}" class="btn btn-link">
+                        сбросить фильтр
+                    </a>
                 </div>
             </div>
         </div>

@@ -26,6 +26,12 @@ class MarketplaceSupplyController extends Controller
             $supplies = $supplies->where('marketplace_id', $request->marketplace_id);
         }
 
+        if (isset($request->search)) {
+            $supplies = $supplies->where(function ($query) use ($request) {
+                $query->where('supply_id', 'like', '%' . $request->search . '%');
+            });
+        }
+
         $queryParams = $request->except(['page']);
 
         return view('marketplace_supply.index', [
