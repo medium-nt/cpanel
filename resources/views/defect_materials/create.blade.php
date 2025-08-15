@@ -42,7 +42,7 @@
                                   rows="3"
                                   minlength="3"
                                   value="{{ old('comment') }}"
-                                  required></textarea>
+                        ></textarea>
                     </div>
 
                     <input type="hidden" name="type_movement_id" value="{{ request('type_movement_id') }}">
