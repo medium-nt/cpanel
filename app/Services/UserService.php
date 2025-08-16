@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Motivation;
 use App\Models\Schedule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -69,5 +70,12 @@ class UserService
         }
 
         Log::channel('erp')->notice('В ТГ отправлено сообщение сотрудникам: ' . $text);
+    }
+
+    public static function getMotivationByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
+    {
+        return Motivation::query()
+            ->where('user_id', $id)
+            ->get();
     }
 }

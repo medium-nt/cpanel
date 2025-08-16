@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MotivationUpdateUsersRequest;
 use App\Http\Requests\StoreUsersRequest;
+use App\Models\Motivation;
 use App\Models\User;
 use App\Services\ScheduleService;
 use App\Services\TgService;
@@ -49,6 +51,7 @@ class UsersController extends Controller
             'title' => 'Изменить пользователя',
             'user' => User::query()->findOrFail($user->id),
             'events' => ScheduleService::getScheduleByUserId($user->id),
+            'motivations' => UserService::getMotivationByUserId($user->id),
         ]);
     }
 
@@ -161,5 +164,29 @@ class UsersController extends Controller
 
         Auth::login($user);
         return redirect('/home');
+    }
+
+    public function motivationUpdate(MotivationUpdateUsersRequest $request, User $user)
+    {
+        Motivation::query()->where('user_id', $user->id)->delete();
+
+        foreach ($request->from as $key => $value) {
+
+            if($request->to[$key] && $request->rate[$key]) {
+                Motivation::query()->create(
+                    [
+                        'user_id' => $user->id,
+                        'from' => $request->from[$key],
+                        'to' => $request->to[$key],
+                        'rate' => $request->rate[$key],
+                        'bonus' => $request->bonus[$key] ?? 0,
+                    ]
+                );
+            }
+        }
+
+        return redirect()
+            ->route('users.edit', ['user' => $user->id])
+            ->with('success', 'Изменения сохранены.');
     }
 }
