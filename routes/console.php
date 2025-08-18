@@ -16,7 +16,7 @@ Schedule::call(function () {
     MarketplaceApiService::uploadingCancelledProducts();
 })->everyFiveMinutes();
 
-$workingDayStart = Setting::query()->where('name', 'working_day_start')->first()->value;
+$workingDayStart = Setting::query()->where('name', 'working_day_start')->first()?->value;
 Schedule::call(function () {
     UserService::sendMessageForWorkingTodayEmployees();
 })->dailyAt($workingDayStart);
