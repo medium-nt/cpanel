@@ -14,7 +14,7 @@ class SettingsSeeder extends Seeder
     {
         Setting::query()->firstOrCreate(
             ['name' => 'working_day_start'],
-            ['value' => '7:00']
+            ['value' => '07:00']
         );
 
         Setting::query()->firstOrCreate(
