@@ -15,14 +15,14 @@ class TransactionSeeder extends Seeder
         Transaction::query()->create([
             'title' => 'получение денег за продажу No1',
             'amount' => 1000,
-            'transaction_type' => 'inflow',
+            'transaction_type' => 'in',
             'status' => 1,
         ]);
 
         Transaction::query()->create([
             'title' => 'получение денег за продажу №2',
             'amount' => 500,
-            'transaction_type' => 'inflow',
+            'transaction_type' => 'in',
             'status' => 1,
         ]);
 
@@ -30,7 +30,7 @@ class TransactionSeeder extends Seeder
             'user_id' => 3,
             'title' => 'Выдача зарплаты швее',
             'amount' => 300,
-            'transaction_type' => 'outflow',
+            'transaction_type' => 'out',
             'status' => 1,
         ]);
 
@@ -38,7 +38,7 @@ class TransactionSeeder extends Seeder
             'user_id' => 2,
             'title' => 'Выдача зарплаты кладовщику',
             'amount' => 900,
-            'transaction_type' => 'outflow',
+            'transaction_type' => 'out',
             'status' => 1,
         ]);
     }

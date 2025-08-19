@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Setting;
+use App\Services\BonusService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceSupplyService;
 use App\Services\UserService;
@@ -24,3 +25,7 @@ Schedule::call(function () {
 Schedule::call(function () {
     MarketplaceSupplyService::deleteOldVideos();
 })->dailyAt('01:00');
+
+Schedule::call(function () {
+    BonusService::activateHoldBonus();
+})->dailyAt('00:30');
