@@ -32,10 +32,10 @@
                                 <td style="width: 50px">{{ $loop->iteration }}</td>
                                 <td style="width: 50px">
                                     @switch($transaction->transaction_type)
-                                        @case('outflow')
+                                        @case('out')
                                             <i class="fas fa-minus-circle" style="color: red"></i>
                                         @break
-                                        @case('inflow')
+                                        @case('in')
                                             <i class="fas fa-plus-circle" style="color: green"></i>
                                         @break
                                     @endswitch

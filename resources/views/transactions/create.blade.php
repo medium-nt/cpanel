@@ -67,8 +67,8 @@
                                     required
                                 >
                                     <option value="" disabled selected>---</option>
-                                    <option value="inflow">Поступление</option>
-                                    <option value="outflow">Списание</option>
+                                    <option value="in">Поступление</option>
+                                    <option value="out">Списание</option>
                                 </select>
                             </div>
                         </div>
