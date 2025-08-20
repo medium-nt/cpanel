@@ -27,7 +27,7 @@ return new class extends Migration
                 ->on('marketplace_order_items')
                 ->onDelete('restrict');
             $table->decimal('amount', 10);
-            $table->enum('transaction_type', ['outflow', 'inflow']);
+            $table->enum('transaction_type', ['out', 'in']);
             $table->integer('status')->default(0);
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
