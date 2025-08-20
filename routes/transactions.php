@@ -7,7 +7,7 @@ Route::prefix('/transactions')->group(function () {
         ->can('viewAny', Transaction::class)
         ->name('transactions.index');
 
-    Route::get('/create', [App\Http\Controllers\TransactionController::class, 'create'])
+    Route::get('/create/{type}', [App\Http\Controllers\TransactionController::class, 'create'])
         ->can('create', Transaction::class)
         ->name('transactions.create');
 

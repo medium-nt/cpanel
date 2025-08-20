@@ -20,10 +20,16 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function create()
+    public function create($type)
     {
+        $typeName = match ($type) {
+            'salary' => 'зарплатой',
+            'bonus' => 'бонусами',
+        };
+
         return view('transactions.create', [
-            'title' => 'Добавить операцию',
+            'type' => $type,
+            'title' => 'Добавить операцию с ' . $typeName,
             'users' => User::query()->get()
         ]);
     }

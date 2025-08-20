@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('transactions.store') }}" method="POST">
+            <form action="{{ route('transactions.store', ['type' => $type]) }}" method="POST">
                 @method('POST')
                 @csrf
                 <div class="card-body">

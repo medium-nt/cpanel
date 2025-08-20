@@ -12,7 +12,16 @@
         <div class="card">
             <div class="card-body">
 
-                <a href="{{ route('transactions.create') }}" class="btn btn-primary mr-3 mb-3">Добавить операцию</a>
+                <div class="dropdown mb-3 mr-3">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="supplyDropdown"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Добавить операцию
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="supplyDropdown">
+                        <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'salary']) }}">зарплата</a>
+                        <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'bonus']) }}">бонусы</a>
+                    </div>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">

@@ -26,7 +26,7 @@ class CreateTransactionRequest extends FormRequest
         return [
             'title' => 'required|string|min:2|max:255',
             'amount' => 'required|numeric|gte:0.01',
-            'transaction_type' => 'required|in:inflow,outflow',
+            'transaction_type' => 'required|in:in,out',
             'user_id' => 'sometimes|nullable|integer|exists:users,id',
         ];
     }

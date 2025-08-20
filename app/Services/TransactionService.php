@@ -6,24 +6,21 @@ use App\Http\Requests\CreateTransactionRequest;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Schedule;
 use App\Models\Transaction;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TransactionService
 {
-    public static function store(CreateTransactionRequest $request): bool|RedirectResponse
+    public static function store(CreateTransactionRequest $request): void
     {
-        Transaction::query()->create([
-            'user_id' => $request->user_id ?? null,
-            'title' => $request->title,
-            'amount' => $request->amount,
-            'transaction_type' => $request->transaction_type,
-            'status' => 1,
-        ]);
+        $user = User::query()->find($request->user_id);
 
-        return true;
+        match ($request->type) {
+            'salary' => self::addSalary($user, $request->amount, $request->transaction_type, $request->title),
+            'bonus' => BonusService::addBonus($user, $request->amount, $request->transaction_type, $request->title),
+        };
     }
 
     public static function getSalaryTable($seamstresses, $startDate, $endDate): array
@@ -187,5 +184,20 @@ class TransactionService
             }
         }
 
+    }
+
+    private static function addSalary($user, $amount, $type, $title): void
+    {
+        Transaction::query()
+            ->create([
+                'user_id' => $user->id,
+                'title' => $title,
+                'amount' => $amount,
+                'transaction_type' => $type,
+                'status' => 1,
+            ]);
+
+        Log::channel('salary')
+            ->info('Ручное начисление денег в размере ' . $amount . ' рублей ('. $type .') для пользователя ' . $user->name);
     }
 }
