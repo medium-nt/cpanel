@@ -72,6 +72,13 @@ return [
             'level' => 'debug',
         ],
 
+        'salary' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/salary.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),
