@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Http\Requests\CreateTransactionRequest;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Schedule;
 use App\Models\Transaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TransactionService
 {
@@ -162,5 +164,28 @@ class TransactionService
         }
 
         return $arrayAllSalary;
+    }
+
+    public static function accrualStorekeeperSalary(): void
+    {
+        $workers = Schedule::query()
+            ->where('date', Carbon::now()->format('Y-m-d'))
+            ->get();
+
+        foreach ($workers as $worker) {
+            if ($worker->user->role->name == 'storekeeper') {
+                Transaction::query()->create([
+                    'user_id' => $worker->user->id,
+                    'title' => 'Зарплата за ' . $worker->date,
+                    'amount' => $worker->user->salary_rate,
+                    'transaction_type' => 'in',
+                    'status' => 1,
+                ]);
+
+                Log::channel('salary')
+                    ->info('Добавили зарплату в размере ' . $worker->user->salary_rate . ' рублей для кладовщика ' . $worker->user->name);
+            }
+        }
+
     }
 }

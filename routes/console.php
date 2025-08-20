@@ -4,6 +4,7 @@ use App\Models\Setting;
 use App\Services\BonusService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceSupplyService;
+use App\Services\TransactionService;
 use App\Services\UserService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -28,4 +29,8 @@ Schedule::call(function () {
 
 Schedule::call(function () {
     BonusService::activateHoldBonus();
+})->dailyAt('00:30');
+
+Schedule::call(function () {
+    TransactionService::accrualStorekeeperSalary();
 })->dailyAt('00:30');
