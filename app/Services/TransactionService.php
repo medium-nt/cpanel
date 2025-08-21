@@ -15,11 +15,9 @@ class TransactionService
 {
     public static function store(CreateTransactionRequest $request): void
     {
-        $user = User::query()->find($request->user_id);
-
         match ($request->type) {
-            'salary' => self::addSalary($user, $request->amount, $request->transaction_type, $request->title),
-            'bonus' => BonusService::addBonus($user, $request->amount, $request->transaction_type, $request->title),
+            'bonus' => self::addTransaction($request, true),
+            'salary' => self::addTransaction($request, false),
         };
     }
 
@@ -186,18 +184,45 @@ class TransactionService
 
     }
 
-    private static function addSalary($user, $amount, $type, $title): void
+    private static function addTransaction($request, bool $isBonus): void
+    {
+        $user = User::query()->find($request->user_id);
+        $amount = $request->amount;
+        $type = $request->transaction_type;
+
+        $status = $isBonus
+            ? match ($type) {
+                'in' => 0,
+                'out' => 1,
+            }
+            : 1;
+
+        Transaction::query()->create([
+            'user_id' => $user->id,
+            'title' => $request->title,
+            'amount' => $amount,
+            'transaction_type' => $type,
+            'status' => $status,
+            'is_bonus' => $isBonus,
+        ]);
+
+        $label = $isBonus ? 'бонусов' : 'денег';
+        Log::channel('salary')->info(
+            "Ручное начисление {$label} в размере {$amount} рублей ({$type}) для пользователя {$user->name}"
+        );
+    }
+
+    public static function activateHoldBonus(): void
     {
         Transaction::query()
-            ->create([
-                'user_id' => $user->id,
-                'title' => $title,
-                'amount' => $amount,
-                'transaction_type' => $type,
-                'status' => 1,
-            ]);
+            ->where('created_at', '<', now()->subDays(30))
+            ->where('is_bonus', true)
+            ->where('status', 0)
+            ->update([
+                    'status' => 1]
+            );
 
-        Log::channel('salary')
-            ->info('Ручное начисление денег в размере ' . $amount . ' рублей ('. $type .') для пользователя ' . $user->name);
+        Log::channel('erp')
+            ->info('Активировали бонусы, по которым прошло более 30 дней');
     }
 }

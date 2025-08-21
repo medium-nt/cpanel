@@ -30,7 +30,8 @@
                             <th scope="col">#</th>
                             <th scope="col">Тип</th>
                             <th scope="col">Дата</th>
-                            <th scope="col">Сумма</th>
+                            <th scope="col">Деньги</th>
+                            <th scope="col">Бонусы</th>
                             <th scope="col">Название</th>
                             <th scope="col"></th>
                         </tr>
@@ -50,7 +51,13 @@
                                     @endswitch
                                 </td>
                                 <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
-                                <td>{{ $transaction->amount }}</td>
+                                @if($transaction->is_bonus)
+                                    <td></td>
+                                    <td>{{ $transaction->amount }}</td>
+                                @else
+                                    <td>{{ $transaction->amount }}</td>
+                                    <td></td>
+                                @endif
                                 <td>{{ $transaction->title }} @if($transaction->user_id) ({{ $transaction->user->name }}) @endif</td>
 
                                 <td style="width: 100px">

@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Setting;
-use App\Services\BonusService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceSupplyService;
 use App\Services\TransactionService;
@@ -28,7 +27,7 @@ Schedule::call(function () {
 })->dailyAt('01:00');
 
 Schedule::call(function () {
-    BonusService::activateHoldBonus();
+    TransactionService::activateHoldBonus();
 })->dailyAt('00:30');
 
 Schedule::call(function () {

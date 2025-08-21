@@ -23,6 +23,9 @@ return new class extends Migration
             $table->timestamp('paid_at')
                 ->after('status')
                 ->nullable();
+            $table->boolean('is_bonus')
+                ->after('paid_at')
+                ->default(false);
         });
 
         Schema::table('transactions', function (Blueprint $table) {
@@ -43,7 +46,7 @@ return new class extends Migration
     {
         Schema::table('transactions', function (Blueprint $table) {
             $table->dropForeign(['marketplace_order_item_id']);
-            $table->dropColumn(['marketplace_order_item_id', 'paid_at', 'transaction_type']);
+            $table->dropColumn(['marketplace_order_item_id', 'paid_at', 'transaction_type', 'is_bonus']);
         });
 
         Schema::table('transactions', function (Blueprint $table) {

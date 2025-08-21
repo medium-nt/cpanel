@@ -10,9 +10,12 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'marketplace_order_item_id',
         'amount',
-        'transaction_type',
         'status',
+        'transaction_type',
+        'paid_at',
+        'is_bonus',
     ];
 
     public function user(): BelongsTo
