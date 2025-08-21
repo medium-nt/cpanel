@@ -166,14 +166,14 @@ class TransactionService
     public static function accrualStorekeeperSalary(): void
     {
         $workers = Schedule::query()
-            ->where('date', Carbon::now()->format('Y-m-d'))
+            ->where('date', Carbon::now()->subDay()->format('Y-m-d'))
             ->get();
 
         foreach ($workers as $worker) {
             if ($worker->user->role->name == 'storekeeper') {
                 Transaction::query()->create([
                     'user_id' => $worker->user->id,
-                    'title' => 'Зарплата за ' . $worker->date,
+                    'title' => 'Зарплата за ' . \Carbon\Carbon::parse($worker->date)->format('d/m/Y'),
                     'amount' => $worker->user->salary_rate,
                     'transaction_type' => 'in',
                     'status' => 1,
