@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\ScheduleService;
+use App\Services\TransactionService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -42,6 +43,8 @@ class HomeController extends Controller
             'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
             'days_ago' => $daysAgo,
             'seamstressesRating' => MarketplaceOrderItemService::getSeamstressesRating(),
+            'seamstressesCurrentSalary' => TransactionService::getSeamstressBalance('salary'),
+            'seamstressesCurrentBonus' => TransactionService::getSeamstressBalance('bonus'),
         ]);
     }
 }

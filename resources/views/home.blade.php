@@ -74,6 +74,17 @@
         </div>
     </div>
 
+{{--    <div class="card">--}}
+{{--        <div class="card-header">--}}
+{{--            <h3 class="card-title">Зарплата</h3>--}}
+{{--        </div>--}}
+{{--        <div class="card-body">--}}
+{{--            Ваша зарплата: <b>{{ $seamstressesCurrentSalary ?? '-' }} руб.</b> (к выплате)--}}
+{{--            <br>--}}
+{{--            Ваши бонусы: <b>{{ $seamstressesCurrentBonus ?? '-' }} баллов.</b> (в ожидании разморозки)--}}
+{{--        </div>--}}
+{{--    </div>--}}
+
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Рейтинг</h3>

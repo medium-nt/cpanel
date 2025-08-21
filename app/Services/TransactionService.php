@@ -225,4 +225,33 @@ class TransactionService
         Log::channel('erp')
             ->info('Активировали бонусы, по которым прошло более 30 дней');
     }
+
+    public static function getSeamstressBalance(string $type): int
+    {
+        $isBonus = match ($type) {
+            'salary' => false,
+            'bonus' => true,
+            default => null,
+        };
+
+        $status = match ($type) {
+            'salary' => 1,
+            'bonus' => 0,
+            default => null,
+        };
+
+        if (!isset($isBonus) || !isset($status)) {
+            return 0;
+        }
+
+        $query = Transaction::query()
+            ->where('status', $status)
+            ->where('is_bonus', $isBonus)
+            ->where('user_id', auth()->id());
+
+        $in = (clone $query)->where('transaction_type', 'in')->sum('amount');
+        $out = (clone $query)->where('transaction_type', 'out')->sum('amount');
+
+        return $in - $out;
+    }
 }
