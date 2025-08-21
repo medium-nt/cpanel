@@ -137,8 +137,8 @@ class MarketplaceSupplyController extends Controller
         ]);
 
         $marketplaceName = match ($marketplace_supply->marketplace_id) {
-            '1' => 'OZON',
-            '2' => 'WB',
+            1 => 'OZON',
+            2 => 'WB',
             default => '---',
         };
 
