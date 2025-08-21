@@ -7,6 +7,7 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -253,5 +254,29 @@ class TransactionService
         $out = (clone $query)->where('transaction_type', 'out')->sum('amount');
 
         return $in - $out;
+    }
+
+    public static function getFiltered($request): Builder
+    {
+        $transactions = Transaction::query()
+            ->orderBy('created_at', 'desc');
+
+        if (auth()->user()->role->name != 'admin') {
+            $transactions->where('user_id', auth()->user()->id);
+        } else {
+            if ($request->user_id) {
+                $transactions->where('user_id', $request->user_id);
+            }
+        }
+
+        if ($request->date_start) {
+            $transactions->where('created_at', '>=', $request->date_start);
+        }
+
+        if ($request->date_end) {
+            $transactions->where('created_at', '<=', $request->date_end . ' 23:59:59');
+        }
+
+        return $transactions;
     }
 }

@@ -10,12 +10,12 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return view('transactions.index', [
             'title' => 'Финансы',
-            'transactions' => Transaction::query()
-                ->orderBy('created_at', 'desc')
+            'users' => User::query()->get(),
+            'transactions' => TransactionService::getFiltered($request)
                 ->paginate(10)
         ]);
     }
