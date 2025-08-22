@@ -17,6 +17,7 @@ class TransactionController extends Controller
             'users' => User::query()->get(),
             'transactions' => TransactionService::getFiltered($request)
                 ->paginate(10)
+                ->withQueryString()
         ]);
     }
 
