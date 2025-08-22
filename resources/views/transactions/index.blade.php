@@ -104,19 +104,21 @@
                                 <td>{{ $transaction->title }} @if($transaction->user_id) ({{ $transaction->user->name }}) @endif</td>
                                 <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
                                 <td style="width: 100px">
-{{--                                    <div class="btn-group" role="group">--}}
+                                    @if(auth()->user()->role->name == 'admin')
+                                    <div class="btn-group" role="group">
 {{--                                        <a href="{{ route('transactions.edit', ['transaction' => $transaction->id]) }}" class="btn btn-primary mr-1">--}}
 {{--                                            <i class="fas fa-edit"></i>--}}
 {{--                                        </a>--}}
-{{--                                        <form action="{{ route('transactions.destroy', ['transaction' => $transaction->id]) }}" method="POST">--}}
-{{--                                            @csrf--}}
-{{--                                            @method('DELETE')--}}
-{{--                                            <button type="submit" class="btn btn-danger"--}}
-{{--                                                    onclick="return confirm('Вы уверены что хотите удалить данного поставщика из системы?')">--}}
-{{--                                                <i class="fas fa-trash"></i>--}}
-{{--                                            </button>--}}
-{{--                                        </form>--}}
-{{--                                    </div>--}}
+                                        <form action="{{ route('transactions.destroy', ['transaction' => $transaction->id]) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('Вы уверены что хотите удалить данную транзакцию из системы?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

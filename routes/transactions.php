@@ -16,14 +16,14 @@ Route::prefix('/transactions')->group(function () {
         ->name('transactions.store');
 
     Route::get('/{transaction}/edit', [App\Http\Controllers\TransactionController::class, 'edit'])
-        ->can('update', 'transactions')
+        ->can('update', 'transaction')
         ->name('transactions.edit');
 
     Route::put('/update/{transaction}', [App\Http\Controllers\TransactionController::class, 'update'])
-        ->can('update', 'transactions')
+        ->can('update', 'transaction')
         ->name('transactions.update');
 
     Route::delete('/delete/{transaction}', [App\Http\Controllers\TransactionController::class, 'destroy'])
-        ->can('delete', 'transactions')
+        ->can('delete', 'transaction')
         ->name('transactions.destroy');
 });

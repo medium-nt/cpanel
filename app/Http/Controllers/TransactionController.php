@@ -74,6 +74,14 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
-        //
+        if($transaction->paid_at != null) {
+            return back()
+                ->with('error', 'Нельзя удалить выплаченную транзакцию');
+        }
+
+        $transaction->delete();
+
+        return back()
+            ->with('success', 'Транзакция удалена');
     }
 }
