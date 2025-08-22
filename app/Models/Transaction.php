@@ -11,6 +11,7 @@ class Transaction extends Model
         'user_id',
         'title',
         'marketplace_order_item_id',
+        'accrual_for_date',
         'amount',
         'status',
         'transaction_type',

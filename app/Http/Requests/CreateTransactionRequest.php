@@ -21,13 +21,14 @@ class CreateTransactionRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'title' => 'required|string|min:2|max:255',
+            'accrual_for_date' => 'required|date|before_or_equal:today',
             'amount' => 'required|numeric|gte:0.01',
             'transaction_type' => 'required|in:in,out',
-            'user_id' => 'sometimes|nullable|integer|exists:users,id',
+            'user_id' => 'required|integer|exists:users,id',
         ];
     }
 
@@ -36,13 +37,17 @@ class CreateTransactionRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'title.required' => 'Название обязательно',
             'title.string' => 'Название должно быть строкой',
             'title.min' => 'Название должно быть не менее 2 символов',
             'title.max' => 'Название должно быть не более 255 символов',
+
+            'accrual_for_date.required' => 'Дата начисления обязательна',
+            'accrual_for_date.date' => 'Дата начисления должна быть датой',
+            'accrual_for_date.before_or_equal' => 'Дата начисления не должна быть больше текущей даты',
 
             'amount.required' => 'Сумма обязательна',
             'amount.numeric' => 'Сумма должна быть числом',
@@ -51,8 +56,8 @@ class CreateTransactionRequest extends FormRequest
             'transaction_type.required' => 'Тип транзакции обязателен',
             'transaction_type.in' => 'Тип транзакции должен быть входящим или исходящим',
 
+            'user_id.required' => 'Пользователь обязателен',
             'user_id.integer' => 'Пользователь должен быть числом',
-            'user_id.nullable' => 'Пользователь должен быть числом',
             'user_id.exists' => 'Пользователь не найден',
         ];
     }

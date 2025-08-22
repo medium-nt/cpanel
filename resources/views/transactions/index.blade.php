@@ -71,10 +71,11 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Тип</th>
-                            <th scope="col">Дата</th>
+                            <th scope="col">Начислено за</th>
                             <th scope="col">Деньги</th>
                             <th scope="col">Бонусы</th>
                             <th scope="col">Название</th>
+                            <th scope="col">Дата создания</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -92,7 +93,7 @@
                                         @break
                                     @endswitch
                                 </td>
-                                <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
+                                <td>{{ now()->parse($transaction->accrual_for_date)->format('d/m/Y') }}</td>
                                 @if($transaction->is_bonus)
                                     <td></td>
                                     <td>{{ $transaction->amount }}</td>
@@ -101,7 +102,7 @@
                                     <td></td>
                                 @endif
                                 <td>{{ $transaction->title }} @if($transaction->user_id) ({{ $transaction->user->name }}) @endif</td>
-
+                                <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
                                 <td style="width: 100px">
 {{--                                    <div class="btn-group" role="group">--}}
 {{--                                        <a href="{{ route('transactions.edit', ['transaction' => $transaction->id]) }}" class="btn btn-primary mr-1">--}}

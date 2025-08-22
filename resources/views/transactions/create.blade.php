@@ -42,8 +42,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
-
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="amount">Сумма</label>
                                 <input type="number"
@@ -57,7 +56,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="transaction_type">Тип</label>
                                 <select
@@ -67,9 +66,23 @@
                                     required
                                 >
                                     <option value="" disabled selected>---</option>
-                                    <option value="in">Поступление</option>
-                                    <option value="out">Списание</option>
+                                    <option value="in" @selected(old('transaction_type') == 'in')>Поступление</option>
+                                    <option value="out" @selected(old('transaction_type') == 'out')>Списание</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="date">Дата начисления</label>
+                                <input type="date"
+                                       id="accrual_for_date"
+                                       name="accrual_for_date"
+                                       min="{{ date('Y-m-01') }}"
+                                       max="{{ date('Y-m-d') }}"
+                                       class="form-control @error('accrual_for_date') is-invalid @enderror"
+                                       value="{{ old('accrual_for_date', date('Y-m-d')) }}"
+                                       required>
                             </div>
                         </div>
                     </div>
@@ -80,10 +93,11 @@
                             name="user_id"
                             id="user_id"
                             class="form-control"
+                            required
                         >
-                            <option value="" selected>---</option>
+                            <option value="" selected disabled>---</option>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                <option value="{{ $user->id }}" @selected(old('user_id') == $user->id)>{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>

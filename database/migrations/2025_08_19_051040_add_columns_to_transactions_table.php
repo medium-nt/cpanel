@@ -20,6 +20,9 @@ return new class extends Migration
                 ->references('id')
                 ->on('marketplace_order_items')
                 ->onDelete('restrict');
+            $table->date('accrual_for_date')
+                ->after('marketplace_order_item_id')
+                ->nullable();
             $table->timestamp('paid_at')
                 ->after('status')
                 ->nullable();
@@ -46,7 +49,7 @@ return new class extends Migration
     {
         Schema::table('transactions', function (Blueprint $table) {
             $table->dropForeign(['marketplace_order_item_id']);
-            $table->dropColumn(['marketplace_order_item_id', 'paid_at', 'transaction_type', 'is_bonus']);
+            $table->dropColumn(['marketplace_order_item_id', 'accrual_for_date', 'paid_at', 'transaction_type', 'is_bonus']);
         });
 
         Schema::table('transactions', function (Blueprint $table) {

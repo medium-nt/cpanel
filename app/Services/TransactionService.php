@@ -170,9 +170,13 @@ class TransactionService
 
         foreach ($workers as $worker) {
             if ($worker->user->role->name == 'storekeeper') {
+
+                $accrualForDate = \Carbon\Carbon::parse($worker->date);
+
                 Transaction::query()->create([
                     'user_id' => $worker->user->id,
-                    'title' => 'Зарплата за ' . \Carbon\Carbon::parse($worker->date)->format('d/m/Y'),
+                    'title' => 'Зарплата за ' . $accrualForDate->format('d/m/Y'),
+                    'accrual_for_date' => $accrualForDate->format('Y-m-d'),
                     'amount' => $worker->user->salary_rate,
                     'transaction_type' => 'in',
                     'status' => 1,
@@ -182,7 +186,6 @@ class TransactionService
                     ->info('Добавили зарплату в размере ' . $worker->user->salary_rate . ' рублей для кладовщика ' . $worker->user->name);
             }
         }
-
     }
 
     private static function addTransaction($request, bool $isBonus): void
@@ -201,6 +204,7 @@ class TransactionService
         Transaction::query()->create([
             'user_id' => $user->id,
             'title' => $request->title,
+            'accrual_for_date' => $request->accrual_for_date,
             'amount' => $amount,
             'transaction_type' => $type,
             'status' => $status,
