@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SaveSettingRequest;
 use App\Models\Setting;
 use App\Services\TgService;
+use App\Services\TransactionService;
 use GuzzleHttp\Client;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -40,6 +41,8 @@ class SettingController extends Controller
 
     public function test()
     {
+        TransactionService::accrualSeamstressesSalary();
+
         //  тестовая функция для запуска других методов только на development сервере.
         if (!app()->environment('production')) {
 

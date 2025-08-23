@@ -283,4 +283,48 @@ class TransactionService
 
         return $transactions;
     }
+
+    public static function accrualSeamstressesSalary()
+    {
+        // Выбрать всех швей.
+
+//        $seamstresses = User::query()
+//            ->whereHas('role', function ($query) {
+//                $query->where('name', 'seamstress');
+//            })->get();
+
+        // По каждой швее выбрать все заказы за вчера
+
+//        foreach ($seamstresses as $seamstress) {
+//
+//            dd($seamstress->orders);
+//
+//            $seamstress->orders = Order::query()
+//                ->where('seamstress_id', $seamstress->id)
+//                ->whereDate('created_at', Carbon::yesterday()->format('Y-m-d'))
+//                ->get();
+//        }
+        $seamstresses = User::query()
+            ->whereHas('role', fn($q) => $q->where('name', 'seamstress'))
+            ->with(['orders' => fn($q) => $q->whereDate('created_at', Carbon::yesterday()->format('Y-m-d'))->with('item')])
+            ->get();
+
+        foreach ($seamstresses as $seamstress) {
+            // Сложить общий метраж и на основании его высчитать тариф мотивации.
+            $totalWidth = $seamstress->orders->sum(fn($order) => $order->item?->width ?? 0);
+
+            echo "Швея: {$seamstress->name}\n<br>";
+            echo "Общий метраж: {$totalWidth} м\n<br>";
+
+            foreach ($seamstress->orders as $order) {
+                // Проходим по каждому товару и начисляем зп и бонусы за них
+                echo "- Заказ #{$order->id}, ширина: " . ($order->item->width ?? '—') . " м\n<br>";
+            }
+
+            echo "\n <br>";
+        }
+
+        dd('end');
+
+    }
 }
