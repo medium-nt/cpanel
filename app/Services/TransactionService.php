@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Requests\CreateTransactionRequest;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Motivation;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
@@ -286,35 +287,34 @@ class TransactionService
 
     public static function accrualSeamstressesSalary()
     {
-        // Выбрать всех швей.
+        // Выбрать всех швей. По каждой швее выбрать все заказы за вчера
 
-//        $seamstresses = User::query()
-//            ->whereHas('role', function ($query) {
-//                $query->where('name', 'seamstress');
-//            })->get();
-
-        // По каждой швее выбрать все заказы за вчера
-
-//        foreach ($seamstresses as $seamstress) {
-//
-//            dd($seamstress->orders);
-//
-//            $seamstress->orders = Order::query()
-//                ->where('seamstress_id', $seamstress->id)
-//                ->whereDate('created_at', Carbon::yesterday()->format('Y-m-d'))
-//                ->get();
-//        }
         $seamstresses = User::query()
             ->whereHas('role', fn($q) => $q->where('name', 'seamstress'))
-            ->with(['orders' => fn($q) => $q->whereDate('created_at', Carbon::yesterday()->format('Y-m-d'))->with('item')])
+            ->with(['orders' => fn($q) => $q->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))->with('item')])
             ->get();
 
         foreach ($seamstresses as $seamstress) {
             // Сложить общий метраж и на основании его высчитать тариф мотивации.
-            $totalWidth = $seamstress->orders->sum(fn($order) => $order->item?->width ?? 0);
+            $totalWidth = $seamstress->orders->sum(fn($order) => $order->item?->width ?? 0) / 100;
+
+            $motivation = Motivation::query()
+                ->where('from', '<=', $totalWidth)
+                ->where('to', '>', $totalWidth)
+                ->first();
+
+            if (!$motivation) {
+//                Log::channel('erp')
+//                    ->info("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
+
+                echo "ВНИМАНИЕ!!! У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м. <br>";
+
+                continue;
+            }
 
             echo "Швея: {$seamstress->name}\n<br>";
             echo "Общий метраж: {$totalWidth} м\n<br>";
+            echo "Мотивация: от {$motivation->from} до {$motivation->to} метров, коэффициент = {$motivation->rate} руб., бонус = {$motivation->bonus} \n<br>";
 
             foreach ($seamstress->orders as $order) {
                 // Проходим по каждому товару и начисляем зп и бонусы за них
