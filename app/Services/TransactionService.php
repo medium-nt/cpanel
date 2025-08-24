@@ -288,7 +288,6 @@ class TransactionService
     public static function accrualSeamstressesSalary()
     {
         // Выбрать всех швей. По каждой швее выбрать все заказы за вчера
-
         $seamstresses = User::query()
             ->whereHas('role', fn($q) => $q->where('name', 'seamstress'))
             ->with(['orders' => fn($q) => $q->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))->with('item')])
@@ -299,27 +298,54 @@ class TransactionService
             $totalWidth = $seamstress->orders->sum(fn($order) => $order->item?->width ?? 0) / 100;
 
             $motivation = Motivation::query()
+                ->where('user_id', $seamstress->id)
                 ->where('from', '<=', $totalWidth)
                 ->where('to', '>', $totalWidth)
                 ->first();
+
+            $allMotivationWithBonus = Motivation::query()
+                ->where('user_id', $seamstress->id)
+                ->get();
 
             if (!$motivation) {
 //                Log::channel('erp')
 //                    ->info("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
 
-                echo "ВНИМАНИЕ!!! У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м. <br>";
+                echo "ВНИМАНИЕ!!! У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м. <br><br>";
 
                 continue;
             }
 
             echo "Швея: {$seamstress->name}\n<br>";
             echo "Общий метраж: {$totalWidth} м\n<br>";
-            echo "Мотивация: от {$motivation->from} до {$motivation->to} метров, коэффициент = {$motivation->rate} руб., бонус = {$motivation->bonus} \n<br>";
+            echo "Мотивация: от {$motivation->from} до {$motivation->to} метров, ставка = {$motivation->rate} руб., бонус = {$motivation->bonus} \n<br>";
 
+            $allSalary = $allBonus = $allWidth = 0;
             foreach ($seamstress->orders as $order) {
                 // Проходим по каждому товару и начисляем зп и бонусы за них
-                echo "- Заказ #{$order->id}, ширина: " . ($order->item->width ?? '—') . " м\n<br>";
+                $width = $order->item->width / 100 ?? 0;
+                $allWidth += $width;
+
+                $nowMotivation = $allMotivationWithBonus
+                    ->where('from', '<=', $allWidth)
+                    ->where('to', '>', $allWidth)
+                    ->first();
+
+                $bonus = 0;
+                if ($nowMotivation->bonus) {
+                    $bonus = $width * $nowMotivation->bonus;
+                    $allBonus += $bonus;
+                }
+
+                $salary = $width * $motivation->rate;
+                $allSalary += $salary;
+
+                echo "- Заказ #{$order->id}, ширина: {$width} м. ";
+
+                echo "ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.\n<br>";
             }
+
+            echo "Всего: {$totalWidth} м, зп: {$allSalary} руб., бонус: {$allBonus} баллов.\n<br>";
 
             echo "\n <br>";
         }
