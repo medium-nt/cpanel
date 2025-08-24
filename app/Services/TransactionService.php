@@ -345,9 +345,9 @@ class TransactionService
                 $salary = $width * $motivation->rate;
                 $allSalary += $salary;
 
-                echo "- Заказ #{$marketplaceOrderItems->id}, ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at})<br>";
+                echo "<br>- Заказ #{$marketplaceOrderItems->id}, ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at}). ";
 
-                echo "ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.<br>";
+                echo " ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.<br>";
             }
 
             echo "Всего: {$totalWidth} м, зп: {$allSalary} руб., бонус: {$allBonus} баллов.<br>";
