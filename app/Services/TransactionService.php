@@ -295,7 +295,6 @@ class TransactionService
                     ->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))
                     ->orderBy('completed_at')
                     ->with('item')])
-            ->orderBy('completed_at')
             ->get();
 
         foreach ($seamstresses as $seamstress) {
