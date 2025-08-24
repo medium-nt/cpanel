@@ -18,8 +18,22 @@ class TransactionService
     public static function store(CreateTransactionRequest $request): void
     {
         match ($request->type) {
-            'bonus' => self::addTransaction($request, true),
-            'salary' => self::addTransaction($request, false),
+            'bonus' => self::addTransaction(
+                $request->user_id,
+                $request->amount,
+                $request->transaction_type,
+                $request->title,
+                $request->accrual_for_date,
+                true,
+            ),
+            'salary' => self::addTransaction(
+                $request->user_id,
+                $request->amount,
+                $request->transaction_type,
+                $request->title,
+                $request->accrual_for_date,
+                false,
+            ),
         };
     }
 
@@ -189,11 +203,9 @@ class TransactionService
         }
     }
 
-    private static function addTransaction($request, bool $isBonus): void
+    private static function addTransaction($user_id, $amount, $type, $title, $accrual_for_date, bool $isBonus): void
     {
-        $user = User::query()->find($request->user_id);
-        $amount = $request->amount;
-        $type = $request->transaction_type;
+        $user = User::query()->find($user_id);
 
         $status = $isBonus
             ? match ($type) {
@@ -204,8 +216,8 @@ class TransactionService
 
         Transaction::query()->create([
             'user_id' => $user->id,
-            'title' => $request->title,
-            'accrual_for_date' => $request->accrual_for_date,
+            'title' => $title,
+            'accrual_for_date' => $accrual_for_date,
             'amount' => $amount,
             'transaction_type' => $type,
             'status' => $status,
@@ -313,8 +325,8 @@ class TransactionService
                 ->get();
 
             if (!$motivation) {
-//                Log::channel('erp')
-//                    ->info("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
+                Log::channel('erp')
+                    ->error("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
 
                 echo "ВНИМАНИЕ!!! У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м. <br><br>";
 
@@ -337,13 +349,34 @@ class TransactionService
                     ->first();
 
                 $bonus = 0;
-                if ($nowMotivation->bonus) {
+                if ($nowMotivation->bonus > 0) {
                     $bonus = $width * $nowMotivation->bonus;
                     $allBonus += $bonus;
+
+                    self::addTransaction(
+                        $seamstress->id,
+                        $bonus,
+                        'in',
+                        "Бонус за заказ #{$marketplaceOrderItems->id}",
+                        $marketplaceOrderItems->completed_at,
+                        true,
+                    );
                 }
 
                 $salary = $width * $motivation->rate;
                 $allSalary += $salary;
+
+                self::addTransaction(
+                    $seamstress->id,
+                    $salary,
+                    'in',
+                    "ЗП за заказ #{$marketplaceOrderItems->id}",
+                    $marketplaceOrderItems->completed_at,
+                    false,
+                );
+
+                Log::channel('salary')
+                    ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$marketplaceOrderItems->id}, ширина: {$width} м.");
 
                 echo "<br>- Заказ #{$marketplaceOrderItems->id}, ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at}). ";
 
