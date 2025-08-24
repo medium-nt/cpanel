@@ -290,12 +290,18 @@ class TransactionService
         // Выбрать всех швей. По каждой швее выбрать все заказы за вчера
         $seamstresses = User::query()
             ->whereHas('role', fn($q) => $q->where('name', 'seamstress'))
-            ->with(['orders' => fn($q) => $q->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))->with('item')])
+            ->with([
+                'marketplaceOrderItems' => fn($q) => $q
+                    ->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))
+                    ->orderBy('completed_at')
+                    ->with('item')])
+            ->orderBy('completed_at')
             ->get();
 
         foreach ($seamstresses as $seamstress) {
             // Сложить общий метраж и на основании его высчитать тариф мотивации.
-            $totalWidth = $seamstress->orders->sum(fn($order) => $order->item?->width ?? 0) / 100;
+            $totalWidth = $seamstress->marketplaceOrderItems
+                    ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item?->width ?? 0) / 100;
 
             $motivation = Motivation::query()
                 ->where('user_id', $seamstress->id)
@@ -316,14 +322,14 @@ class TransactionService
                 continue;
             }
 
-            echo "Швея: {$seamstress->name}\n<br>";
-            echo "Общий метраж: {$totalWidth} м\n<br>";
-            echo "Мотивация: от {$motivation->from} до {$motivation->to} метров, ставка = {$motivation->rate} руб., бонус = {$motivation->bonus} \n<br>";
+            echo "Швея: {$seamstress->name}<br>";
+            echo "Общий метраж: {$totalWidth} м.<br>";
+            echo "Мотивация: от {$motivation->from} до {$motivation->to} метров, ставка = {$motivation->rate} руб., бонус = {$motivation->bonus}<br>";
 
             $allSalary = $allBonus = $allWidth = 0;
-            foreach ($seamstress->orders as $order) {
+            foreach ($seamstress->marketplaceOrderItems as $marketplaceOrderItems) {
                 // Проходим по каждому товару и начисляем зп и бонусы за них
-                $width = $order->item->width / 100 ?? 0;
+                $width = $marketplaceOrderItems->item->width / 100 ?? 0;
                 $allWidth += $width;
 
                 $nowMotivation = $allMotivationWithBonus
@@ -340,14 +346,16 @@ class TransactionService
                 $salary = $width * $motivation->rate;
                 $allSalary += $salary;
 
-                echo "- Заказ #{$order->id}, ширина: {$width} м. ";
+                echo "- Заказ #{$marketplaceOrderItems->id}, ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at->format('d/m/Y H:i:s')})<br>";
 
-                echo "ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.\n<br>";
+                echo "ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.<br>";
             }
 
-            echo "Всего: {$totalWidth} м, зп: {$allSalary} руб., бонус: {$allBonus} баллов.\n<br>";
+            echo "Всего: {$totalWidth} м, зп: {$allSalary} руб., бонус: {$allBonus} баллов.<br>";
 
-            echo "\n <br>";
+            echo "<br>";
+            echo "-----------------------------------------------------------------<br>";
+            echo "<br>";
         }
 
         dd('end');

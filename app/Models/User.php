@@ -62,7 +62,7 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function orders(): HasMany
+    public function marketplaceOrderItems(): HasMany
     {
         return $this->hasMany(MarketplaceOrderItem::class, 'seamstress_id');
     }
