@@ -33,3 +33,7 @@ Schedule::call(function () {
 Schedule::call(function () {
     TransactionService::accrualStorekeeperSalary();
 })->dailyAt('00:30');
+
+Schedule::call(function () {
+    TransactionService::accrualSeamstressesSalary();
+})->dailyAt('00:45');
