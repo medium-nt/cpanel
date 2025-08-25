@@ -292,7 +292,7 @@ class TransactionService
         return $transactions;
     }
 
-    public static function accrualSeamstressesSalary()
+    public static function accrualSeamstressesSalary($test = false): void
     {
         // Выбрать всех швей. По каждой швее выбрать все заказы за вчера
         $seamstresses = User::query()
@@ -320,7 +320,7 @@ class TransactionService
                 ->get();
 
             if (!$motivation) {
-                Log::channel('erp')
+                Log::channel('salary')
                     ->error("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
 
                 echo "ВНИМАНИЕ!!! У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м. <br><br>";
@@ -348,27 +348,31 @@ class TransactionService
                     $bonus = $width * $nowMotivation->bonus;
                     $allBonus += $bonus;
 
-                    self::addTransaction(
-                        $seamstress,
-                        $bonus,
-                        'in',
-                        "Бонус за заказ #{$marketplaceOrderItems->id}",
-                        $marketplaceOrderItems->completed_at,
-                        true,
-                    );
+                    if (!$test) {
+                        self::addTransaction(
+                            $seamstress,
+                            $bonus,
+                            'in',
+                            "Бонус за заказ #{$marketplaceOrderItems->id}",
+                            $marketplaceOrderItems->completed_at,
+                            true,
+                        );
+                    }
                 }
 
                 $salary = $width * $motivation->rate;
                 $allSalary += $salary;
 
-                self::addTransaction(
-                    $seamstress,
-                    $salary,
-                    'in',
-                    "ЗП за заказ #{$marketplaceOrderItems->id}",
-                    $marketplaceOrderItems->completed_at,
-                    false,
-                );
+                if (!$test) {
+                    self::addTransaction(
+                        $seamstress,
+                        $salary,
+                        'in',
+                        "ЗП за заказ #{$marketplaceOrderItems->id}",
+                        $marketplaceOrderItems->completed_at,
+                        false,
+                    );
+                }
 
                 Log::channel('salary')
                     ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$marketplaceOrderItems->id}, ширина: {$width} м.");
