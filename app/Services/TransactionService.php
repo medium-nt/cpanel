@@ -17,24 +17,26 @@ class TransactionService
 {
     public static function store(CreateTransactionRequest $request): void
     {
-        match ($request->type) {
-            'bonus' => self::addTransaction(
-                $request->user_id,
-                $request->amount,
-                $request->transaction_type,
-                $request->title,
-                $request->accrual_for_date,
-                true,
-            ),
-            'salary' => self::addTransaction(
-                $request->user_id,
-                $request->amount,
-                $request->transaction_type,
-                $request->title,
-                $request->accrual_for_date,
-                false,
-            ),
+        $isBonus = match ($request->type) {
+            'salary' => false,
+            'bonus' => true,
         };
+
+        $user = User::query()->find($request->user_id);
+
+        self::addTransaction(
+            $user,
+            $request->amount,
+            $request->transaction_type,
+            $request->title,
+            $request->accrual_for_date,
+            false,
+        );
+
+        $label = $isBonus ? 'бонусов' : 'денег';
+        Log::channel('salary')->info(
+            "Ручное начисление {$label} в размере {$request->amount} рублей ({$request->transaction_type}) для пользователя {$user->name}"
+        );
     }
 
     public static function getSalaryTable($seamstresses, $startDate, $endDate): array
@@ -203,10 +205,8 @@ class TransactionService
         }
     }
 
-    private static function addTransaction($user_id, $amount, $type, $title, $accrual_for_date, bool $isBonus): void
+    private static function addTransaction(User $user, $amount, $type, $title, $accrual_for_date, bool $isBonus): void
     {
-        $user = User::query()->find($user_id);
-
         $status = $isBonus
             ? match ($type) {
                 'in' => 0,
@@ -223,11 +223,6 @@ class TransactionService
             'status' => $status,
             'is_bonus' => $isBonus,
         ]);
-
-        $label = $isBonus ? 'бонусов' : 'денег';
-        Log::channel('salary')->info(
-            "Ручное начисление {$label} в размере {$amount} рублей ({$type}) для пользователя {$user->name}"
-        );
     }
 
     public static function activateHoldBonus(): void
@@ -354,7 +349,7 @@ class TransactionService
                     $allBonus += $bonus;
 
                     self::addTransaction(
-                        $seamstress->id,
+                        $seamstress,
                         $bonus,
                         'in',
                         "Бонус за заказ #{$marketplaceOrderItems->id}",
@@ -367,7 +362,7 @@ class TransactionService
                 $allSalary += $salary;
 
                 self::addTransaction(
-                    $seamstress->id,
+                    $seamstress,
                     $salary,
                     'in',
                     "ЗП за заказ #{$marketplaceOrderItems->id}",
