@@ -320,8 +320,10 @@ class TransactionService
                 ->get();
 
             if (!$motivation) {
-                Log::channel('salary')
-                    ->error("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
+                if (!$test) {
+                    Log::channel('salary')
+                        ->error("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
+                }
 
                 echo "ВНИМАНИЕ!!! У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м. <br><br>";
 
@@ -372,10 +374,10 @@ class TransactionService
                         $marketplaceOrderItems->completed_at,
                         false,
                     );
-                }
 
-                Log::channel('salary')
-                    ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$marketplaceOrderItems->id}, ширина: {$width} м.");
+                    Log::channel('salary')
+                        ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$marketplaceOrderItems->id}, ширина: {$width} м.");
+                }
 
                 echo "<br>- Заказ #{$marketplaceOrderItems->id}, ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at}). ";
 
