@@ -177,11 +177,8 @@
             const spinnerWrapper = document.getElementById('spinner-wrapper');
 
             btn.addEventListener('click', function (e) {
-                // Скрываем кнопку, показываем спиннер
                 btn.style.display = 'none';
                 spinnerWrapper.style.display = 'inline-block';
-
-                // Возврат через 60 секунд
                 setTimeout(() => {
                     spinnerWrapper.style.display = 'none';
                     btn.style.display = 'inline-block';
