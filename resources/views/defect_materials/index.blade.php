@@ -162,7 +162,7 @@
                                             </li>
                                         @endforeach
                                         <div class="mt-2">
-                                            Швея: <b>{{ $order->seamstress->name }}</b>
+                                            Швея: <b>{{ $order->seamstress->name ?? '' }}</b>
                                         </div>
                                         <div class="my-2">
                                             Тип: <b>{{ $order->type_movement_name }}</b>
