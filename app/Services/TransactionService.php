@@ -402,8 +402,9 @@ class TransactionService
         if ($request->start_date != null && $request->end_date != null) {
             return Transaction::query()
                 ->where('user_id', $request->user_id)
-                ->whereDate('created_at', '>=', $request->start_date)
-                ->whereDate('created_at', '<=', $request->end_date)
+                ->where('is_bonus', false)
+                ->whereDate('accrual_for_date', '>=', $request->start_date)
+                ->whereDate('accrual_for_date', '<=', $request->end_date)
                 ->sum('amount');
         }
 
