@@ -27,8 +27,6 @@ class MotivationUpdateUsersRequest extends FormRequest
             'from.*' => 'nullable|numeric|min:0|max:255',
             'to' => 'array',
             'to.*' => 'nullable|numeric|min:1|max:255',
-            'rate' => 'array',
-            'rate.*' => 'nullable|numeric|min:1|max:255',
             'bonus' => 'array',
             'bonus.*' => 'nullable|numeric|min:0|max:255',
         ];
@@ -60,11 +58,6 @@ class MotivationUpdateUsersRequest extends FormRequest
             'to.*.numeric' => 'Должно быть указано число',
             'to.*.max' => 'Максимально возможное число для поля "До" - 255',
             'to.*.min' => 'Меньше 1 в поле "До" указывать нельзя',
-
-            'rate.array' => 'Ошибка в данных поля "зарплата"',
-            'rate.*.numeric' => 'Должно быть указано число',
-            'rate.*.max' => 'Максимально возможное число для поля "зарплата" - 255',
-            'rate.*.min' => 'Меньше 1 в поле "зарплата" указывать нельзя',
 
             'bonus.array' => 'Ошибка в данных поля "бонус"',
             'bonus.*.numeric' => 'Должно быть указано число',

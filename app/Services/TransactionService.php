@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\CreateTransactionRequest;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Motivation;
+use App\Models\Rate;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
@@ -305,38 +306,19 @@ class TransactionService
             ->get();
 
         foreach ($seamstresses as $seamstress) {
-            // Сложить общий метраж и на основании его высчитать тариф мотивации.
             $totalWidth = $seamstress->marketplaceOrderItems
                     ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item?->width ?? 0) / 100;
-
-            $motivation = Motivation::query()
-                ->where('user_id', $seamstress->id)
-                ->where('from', '<=', $totalWidth)
-                ->where('to', '>', $totalWidth)
-                ->first();
 
             $allMotivationWithBonus = Motivation::query()
                 ->where('user_id', $seamstress->id)
                 ->get();
 
-            if (!$motivation) {
-                if (!$test) {
-                    Log::channel('salary')
-                        ->error("У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м.");
-                }
-
-                echo "ВНИМАНИЕ!!! У швеи {$seamstress->name} нет мотивации за метраж {$totalWidth} м. <br><br>";
-
-                continue;
-            }
-
-            echo "Швея: {$seamstress->name}<br>";
-            echo "Общий метраж: {$totalWidth} м.<br>";
-            echo "Мотивация: от {$motivation->from} до {$motivation->to} метров, ставка = {$motivation->rate} руб., бонус = {$motivation->bonus}<br>";
+            echo "<b>Швея: {$seamstress->name}</b><br>";
 
             $allSalary = $allBonus = $allWidth = 0;
             foreach ($seamstress->marketplaceOrderItems as $marketplaceOrderItems) {
                 // Проходим по каждому товару и начисляем зп и бонусы за них
+                $orderId = $marketplaceOrderItems->marketplaceOrder->order_id;
                 $width = $marketplaceOrderItems->item->width / 100 ?? 0;
                 $allWidth += $width;
 
@@ -355,14 +337,18 @@ class TransactionService
                             $seamstress,
                             $bonus,
                             'in',
-                            "Бонус за заказ #{$marketplaceOrderItems->id}",
+                            "Бонус за заказ #{$orderId}",
                             $marketplaceOrderItems->completed_at,
                             true,
                         );
                     }
                 }
 
-                $salary = $width * $motivation->rate;
+                $salary = Rate::query()
+                    ->where('user_id', $seamstress->id)
+                    ->where('width', $marketplaceOrderItems->item->width)
+                    ->value('rate') ?? 0;
+
                 $allSalary += $salary;
 
                 if (!$test) {
@@ -370,17 +356,16 @@ class TransactionService
                         $seamstress,
                         $salary,
                         'in',
-                        "ЗП за заказ #{$marketplaceOrderItems->id}",
+                        "ЗП за заказ #{$orderId}",
                         $marketplaceOrderItems->completed_at,
                         false,
                     );
 
                     Log::channel('salary')
-                        ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$marketplaceOrderItems->id}, ширина: {$width} м.");
+                        ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$orderId}, ширина: {$width} м.");
                 }
 
                 echo "<br>- Заказ #{$marketplaceOrderItems->id}, ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at}). ";
-
                 echo " ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.<br>";
             }
 
@@ -392,6 +377,5 @@ class TransactionService
         }
 
         dd('end');
-
     }
 }

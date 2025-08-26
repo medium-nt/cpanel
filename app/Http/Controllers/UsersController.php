@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MotivationUpdateUsersRequest;
+use App\Http\Requests\RateUpdateUsersRequest;
 use App\Http\Requests\StoreUsersRequest;
 use App\Models\Motivation;
+use App\Models\Rate;
 use App\Models\User;
 use App\Services\ScheduleService;
 use App\Services\TgService;
@@ -52,6 +54,7 @@ class UsersController extends Controller
             'user' => User::query()->findOrFail($user->id),
             'events' => ScheduleService::getScheduleByUserId($user->id),
             'motivations' => UserService::getMotivationByUserId($user->id),
+            'rates' => UserService::getRateByUserId($user->id),
         ]);
     }
 
@@ -172,13 +175,12 @@ class UsersController extends Controller
 
         foreach ($request->from as $key => $value) {
 
-            if($request->to[$key] && $request->rate[$key]) {
+            if($request->to[$key]) {
                 Motivation::query()->create(
                     [
                         'user_id' => $user->id,
                         'from' => $request->from[$key],
                         'to' => $request->to[$key],
-                        'rate' => $request->rate[$key],
                         'bonus' => $request->bonus[$key] ?? 0,
                     ]
                 );
@@ -187,6 +189,25 @@ class UsersController extends Controller
 
         return redirect()
             ->route('users.edit', ['user' => $user->id])
-            ->with('success', 'Изменения сохранены.');
+            ->with('success', 'Изменения в таблице мотивации сохранены.');
+    }
+
+    public function rateUpdate(RateUpdateUsersRequest $request, User $user)
+    {
+        Rate::query()->where('user_id', $user->id)->delete();
+
+        foreach ($request->width as $key => $width) {
+            Rate::query()->create(
+                [
+                    'user_id' => $user->id,
+                    'width' => $width,
+                    'rate' => $request->rate[$key] ?? 0,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('users.edit', ['user' => $user->id])
+            ->with('success', 'Изменения в таблице зарплат сохранены.');
     }
 }

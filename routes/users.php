@@ -27,6 +27,10 @@ Route::prefix('/users')->group(function () {
         ->can('update', 'user')
         ->name('users.motivation_update');
 
+    Route::put('/rate_update/{user}', [App\Http\Controllers\UsersController::class, 'rateUpdate'])
+        ->can('update', 'user')
+        ->name('users.rate_update');
+
     Route::delete('/delete/{user}', [App\Http\Controllers\UsersController::class, 'destroy'])
         ->can('delete', 'user')
         ->name('users.destroy');

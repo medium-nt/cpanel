@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Motivation;
+use App\Models\Rate;
 use App\Models\Schedule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -75,6 +76,13 @@ class UserService
     public static function getMotivationByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
     {
         return Motivation::query()
+            ->where('user_id', $id)
+            ->get();
+    }
+
+    public static function getRateByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
+    {
+        return Rate::query()
             ->where('user_id', $id)
             ->get();
     }

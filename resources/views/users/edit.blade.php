@@ -124,7 +124,6 @@
                             <tr>
                                 <th class="text-center">От</th>
                                 <th class="text-center">До</th>
-                                <th class="text-center">Зарплата</th>
                                 <th class="text-center">Бонус</th>
                             </tr>
                             </thead>
@@ -148,12 +147,6 @@
                                     </td>
                                     <td>
                                         <input type="number" class="form-control"
-                                               id="rate_{{$i}}" name="rate[]"
-                                               min="1"
-                                               value="{{ old('rate')[$i] ?? $motivation?->rate ?? '' }}">
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control"
                                                id="bonus_{{$i}}" name="bonus[]"
                                                value="{{ old('bonus')[$i] ?? $motivation?->bonus ?? '' }}">
                                     </td>
@@ -161,6 +154,51 @@
                                 @php
                                     $previous_to = old('to')[$i] ?? $motivation?->to ?? '';
                                 @endphp
+                            @endfor
+                            </tbody>
+                        </table>
+
+                        <button type="submit" class="btn btn-primary" id="saveMotivation">Сохранить</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Таблица зарплаты</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('users.rate_update', ['user' => $user->id]) }}"
+                          method="POST">
+                        @method('PUT')
+                        @csrf
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Ширина</th>
+                                <th class="text-center">Оплата</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @for($i = 0; $i < 7; $i++)
+                                @php
+                                    $rate = $rates[$i] ?? null;
+                                    $width = ($i + 2) * 100;
+                                @endphp
+
+                                <tr>
+                                    <td>
+                                        <input type="number" class="form-control"
+                                               id="width_{{$i}}" name="width[]"
+                                               value="{{ old('width')[$i] ?? $rate?->width ?? $width }}"
+                                               readonly>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control"
+                                               id="rate_{{$i}}" name="rate[]"
+                                               value="{{ old('rate')[$i] ?? $rate?->rate ?? '' }}">
+                                    </td>
+                                </tr>
                             @endfor
                             </tbody>
                         </table>
