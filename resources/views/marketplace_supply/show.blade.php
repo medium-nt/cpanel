@@ -177,8 +177,6 @@
             const spinnerWrapper = document.getElementById('spinner-wrapper');
 
             btn.addEventListener('click', function (e) {
-                e.preventDefault(); // если не нужно переходить по ссылке
-
                 // Скрываем кнопку, показываем спиннер
                 btn.style.display = 'none';
                 spinnerWrapper.style.display = 'inline-block';
