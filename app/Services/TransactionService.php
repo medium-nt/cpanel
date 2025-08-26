@@ -9,6 +9,8 @@ use App\Models\Rate;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -269,7 +271,7 @@ class TransactionService
         return $in - $out;
     }
 
-    public static function getFiltered($request): Builder
+    public static function getFiltered(Request $request): Builder
     {
         $transactions = Transaction::query()
             ->orderBy('created_at', 'desc');
@@ -377,5 +379,34 @@ class TransactionService
         }
 
         dd('end');
+    }
+
+    public static function getLastFivePayouts(?User $user): Collection|array
+    {
+        if ($user) {
+            return Transaction::query()
+                ->selectRaw("DATE(paid_at) as payout_date")
+                ->selectRaw("SUM(CASE WHEN transaction_type = 'in' THEN amount WHEN transaction_type = 'out' THEN -amount ELSE 0 END) as net_total")
+                ->where('user_id', $user->id)
+                ->whereNotNull('paid_at')
+                ->groupByRaw("DATE(paid_at)")
+                ->orderByDesc('payout_date')
+                ->get();
+        } else {
+            return [];
+        }
+    }
+
+    public static function getSumOfPayout(Request $request): float
+    {
+        if ($request->start_date != null && $request->end_date != null) {
+            return Transaction::query()
+                ->where('user_id', $request->user_id)
+                ->whereDate('created_at', '>=', $request->start_date)
+                ->whereDate('created_at', '<=', $request->end_date)
+                ->sum('amount');
+        }
+
+        return 0;
     }
 }

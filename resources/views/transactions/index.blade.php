@@ -23,6 +23,10 @@
                         <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'bonus']) }}">бонусы</a>
                     </div>
                 </div>
+
+                <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout') }}">
+                    Выплатить зарплату
+                </a>
                 @endif
 
                 <form action="{{ route('transactions.index') }}" method="get" class="row g-2">
@@ -76,6 +80,7 @@
                             <th scope="col">Бонусы</th>
                             <th scope="col">Название</th>
                             <th scope="col">Дата создания</th>
+                            <th scope="col">Дата выплаты</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -103,6 +108,10 @@
                                 @endif
                                 <td>{{ $transaction->title }} @if($transaction->user_id) ({{ $transaction->user->name }}) @endif</td>
                                 <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
+                                <td>{{
+                                    $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('d/m/Y H:i') : '-'
+                                }}</td>
+
                                 <td style="width: 100px">
                                     @if(auth()->user()->role->name == 'admin')
                                     <div class="btn-group" role="group">

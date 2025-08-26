@@ -26,4 +26,12 @@ Route::prefix('/transactions')->group(function () {
     Route::delete('/delete/{transaction}', [App\Http\Controllers\TransactionController::class, 'destroy'])
         ->can('delete', 'transaction')
         ->name('transactions.destroy');
+
+    Route::get('/payout/', [App\Http\Controllers\TransactionController::class, 'createPayout'])
+        ->can('create', Transaction::class)
+        ->name('transactions.payout');
+
+    Route::post('/store_payout', [App\Http\Controllers\TransactionController::class, 'storePayout'])
+        ->can('create', Transaction::class)
+        ->name('transactions.store_payout');
 });

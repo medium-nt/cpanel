@@ -84,4 +84,26 @@ class TransactionController extends Controller
         return back()
             ->with('success', 'Транзакция удалена');
     }
+
+    public function createPayout(Request $request)
+    {
+        $user = User::query()->find($request->user_id);
+
+        return view('transactions.create_payout', [
+            'title' => 'Выплата',
+            'users' => User::query()->get(),
+            'selected_user' => $user,
+            'payouts' => TransactionService::getLastFivePayouts($user),
+            'request' => $request,
+            'net_payout' => TransactionService::getSumOfPayout($request)
+        ]);
+    }
+
+    public function storePayout()
+    {
+        // Добавить функционал выплаты по выбранному пользователю и указанной дате
+
+        return back()
+            ->with('success', ' ONLY TEST: Выплата создана');
+    }
 }
