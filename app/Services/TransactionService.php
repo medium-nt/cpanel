@@ -322,14 +322,14 @@ class TransactionService
                 $width = $marketplaceOrderItems->item->width / 100 ?? 0;
                 $allWidth += $width;
 
-                $nowMotivation = $allMotivationWithBonus
+                $nowMotivationBonus = $allMotivationWithBonus
                     ->where('from', '<=', $allWidth)
                     ->where('to', '>', $allWidth)
-                    ->first();
+                    ->value('bonus') ?? 0;
 
                 $bonus = 0;
-                if ($nowMotivation->bonus > 0) {
-                    $bonus = $width * $nowMotivation->bonus;
+                if ($nowMotivationBonus > 0) {
+                    $bonus = $width * $nowMotivationBonus;
                     $allBonus += $bonus;
 
                     if (!$test) {
@@ -365,7 +365,7 @@ class TransactionService
                         ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$orderId}, ширина: {$width} м.");
                 }
 
-                echo "<br>- Заказ #{$marketplaceOrderItems->id}, ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at}). ";
+                echo "<br>- Заказ #{$marketplaceOrderItems->id} ({$orderId}), ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at}). ";
                 echo " ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.<br>";
             }
 
