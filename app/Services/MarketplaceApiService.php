@@ -991,11 +991,16 @@ class MarketplaceApiService
     {
         $newSupply = self::createSupplyWb();
         if (empty($newSupply)) {
+            Log::channel('marketplace_api')
+                ->error('    Не удалось создать поставку WB.');
             return false;
         }
 
         $marketplace_supply->supply_id = $newSupply->id;
         $marketplace_supply->save();
+
+        Log::channel('marketplace_api')
+            ->notice('    Поставка '.  $newSupply->id.' создана WB.');
 
         sleep(1);
 
@@ -1029,7 +1034,7 @@ class MarketplaceApiService
 
             if(!$response->noContent()) {
                 Log::channel('marketplace_api')
-                    ->error('    Заказа №'.$order->order_id.' не добавлен в поставку '. $marketplace_supply->id, [
+                    ->error('    Заказа №'.$order->order_id.' не добавлен в поставку WB '. $marketplace_supply->supply_id . ' (id '. $marketplace_supply->id . ')', [
                         'code' => $response->object()->code,
                         'message' => $response->object()->message,
                     ]);

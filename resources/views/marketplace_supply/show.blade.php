@@ -23,7 +23,15 @@
         <div class="card">
             <div class="card-body">
                 <a href="{{ route('marketplace_supplies.complete', ['marketplace_supply' => $supply]) }}"
-                   class="btn btn-primary">Закрыть поставку и передать в доставку</a>
+                   class="btn btn-primary"
+                   id="complete-supply-btn">
+                    Закрыть поставку и передать в доставку
+                </a>
+
+                <div id="spinner-wrapper" style="display: none;">
+                    <i class="fas fa-spinner fa-spin fa-lg" style="color: #0d6efd;"></i>
+                    <span>Передаем товары в доставку...</span>
+                </div>
             </div>
         </div>
         @endif
@@ -160,6 +168,27 @@
                     `);
                 });
             }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('complete-supply-btn');
+            const spinnerWrapper = document.getElementById('spinner-wrapper');
+
+            btn.addEventListener('click', function (e) {
+                e.preventDefault(); // если не нужно переходить по ссылке
+
+                // Скрываем кнопку, показываем спиннер
+                btn.style.display = 'none';
+                spinnerWrapper.style.display = 'inline-block';
+
+                // Возврат через 60 секунд
+                setTimeout(() => {
+                    spinnerWrapper.style.display = 'none';
+                    btn.style.display = 'inline-block';
+                }, 60000);
+            });
         });
     </script>
 @stop
