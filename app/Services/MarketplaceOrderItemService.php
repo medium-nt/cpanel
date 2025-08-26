@@ -543,7 +543,7 @@ class MarketplaceOrderItemService
             ->where('marketplace_order_items.status', 0)
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
-            ->orderBy('marketplace_orders.marketplace_id', 'asc')
+//            ->orderBy('marketplace_orders.marketplace_id', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*')
