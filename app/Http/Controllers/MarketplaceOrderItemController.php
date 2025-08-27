@@ -6,6 +6,7 @@ use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\InventoryService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\StackService;
@@ -29,6 +30,7 @@ class MarketplaceOrderItemController extends Controller
         return view('marketplace_order_items.index', [
             'title' => 'Товары для пошива',
             'items' => $paginatedItems->appends($queryParams),
+            'materials' => InventoryService::materialsQuantityBy('workhouse'),
             'seamstresses' => User::query()->where('role_id', '1')
                 ->where('name', 'not like', '%Тест%')->get()
         ]);

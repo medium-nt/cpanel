@@ -99,9 +99,31 @@
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link">Готовые</a>
-
             </div>
         </div>
+
+        @php
+            $fewMaterials = [];
+            foreach($materials as $material) {
+                if($material['quantity'] <= 50) {
+                    $fewMaterials[] = $material;
+                }
+            }
+        @endphp
+
+        @if(count($fewMaterials) != 0)
+            <div class="alert alert-danger" role="alert">
+                <h5 class="alert-heading">
+                    Внимание! Некоторые заказы могут быть не доступны к пошиву.
+                    В цехе осталось мало материалов:
+                </h5>
+                @foreach($fewMaterials as $material)
+                    <li>
+                        {{ $material['material']->title }} - {{ $material['quantity'] }} {{ $material['material']->unit }}
+                    </li>
+                @endforeach
+            </div>
+        @endif
 
         <div class="card only-on-desktop">
             <div class="card-body">
