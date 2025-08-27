@@ -301,8 +301,9 @@
                                 <span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
 
                                 <div class="my-3">
-                                    Товар: <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b><br>
-                                    Размеры: <b> {{ $item->item->width / 100 }}</b> . <b> {{ $item->item->height }}</b><br>
+                                    Товар: <span style="font-size: 25px;"> <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b></span><br>
+                                    Ширина: <b><span style="font-size: 25px;"> {{ $item->item->width }} </span> </b> см.<br>
+                                    Высота: <b><span style="font-size: 25px;"> {{ $item->item->height }} </span> </b> см.<br>
                                     <small class="mr-2">
                                         Создан: <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
                                     </small>
