@@ -381,33 +381,78 @@ class TransactionService
         dd('end');
     }
 
-    public static function getLastFivePayouts(?User $user): Collection|array
+    public static function getLastFivePayouts(?User $user): array|\Illuminate\Support\Collection
     {
         if ($user) {
+//            return Transaction::query()
+//                ->selectRaw("DATE(paid_at) as payout_date")
+//                ->selectRaw("SUM(CASE WHEN transaction_type = 'in' THEN amount WHEN transaction_type = 'out' THEN -amount ELSE 0 END) as net_total")
+//                ->where('user_id', $user->id)
+//                ->where('is_bonus', false)
+//                ->whereNotNull('paid_at')
+//                ->groupByRaw("DATE(paid_at)")
+//                ->orderByDesc('payout_date')
+//                ->get();
+
             return Transaction::query()
-                ->selectRaw("DATE(paid_at) as payout_date")
-                ->selectRaw("SUM(CASE WHEN transaction_type = 'in' THEN amount WHEN transaction_type = 'out' THEN -amount ELSE 0 END) as net_total")
                 ->where('user_id', $user->id)
+                ->where('is_bonus', false)
                 ->whereNotNull('paid_at')
-                ->groupByRaw("DATE(paid_at)")
-                ->orderByDesc('payout_date')
-                ->get();
+                ->get()
+                ->groupBy(function ($tx) {
+                    return Carbon::parse($tx->paid_at)->toDateString();
+                })
+                ->map(function ($group, $payoutDate) {
+                    $accrualDates = $group->pluck('accrual_for_date')
+                        ->filter()
+                        ->map(fn($d) => Carbon::parse($d))
+                        ->sort();
+                    return [
+                        'payout_date' => $payoutDate,
+                        'net_total' => $group->sum(function ($tx) {
+                            return $tx->transaction_type === 'in' ? $tx->amount : (
+                            $tx->transaction_type === 'out' ? -$tx->amount : 0);
+                        }),
+                        'accrual_range' => $accrualDates->isEmpty() ? null : [
+                            'from' => $accrualDates->first()->format('Y-m-d'),
+                            'to'   => $accrualDates->last()->format('Y-m-d'),
+                        ],
+                    ];
+                })
+                ->sortByDesc('payout_date')
+                ->values()
+                ->take(10);
         } else {
             return [];
         }
     }
 
-    public static function getSumOfPayout(Request $request): float
+    public static function getSumOfPayout(Request $request)
     {
         if ($request->start_date != null && $request->end_date != null) {
             return Transaction::query()
                 ->where('user_id', $request->user_id)
                 ->where('is_bonus', false)
+                ->whereNull('paid_at')
                 ->whereDate('accrual_for_date', '>=', $request->start_date)
                 ->whereDate('accrual_for_date', '<=', $request->end_date)
                 ->sum('amount');
         }
 
         return 0;
+    }
+
+    public static function getOldestUnpaidSalaryEntry(?User $user): ?string
+    {
+        if ($user) {
+            return Transaction::query()
+                ->where('user_id', $user->id)
+                ->where('is_bonus', false)
+                ->whereNull('paid_at')
+                ->orderBy('accrual_for_date', 'asc')
+                ->value('accrual_for_date') ?? null;
+        }
+
+        return null;
     }
 }

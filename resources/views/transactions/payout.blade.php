@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('transactions.store_payout', ['user' => $selected_user]) }}" method="POST">
+            <form action="{{ route('transactions.store_payout') }}" method="POST">
                 @method('POST')
                 @csrf
                 <div class="card-body">
@@ -45,6 +45,18 @@
                                 <option value="{{ $user->id }}" @selected(old('user_id', $selected_user?->id) == $user->id)>{{ $user->name }}</option>
                             @endforeach
                         </select>
+
+                        @isset($selected_user)
+                            @if ($oldestUnpaidSalaryDate)
+                                <span class="text-danger ml-1">
+                                    первое неоплаченное начисление: {{ Carbon\Carbon::parse($oldestUnpaidSalaryDate)->format('d/m/Y') }}
+                                </span>
+                            @else
+                                <span class="text-success ml-1">
+                                    все начисления выплачены
+                                </span>
+                            @endif
+                        @endisset
                     </div>
 
                     <div class="row">
@@ -83,10 +95,10 @@
                         </div>
                     </div>
 
-                    К выплате: <b>{{ $net_payout }} руб.</b>
-
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Выплатить</button>
+                        <button type="submit" class="btn btn-primary mr-2"
+                        onclick="return confirm('Вы передали сумму {{ $net_payout }} руб. сотруднику?')">Выплатить</button>
+                        К выплате: <b>{{ $net_payout }} руб.</b>
                     </div>
                 </div>
             </form>
@@ -102,15 +114,21 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                     <tr>
-                        <th>Дата</th>
+                        <th>Дата выплаты</th>
                         <th>Сумма</th>
+                        <th>Даты начисления</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($payouts as $payout)
                         <tr>
-                            <td>{{ $payout->payout_date }}</td>
-                            <td>{{ $payout->net_total }} руб.</td>
+                            <td>{{ $payout['payout_date'] }}</td>
+                            <td>{{ $payout['net_total'] }} руб.</td>
+                            <td>
+                                {{ Carbon\Carbon::parse($payout['accrual_range']['from'])->format('d/m/Y') }}
+                                -
+                                {{ Carbon\Carbon::parse($payout['accrual_range']['to'])->format('d/m/Y') }}
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>

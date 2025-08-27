@@ -89,19 +89,31 @@ class TransactionController extends Controller
     {
         $user = User::query()->find($request->user_id);
 
-        return view('transactions.create_payout', [
+        return view('transactions.payout', [
             'title' => 'Выплата',
             'users' => User::query()->get(),
             'selected_user' => $user,
             'payouts' => TransactionService::getLastFivePayouts($user),
             'request' => $request,
-            'net_payout' => TransactionService::getSumOfPayout($request)
+            'net_payout' => TransactionService::getSumOfPayout($request),
+            'oldestUnpaidSalaryDate' => TransactionService::getOldestUnpaidSalaryEntry($user)
         ]);
     }
 
-    public function storePayout()
+    public function storePayout(Request $request)
     {
-        // Добавить функционал выплаты по выбранному пользователю и указанной дате
+        Transaction::query()
+            ->whereBetween('accrual_for_date', [
+                $request->start_date,
+                $request->end_date,
+            ])
+            ->where('user_id', $request->user_id)
+            ->where('is_bonus', false)
+            ->whereNull('paid_at')
+            ->update([
+                'paid_at' => now(),
+                'status' => 2
+            ]);
 
         return back()
             ->with('success', ' ONLY TEST: Выплата создана');
