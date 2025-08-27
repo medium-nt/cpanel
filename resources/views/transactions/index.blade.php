@@ -76,8 +76,7 @@
                             <th scope="col">#</th>
                             <th scope="col">Тип</th>
                             <th scope="col">Начислено за</th>
-                            <th scope="col">Деньги</th>
-                            <th scope="col">Бонусы</th>
+                            <th scope="col" colspan="2" style="text-align: center">Сумма</th>
                             <th scope="col">Название</th>
                             <th scope="col">Дата создания</th>
                             <th scope="col">Дата выплаты</th>
@@ -101,9 +100,9 @@
                                 <td>{{ now()->parse($transaction->accrual_for_date)->format('d/m/Y') }}</td>
                                 @if($transaction->is_bonus)
                                     <td></td>
-                                    <td>{{ $transaction->amount }}</td>
+                                    <td>{{ $transaction->amount }} <i class="fas fa-star text-warning"></i></td>
                                 @else
-                                    <td>{{ $transaction->amount }}</td>
+                                    <td>{{ $transaction->amount }} <i class="fas fa-ruble-sign"></i></td>
                                     <td></td>
                                 @endif
                                 <td>{{ $transaction->title }} @if($transaction->user_id) ({{ $transaction->user->name }}) @endif</td>
