@@ -37,8 +37,10 @@ class SupplyOrderList extends Component
 
     public function render()
     {
-        $supply_orders = MarketplaceOrder::with('items.item')
+        $supply_orders = MarketplaceOrder::query()
+            ->with('items.item')
             ->where('supply_id', $this->supplyId)
+            ->orderBy('updated_at', 'desc')
             ->get();
 
         $marketplaceSupply = MarketplaceSupply::query()->find($this->supplyId);
