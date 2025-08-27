@@ -33,7 +33,7 @@ class TransactionService
             $request->transaction_type,
             $request->title,
             $request->accrual_for_date,
-            false,
+            $isBonus,
         );
 
         $label = $isBonus ? 'бонусов' : 'денег';
