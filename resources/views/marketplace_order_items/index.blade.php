@@ -105,7 +105,7 @@
         @php
             $fewMaterials = [];
             foreach($materials as $material) {
-                if($material['quantity'] <= 50) {
+                if($material['quantity'] <= 100) {
                     $fewMaterials[] = $material;
                 }
             }
