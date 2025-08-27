@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('defect_materials.store') }}" method="POST">
+            <form action="{{ route('defect_materials.store') }}" method="POST" onsubmit="return validateQuantity()">
                 @method('POST')
                 @csrf
                 <div class="card-body">
@@ -55,3 +55,33 @@
         </div>
     </div>
 @stop
+
+@section('js')
+    <script>
+        function validateQuantity() {
+            const inputs = document.querySelectorAll('input[name="ordered_quantity[]"]');
+
+            for (const input of inputs) {
+                const value = parseFloat(input.value);
+
+                if (isNaN(value)) {
+                    alert('Заполните поле "Количество"');
+                    input.classList.add('is-invalid');
+                    return false;
+                }
+
+                if (value > 10) {
+                    const confirmed = confirm('Вы уверены, что хотите отправить брак более 10 метров?');
+                    if (!confirmed) {
+                        input.classList.add('is-invalid');
+                        return false;
+                    }
+                }
+
+                input.classList.remove('is-invalid');
+            }
+
+            return true;
+        }
+    </script>
+@endsection
