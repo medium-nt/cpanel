@@ -59,7 +59,9 @@ class UserService
 
         $list = '';
         foreach ($schedules as $schedule) {
-            $list .= '• ' . $schedule->user->name . ' ('.UserService::translateRoleName($schedule->user->role->name).')' . "\n";
+            if ($schedule->user && $schedule->user->role) {
+                $list .= '• ' . $schedule->user->name . ' ('.UserService::translateRoleName($schedule->user->role->name).')' . "\n";
+            }
         }
 
         $text = "Сегодня работают: \n" . $list;

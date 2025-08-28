@@ -189,7 +189,7 @@ class TransactionService
             ->get();
 
         foreach ($workers as $worker) {
-            if ($worker->user->role->name == 'storekeeper') {
+            if ($worker->user && $worker->user->role && $worker->user->role->name === 'storekeeper') {
 
                 $accrualForDate = \Carbon\Carbon::parse($worker->date);
 
