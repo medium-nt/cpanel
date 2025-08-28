@@ -108,6 +108,15 @@
                                         value="{{ $settings->max_quantity_orders_to_seamstress }}"
                                     >
                                 </div>
+
+                                <div class="form-group col-md-2">
+                                    <label for="orders_priority">Порядок заказов для швей</label>
+                                   <select name="orders_priority" id="orders_priority" class="form-control">
+                                        <option value="ozon" {{ $settings->orders_priority == 'ozon' ? 'selected' : '' }}>Сначала OZON</option>
+                                        <option value="wb" {{ $settings->orders_priority == 'wb' ? 'selected' : '' }}>Сначала WB</option>
+                                        <option value="by_date" {{ $settings->orders_priority == 'by_date' ? 'selected' : '' }}>По дате заказа</option>
+                                    </select>
+                                </div>
                             </div>
                             <hr>
 

@@ -542,9 +542,19 @@ class MarketplaceOrderItemService
         $items = MarketplaceOrderItem::query()
             ->where('marketplace_order_items.status', 0)
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
-            ->orderBy('marketplace_orders.fulfillment_type', 'asc')
-//            ->orderBy('marketplace_orders.marketplace_id', 'asc')
-            ->orderBy('marketplace_orders.created_at', 'asc')
+            ->orderBy('marketplace_orders.fulfillment_type', 'asc');
+
+        $orders_priority = Setting::query()
+            ->where('name', 'orders_priority')
+            ->first();
+
+        $items = match ($orders_priority->value) {
+            'ozon' => $items->orderBy('marketplace_orders.marketplace_id', 'asc'),
+            'wb' => $items->orderBy('marketplace_orders.marketplace_id', 'desc'),
+            default => $items
+        };
+
+        $items = $items->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*')
             ->get();

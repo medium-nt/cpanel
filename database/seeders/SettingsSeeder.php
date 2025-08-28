@@ -47,5 +47,10 @@ class SettingsSeeder extends Seeder
             ['value' => '7']
         );
 
+        Setting::query()->firstOrCreate(
+            ['name' => 'orders_priority'],
+            ['value' => 'by_date']
+        );
+
     }
 }
