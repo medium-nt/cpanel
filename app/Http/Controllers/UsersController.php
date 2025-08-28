@@ -62,7 +62,7 @@ class UsersController extends Controller
     {
         $this->saved($request, $user);
 
-        return redirect()->route('users.index')->with('success', 'Изменения сохранены.');
+        return back()->with('success', 'Изменения сохранены.');
     }
 
     public function destroy(User $user): RedirectResponse
@@ -115,6 +115,7 @@ class UsersController extends Controller
             'salary_rate' => 'sometimes|nullable|numeric',
             'password' => 'nullable|confirmed|string|min:6',
             'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',
+            'orders_priority' => 'string|in:all,fbo,fbo_200',
         ];
 
         $validatedData = $request->validate($rules);

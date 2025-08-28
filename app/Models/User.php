@@ -32,6 +32,7 @@ class User extends Authenticatable
         'salary_rate',
         'avatar',
         'tg_id',
+        'orders_priority',
     ];
 
     /**

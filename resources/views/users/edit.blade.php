@@ -83,6 +83,17 @@
                             </div>
                         </div>
 
+                        @if($user->role->name == 'seamstress')
+                        <div class="form-group">
+                            <label for="orders_priority">Приоритет заказов швеи</label>
+                            <select name="orders_priority" id="orders_priority" class="form-control">
+                                <option value="all" {{ $user->orders_priority == 'all' ? 'selected' : '' }}>Все заказы</option>
+                                <option value="fbo" {{ $user->orders_priority == 'fbo' ? 'selected' : '' }}>Только FBO</option>
+                                <option value="fbo_200" {{ $user->orders_priority == 'fbo_200' ? 'selected' : '' }}>Только FBO 200 (стажер)</option>
+                            </select>
+                        </div>
+                        @endif
+
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Сохранить</button>
                         </div>

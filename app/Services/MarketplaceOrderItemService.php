@@ -542,8 +542,17 @@ class MarketplaceOrderItemService
         $items = MarketplaceOrderItem::query()
             ->where('marketplace_order_items.status', 0)
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
-            ->orderBy('marketplace_orders.fulfillment_type', 'asc');
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
 
+        // Персональный приоритет заказов
+        $items = match (auth()->user()->orders_priority) {
+            'fbo' => $items->where('marketplace_orders.fulfillment_type', 'FBO'),
+            'fbo_200' => $items->where('marketplace_orders.fulfillment_type', 'FBO')
+                ->where('marketplace_items.width', 200),
+            default => $items
+        };
+
+        // Глобальный приоритет заказов
         $orders_priority = Setting::query()
             ->where('name', 'orders_priority')
             ->first();
@@ -555,6 +564,7 @@ class MarketplaceOrderItemService
         };
 
         $items = $items->orderBy('marketplace_orders.created_at', 'asc')
+            ->orderBy('marketplace_orders.fulfillment_type', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*')
             ->get();
