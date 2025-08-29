@@ -42,146 +42,6 @@ class TransactionService
         );
     }
 
-    public static function getSalaryTable($seamstresses, $startDate, $endDate): array
-    {
-        $startDate = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
-        $endDate = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
-
-        // Собираем ставки швей заранее
-        $rates = [];
-        foreach ($seamstresses as $seamstress) {
-            $rates[$seamstress->id] = $seamstress->salary_rate;
-        }
-
-        // Извлекаем данные одним общим запросом
-        $data = MarketplaceOrderItem::query()
-            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
-            ->whereIn('marketplace_order_items.seamstress_id', collect($seamstresses)->pluck('id')->all())
-            ->whereBetween('marketplace_order_items.updated_at', [$startDate, $endDate])
-            ->where('marketplace_order_items.status', 3)
-            ->groupBy('marketplace_order_items.seamstress_id', DB::raw('DATE(marketplace_order_items.updated_at)'))
-            ->select([
-                'marketplace_order_items.seamstress_id',
-                DB::raw('DATE(marketplace_order_items.updated_at) as salary_date'),
-                DB::raw('SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_salary')
-            ])
-            ->get();
-
-        // Формируем результирующий массив
-        $result = [];
-        foreach ($data as $row) {
-            if (!isset($result[$row->salary_date])) {
-                $result[$row->salary_date] = [];
-            }
-            $result[$row->salary_date][$row->seamstress_id] = $row->total_salary * $rates[$row->seamstress_id];
-        }
-
-        // Проходим по всем необходимым датам и добавляем недостающие записи (для случаев отсутствия заказов)
-        for ($date = clone $startDate; $date->lte($endDate); $date->addDay()) {
-            $formattedDate = $date->format('Y-m-d');
-            if (!isset($result[$formattedDate])) {
-                $result[$formattedDate] = [];
-            }
-
-            foreach ($seamstresses as $seamstress) {
-                if (!isset($result[$formattedDate][$seamstress->id])) {
-                    $result[$formattedDate][$seamstress->id] = 0;
-                }
-            }
-
-            ksort($result[$formattedDate]);
-        }
-
-        ksort($result);
-
-        return $result;
-    }
-
-    public static function getSalaryTable_new($seamstresses, $startDate, $endDate): array
-    {
-        $startDate = Carbon::createFromFormat('Y-m-d', $startDate);
-        $endDate = Carbon::createFromFormat('Y-m-d', $endDate);
-
-        $endDate->addDay();
-
-        $data = MarketplaceOrderItem::query()
-            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
-            ->whereIn('marketplace_order_items.seamstress_id', collect($seamstresses)->pluck('id')->all())
-            ->whereBetween('marketplace_order_items.completed_at', [$startDate, $endDate])
-            ->groupBy('marketplace_order_items.seamstress_id', DB::raw('DATE(marketplace_order_items.completed_at)'))
-            ->select([
-                'marketplace_order_items.seamstress_id',
-                DB::raw('DATE(marketplace_order_items.completed_at) as salary_date'),
-                DB::raw('SUM(marketplace_order_items.quantity * marketplace_items.width) as total_salary')
-            ])
-            ->get();
-
-        // Собираем ставки швей заранее
-        $rates = [];
-        foreach ($seamstresses as $seamstress) {
-            $rates[$seamstress->id] = $seamstress->salary_rate;
-        }
-
-        $result = [];
-        foreach ($data as $row) {
-            if (!isset($result[$row->salary_date])) {
-                $result[$row->salary_date] = [];
-            }
-            $result[$row->salary_date][$row->seamstress_id] =
-                $row->total_salary / 100 * $rates[$row->seamstress_id]
-            ;
-        }
-
-        // Проходим по всем необходимым датам и добавляем недостающие записи (для случаев отсутствия заказов)
-        for ($date = clone $startDate; $date->lte($endDate); $date->addDay()) {
-            $formattedDate = $date->format('Y-m-d');
-            if (!isset($result[$formattedDate])) {
-                $result[$formattedDate] = [];
-            }
-
-            foreach ($seamstresses as $seamstress) {
-                if (!isset($result[$formattedDate][$seamstress->id])) {
-                    $result[$formattedDate][$seamstress->id] = 0;
-                }
-            }
-
-            ksort($result[$formattedDate]);
-        }
-
-        ksort($result);
-
-        unset($result[$endDate->format('Y-m-d')]);
-
-        return $result;
-    }
-
-    public static function getSalaryTable_old($seamstresses, $startDate, $endDate): array
-    {
-        $startDate = Carbon::createFromFormat('Y-m-d', $startDate);
-        $endDate = Carbon::createFromFormat('Y-m-d', $endDate);
-
-        $arrayAllSalary = [];
-        for ($date = clone $startDate; $date->lte($endDate); $date->addDay()) {
-
-            $arrayByDate = [];
-            foreach ($seamstresses as $seamstress) {
-                $itemsLengthInMeters = MarketplaceOrderItem::query()
-                    ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
-                    ->where('marketplace_order_items.seamstress_id', $seamstress->id)
-                    ->whereDate('marketplace_order_items.updated_at', $date)
-                    ->where('marketplace_order_items.status', 3)
-                    ->selectRaw('SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_salary')
-                    ->first('total_salary'); // Запрашиваем первую запись (агрегатную выборку)
-
-                $arrayByDate[$seamstress->id] = $itemsLengthInMeters->total_salary ?? 0;
-            }
-
-            $arrayAllSalary[$date->format('Y-m-d')] = $arrayByDate;
-        }
-
-        return $arrayAllSalary;
-    }
-
     public static function accrualStorekeeperSalary(): void
     {
         $workers = Schedule::query()
@@ -198,7 +58,7 @@ class TransactionService
                     'title' => 'Зарплата за ' . $accrualForDate->format('d/m/Y'),
                     'accrual_for_date' => $accrualForDate->format('Y-m-d'),
                     'amount' => $worker->user->salary_rate,
-                    'transaction_type' => 'in',
+                    'transaction_type' => 'out',
                     'status' => 1,
                 ]);
 
@@ -212,8 +72,8 @@ class TransactionService
     {
         $status = $isBonus
             ? match ($type) {
-                'in' => 0,
-                'out' => 1,
+                'out' => 0,
+                'in' => 1,
             }
             : 1;
 
@@ -265,10 +125,10 @@ class TransactionService
             ->where('is_bonus', $isBonus)
             ->where('user_id', auth()->id());
 
-        $in = (clone $query)->where('transaction_type', 'in')->sum('amount');
-        $out = (clone $query)->where('transaction_type', 'out')->sum('amount');
+        $employeeOut = (clone $query)->where('transaction_type', 'in')->sum('amount');
+        $employeeIn = (clone $query)->where('transaction_type', 'out')->sum('amount');
 
-        return $in - $out;
+        return $employeeIn - $employeeOut;
     }
 
     public static function getFiltered(Request $request): Builder
@@ -338,7 +198,7 @@ class TransactionService
                         self::addTransaction(
                             $seamstress,
                             $bonus,
-                            'in',
+                            'out',
                             "Бонус за заказ #{$orderId}",
                             $marketplaceOrderItems->completed_at,
                             true,
@@ -357,7 +217,7 @@ class TransactionService
                     self::addTransaction(
                         $seamstress,
                         $salary,
-                        'in',
+                        'out',
                         "ЗП за заказ #{$orderId}",
                         $marketplaceOrderItems->completed_at,
                         false,
@@ -381,7 +241,7 @@ class TransactionService
         dd('end');
     }
 
-    public static function getLastFivePayouts(?User $user, bool $isBonus = false): array|\Illuminate\Support\Collection
+    public static function getLastPayouts(?User $user, int $count, bool $isBonus = false): array|\Illuminate\Support\Collection
     {
         if ($user) {
             return Transaction::query()
@@ -400,8 +260,8 @@ class TransactionService
                     return [
                         'payout_date' => (Carbon::parse($payoutDate))->format('d/m/Y'),
                         'net_total' => $group->sum(function ($tx) {
-                            return $tx->transaction_type === 'in' ? $tx->amount : (
-                            $tx->transaction_type === 'out' ? -$tx->amount : 0);
+                            return $tx->transaction_type === 'out' ? $tx->amount : (
+                            $tx->transaction_type === 'in' ? -$tx->amount : 0);
                         }),
                         'accrual_range' => $accrualDates->isEmpty() ? null : [
                             'from' => $accrualDates->first()->format('Y-m-d'),
@@ -411,7 +271,7 @@ class TransactionService
                 })
                 ->sortByDesc('payout_date')
                 ->values()
-                ->take(10);
+                ->take($count);
         } else {
             return [];
         }
@@ -420,13 +280,17 @@ class TransactionService
     public static function getSumOfPayout(Request $request)
     {
         if ($request->start_date != null && $request->end_date != null) {
-            return Transaction::query()
+            $query = Transaction::query()
                 ->where('user_id', $request->user_id)
                 ->where('is_bonus', false)
                 ->whereNull('paid_at')
                 ->whereDate('accrual_for_date', '>=', $request->start_date)
-                ->whereDate('accrual_for_date', '<=', $request->end_date)
-                ->sum('amount');
+                ->whereDate('accrual_for_date', '<=', $request->end_date);
+
+            $employeeOut = (clone $query)->where('transaction_type', 'in')->sum('amount');
+            $employeeIn = (clone $query)->where('transaction_type', 'out')->sum('amount');
+
+            return $employeeIn - $employeeOut;
         }
 
         return 0;
@@ -460,10 +324,10 @@ class TransactionService
             $query = $query->whereBetween('accrual_for_date', [$request->date_start, $request->date_end]);
         }
 
-        $in = (clone $query)->where('transaction_type', 'in')->sum('amount');
-        $out = (clone $query)->where('transaction_type', 'out')->sum('amount');
+        $employeeOut = (clone $query)->where('transaction_type', 'in')->sum('amount');
+        $employeeIn = (clone $query)->where('transaction_type', 'out')->sum('amount');
 
-        return $in - $out;
+        return $employeeIn - $employeeOut;
     }
 
     public static function getHoldBonus(?User $user): array|\Illuminate\Support\Collection
@@ -481,8 +345,8 @@ class TransactionService
                     return [
                         'accrual_for_date' => $payoutDate,
                         'net_total' => $group->sum(function ($tx) {
-                            return $tx->transaction_type === 'in' ? $tx->amount : (
-                            $tx->transaction_type === 'out' ? -$tx->amount : 0);
+                            return $tx->transaction_type === 'out' ? $tx->amount : (
+                            $tx->transaction_type === 'in' ? -$tx->amount : 0);
                         }),
                         'status' => $group->first()->status,
                         'date_pay' => (Carbon::parse($payoutDate)->addDays(30)->format('d/m/Y')),

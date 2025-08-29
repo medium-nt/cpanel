@@ -66,8 +66,8 @@
                                     required
                                 >
                                     <option value="" disabled selected>---</option>
-                                    <option value="in" @selected(old('transaction_type') == 'in')>Поступление</option>
-                                    <option value="out" @selected(old('transaction_type') == 'out')>Списание</option>
+                                    <option value="in" @selected(old('transaction_type') == 'in')>Штраф</option>
+                                    <option value="out" @selected(old('transaction_type') == 'out')>Зарплата, Премия</option>
                                 </select>
                             </div>
                         </div>

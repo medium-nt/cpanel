@@ -117,10 +117,18 @@
                                 <td style="width: 50px">
                                     @switch($transaction->transaction_type)
                                         @case('out')
-                                            <i class="fas fa-minus-circle" style="color: red"></i>
+                                            @if(auth()->user()->role->name == 'admin')
+                                                <i class="fas fa-minus-circle" style="color: red"></i>
+                                            @else
+                                                <i class="fas fa-plus-circle" style="color: green"></i>
+                                            @endif
                                         @break
                                         @case('in')
-                                            <i class="fas fa-plus-circle" style="color: green"></i>
+                                            @if(auth()->user()->role->name == 'admin')
+                                                <i class="fas fa-plus-circle" style="color: green"></i>
+                                            @else
+                                                <i class="fas fa-minus-circle" style="color: red"></i>
+                                            @endif
                                         @break
                                     @endswitch
                                 </td>
