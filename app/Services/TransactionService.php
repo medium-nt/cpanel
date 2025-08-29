@@ -235,7 +235,7 @@ class TransactionService
             ->where('is_bonus', true)
             ->where('status', 0)
             ->update([
-                    'status' => 1]
+                'status' => 1]
             );
 
         Log::channel('erp')
@@ -381,22 +381,12 @@ class TransactionService
         dd('end');
     }
 
-    public static function getLastFivePayouts(?User $user): array|\Illuminate\Support\Collection
+    public static function getLastFivePayouts(?User $user, bool $isBonus = false): array|\Illuminate\Support\Collection
     {
         if ($user) {
-//            return Transaction::query()
-//                ->selectRaw("DATE(paid_at) as payout_date")
-//                ->selectRaw("SUM(CASE WHEN transaction_type = 'in' THEN amount WHEN transaction_type = 'out' THEN -amount ELSE 0 END) as net_total")
-//                ->where('user_id', $user->id)
-//                ->where('is_bonus', false)
-//                ->whereNotNull('paid_at')
-//                ->groupByRaw("DATE(paid_at)")
-//                ->orderByDesc('payout_date')
-//                ->get();
-
             return Transaction::query()
                 ->where('user_id', $user->id)
-                ->where('is_bonus', false)
+                ->where('is_bonus', $isBonus)
                 ->whereNotNull('paid_at')
                 ->get()
                 ->groupBy(function ($tx) {
@@ -408,7 +398,7 @@ class TransactionService
                         ->map(fn($d) => Carbon::parse($d))
                         ->sort();
                     return [
-                        'payout_date' => $payoutDate,
+                        'payout_date' => (Carbon::parse($payoutDate))->format('d/m/Y'),
                         'net_total' => $group->sum(function ($tx) {
                             return $tx->transaction_type === 'in' ? $tx->amount : (
                             $tx->transaction_type === 'out' ? -$tx->amount : 0);
@@ -454,5 +444,55 @@ class TransactionService
         }
 
         return null;
+    }
+
+    public static function getTotalByType(Request $request, bool $isBonus = false): float
+    {
+        $query = Transaction::query()
+            ->where('paid_at', null)
+            ->where('is_bonus', $isBonus);
+
+        if ($request->user_id) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('accrual_for_date', [$request->start_date, $request->end_date]);
+        }
+
+        $in = (clone $query)->where('transaction_type', 'in')->sum('amount');
+        $out = (clone $query)->where('transaction_type', 'out')->sum('amount');
+
+        return $in - $out;
+    }
+
+    public static function getHoldBonus(?User $user): array|\Illuminate\Support\Collection
+    {
+        if ($user) {
+            return Transaction::query()
+                ->where('user_id', $user->id)
+                ->where('is_bonus', true)
+                ->whereIn('status', [0, 1])
+                ->get()
+                ->groupBy(function ($tx) {
+                    return Carbon::parse($tx->accrual_for_date)->toDateString();
+                })
+                ->map(function ($group, $payoutDate) {
+                    return [
+                        'accrual_for_date' => $payoutDate,
+                        'net_total' => $group->sum(function ($tx) {
+                            return $tx->transaction_type === 'in' ? $tx->amount : (
+                            $tx->transaction_type === 'out' ? -$tx->amount : 0);
+                        }),
+                        'status' => $group->first()->status,
+                        'date_pay' => (Carbon::parse($payoutDate)->addDays(30)->format('d/m/Y')),
+                    ];
+                })
+                ->sortBy('accrual_for_date')
+                ->values()
+                ->take(10);
+        } else {
+            return [];
+        }
     }
 }

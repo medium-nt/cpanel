@@ -13,20 +13,33 @@
             <div class="card-body">
 
                 @if(auth()->user()->role->name == 'admin')
-                <div class="dropdown mb-3 mr-3">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="supplyDropdown"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Добавить операцию
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="supplyDropdown">
-                        <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'salary']) }}">зарплата</a>
-                        <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'bonus']) }}">бонусы</a>
+                <div class="row">
+                    <div class="col-8 mb-3">
+                        <div class="dropdown mb-3 mr-3">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="supplyDropdown"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Добавить операцию
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="supplyDropdown">
+                                <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'salary']) }}">зарплата</a>
+                                <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'bonus']) }}">бонусы</a>
+                            </div>
+                        </div>
+
+                        <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout_salary') }}">
+                            Выплатить зарплату
+                        </a>
+
+                        <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout_bonus') }}">
+                            Выплатить бонусы
+                        </a>
+                    </div>
+                    <div class="col-4 mb-3">
+                        <b>К выплате:</b><br>
+                        денег:<b> {{ $total }} рублей </b><br>
+                        бонусов:<b> {{ $total_bonus }} баллов </b>
                     </div>
                 </div>
-
-                <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout') }}">
-                    Выплатить зарплату
-                </a>
                 @endif
 
                 <form action="{{ route('transactions.index') }}" method="get" class="row g-2">
@@ -142,15 +155,3 @@
     </div>
 @stop
 
-{{-- Push extra CSS --}}
-
-@push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-@endpush
-
-{{-- Push extra scripts --}}
-
-@push('js')
-    {{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
-@endpush

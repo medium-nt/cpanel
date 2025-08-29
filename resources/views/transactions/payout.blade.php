@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('transactions.store_payout') }}" method="POST">
+            <form action="{{ route('transactions.store_payout_salary') }}" method="POST">
                 @method('POST')
                 @csrf
                 <div class="card-body">
@@ -90,7 +90,7 @@
 
                         <div class="col-md-4">
                             <div class="form-group">
-                                <a class="btn btn-link mt-4" href="{{ route('transactions.payout') }}">Сбросить фильтр</a>
+                                <a class="btn btn-link mt-4" href="{{ route('transactions.payout_salary') }}">Сбросить фильтр</a>
                             </div>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                     </thead>
                     <tbody>
                     @foreach($payouts as $payout)
-                        <tr>
+                        <tr @if($payout['payout_date'] == Carbon\Carbon::now()->format('d/m/Y')) style="font-weight: bold; color: darkgreen" @endif>
                             <td>{{ $payout['payout_date'] }}</td>
                             <td>{{ $payout['net_total'] }} руб.</td>
                             <td>

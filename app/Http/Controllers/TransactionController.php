@@ -15,6 +15,8 @@ class TransactionController extends Controller
         return view('transactions.index', [
             'title' => 'Финансы',
             'users' => User::query()->get(),
+            'total' => TransactionService::getTotalByType($request),
+            'total_bonus' => TransactionService::getTotalByType($request, true),
             'transactions' => TransactionService::getFiltered($request)
                 ->paginate(10)
                 ->withQueryString()
@@ -85,7 +87,7 @@ class TransactionController extends Controller
             ->with('success', 'Транзакция удалена');
     }
 
-    public function createPayout(Request $request)
+    public function createPayoutSalary(Request $request)
     {
         $user = User::query()->find($request->user_id);
 
@@ -100,7 +102,7 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function storePayout(Request $request)
+    public function storePayoutSalary(Request $request)
     {
         Transaction::query()
             ->whereBetween('accrual_for_date', [
@@ -116,6 +118,39 @@ class TransactionController extends Controller
             ]);
 
         return back()
-            ->with('success', ' ONLY TEST: Выплата создана');
+            ->with('success', ' Зарплата выплачена');
+    }
+
+    public function createPayoutBonus(Request $request)
+    {
+        $user = User::query()->find($request->user_id);
+
+        return view('transactions.payout_bonus', [
+            'title' => 'Выплата',
+            'users' => User::query()->get(),
+            'selected_user' => $user,
+            'payouts' => TransactionService::getLastFivePayouts($user, true),
+            'hold_bonus' => TransactionService::getHoldBonus($user),
+            'request' => $request,
+            'net_payout' => TransactionService::getSumOfPayout($request),
+            'oldestUnpaidSalaryDate' => TransactionService::getOldestUnpaidSalaryEntry($user)
+        ]);
+
+    }
+
+    public function storePayoutBonus(Request $request)
+    {
+        Transaction::query()
+            ->where('accrual_for_date', $request->accrual_for_date)
+            ->where('user_id', $request->user_id)
+            ->where('is_bonus', true)
+            ->whereNull('paid_at')
+            ->update([
+                'paid_at' => now(),
+                'status' => 2
+            ]);
+
+        return back()
+            ->with('success', ' Бонусы выплачены');
     }
 }

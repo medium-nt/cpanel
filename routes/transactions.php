@@ -27,11 +27,20 @@ Route::prefix('/transactions')->group(function () {
         ->can('delete', 'transaction')
         ->name('transactions.destroy');
 
-    Route::get('/payout/', [App\Http\Controllers\TransactionController::class, 'createPayout'])
+    Route::get('/payout_salary/', [App\Http\Controllers\TransactionController::class, 'createPayoutSalary'])
         ->can('create', Transaction::class)
-        ->name('transactions.payout');
+        ->name('transactions.payout_salary');
 
-    Route::post('/store_payout', [App\Http\Controllers\TransactionController::class, 'storePayout'])
+    Route::post('/store_payout_salary', [App\Http\Controllers\TransactionController::class, 'storePayoutSalary'])
         ->can('create', Transaction::class)
-        ->name('transactions.store_payout');
+        ->name('transactions.store_payout_salary');
+
+    Route::get('/payout_bonus/', [App\Http\Controllers\TransactionController::class, 'createPayoutBonus'])
+        ->can('create', Transaction::class)
+        ->name('transactions.payout_bonus');
+
+
+    Route::post('/store_payout_bonus', [App\Http\Controllers\TransactionController::class, 'storePayoutBonus'])
+        ->can('create', Transaction::class)
+        ->name('transactions.store_payout_bonus');
 });
