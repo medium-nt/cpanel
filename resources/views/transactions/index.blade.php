@@ -9,78 +9,92 @@
 
 @section('content_body')
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-md-9">
+                <div class="card">
+                    <div class="card-body">
 
-                @if(auth()->user()->role->name == 'admin')
-                <div class="row">
-                    <div class="col-8 mb-3">
-                        <div class="dropdown mb-3 mr-3">
-                            <button class="btn btn-primary dropdown-toggle" type="button" id="supplyDropdown"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Добавить операцию
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="supplyDropdown">
-                                <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'salary']) }}">зарплата</a>
-                                <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'bonus']) }}">бонусы</a>
+                        @if(auth()->user()->role->name == 'admin')
+                        <div class="row">
+                            <div class="col-8 mb-3">
+                                <div class="dropdown mb-3 mr-3">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="supplyDropdown"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Добавить операцию
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="supplyDropdown">
+                                        <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'salary']) }}">зарплата</a>
+                                        <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'bonus']) }}">бонусы</a>
+                                    </div>
+                                </div>
+
+                                <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout_salary') }}">
+                                    Выплатить зарплату
+                                </a>
+
+                                <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout_bonus') }}">
+                                    Выплатить бонусы
+                                </a>
                             </div>
                         </div>
+                        @endif
 
-                        <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout_salary') }}">
-                            Выплатить зарплату
-                        </a>
+                        <form action="{{ route('transactions.index') }}" method="get" class="row g-2">
+                            @if(auth()->user()->role->name == 'admin')
+                            <div class="col-auto mb-3">
+                                <select class="form-control" name="user_id" id="user_id">
+                                    <option value="0">Все</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}"
+                                            @if(request('user_id') == $user->id) selected @endif>
+                                            {{ $user->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
 
-                        <a class="btn btn-primary mr-3 mb-3" href="{{ route('transactions.payout_bonus') }}">
-                            Выплатить бонусы
-                        </a>
+                            <div class="col-auto d-flex align-items-center gap-2 mb-3">
+                                <input class="form-control"
+                                       type="date"
+                                       name="date_start"
+                                       id="date_start"
+                                       min="2025-08-01"
+                                       value="{{ request('date_start') }}">
+                                <span class="mx-2"> - </span>
+                                <input class="form-control"
+                                       type="date"
+                                       name="date_end"
+                                       id="date_end"
+                                       max="{{ now()->format('Y-m-d') }}"
+                                       value="{{ request('date_end') }}">
+                            </div>
+
+                            <div class="col-auto mb-3">
+                                <button type="submit" class="btn btn-primary">Фильтр</button>
+                            </div>
+
+                            <div class="col-auto mb-3">
+                                <a href="{{ route('transactions.index') }}" class="btn btn-secondary">Сбросить</a>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-4 mb-3">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="card">
+                    <div class="card-body">
                         <b>К выплате:</b><br>
                         денег:<b> {{ $total }} рублей </b><br>
                         бонусов:<b> {{ $total_bonus }} баллов </b>
                     </div>
                 </div>
-                @endif
+            </div>
+        </div>
 
-                <form action="{{ route('transactions.index') }}" method="get" class="row g-2">
-                    @if(auth()->user()->role->name == 'admin')
-                    <div class="col-auto mb-3">
-                        <select class="form-control" name="user_id" id="user_id">
-                            <option value="0">Все</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}"
-                                    @if(request('user_id') == $user->id) selected @endif>
-                                    {{ $user->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-
-                    <div class="col-auto d-flex align-items-center gap-2 mb-3">
-                        <input class="form-control"
-                               type="date"
-                               name="date_start"
-                               id="date_start"
-                               min="2025-08-01"
-                               value="{{ request('date_start') }}">
-                        <span class="mx-2"> - </span>
-                        <input class="form-control"
-                               type="date"
-                               name="date_end"
-                               id="date_end"
-                               max="{{ now()->format('Y-m-d') }}"
-                               value="{{ request('date_end') }}">
-                    </div>
-
-                    <div class="col-auto mb-3">
-                        <button type="submit" class="btn btn-primary">Фильтр</button>
-                    </div>
-
-                    <div class="col-auto mb-3">
-                        <a href="{{ route('transactions.index') }}" class="btn btn-secondary">Сбросить</a>
-                    </div>
-                </form>
+        <div class="card">
+            <div class="card-body">
 
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
