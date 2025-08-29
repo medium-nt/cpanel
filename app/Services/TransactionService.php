@@ -285,11 +285,11 @@ class TransactionService
         }
 
         if ($request->date_start) {
-            $transactions->where('created_at', '>=', $request->date_start);
+            $transactions->where('accrual_for_date', '>=', $request->date_start);
         }
 
         if ($request->date_end) {
-            $transactions->where('created_at', '<=', $request->date_end . ' 23:59:59');
+            $transactions->where('accrual_for_date', '<=', $request->date_end);
         }
 
         return $transactions;
@@ -453,11 +453,11 @@ class TransactionService
             ->where('is_bonus', $isBonus);
 
         if ($request->user_id) {
-            $query->where('user_id', $request->user_id);
+            $query = $query->where('user_id', $request->user_id);
         }
 
-        if ($request->start_date && $request->end_date) {
-            $query->whereBetween('accrual_for_date', [$request->start_date, $request->end_date]);
+        if ($request->date_start && $request->date_end) {
+            $query = $query->whereBetween('accrual_for_date', [$request->date_start, $request->date_end]);
         }
 
         $in = (clone $query)->where('transaction_type', 'in')->sum('amount');
