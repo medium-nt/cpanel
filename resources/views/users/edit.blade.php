@@ -11,12 +11,6 @@
     <div class="row">
         <div class="col-md-6">
             <div class="card">
-                @if(session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>
@@ -57,8 +51,9 @@
                                    name="password_confirmation" placeholder="Подтверждение пароля">
                         </div>
 
+                        @if($user->role->name == 'storekeeper')
                         <div class="form-group">
-                            <label for="salary_rate">Ставка (для швеи за метр, для кладовщиков за день)</label>
+                            <label for="salary_rate">Ставка кладовщика (за день)</label>
                             <input type="number" step="1" min="0"
                                    class="form-control @error('salary_rate') is-invalid @enderror"
                                    id="salary_rate"
@@ -67,6 +62,7 @@
                                    value="{{ $user->salary_rate }}"
                                    required>
                         </div>
+                        @endif
 
                         <div class="form-group">
                             <label for="avatar">Аватар</label>
