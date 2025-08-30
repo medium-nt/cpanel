@@ -18,8 +18,13 @@ use Illuminate\Support\Facades\Log;
 
 class TransactionService
 {
-    public static function store(CreateTransactionRequest $request): void
+    public static function store(CreateTransactionRequest $request): bool
     {
+        $moneyInCompany = TransactionService::getTotalByType($request, false, true);
+        if ($request->type === 'company' && $request->transaction_type === 'out' && $request->amount > $moneyInCompany) {
+            return false;
+        }
+
         $isBonus = match ($request->type) {
             'salary', 'company' => false,
             'bonus' => true,
@@ -42,6 +47,8 @@ class TransactionService
         Log::channel('salary')->info(
             "Ручное начисление {$label} в размере {$request->amount} рублей ({$request->transaction_type}) {$userName}"
         );
+
+        return true;
     }
 
     public static function accrualStorekeeperSalary(): void

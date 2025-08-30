@@ -47,7 +47,13 @@ class TransactionController extends Controller
 
     public function store(CreateTransactionRequest $request)
     {
-        TransactionService::store($request);
+        $result = TransactionService::store($request);
+
+        if (!$result) {
+            return back()
+                ->with('error', 'Недостаточно денег в кассе')
+                ->withInput();
+        }
 
         return redirect()
             ->route('transactions.index')
@@ -78,20 +84,32 @@ class TransactionController extends Controller
             'payouts' => TransactionService::getLastPayouts($user, 10),
             'request' => $request,
             'net_payout' => TransactionService::getSumOfPayout($request),
-            'oldestUnpaidSalaryDate' => TransactionService::getOldestUnpaidSalaryEntry($user)
+            'oldestUnpaidSalaryDate' => TransactionService::getOldestUnpaidSalaryEntry($user),
+            'moneyInCompany' => TransactionService::getTotalByType($request, false, true)
         ]);
     }
 
     public function storePayoutSalary(Request $request)
     {
-        Transaction::query()
+        $query = Transaction::query()
             ->whereBetween('accrual_for_date', [
                 $request->start_date,
                 $request->end_date,
             ])
             ->where('user_id', $request->user_id)
             ->where('is_bonus', false)
-            ->whereNull('paid_at')
+            ->whereNull('paid_at');
+
+        $employeeOut = (clone $query)->where('transaction_type', 'in')->sum('amount');
+        $employeeIn = (clone $query)->where('transaction_type', 'out')->sum('amount');
+        $result = $employeeIn - $employeeOut;
+
+        $moneyInCompany = TransactionService::getTotalByType($request, false, true);
+        if ($result > $moneyInCompany) {
+            return back()->with('error', 'Недостаточно денег для выплаты');
+        }
+
+        (clone $query)
             ->update([
                 'paid_at' => now(),
                 'status' => 2

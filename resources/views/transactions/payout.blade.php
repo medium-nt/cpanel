@@ -76,7 +76,7 @@
 
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="date">Окончание периода</label>
+                                <label for="date">Конец периода</label>
                                 <input type="date"
                                        id="end_date"
                                        name="end_date"
@@ -97,9 +97,20 @@
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary mr-2"
-                        onclick="return confirm('Вы передали сумму {{ $net_payout }} руб. сотруднику?')">Выплатить</button>
-                        К выплате: <b>{{ $net_payout }} руб.</b>
+                                onclick="return confirm('Вы передали сумму {{ $net_payout }} руб. сотруднику?')">
+                            Выплатить
+                        </button>
+                        <span>К выплате: <b>{{ $net_payout }} руб.</b></span>
                     </div>
+
+                    @if ($moneyInCompany < $net_payout)
+                        <div class="form-group">
+                            <span class="alert alert-danger d-block"
+                                  style="background-color: #f8d7da; color: #721c24; border-radius: 0; padding: 10px 15px;">
+                                <b>В кассе не хватает денег для такой выплаты</b>
+                            </span>
+                        </div>
+                    @endif
                 </div>
             </form>
         </div>
