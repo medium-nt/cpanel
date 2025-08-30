@@ -66,8 +66,13 @@
                                     required
                                 >
                                     <option value="" disabled selected>---</option>
-                                    <option value="in" @selected(old('transaction_type') == 'in')>Штраф</option>
-                                    <option value="out" @selected(old('transaction_type') == 'out')>Зарплата, Премия</option>
+                                    @if($type == 'company')
+                                        <option value="in" @selected(old('transaction_type') == 'in')>Пополнение</option>
+                                        <option value="out" @selected(old('transaction_type') == 'out')>Расходы</option>
+                                    @else
+                                        <option value="in" @selected(old('transaction_type') == 'in')>Штраф</option>
+                                        <option value="out" @selected(old('transaction_type') == 'out')>Зарплата, Премия</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -87,6 +92,7 @@
                         </div>
                     </div>
 
+                    @if($type != 'company')
                     <div class="form-group">
                         <label for="user_id">Сотрудник</label>
                         <select
@@ -101,6 +107,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Создать</button>

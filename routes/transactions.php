@@ -15,14 +15,6 @@ Route::prefix('/transactions')->group(function () {
         ->can('create', Transaction::class)
         ->name('transactions.store');
 
-    Route::get('/{transaction}/edit', [App\Http\Controllers\TransactionController::class, 'edit'])
-        ->can('update', 'transaction')
-        ->name('transactions.edit');
-
-    Route::put('/update/{transaction}', [App\Http\Controllers\TransactionController::class, 'update'])
-        ->can('update', 'transaction')
-        ->name('transactions.update');
-
     Route::delete('/delete/{transaction}', [App\Http\Controllers\TransactionController::class, 'destroy'])
         ->can('delete', 'transaction')
         ->name('transactions.destroy');

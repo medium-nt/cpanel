@@ -25,6 +25,7 @@
                                     <div class="dropdown-menu" aria-labelledby="supplyDropdown">
                                         <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'salary']) }}">зарплата</a>
                                         <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'bonus']) }}">бонусы</a>
+                                        <a class="dropdown-item" href="{{ route('transactions.create', ['type' => 'company']) }}">операция компании</a>
                                     </div>
                                 </div>
 
@@ -83,6 +84,14 @@
             </div>
 
             <div class="col-12 col-md-3">
+                @if(auth()->user()->role->name == 'admin')
+                <div class="card">
+                    <div class="card-body">
+                        <b>Денег в компании: {{ $totalInCompany }}</b>
+                    </div>
+                </div>
+                @endif
+
                 <div class="card">
                     <div class="card-body">
                         <b>К выплате:</b><br>

@@ -21,7 +21,8 @@ class TransactionController extends Controller
             'title' => $title,
             'request' => $request,
             'users' => User::query()->get(),
-            'total' => TransactionService::getTotalByType($request),
+            'totalInCompany' => TransactionService::getTotalByType($request, false, true),
+            'total' => TransactionService::getTotalByType($request, false),
             'total_bonus' => TransactionService::getTotalByType($request, true),
             'transactions' => TransactionService::getFiltered($request)
                 ->paginate(10)
@@ -32,13 +33,14 @@ class TransactionController extends Controller
     public function create($type)
     {
         $typeName = match ($type) {
-            'salary' => 'зарплатой',
-            'bonus' => 'бонусами',
+            'salary' => 'с зарплатой',
+            'bonus' => 'с бонусами',
+            'company' => 'компании',
         };
 
         return view('transactions.create', [
             'type' => $type,
-            'title' => 'Добавить операцию с ' . $typeName,
+            'title' => 'Добавить операцию ' . $typeName,
             'users' => User::query()->get()
         ]);
     }

@@ -21,7 +21,7 @@ class TransactionService
     public static function store(CreateTransactionRequest $request): void
     {
         $isBonus = match ($request->type) {
-            'salary' => false,
+            'salary', 'company' => false,
             'bonus' => true,
         };
 
@@ -33,12 +33,14 @@ class TransactionService
             $request->transaction_type,
             $request->title,
             $request->accrual_for_date,
+            $request->type,
             $isBonus,
         );
 
         $label = $isBonus ? 'бонусов' : 'денег';
+        $userName = ($request->type === 'company') ? 'по компании' : "для пользователя {$user->name}";
         Log::channel('salary')->info(
-            "Ручное начисление {$label} в размере {$request->amount} рублей ({$request->transaction_type}) для пользователя {$user->name}"
+            "Ручное начисление {$label} в размере {$request->amount} рублей ({$request->transaction_type}) {$userName}"
         );
     }
 
@@ -68,23 +70,29 @@ class TransactionService
         }
     }
 
-    private static function addTransaction(User $user, $amount, $type, $title, $accrual_for_date, bool $isBonus): void
+    private static function addTransaction(?User $user, $amount, $transaction_type, $title, $accrual_for_date, $type, bool $isBonus): void
     {
         $status = $isBonus
-            ? match ($type) {
+            ? match ($transaction_type) {
                 'out' => 0,
                 'in' => 1,
             }
             : 1;
 
+        if ($type === 'company') {
+            $status = 2;
+            $paid_at = now()->format('Y-m-d H:i:s');
+        }
+
         Transaction::query()->create([
-            'user_id' => $user->id,
+            'user_id' => $user->id ?? null,
             'title' => $title,
             'accrual_for_date' => $accrual_for_date,
             'amount' => $amount,
-            'transaction_type' => $type,
+            'transaction_type' => $transaction_type,
             'status' => $status,
             'is_bonus' => $isBonus,
+            'paid_at' => $paid_at ?? null
         ]);
     }
 
@@ -201,6 +209,7 @@ class TransactionService
                             'out',
                             "Бонус за заказ #{$orderId}",
                             $marketplaceOrderItems->completed_at,
+                            'bonus',
                             true,
                         );
                     }
@@ -220,6 +229,7 @@ class TransactionService
                         'out',
                         "ЗП за заказ #{$orderId}",
                         $marketplaceOrderItems->completed_at,
+                        'salary',
                         false,
                     );
 
@@ -310,15 +320,22 @@ class TransactionService
         return null;
     }
 
-    public static function getTotalByType(Request $request, bool $isBonus = false): float
+    public static function getTotalByType(Request $request, bool $isBonus, $company = false): float
     {
         $query = Transaction::query()
-            ->where('paid_at', null)
             ->where('is_bonus', $isBonus);
 
-        if ($request->user_id) {
-            $query = $query->where('user_id', $request->user_id);
+        if ($company) {
+            $query = $query->whereNull('user_id');
+        } else {
+            $query = $query->whereNotNull('user_id')
+                ->where('paid_at', null);
+
+            if ($request->user_id) {
+                $query = $query->where('user_id', $request->user_id);
+            }
         }
+
 
         if ($request->date_start && $request->date_end) {
             $query = $query->whereBetween('accrual_for_date', [$request->date_start, $request->date_end]);
@@ -327,7 +344,12 @@ class TransactionService
         $employeeOut = (clone $query)->where('transaction_type', 'in')->sum('amount');
         $employeeIn = (clone $query)->where('transaction_type', 'out')->sum('amount');
 
-        return $employeeIn - $employeeOut;
+        $result = $employeeIn - $employeeOut;
+
+        if ($company) {
+            $result = $employeeOut - $employeeIn;
+        }
+        return $result;
     }
 
     public static function getHoldBonus(?User $user): array|\Illuminate\Support\Collection

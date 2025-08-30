@@ -28,7 +28,7 @@ class CreateTransactionRequest extends FormRequest
             'accrual_for_date' => 'required|date|before_or_equal:today',
             'amount' => 'required|numeric|gte:0.01',
             'transaction_type' => 'required|in:in,out',
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id' => 'nullable|integer|exists:users,id',
         ];
     }
 
@@ -56,8 +56,7 @@ class CreateTransactionRequest extends FormRequest
             'transaction_type.required' => 'Тип транзакции обязателен',
             'transaction_type.in' => 'Тип транзакции должен быть входящим или исходящим',
 
-            'user_id.required' => 'Пользователь обязателен',
-            'user_id.integer' => 'Пользователь должен быть числом',
+            'user_id.integer' => 'Id пользователя должно быть числом',
             'user_id.exists' => 'Пользователь не найден',
         ];
     }
