@@ -326,16 +326,15 @@ class TransactionService
             ->where('is_bonus', $isBonus);
 
         if ($company) {
-            $query = $query->whereNull('user_id');
+            $query = $query->whereNotNull('paid_at');
         } else {
             $query = $query->whereNotNull('user_id')
-                ->where('paid_at', null);
+                ->whereNull('paid_at');
 
             if ($request->user_id) {
                 $query = $query->where('user_id', $request->user_id);
             }
         }
-
 
         if ($request->date_start && $request->date_end) {
             $query = $query->whereBetween('accrual_for_date', [$request->date_start, $request->date_end]);
@@ -345,10 +344,10 @@ class TransactionService
         $employeeIn = (clone $query)->where('transaction_type', 'out')->sum('amount');
 
         $result = $employeeIn - $employeeOut;
-
         if ($company) {
             $result = $employeeOut - $employeeIn;
         }
+
         return $result;
     }
 
