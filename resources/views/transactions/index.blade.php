@@ -104,7 +104,6 @@
 
         <div class="card">
             <div class="card-body">
-
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
@@ -183,6 +182,38 @@
 
             </div>
         </div>
+
+        @if(auth()->user()->role->name == 'admin')
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Выплата зарплат</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col" style="width: 150px">Дата выплаты</th>
+                            <th scope="col" style="width: 150px">Сумма</th>
+                            <th scope="col">Название</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($cashflow as $transaction)
+                            <tr>
+                                <td style="width: 50px">{{ 1 }}</td>
+                                <td>{{ \Carbon\Carbon::parse($transaction->paid_date)->format('d/m/Y') }}</td>
+                                <td>{{ $transaction->net_balance }} <i class="fas fa-ruble-sign"></i></td>
+                                <td>Выплата сотруднику ({{ $transaction->user_name }})</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 @stop
 

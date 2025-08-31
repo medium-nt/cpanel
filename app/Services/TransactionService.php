@@ -387,4 +387,36 @@ class TransactionService
             return [];
         }
     }
+
+    public static function getCashflowFiltered(Request $request): Collection|\Illuminate\Support\Collection
+    {
+        $summary = Transaction::query()
+            ->selectRaw("
+                user_id,
+                DATE(paid_at) AS paid_date,
+                SUM(CASE WHEN transaction_type = 'out' THEN amount ELSE 0 END) -
+                SUM(CASE WHEN transaction_type = 'in' THEN amount ELSE 0 END) AS net_balance
+            ")
+            ->whereNotNull('paid_at')
+            ->where('is_bonus', 0)
+            ->whereNotNull('user_id');
+
+        if ($request->date_start) {
+            $summary = $summary->where('paid_at', '>=', $request->date_start . ' 00:00:00');
+        }
+
+        if ($request->date_end) {
+            $summary = $summary->where('paid_at', '<=', $request->date_end . ' 23:59:59');
+        }
+
+        return $summary->groupBy('user_id', DB::raw("DATE(paid_at)"))
+            ->orderBy('paid_date')
+            ->orderBy('user_id')
+            ->get()
+            ->load('user') // подтягивает связь
+            ->transform(function ($row) {
+                $row->user_name = $row->user->name ?? '—';
+                return $row;
+            });
+    }
 }

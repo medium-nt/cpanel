@@ -24,6 +24,7 @@ class TransactionController extends Controller
             'totalInCompany' => TransactionService::getTotalByType($request, false, true),
             'total' => TransactionService::getTotalByType($request, false),
             'total_bonus' => TransactionService::getTotalByType($request, true),
+            'cashflow' => TransactionService::getCashflowFiltered($request),
             'transactions' => TransactionService::getFiltered($request)
                 ->paginate(10)
                 ->withQueryString()
