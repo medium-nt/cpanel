@@ -6,6 +6,7 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Setting;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -202,7 +203,7 @@ class MarketplaceOrderItemService
 
             $logMessage =
                 '    Отменен заказ № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
-                ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено' . PHP_EOL .
+                ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено. Не выплаченная зарплата и бонусы - удалены.' . PHP_EOL .
                 'Швея: ' . $marketplaceOrderItem->seamstress->name .
                 ' (' . $marketplaceOrderItem->seamstress->id . ')' . PHP_EOL .
                 'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
@@ -215,6 +216,12 @@ class MarketplaceOrderItemService
                 'seamstress_id' => 0,
                 'completed_at' => null
             ]);
+
+            Transaction::query()
+                ->where('marketplace_order_item_id', $marketplaceOrderItem->id)
+                ->where('user_id', $marketplaceOrderItem->seamstress->id)
+                ->where('status', '!=', 2)
+                ->delete();
 
             $order = Order::query()
                 ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
