@@ -410,7 +410,7 @@ class TransactionService
         }
 
         return $summary->groupBy('user_id', DB::raw("DATE(paid_at)"))
-            ->orderBy('paid_date')
+            ->orderBy('paid_date', 'desc')
             ->orderBy('user_id')
             ->get()
             ->load('user') // подтягивает связь
