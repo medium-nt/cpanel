@@ -10,13 +10,27 @@ class InventoryService
     public static function materialInWorkshop($materialId): float
     {
         $inWorkshop = self::countMaterial($materialId, 2, 3);
+
+        //  на товар
         $holdWorkshopToItems = self::countMaterial($materialId, 3, 4);
         $outWorkshopToItems = self::countMaterial($materialId, 3, 3);
+
+        //  брак
+        $holdToDefectMaterials = self::countMaterial($materialId, 4, 0);
+        $approvedDefectMaterials = self::countMaterial($materialId, 4, 1);
         $outToDefectMaterials = self::countMaterial($materialId, 4, 3);
+
+        //  остатки
+        $holdToWriteOffMaterials = self::countMaterial($materialId, 7, 0);
+        $approvedWriteOffMaterials = self::countMaterial($materialId, 7, 1);
         $outToWriteOffMaterials = self::countMaterial($materialId, 7, 3);
+
         $writeOff = self::countMaterial($materialId, 6, 3);
 
-        $result = $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems - $outToDefectMaterials - $outToWriteOffMaterials - $writeOff;
+        $result = $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems
+            - $holdToDefectMaterials - $approvedDefectMaterials - $outToDefectMaterials
+            - $holdToWriteOffMaterials - $approvedWriteOffMaterials - $outToWriteOffMaterials
+            - $writeOff;
 
         return round($result, 2);
     }
