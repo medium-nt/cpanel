@@ -396,7 +396,7 @@ return [
             'text' => 'transactions',
             'url' => 'megatulle/transactions',
             'icon' => 'fas fa-fw fa-coins',
-            'can' => 'is-admin',
+//            'can' => 'is-admin',
         ],
 //        [
 //            'text' => 'salary',
