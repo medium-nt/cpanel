@@ -332,6 +332,10 @@ class TransactionService
         $query = Transaction::query()
             ->where('is_bonus', $isBonus);
 
+        if(auth()->user()->role->name !== 'admin') {
+            $query = $query->where('user_id', auth()->id());
+        }
+
         if ($company) {
             $query = $query->whereNotNull('paid_at');
         } else {
