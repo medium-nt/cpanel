@@ -67,7 +67,7 @@ class UsersController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-//        User::query()->findOrFail($user->id)->delete();
+        User::query()->findOrFail($user->id)->delete();
 
         return redirect()->route('users.index')->with('success', 'Пользователь удален');
     }
