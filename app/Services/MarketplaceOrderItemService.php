@@ -570,8 +570,9 @@ class MarketplaceOrderItemService
             default => $items
         };
 
-        $items = $items->orderBy('marketplace_orders.created_at', 'asc')
+        $items = $items
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
+            ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*')
             ->get();
