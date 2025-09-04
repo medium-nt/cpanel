@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceSupplyService;
+use App\Services\TgService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -110,9 +111,14 @@ class MarketplaceSupplyController extends Controller
         }
 
         if ($marketplace_supply->video == null) {
-            return redirect()
-                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
-                ->with('error', 'Необходимо загрузить видео перед отправкой поставки.');
+            $text = 'Внимание! Кладовщик ' . auth()->user()->name .
+                ' не загрузил видео к поставке № ' . $marketplace_supply->id .
+                '. Запросите видео у кладовщика и загрузите его самостоятельно.';
+
+            Log::channel('erp')
+                ->error('Отправили сообщение в ТГ админу: ' . $text);
+
+            TgService::sendMessage(config('telegram.admin_id'), $text);
         }
 
         $result = match ($marketplace_supply->marketplace_id) {

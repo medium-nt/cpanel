@@ -24,7 +24,8 @@
             <div class="card-body">
                 <a href="{{ route('marketplace_supplies.complete', ['marketplace_supply' => $supply]) }}"
                    class="btn btn-primary"
-                   id="complete-supply-btn">
+                   id="complete-supply-btn"
+                   data-video-present="{{ $supply->video ? '1' : '0' }}">
                     Закрыть поставку и передать в доставку
                 </a>
 
@@ -166,6 +167,8 @@
                     document.querySelector("#videoDropzone").insertAdjacentHTML("beforeend", `
                       <div class="reload-message">✅ Видео загружено! <a href="${reloadUrl}">Обновить страницу</a></div>
                     `);
+
+                    document.getElementById('complete-supply-btn').dataset.videoPresent = 1;
                 });
             }
         });
@@ -177,6 +180,15 @@
             const spinnerWrapper = document.getElementById('spinner-wrapper');
 
             btn.addEventListener('click', function (e) {
+
+                if (btn.dataset.videoPresent !== '1') {
+                    const confirmed = confirm("Видео упаковки поставки не загружено. Вы уверены, что хотите закрыть поставку?");
+                    if (!confirmed) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+
                 btn.style.display = 'none';
                 spinnerWrapper.style.display = 'inline-block';
                 setTimeout(() => {
