@@ -549,7 +549,8 @@ class MarketplaceOrderItemService
         $items = MarketplaceOrderItem::query()
             ->where('marketplace_order_items.status', 0)
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
-            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
+            ->orderBy('marketplace_orders.fulfillment_type', 'asc');
 
         // Персональный приоритет заказов
         $items = match (auth()->user()->orders_priority) {
@@ -571,7 +572,6 @@ class MarketplaceOrderItemService
         };
 
         $items = $items
-            ->orderBy('marketplace_orders.fulfillment_type', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*')
