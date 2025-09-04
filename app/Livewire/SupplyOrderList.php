@@ -49,6 +49,10 @@ class SupplyOrderList extends Component
             ->where('status', 6)
             ->where('fulfillment_type', 'FBS')
             ->where('marketplace_id', $marketplaceSupply->marketplace_id)
+            ->where(function ($q) {
+                $q->where('supply_id', $this->supplyId)
+                    ->orWhereNull('supply_id');
+            })
             ->count();
 
         $totalItems = $supply_orders->sum(function ($order) {
