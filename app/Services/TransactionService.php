@@ -423,4 +423,20 @@ class TransactionService
                 return $row;
             });
     }
+
+    public static function getBonusForTodayOrdersByUsers()
+    {
+        $allWidth = MarketplaceOrderItem::query()
+                ->where('seamstress_id', auth()->id())
+                ->whereDate('completed_at', today())
+                ->with('item')
+                ->get()
+                ->sum(fn($item) => $item->item->width ?? 0) / 100;
+
+        return Motivation::query()
+            ->where('user_id', auth()->user()->id)
+            ->where('from', '<=', $allWidth)
+            ->where('to', '>', $allWidth)
+            ->value('bonus') ?? 0;
+    }
 }

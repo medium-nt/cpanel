@@ -10,6 +10,7 @@ use App\Services\InventoryService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\StackService;
+use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -31,6 +32,7 @@ class MarketplaceOrderItemController extends Controller
             'title' => 'Товары для пошива',
             'items' => $paginatedItems->appends($queryParams),
             'materials' => InventoryService::materialsQuantityBy('workhouse'),
+            'bonus' => TransactionService::getBonusForTodayOrdersByUsers(),
             'seamstresses' => User::query()->where('role_id', '1')
                 ->where('name', 'not like', '%Тест%')->get()
         ]);
@@ -127,7 +129,8 @@ class MarketplaceOrderItemController extends Controller
         Log::channel('erp')->info($text);
 
         $marketplaceOrderItem->update([
-            'status' => 5
+            'status' => 5,
+            'completed_at' => now()
         ]);
 
         return redirect()->route('marketplace_order_items.index')

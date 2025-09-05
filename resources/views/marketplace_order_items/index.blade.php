@@ -204,16 +204,22 @@
                                             @case(4)
                                                 <div class="btn-group" role="group">
                                                     @if(auth()->user()->role->name != 'admin')
-                                                    <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
-                                                          method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-success mr-1"
-                                                                title="На стикеровку"
-                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                            <i class="far fa-sticky-note"></i>
-                                                        </button>
-                                                    </form>
+                                                        <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
+                                                              method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit" class="btn btn-success mr-1"
+                                                                    title="На стикеровку"
+                                                                    onclick="return confirm('Вы уверены что заказ выполнен?')">
+                                                                <i class="far fa-sticky-note"></i>
+                                                            </button>
+                                                        </form>
+
+                                                        @if($bonus > 0)
+                                                            <span class="badge border border-warning text-dark p-2" style="font-size: 20px;">
+                                                                <b>+ {{ $bonus * $item->item->width / 100 }}</b> <i class="fas fa-star text-warning"></i>
+                                                            </span>
+                                                        @endif
                                                     @endif
 
                                                     @if(auth()->user()->role->name == 'admin')
@@ -354,6 +360,12 @@
                                                             <i class="far fa-sticky-note"></i> На стикеровку
                                                         </button>
                                                     </form>
+
+                                                    @if($bonus > 0)
+                                                        <span class="badge border border-warning text-dark p-2" style="font-size: 20px;">
+                                                            <b>+ {{ $bonus * $item->item->width / 100 }}</b> <i class="fas fa-star text-warning"></i>
+                                                        </span>
+                                                   @endif
                                                 @endif
 
                                                 @if(auth()->user()->role->name == 'admin')
