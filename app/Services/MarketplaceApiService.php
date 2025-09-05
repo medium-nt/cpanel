@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Setting;
 use App\Models\Sku;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -22,10 +23,8 @@ class MarketplaceApiService
 {
     public static function getItemsWb($body = 0): object|false|null
     {
-        $response = Http::accept('application/json')
-        ->withOptions(['verify' => false])
-        ->withHeaders(['Authorization' => self::getWbApiKey()])
-        ->post('https://content-api.wildberries.ru/content/v2/get/cards/list', $body);
+        $response = self::wbRequest()
+            ->post('https://content-api.wildberries.ru/content/v2/get/cards/list', $body);
 
         if(!$response->ok()) {
             return false;
@@ -86,12 +85,7 @@ class MarketplaceApiService
 
     public static function getItemsOzon($body = 0): object|false|null
     {
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v4/product/info/attributes', $body);
 
         if(!$response->ok()) {
@@ -162,9 +156,7 @@ class MarketplaceApiService
 
     public static function getAllNewOrdersWb(): array|object
     {
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->get('https://marketplace-api.wildberries.ru/api/v3/orders/new');
 
         if(!$response->ok()) {
@@ -212,12 +204,7 @@ class MarketplaceApiService
             ],
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v3/posting/fbs/unfulfilled/list', $body);
 
         if(!$response->ok()) {
@@ -350,12 +337,7 @@ class MarketplaceApiService
             ],
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v3/posting/fbs/list', $body);
 
 
@@ -538,12 +520,7 @@ class MarketplaceApiService
             "postings" => $postings,
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v1/posting/fbs/split', $body);
 
         if(!$response->ok()) {
@@ -555,6 +532,10 @@ class MarketplaceApiService
 
     public static function collectOrderOzon($orderId, $product): bool
     {
+        if (!self::verifyOrFixExemplarStatus($orderId)) {
+            return false;
+        }
+
         $body = [
             "packages" => [
                 [
@@ -569,12 +550,7 @@ class MarketplaceApiService
             "posting_number" => $orderId,
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v4/posting/fbs/ship', $body);
 
         if(!$response->ok()) {
@@ -667,9 +643,7 @@ class MarketplaceApiService
 
     private static function getSuppliesWb($next = 0): object|false|null
     {
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->withQueryParameters(
                 [
                     'limit' => 1000,
@@ -691,9 +665,7 @@ class MarketplaceApiService
             "name" => "Поставка от " . date('d.m.Y H:i'),
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->post('https://marketplace-api.wildberries.ru/api/v3/supplies', $body);
 
         if(!$response->created()) {
@@ -747,9 +719,7 @@ class MarketplaceApiService
             ],
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->withQueryParameters( [
                 'type' => 'png',
                 'width' => 58,
@@ -944,12 +914,7 @@ class MarketplaceApiService
             "barcode" => $barcode,
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/get-by-barcode', $body);
 
         if(!$response->ok()) {
@@ -1049,9 +1014,7 @@ class MarketplaceApiService
     {
         $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/deliver';
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->patch($url);
 
         if(!$response->noContent()) {
@@ -1073,12 +1036,7 @@ class MarketplaceApiService
             "departure_date" => now()->toIso8601String(),
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v1/carriage/create', $body);
 
         if(!$response->ok()) {
@@ -1136,12 +1094,7 @@ class MarketplaceApiService
             "carriage_id" => $marketplace_supply->supply_id,
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v1/carriage/approve', $body);
 
         if(!$response->ok()) {
@@ -1162,12 +1115,7 @@ class MarketplaceApiService
             "id" => $marketplace_supply->supply_id,
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/check-status', $body);
 
         if(!$response->ok()) {
@@ -1198,12 +1146,7 @@ class MarketplaceApiService
             "doc_type" => "act_of_acceptance",
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/get-pdf', $body);
 
         if (!$response->ok()) {
@@ -1236,12 +1179,7 @@ class MarketplaceApiService
             "id" => $marketplace_supply->supply_id,
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-barcode', $body);
 
         if (!$response->ok()) {
@@ -1262,9 +1200,7 @@ class MarketplaceApiService
     public static function getBarcodeSupplyWB(MarketplaceSupply $marketplace_supply)
     {
         $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/barcode?type=png';
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->get($url);
 
         if (!$response->ok()) {
@@ -1301,9 +1237,7 @@ class MarketplaceApiService
             "orders" => $orders
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
         if(!$response->ok()) {
@@ -1395,12 +1329,7 @@ class MarketplaceApiService
             "posting_number" => $order->order_id,
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
+        $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v3/posting/fbs/get', $body);
 
         if(!$response->ok()) {
@@ -1418,9 +1347,7 @@ class MarketplaceApiService
             ]
         ];
 
-        $response = Http::accept('application/json')
-            ->withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
+        $response = self::wbRequest()
             ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
         if(!$response->ok()) {
@@ -1428,5 +1355,100 @@ class MarketplaceApiService
         }
 
         return $response->object()->orders[0]->supplierStatus;
+    }
+
+    private static function verifyOrFixExemplarStatus($orderId): bool
+    {
+        $body = [
+            "posting_number" => $orderId,
+        ];
+
+        $response = self::ozonRequest()
+            ->post('https://api-seller.ozon.ru/v4/fbs/posting/product/exemplar/status', $body);
+
+        if (!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->error('Не удалось получить статус экземпляров заказа '. $orderId);
+            return false;
+        }
+
+        if ($response->object()->status == 'ship_available') {
+            return true;
+        }
+
+        $text = 'Статус экземпляров заказа '. $orderId . ' не соответствует "ship_available"!' .
+            ' Статус: '. $response->object()->status .
+            ' Пробуем передать что ГТД не обязательна...';
+
+        TgService::sendMessage(
+            config('telegram.admin_id'),
+            'Срочно! Передайте разработчику сообщение для проверки заказа с ГТД: ' . $text
+        );
+
+        Log::channel('marketplace_api')
+            ->error($text);
+
+        return self::markExemplarAsGtdAbsent($response);
+    }
+
+    private static function markExemplarAsGtdAbsent($response): bool
+    {
+        if (empty($response->products[0]?->exemplars[0])) {
+            Log::channel('marketplace_api')->error('Нет данных о продукте или экземпляре', ['response' => $response]);
+            return false;
+        }
+
+        $product = $response->products[0];
+        $exemplar = $product->exemplars[0];
+
+        $body = [
+            "posting_number" => $response->posting_number,
+            "products" => [
+                [
+                    "product_id" => $product->product_id,
+                    "is_gtd_needed" => true,
+                    "exemplars" => [
+                        [
+                            "exemplar_id" => $exemplar->exemplar_id,
+                            "is_gtd_absent" => true
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $apiResponse = self::ozonRequest()
+            ->post('https://api-seller.ozon.ru/v5/fbs/posting/product/exemplar/set', $body);
+
+        if(!$apiResponse->ok()) {
+            Log::channel('marketplace_api')
+                ->error('Не удалось установить "ГТД отсутствует" для заказа '. $apiResponse->object()->posting_number, [
+                    'body' => $body,
+                    'response' => $apiResponse->object()
+                ]);
+            return false;
+        }
+
+        Log::channel('marketplace_api')
+            ->info('Установили "ГТД отсутствует" для заказа '. $apiResponse->object()->posting_number);
+
+        return true;
+    }
+
+    private static function ozonRequest(): PendingRequest
+    {
+        return Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders([
+                'Client-Id' => self::getOzonSellerId(),
+                'Api-Key' => self::getOzonApiKey(),
+            ]);
+    }
+
+    private static function wbRequest(): PendingRequest
+    {
+        return Http::accept('application/json')
+            ->withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => self::getWbApiKey()]);
     }
 }
