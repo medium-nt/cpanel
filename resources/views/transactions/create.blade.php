@@ -83,7 +83,7 @@
                                 <input type="date"
                                        id="accrual_for_date"
                                        name="accrual_for_date"
-                                       min="{{ date('Y-m-01') }}"
+                                       min="{{ \Carbon\Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d') }}"
                                        max="{{ date('Y-m-d') }}"
                                        class="form-control @error('accrual_for_date') is-invalid @enderror"
                                        value="{{ old('accrual_for_date', date('Y-m-d')) }}"
