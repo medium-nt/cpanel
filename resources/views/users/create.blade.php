@@ -81,6 +81,7 @@
                             <option value="" disabled selected>---</option>
                             <option value="1">Швея</option>
                             <option value="2">Кладовщик</option>
+                            <option value="4">Закройщик</option>
                         </select>
                     </div>
 

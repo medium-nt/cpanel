@@ -9,7 +9,7 @@
 
 @section('content_body')
     <div class="row">
-        @if(auth()->user()->role->name != 'seamstress')
+        @if(auth()->user()->role->name == 'storekeeper' || auth()->user()->role->name == 'admin')
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
@@ -59,7 +59,7 @@
             <div class="card">
                 <div class="card-body">
 
-                    @if(auth()->user()->role->name == 'seamstress')
+                    @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
                     <div class="row">
                         <div class="form-group col-md-6">
                             <a href="{{ route('defect_materials.create', ['type_movement_id' => 4]) }}" class="btn btn-primary mr-3 mb-3">Добавить новый брак</a>
@@ -70,16 +70,16 @@
 
                     <div class="row">
                         <div class="form-group col-md-3">
-                            <select name="seamstress_id"
-                                    id="seamstress_id"
+                            <select name="users_id"
+                                    id="users_id"
                                     class="form-control"
                                     onchange="updatePageWithQueryParam(this)"
                                     required>
                                 <option value="" selected>Все</option>
-                                @foreach($seamstresses as $seamstress)
-                                    <option value="{{ $seamstress->id }}"
-                                            @if(request('seamstress_id') == $seamstress->id) selected @endif
-                                    >{{ $seamstress->name }}</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}"
+                                            @if(request('users_id') == $user->id) selected @endif
+                                    >{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -162,7 +162,7 @@
                                             </li>
                                         @endforeach
                                         <div class="mt-2">
-                                            Швея: <b>{{ $order->seamstress->name ?? '' }}</b>
+                                            Сотрудник: <b>{{ $order->seamstress->name ?? '' }} {{ $order->cutter->name ?? '' }}</b>
                                         </div>
                                         <div class="my-2">
                                             Тип: <b>{{ $order->type_movement_name }}</b>
@@ -214,7 +214,7 @@
                                 <th scope="col">Материалы</th>
                                 <th scope="col">Статус</th>
                                 <th scope="col">Тип</th>
-                                <th scope="col">Швея</th>
+                                <th scope="col">Сотрудник</th>
                                 <th scope="col">Комментарий</th>
                                 <th scope="col">Дата</th>
                             </tr>
@@ -268,7 +268,7 @@
                                         <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                     </td>
                                     <td>{{ $order->type_movement_name }}</td>
-                                    <td>{{ $order->seamstress->name ?? '' }}</td>
+                                    <td>{{ $order->seamstress->name ?? '' }} {{ $order->cutter->name ?? '' }}</td>
                                     <td>{{ $order->comment }}</td>
                                     <td>{{ $order->created_date }}</td>
 

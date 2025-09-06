@@ -14,29 +14,28 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use Throwable;
 
 class MarketplaceOrderItemService
 {
     public static function getFiltered($request): Builder
     {
-        $status = $request->status ?? 'in_work';
-
-        $statusId = match ($request->status) {
-            'new' => 0,
-            'done' => 3,
-            'labeling' => 5,
-            default => 4,
+        $status = match (auth()->user()->role->name) {
+            'cutter' => $request->status ?? 'cutting',
+            'seamstress' => $request->status ?? 'in_work',
+            default => $request->status ?? 'new',
         };
 
         $items = MarketplaceOrderItem::query();
 
-        $items = match ($statusId) {
-            0 => $items->where('marketplace_order_items.status', 0),
-            3 => $items->where('marketplace_order_items.status', 3),
-            5 => $items->where('marketplace_order_items.status', 5),
-            default => $items->where('marketplace_order_items.status', 4),
+        $items = match ($status) {
+            'new' => $items->where('marketplace_order_items.status', 0),
+            'in_work' => $items->where('marketplace_order_items.status', 4),
+            'done' => $items->where('marketplace_order_items.status', 3),
+            'labeling' => $items->where('marketplace_order_items.status', 5),
+            'cutting' => $items->where('marketplace_order_items.status', 7),
+            'cut' => $items->where('marketplace_order_items.status', 8),
+            default => $items,
         };
 
         $items = $items->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
@@ -50,11 +49,18 @@ class MarketplaceOrderItemService
             $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
         }
 
-        if ($request->has('seamstress_id') && $status != 'new') {
-            $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);
+        if(auth()->user()->role->name === 'cutter' && $status != 'new') {
+            $items = $items->where('marketplace_order_items.cutter_id', auth()->user()->id);
         }
 
-        if ($request->has('date_start') && $status == 'in_work') {
+        if ($request->has('user_id') && $status != 'new') {
+            $items = $items->where(function ($query) use ($request) {
+                $query->where('marketplace_order_items.seamstress_id', $request->user_id)
+                    ->orWhere('marketplace_order_items.cutter_id', $request->user_id);
+            });
+        }
+
+        if ($request->has('date_start') && ($status == 'in_work' || $status == 'cutting')) {
             $items = $items->where('marketplace_order_items.created_at', '>=', $request->date_start);
         }
 
@@ -68,7 +74,7 @@ class MarketplaceOrderItemService
 
         $dateEndWithTime = Carbon::parse($request->date_end)->endOfDay();
 
-        if ($request->has('date_end') && $status == 'in_work') {
+        if ($request->has('date_end') && ($status == 'in_work' || $status == 'cutting')) {
             $items = $items->where('marketplace_order_items.created_at', '<=', $dateEndWithTime);
         }
 
@@ -79,159 +85,68 @@ class MarketplaceOrderItemService
         return $items;
     }
 
-/*
-    public static function acceptToSeamstress($marketplaceOrderItem): array
-    {
-        if (ScheduleService::isEnabledSchedule()) {
-            if (!ScheduleService::isWorkDay()) {
-                return [
-                    'success' => false,
-                    'message' => 'Вы не можете взять заказ в нерабочий день!'
-                ];
-            }
-
-            $nowTime = Carbon::now();
-            if ($nowTime->lt(Carbon::createFromFormat('H:i:s', '07:00:00')) ||
-                $nowTime->gte(Carbon::createFromFormat('H:i:s', '20:00:00'))) {
-                return [
-                    'success' => false,
-                    'message' => 'Вы не можете взять заказ в нерабочее время! Сейчас ' . $nowTime->format('H:i:s') . '!'
-                ];
-            }
-        }
-
-        $maxCountOrderItems = self::getMaxQuantityOrdersToSeamstress();
-
-        $seamstressId = auth()->user()->id;
-
-        $maxStack = StackService::getMaxStackByUser($seamstressId)->max;
-
-        if ($maxStack >= $maxCountOrderItems){
-            return [
-                'success' => false,
-                'message' => 'Сначала вам необходимо закрыть все текущие заказы.'
-            ];
-        }
-
-//        TO_DO скорее всего ненужная проверка.
-//        $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
-//            ->whereIn('status', [4, 5])
-//            ->where('seamstress_id', auth()->user()->id)
-//            ->count();
-//
-//        if ($countOrderItemsBySeamstress > $maxCountOrderItems) {
-//            return [
-//                'success' => false,
-//                'message' => 'Вы не можете взять больше ' . $maxCountOrderItems . ' заказов!'
-//            ];
-//        }
-
-        $marketplaceItem = $marketplaceOrderItem->item()->first();
-        $materialConsumptions = $marketplaceItem->consumption;
-
-        if ($materialConsumptions->isEmpty()) {
-            return [
-                'success' => false,
-                'message' => 'Для этого заказа не указаны материалы!'
-            ];
-        }
-
-        $quantityOrderItem = $marketplaceOrderItem->quantity;
-
-        foreach ($materialConsumptions as $materialConsumption) {
-            $materialId = $materialConsumption->material_id;
-            $materialConsumptionQuantity = $materialConsumption->quantity;
-
-            $materialInWorkhouse = InventoryService::materialInWorkshop($materialId);
-
-            if ($materialInWorkhouse < $materialConsumptionQuantity * $quantityOrderItem) {
-                return [
-                    'success' => false,
-                    'message' => 'Для этого заказа на производстве недостаточно материала!'
-                ];
-            }
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $marketplaceOrderItem->update([
-                'status' => 4,
-                'seamstress_id' => auth()->user()->id
-            ]);
-
-            $order = Order::query()->create([
-                'type_movement' => 3,
-                'status' => 4,
-                'seamstress_id' => auth()->user()->id,
-                'comment' => 'По заказу No: ' . $marketplaceOrderItem->marketplaceOrder->order_id,
-                'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id
-            ]);
-
-            foreach ($materialConsumptions as $item) {
-                $movementData['material_id'] = $item->material_id;
-                $movementData['quantity'] = $item->quantity * $quantityOrderItem;
-                $movementData['order_id'] = $order->id;
-
-                MovementMaterial::query()->create($movementData);
-            }
-
-            //  добавляем +1 к стэку и максимуму в стэке.
-            StackService::incrementStackAndMaxStack($seamstressId);
-
-            DB::commit();
-
-        } catch (Throwable $e) {
-            DB::rollBack();
-
-            return [
-                'success' => false,
-                'message' => 'Внутренняя ошибка'
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Заказ принят'
-        ];
-    }*/
-
     public static function cancelToSeamstress(MarketplaceOrderItem $marketplaceOrderItem): array
     {
+        if (!in_array($marketplaceOrderItem->status, [4, 5, 7])) {
+            return [
+                'success' => false,
+                'message' => 'Заказ с таким статусом не может быть отменен'
+            ];
+        }
+
         try {
             DB::beginTransaction();
 
-            $logMessage =
-                '    Отменен заказ № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
-                ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено. Не выплаченная зарплата и бонусы - удалены.' . PHP_EOL .
-                'Швея: ' . $marketplaceOrderItem->seamstress->name .
-                ' (' . $marketplaceOrderItem->seamstress->id . ')' . PHP_EOL .
-                'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
+            $logMessage = '';
+            $noCut = !($marketplaceOrderItem->status == 7 && $marketplaceOrderItem->cutter_id);
 
-            //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
-//            StackService::reduceStack($marketplaceOrderItem->seamstress_id);
+            //  если на раскрое
+            if ($marketplaceOrderItem->status == 7) {
+                $logMessage =
+                    'Отменен закрой заказа № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
+                    ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на закрой - удалено.' . PHP_EOL .
+                    'Закройщик: ' . $marketplaceOrderItem->cutter->name .
+                    ' (' . $marketplaceOrderItem->cutter->id . ')' . PHP_EOL .
+                    'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
 
-            $marketplaceOrderItem->update([
-                'status' => 0,
-                'seamstress_id' => 0,
-                'completed_at' => null
-            ]);
+                $marketplaceOrderItem->status = 0;
+                $marketplaceOrderItem->cutter_id = null;
+            }
 
-            Transaction::query()
-                ->where('marketplace_order_item_id', $marketplaceOrderItem->id)
-                ->where('user_id', $marketplaceOrderItem->seamstress->id)
-                ->where('status', '!=', 2)
-                ->delete();
+            //  если на пошиве
+            if ($marketplaceOrderItem->status == 4 || $marketplaceOrderItem->status == 5) {
+                $logMessage =
+                    'Отменен пошив заказа № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
+                    ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено. Не выплаченная зарплата и бонусы - удалены.' . PHP_EOL .
+                    'Швея: ' . $marketplaceOrderItem->seamstress->name .
+                    ' (' . $marketplaceOrderItem->seamstress->id . ')' . PHP_EOL .
+                    'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
 
-            $order = Order::query()
-                ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
-                ->first();
 
-            MovementMaterial::query()
-                ->where('order_id', $order->id)
-                ->delete();
+                $marketplaceOrderItem->status = ($noCut) ? 0 : 8;
+                $marketplaceOrderItem->seamstress_id = 0;
 
-            $order->delete();
+                Transaction::query()
+                    ->where('marketplace_order_item_id', $marketplaceOrderItem->id)
+                    ->where('user_id', $marketplaceOrderItem->seamstress->id)
+                    ->where('status', '!=', 2)
+                    ->delete();
+            }
+
+            $marketplaceOrderItem->completed_at = null;
+            $marketplaceOrderItem->save();
+
+            if($noCut){
+                $order = Order::query()
+                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+                    ->first();
+
+                MovementMaterial::query()
+                    ->where('order_id', $order->id)
+                    ->delete();
+
+                $order->delete();
+            }
 
             Log::channel('erp')
                 ->notice($logMessage);
@@ -419,29 +334,24 @@ class MarketplaceOrderItemService
 
     private static function checkMaxStack(): array
     {
-        $countOrderItemsBySeamstress = MarketplaceOrderItem::query()
-            ->whereIn('status', [4, 5])
-            ->where('seamstress_id', auth()->user()->id)
-            ->count();
+        $query = MarketplaceOrderItem::query();
+
+        $orderItemsByUser = match (auth()->user()->role->name) {
+            'seamstress' => $query->where('seamstress_id', auth()->user()->id)
+                ->whereIn('status', [4, 5]),
+            'cutter'     => $query->where('cutter_id', auth()->user()->id)
+                ->where('status', 7),
+            default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+        };
 
         $maxCountOrderItems = self::getMaxQuantityOrdersToSeamstress();
 
-        if ($countOrderItemsBySeamstress >= $maxCountOrderItems) {
+        if ($orderItemsByUser->count() >= $maxCountOrderItems) {
             return [
                 'success' => false,
                 'message' => 'Вы не можете взять больше ' . $maxCountOrderItems . ' заказов!'
             ];
         }
-
-//        $seamstressId = auth()->user()->id;
-//
-//        $maxStack = StackService::getMaxStackByUser($seamstressId)->max;
-//        if ($maxStack >= $maxCountOrderItems){
-//            return [
-//                'success' => false,
-//                'message' => 'Достигнут максимум заказов. Сначала вам необходимо закрыть все текущие заказы.'
-//            ];
-//        }
 
         return [
             'success' => true,
@@ -483,25 +393,36 @@ class MarketplaceOrderItemService
         ];
     }
 
-    private static function assignOrderToSeamstress($marketplaceOrderItem): array
+    private static function assignOrderToUser($marketplaceOrderItem): array
     {
         try {
             $marketplaceItem = $marketplaceOrderItem->item()->first();
             $materialConsumptions = $marketplaceItem->consumption;
             $quantityOrderItem = $marketplaceOrderItem->quantity;
-            $seamstressId = auth()->user()->id;
+
+            $field = match (auth()->user()->role->name) {
+                'seamstress' => 'seamstress_id',
+                'cutter'     => 'cutter_id',
+                default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+            };
+
+            $status = match (auth()->user()->role->name) {
+                'seamstress' => 4,
+                'cutter'     => 7,
+                default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+            };
 
             DB::beginTransaction();
 
             $marketplaceOrderItem->update([
-                'status' => 4,
-                'seamstress_id' => auth()->user()->id
+                'status' => $status,
+                $field => auth()->user()->id
             ]);
 
             $order = Order::query()->create([
                 'type_movement' => 3,
                 'status' => 4,
-                'seamstress_id' => auth()->user()->id,
+                $field => auth()->user()->id,
                 'comment' => 'По заказу No: ' . $marketplaceOrderItem->marketplaceOrder->order_id,
                 'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id
             ]);
@@ -513,9 +434,6 @@ class MarketplaceOrderItemService
 
                 MovementMaterial::query()->create($movementData);
             }
-
-            //  добавляем +1 к стэку и максимуму в стэке.
-//            StackService::incrementStackAndMaxStack($seamstressId);
 
             DB::commit();
 
@@ -547,9 +465,20 @@ class MarketplaceOrderItemService
         }
 
         $items = MarketplaceOrderItem::query()
-            ->where('marketplace_order_items.status', 0)
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
-            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
+
+//        если швея (без кроя), то заказы со статусом "cutting"
+//        if (auth()->user()->role->name === 'seamstress') {
+//            $items = $items->where('marketplace_order_items.status', 7);
+//        }
+
+        //  если закройщик или швея-закройщик, то заказы со статусом "new"
+        if (auth()->user()->role->name === 'seamstress' || auth()->user()->role->name === 'cutter') {
+            $items = $items->where('marketplace_order_items.status', 0);
+        }
+
+        $items = $items
             ->orderBy('marketplace_orders.fulfillment_type', 'asc');
 
         // Персональный приоритет заказов
@@ -590,7 +519,7 @@ class MarketplaceOrderItemService
 
                 $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
                     ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
-                    ') взяла в работу швея: ' . auth()->user()->name;
+                    ') взял в работу сотрудник: ' . auth()->user()->name;
 
                 TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -603,7 +532,7 @@ class MarketplaceOrderItemService
 
                 Log::channel('erp')->info($text);
 
-                return self::assignOrderToSeamstress($marketplaceOrderItem);
+                return self::assignOrderToUser($marketplaceOrderItem);
             }
 
             $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала';

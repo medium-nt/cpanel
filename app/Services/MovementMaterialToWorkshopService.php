@@ -45,8 +45,14 @@ class MovementMaterialToWorkshopService
         try {
             DB::beginTransaction();
 
+            $field = match (auth()->user()->role->name) {
+                'seamstress' => 'seamstress_id',
+                'cutter'     => 'cutter_id',
+                default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+            };
+
             $order = Order::query()->create([
-                'seamstress_id' => auth()->user()->id,
+                $field => auth()->user()->id,
                 'type_movement' => 2,
                 'status' => 0,
                 'comment' => $request->comment

@@ -387,7 +387,6 @@ return [
                     'text' => 'marketplace_order_items',
                     'url' => 'megatulle/marketplace_order_items',
                     'icon' => 'fas fa-fw fa-stream',
-//                    'can' => 'is-seamstress-or-admin',
                 ],
             ]
         ],
@@ -396,13 +395,7 @@ return [
             'text' => 'transactions',
             'url' => 'megatulle/transactions',
             'icon' => 'fas fa-fw fa-coins',
-//            'can' => 'is-admin',
         ],
-//        [
-//            'text' => 'salary',
-//            'url' => 'megatulle/salary',
-//            'icon' => 'fas fa-fw fa-hand-holding-usd',
-//        ],
         [
             'text' => 'settings',
             'icon' => 'fas fa-fw fa-cog',

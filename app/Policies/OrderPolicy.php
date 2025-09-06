@@ -19,7 +19,7 @@ class OrderPolicy
 
     public function create(User $user): bool
     {
-        return $user->role->name == 'seamstress';
+        return $user->role->name == 'seamstress' || $user->role->name == 'cutter';
     }
 
     public function update(User $user, Order $order): bool
@@ -31,7 +31,7 @@ class OrderPolicy
 
         match ($order->status) {
             1 => $return = $user->role->name == 'storekeeper',
-            2 => $return = $user->role->name == 'seamstress',
+            2 => $return = $user->role->name == 'seamstress' || $user->role->name == 'cutter',
             default => false
         };
 

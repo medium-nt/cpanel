@@ -14,6 +14,7 @@ class Order extends Model
         'supplier_id',
         'storekeeper_id',
         'seamstress_id',
+        'cutter_id',
         'comment',
         'marketplace_order_id',
         'is_approved',
@@ -45,6 +46,11 @@ class Order extends Model
     public function seamstress(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seamstress_id');
+    }
+
+    public function cutter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cutter_id');
     }
 
     public function movementMaterials(): hasMany

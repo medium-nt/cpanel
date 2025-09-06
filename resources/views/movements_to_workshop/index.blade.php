@@ -12,7 +12,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    @if(auth()->user()->role->name == 'seamstress')
+                    @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
                         <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-1">Новый заказ</a>
                     @endif
 
@@ -58,7 +58,7 @@
                                                 <i class="fas fa-box-open"></i> Сформировать
                                             </a>
                                         </div>
-                                    @elseif( $order->status == '2' && $userRole == 'seamstress')
+                                    @elseif( $order->status == '2' && ($userRole == 'cutter' || $userRole == 'seamstress'))
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                                class="btn btn-success mr-1"
@@ -128,7 +128,7 @@
                                             <i class="fas fa-box-open"></i>
                                         </a>
                                     </div>
-                                    @elseif( $order->status == '2' && $userRole == 'seamstress')
+                                    @elseif( $order->status == '2' && ($userRole == 'cutter' || $userRole == 'seamstress'))
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                            class="btn btn-success mr-1"

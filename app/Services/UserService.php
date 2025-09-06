@@ -17,6 +17,7 @@ class UserService
             'admin' => $roleName = 'Руководитель',
             'storekeeper' => $roleName = 'Кладовщик',
             'seamstress' => $roleName = 'Швея',
+            'cutter' => $roleName = 'Закройщик',
             default => $roleName,
         };
 

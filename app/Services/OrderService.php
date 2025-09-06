@@ -26,8 +26,11 @@ class OrderService
             $orders = $orders->whereIn('type_movement', [4, 7]);
         }
 
-        if($request->has('seamstress_id')) {
-            $orders = $orders->where('seamstress_id', $request->seamstress_id);
+        if ($request->has('users_id')) {
+            $orders = $orders->where(function ($query) use ($request) {
+                $query->where('seamstress_id', $request->users_id)
+                    ->orWhere('cutter_id', $request->users_id);
+            });
         }
 
         if ($request->has('date_start')) {

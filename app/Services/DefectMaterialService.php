@@ -90,8 +90,14 @@ class DefectMaterialService
         try {
             DB::beginTransaction();
 
+            $field = match (auth()->user()->role->name) {
+                'seamstress' => 'seamstress_id',
+                'cutter'     => 'cutter_id',
+                default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+            };
+
             $order = Order::query()->create([
-                'seamstress_id' => auth()->user()->id,
+                $field => auth()->user()->id,
                 'type_movement' => $request->type_movement_id,
                 'status' => 0,
                 'comment' => $request->comment,
@@ -125,7 +131,7 @@ class DefectMaterialService
                 $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
             }
 
-            $text = 'Швея ' . auth()->user()->name . ' указала ' . $typeName . ': ' . "\n"  . $list;
+            $text = 'Сотрудник ' . auth()->user()->name . ' указал ' . $typeName . ': ' . "\n"  . $list;
 
             Log::channel('erp')
                 ->notice('    Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);

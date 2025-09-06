@@ -13,6 +13,7 @@ class MarketplaceOrderItem extends Model
         'quantity',
         'price',
         'seamstress_id',
+        'cutter_id',
         'status',
         'completed_at',
         'created_at'
@@ -38,6 +39,11 @@ class MarketplaceOrderItem extends Model
     public function seamstress()
     {
         return $this->hasOne(User::class, 'id', 'seamstress_id');
+    }
+
+    public function cutter()
+    {
+        return $this->hasOne(User::class, 'id', 'cutter_id');
     }
 
     public function getStatusNameAttribute(): string

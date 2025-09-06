@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Services\InventoryService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
-use App\Services\StackService;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -18,9 +17,13 @@ class MarketplaceOrderItemController extends Controller
 {
     public function index(Request $request)
     {
-        //  запретить швеям смотреть новые заказы
-        if($request->status == 'new' && auth()->user()->role->name === 'seamstress') {
-            return redirect()->route('marketplace_order_items.index');
+        //  запретить швеям смотреть новые заказы и заказы в закрое.
+        if(($request->status == 'new' || $request->status == 'cutting') && auth()->user()->role->name === 'seamstress') {
+            return redirect()->route('marketplace_order_items.index', ['status' => 'in_work']);
+        }
+        // запретить закройщикам смотреть новые заказы
+        if($request->status == 'new' && auth()->user()->role->name === 'cutter') {
+            return redirect()->route('marketplace_order_items.index', ['status' => 'cutting']);
         }
 
         $items = MarketplaceOrderItemService::getFiltered($request);
@@ -33,25 +36,10 @@ class MarketplaceOrderItemController extends Controller
             'items' => $paginatedItems->appends($queryParams),
             'materials' => InventoryService::materialsQuantityBy('workhouse'),
             'bonus' => TransactionService::getBonusForTodayOrdersByUsers(),
-            'seamstresses' => User::query()->where('role_id', '1')
+            'users' => User::query()->whereIn('role_id', [1, 4])
                 ->where('name', 'not like', '%Тест%')->get()
         ]);
     }
-
-//    public function startWork(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
-//    {
-//        $result = MarketplaceOrderItemService::acceptToSeamstress($marketplaceOrderItem);
-//
-//        if (!$result['success']) {
-//            return redirect()
-//                ->route('marketplace_order_items.index', ['status' => 'new'])
-//                ->with('error', $result['message']);
-//        }
-//
-//        return redirect()
-//            ->route('marketplace_order_items.index')
-//            ->with('success', $result['message']);
-//    }
 
     public function done(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
@@ -68,9 +56,6 @@ class MarketplaceOrderItemController extends Controller
                 'status' => 6,
                 'completed_at' => now()
             ]);
-
-        //  добавляем -1 к стэку и проверяем что если это последний заказ в стэке, то обнуляем стэк.
-//        StackService::reduceStack($marketplaceOrderItem->seamstress_id);
 
         $marketplaceOrderItem->update([
             'status' => 3,
@@ -151,4 +136,24 @@ class MarketplaceOrderItemController extends Controller
             ->with('error', $result['message']);
     }
 
+    public function completeCutting(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
+    {
+        Order::query()
+            ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+            ->update([
+                'status' => 3,
+                'completed_at' => now()
+            ]);
+
+        $marketplaceOrderItem->update([
+            'status' => 8,
+        ]);
+
+        $text = 'Закройщик ' . $marketplaceOrderItem->cutter->name .
+            ' (' . $marketplaceOrderItem->cutter->id . ') выполнил заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id .
+            ' (товар #' . $marketplaceOrderItem->id . ')';
+        Log::channel('erp')->notice($text);
+
+        return back()->with('success', 'Заказ успешно выполнен');
+    }
 }

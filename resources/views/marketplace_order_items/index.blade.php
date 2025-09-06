@@ -15,16 +15,16 @@
                 <div class="row">
                     @if(auth()->user()->role->name == 'admin' || auth()->user()->role->name == 'storekeeper')
                     <div class="form-group col-md-3">
-                        <select name="seamstress_id"
-                                id="seamstress_id"
+                        <select name="user_id"
+                                id="user_id"
                                 class="form-control"
                                 onchange="updatePageWithQueryParam(this)"
                                 required>
                             <option value="" selected>Все</option>
-                            @foreach($seamstresses as $seamstress)
-                                <option value="{{ $seamstress->id }}"
-                                        @if(request('seamstress_id') == $seamstress->id) selected @endif
-                                >{{ $seamstress->name }}</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}"
+                                        @if(request('user_id') == $user->id) selected @endif
+                                >{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -62,29 +62,49 @@
 
                 </div>
 
+                @if(auth()->user()->role->name === 'admin')
+                    <a href="{{ route('marketplace_order_items.index', [
+                    'status' => 'new',
+                    'user_id' => request('user_id'),
+                    'date_start' => request('date_start'),
+                    'date_end' => request('date_end'),
+                    'marketplace_id' => request('marketplace_id')
+                ]) }}"
+                       class="btn btn-link">Новые</a>
+                @endif
+
+                @if(auth()->user()->role->name == 'cutter' || auth()->user()->role->name == 'admin')
+                <a href="{{ route('marketplace_order_items.index', [
+                    'status' => 'cutting',
+                    'user_id' => request('user_id'),
+                    'date_start' => request('date_start'),
+                    'date_end' => request('date_end'),
+                    'marketplace_id' => request('marketplace_id')
+                ]) }}"
+                   class="btn btn-link">На раскрое</a>
+
+                <a href="{{ route('marketplace_order_items.index', [
+                    'status' => 'cut',
+                    'user_id' => request('user_id'),
+                    'date_start' => request('date_start'),
+                    'date_end' => request('date_end'),
+                    'marketplace_id' => request('marketplace_id')
+                ]) }}"
+                   class="btn btn-link">Раскроено</a>
+                @endif
+
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'in_work',
-                    'seamstress_id' => request('seamstress_id'),
+                    'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link">В работе</a>
 
-                @if(auth()->user()->role->name === 'admin')
-                <a href="{{ route('marketplace_order_items.index', [
-                    'status' => 'new',
-                    'seamstress_id' => request('seamstress_id'),
-                    'date_start' => request('date_start'),
-                    'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id')
-                ]) }}"
-                   class="btn btn-link">Новые</a>
-                @endif
-
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'labeling',
-                    'seamstress_id' => request('seamstress_id'),
+                    'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
@@ -93,7 +113,7 @@
 
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'done',
-                    'seamstress_id' => request('seamstress_id'),
+                    'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id')
@@ -128,7 +148,7 @@
         <div class="card only-on-desktop">
             <div class="card-body">
 
-                @if(auth()->user()->role->name == 'seamstress')
+                @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
                 <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                    class="btn btn-primary mb-3">Получить новый заказ</a>
                 @endif
@@ -199,11 +219,11 @@
                                 <td style="text-align: center">{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
+                                    @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter' || auth()->user()->role->name == 'admin')
                                         @switch($item->status)
                                             @case(4)
                                                 <div class="btn-group" role="group">
-                                                    @if(auth()->user()->role->name != 'admin')
+                                                    @if(auth()->user()->role->name == 'seamstress')
                                                         <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
                                                               method="POST">
                                                             @csrf
@@ -251,6 +271,39 @@
                                                         </form>
                                                     @endif
                                                 </div>
+                                                @break
+                                            @case(7)
+                                                @if(auth()->user()->role->name == 'cutter')
+                                                    <form action="{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-success mr-1"
+                                                                title="Сдать откроенное"
+                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
+                                                            <i class="far fa-sticky-note"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    @if($bonus > 0)
+                                                        <span class="badge border border-warning text-dark p-2" style="font-size: 20px;">
+                                                                <b>+ {{ $bonus * $item->item->width / 100 }}</b> <i class="fas fa-star text-warning"></i>
+                                                            </span>
+                                                    @endif
+                                                @endif
+
+                                                @if(auth()->user()->role->name == 'admin')
+                                                    <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-danger mr-1"
+                                                                title="Отменить заказ"
+                                                                onclick="return confirm('Вы уверены что хотите снять товар с закроя?')">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
                                                 @break
                                             @case(3)
                                                 <div class="btn-group" role="group">
@@ -305,7 +358,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body text-center">
-                        @if(auth()->user()->role->name == 'seamstress')
+                        @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
                             <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                                class="btn btn-primary">Получить новый заказ</a>
                         @endif
@@ -345,11 +398,11 @@
                                     </badge>
                                 </div>
 
-                                @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'admin')
+                                @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter' || auth()->user()->role->name == 'admin')
                                     @switch($item->status)
                                         @case(4)
                                             <div class="btn-group" role="group">
-                                                @if(auth()->user()->role->name != 'admin')
+                                                @if(auth()->user()->role->name == 'seamstress')
                                                     <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
@@ -397,6 +450,39 @@
                                                     </form>
                                                 @endif
                                             </div>
+                                            @break
+                                        @case(7)
+                                            @if(auth()->user()->role->name == 'cutter')
+                                                <form action="{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}"
+                                                      method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-success mr-1"
+                                                            title="Сдать откроенное"
+                                                            onclick="return confirm('Вы уверены что заказ выполнен?')">
+                                                        <i class="far fa-sticky-note"></i> Сдать откроенное
+                                                    </button>
+                                                </form>
+
+                                                @if($bonus > 0)
+                                                    <span class="badge border border-warning text-dark p-2" style="font-size: 20px;">
+                                                                <b>+ {{ $bonus * $item->item->width / 100 }}</b> <i class="fas fa-star text-warning"></i>
+                                                            </span>
+                                                @endif
+                                            @endif
+
+                                            @if(auth()->user()->role->name == 'admin')
+                                                <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
+                                                      method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-danger mr-1"
+                                                            title="Отменить заказ"
+                                                            onclick="return confirm('Вы уверены что хотите снять товар с закроя?')">
+                                                        <i class="fas fa-times"></i> Отменить заказ
+                                                    </button>
+                                                </form>
+                                            @endif
                                             @break
                                         @case(3)
                                             <div class="btn-group" role="group">
