@@ -106,7 +106,7 @@ class TransactionService
     public static function activateHoldBonus(): void
     {
         Transaction::query()
-            ->where('created_at', '<', now()->subDays(30))
+            ->where('created_at', '<', now()->subDays(14))
             ->where('is_bonus', true)
             ->where('status', 0)
             ->update([
@@ -114,7 +114,7 @@ class TransactionService
             );
 
         Log::channel('erp')
-            ->info('Активировали бонусы, по которым прошло более 30 дней');
+            ->info('Активировали бонусы, по которым прошло более 14 дней');
     }
 
     public static function getSeamstressBalance(string $type): int
