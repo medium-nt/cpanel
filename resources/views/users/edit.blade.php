@@ -134,7 +134,7 @@
                 </div>
             </div>
 
-            @if($user->role->name == 'seamstress')
+            @if($user->role->name == 'seamstress' || $user->role->name == 'cutter')
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Таблица мотивации</h3>
@@ -148,12 +148,18 @@
                             <thead>
                             <tr>
                                 <th colspan="2" class="text-center">Объем в день (метров)</th>
-                                <th colspan="2" class="text-center">Ставка за метр</th>
+                                <th colspan="2" class="text-center">Бонусы за метр</th>
                             </tr>
                             <tr>
                                 <th class="text-center">От</th>
                                 <th class="text-center">До</th>
-                                <th class="text-center">Бонус</th>
+                                @if($user->role->name == 'seamstress')
+                                <th class="text-center">с закроем</th>
+                                <th class="text-center">без кроя</th>
+                                @endif
+                                @if($user->role->name == 'cutter')
+                                <th class="text-center">закройщик</th>
+                                @endif
                             </tr>
                             </thead>
                             <tbody>
@@ -174,11 +180,25 @@
                                                id="to_{{$i}}" name="to[]"
                                                value="{{ old('to')[$i] ?? $motivation?->to ?? '' }}">
                                     </td>
+                                    @if($user->role->name == 'seamstress')
                                     <td>
                                         <input type="number" class="form-control"
                                                id="bonus_{{$i}}" name="bonus[]"
                                                value="{{ old('bonus')[$i] ?? $motivation?->bonus ?? '' }}">
                                     </td>
+                                    <td>
+                                        <input type="number" class="form-control"
+                                               id="not_cutter_bonus_{{$i}}" name="not_cutter_bonus[]"
+                                               value="{{ old('not_cutter_bonus')[$i] ?? $motivation?->not_cutter_bonus ?? '' }}">
+                                    </td>
+                                    @endif
+                                    @if($user->role->name == 'cutter')
+                                        <td>
+                                            <input type="number" class="form-control"
+                                                   id="cutter_bonus_{{$i}}" name="cutter_bonus[]"
+                                                   value="{{ old('cutter_bonus')[$i] ?? $motivation?->cutter_bonus ?? '' }}">
+                                        </td>
+                                    @endif
                                 </tr>
                                 @php
                                     $previous_to = old('to')[$i] ?? $motivation?->to ?? '';
@@ -205,7 +225,17 @@
                             <thead>
                             <tr>
                                 <th class="text-center">Ширина</th>
-                                <th class="text-center">Оплата</th>
+                                <th colspan="2" class="text-center">Оплата</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center">метраж</th>
+                                @if($user->role->name == 'seamstress')
+                                <th class="text-center">с закроем</th>
+                                <th class="text-center">без кроя</th>
+                                @endif
+                                @if($user->role->name == 'cutter')
+                                <th class="text-center">закройщик</th>
+                                @endif
                             </tr>
                             </thead>
                             <tbody>
@@ -222,11 +252,25 @@
                                                value="{{ old('width')[$i] ?? $rate?->width ?? $width }}"
                                                readonly>
                                     </td>
+                                    @if($user->role->name == 'seamstress')
                                     <td>
                                         <input type="number" class="form-control"
                                                id="rate_{{$i}}" name="rate[]"
                                                value="{{ old('rate')[$i] ?? $rate?->rate ?? '' }}">
                                     </td>
+                                    <td>
+                                        <input type="number" class="form-control"
+                                               id="not_cutter_rate_{{$i}}" name="not_cutter_rate[]"
+                                               value="{{ old('not_cutter_rate')[$i] ?? $rate?->not_cutter_rate ?? '' }}">
+                                    </td>
+                                    @endif
+                                    @if($user->role->name == 'cutter')
+                                        <td>
+                                            <input type="number" class="form-control"
+                                                   id="cutter_rate_{{$i}}" name="cutter_rate[]"
+                                                   value="{{ old('cutter_rate')[$i] ?? $rate?->cutter_rate ?? '' }}">
+                                        </td>
+                                    @endif
                                 </tr>
                             @endfor
                             </tbody>

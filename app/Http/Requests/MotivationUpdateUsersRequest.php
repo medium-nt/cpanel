@@ -29,6 +29,10 @@ class MotivationUpdateUsersRequest extends FormRequest
             'to.*' => 'nullable|numeric|min:1|max:255',
             'bonus' => 'array',
             'bonus.*' => 'nullable|numeric|min:0|max:255',
+            'not_cutter_bonus' => 'array',
+            'not_cutter_bonus.*' => 'nullable|numeric|min:0|max:255',
+            'cutter_bonus' => 'array',
+            'cutter_bonus.*' => 'nullable|numeric|min:0|max:255',
         ];
     }
 
@@ -59,10 +63,20 @@ class MotivationUpdateUsersRequest extends FormRequest
             'to.*.max' => 'Максимально возможное число для поля "До" - 255',
             'to.*.min' => 'Меньше 1 в поле "До" указывать нельзя',
 
-            'bonus.array' => 'Ошибка в данных поля "бонус"',
+            'bonus.array' => 'Ошибка в данных поля "бонус с закроем"',
             'bonus.*.numeric' => 'Должно быть указано число',
-            'bonus.*.max' => 'Максимально возможное число для поля "бонус" - 255',
+            'bonus.*.max' => 'Максимально возможное число для поля "бонус с закроем" - 255',
             'bonus.*.min' => 'Меньше 0 указывать нельзя',
+
+            'not_cutter_bonus.array' => 'Ошибка в данных поля "бонус без кроя"',
+            'not_cutter_bonus.*.numeric' => 'Должно быть указано число',
+            'not_cutter_bonus.*.max' => 'Максимально возможное число для поля "бонус без кроя" - 255',
+            'not_cutter_bonus.*.min' => 'Меньше 0 указывать нельзя',
+
+            'cutter_bonus.array' => 'Ошибка в данных поля "бонус закройщика"',
+            'cutter_bonus.*.numeric' => 'Должно быть указано число',
+            'cutter_bonus.*.max' => 'Максимально возможное число для поля "бонус закройщика" - 255',
+            'cutter_bonus.*.min' => 'Меньше 0 указывать нельзя',
         ];
     }
 }

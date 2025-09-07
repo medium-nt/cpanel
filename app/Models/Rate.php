@@ -12,5 +12,7 @@ class Rate extends Model
         'user_id',
         'width',
         'rate',
+        'not_cutter_rate',
+        'cutter_rate',
     ];
 }

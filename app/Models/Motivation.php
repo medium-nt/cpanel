@@ -14,5 +14,7 @@ class Motivation extends Model
         'to',
         'rate',
         'bonus',
+        'not_cutter_bonus',
+        'cutter_bonus',
     ];
 }

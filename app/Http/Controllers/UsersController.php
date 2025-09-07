@@ -176,7 +176,6 @@ class UsersController extends Controller
         Motivation::query()->where('user_id', $user->id)->delete();
 
         foreach ($request->from as $key => $value) {
-
             if($request->to[$key]) {
                 Motivation::query()->create(
                     [
@@ -184,6 +183,8 @@ class UsersController extends Controller
                         'from' => $request->from[$key],
                         'to' => $request->to[$key],
                         'bonus' => $request->bonus[$key] ?? 0,
+                        'not_cutter_bonus' => $request->not_cutter_bonus[$key] ?? 0,
+                        'cutter_bonus' => $request->cutter_bonus[$key] ?? 0
                     ]
                 );
             }
@@ -204,6 +205,8 @@ class UsersController extends Controller
                     'user_id' => $user->id,
                     'width' => $width,
                     'rate' => $request->rate[$key] ?? 0,
+                    'not_cutter_rate' => $request->not_cutter_rate[$key] ?? 0,
+                    'cutter_rate' => $request->cutter_rate[$key] ?? 0
                 ]
             );
         }
