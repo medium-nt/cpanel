@@ -34,7 +34,7 @@ class MarketplaceOrderItemController extends Controller
         return view('marketplace_order_items.index', [
             'title' => 'Товары для пошива',
             'items' => $paginatedItems->appends($queryParams),
-            'materials' => InventoryService::materialsQuantityBy('workhouse'),
+//            'materials' => InventoryService::materialsQuantityBy('workhouse'),
             'bonus' => TransactionService::getBonusForTodayOrdersByUsers(),
             'users' => User::query()->whereIn('role_id', [1, 4])
                 ->where('name', 'not like', '%Тест%')->get()

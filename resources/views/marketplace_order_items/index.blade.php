@@ -124,11 +124,11 @@
 
         @php
             $fewMaterials = [];
-            foreach($materials as $material) {
-                if($material['quantity'] <= 100) {
-                    $fewMaterials[] = $material;
-                }
-            }
+//            foreach($materials as $material) {
+//                if($material['quantity'] <= 100) {
+//                    $fewMaterials[] = $material;
+//                }
+//            }
         @endphp
 
         @if(count($fewMaterials) != 0)
