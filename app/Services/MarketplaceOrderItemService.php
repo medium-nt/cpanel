@@ -464,47 +464,7 @@ class MarketplaceOrderItemService
             return $result;
         }
 
-        $items = MarketplaceOrderItem::query()
-            ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
-            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
-
-//        если швея (без кроя), то заказы со статусом "cutting"
-//        if (auth()->user()->role->name === 'seamstress') {
-//            $items = $items->where('marketplace_order_items.status', 7);
-//        }
-
-        //  если закройщик или швея-закройщик, то заказы со статусом "new"
-        if (auth()->user()->role->name === 'seamstress' || auth()->user()->role->name === 'cutter') {
-            $items = $items->where('marketplace_order_items.status', 0);
-        }
-
-        $items = $items
-            ->orderBy('marketplace_orders.fulfillment_type', 'asc');
-
-        // Персональный приоритет заказов
-        $items = match (auth()->user()->orders_priority) {
-            'fbo' => $items->where('marketplace_orders.fulfillment_type', 'FBO'),
-            'fbo_200' => $items->where('marketplace_orders.fulfillment_type', 'FBO')
-                ->where('marketplace_items.width', 200),
-            default => $items
-        };
-
-        // Глобальный приоритет заказов
-        $orders_priority = Setting::query()
-            ->where('name', 'orders_priority')
-            ->first();
-
-        $items = match ($orders_priority->value) {
-            'ozon' => $items->orderBy('marketplace_orders.marketplace_id', 'asc'),
-            'wb' => $items->orderBy('marketplace_orders.marketplace_id', 'desc'),
-            default => $items
-        };
-
-        $items = $items
-            ->orderBy('marketplace_orders.created_at', 'asc')
-            ->orderBy('marketplace_order_items.id', 'asc')
-            ->select('marketplace_order_items.*')
-            ->get();
+        $items = self::getFilteredItems();
 
         foreach ($items as $marketplaceOrderItem) {
             $item = $marketplaceOrderItem->item()->first();
@@ -544,6 +504,51 @@ class MarketplaceOrderItemService
             'success' => false,
             'message' => 'Нет доступных заказов'
         ];
+    }
+
+    private static function getFilteredItems(): Collection
+    {
+        $items = MarketplaceOrderItem::query()
+            ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
+
+//        если швея (без кроя), то заказы со статусом "cutting"
+//        if (auth()->user()->role->name === 'seamstress') {
+//            $items = $items->where('marketplace_order_items.status', 7);
+//        }
+
+//          если закройщик или швея-закройщик, то заказы со статусом "new"
+        if (auth()->user()->role->name === 'seamstress' || auth()->user()->role->name === 'cutter') {
+            $items = $items->where('marketplace_order_items.status', 0);
+        }
+
+        $items = $items
+            ->orderBy('marketplace_orders.fulfillment_type', 'asc');
+
+        // Персональный приоритет заказов
+        $items = match (auth()->user()->orders_priority) {
+            'fbo' => $items->where('marketplace_orders.fulfillment_type', 'FBO'),
+            'fbo_200' => $items->where('marketplace_orders.fulfillment_type', 'FBO')
+                ->where('marketplace_items.width', 200),
+            default => $items
+        };
+
+        // Глобальный приоритет заказов
+        $orders_priority = Setting::query()
+            ->where('name', 'orders_priority')
+            ->first();
+
+        $items = match ($orders_priority->value) {
+            'ozon' => $items->orderBy('marketplace_orders.marketplace_id', 'asc'),
+            'wb' => $items->orderBy('marketplace_orders.marketplace_id', 'desc'),
+            default => $items
+        };
+
+        return $items
+            ->orderBy('marketplace_orders.created_at', 'asc')
+            ->orderBy('marketplace_order_items.id', 'asc')
+            ->select('marketplace_order_items.*')
+            ->get();
     }
 
 }
