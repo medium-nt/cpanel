@@ -798,6 +798,9 @@ class MarketplaceApiService
     {
         $resultArray = [];
 
+        Log::channel('marketplace_api')
+            ->info('Получены отмененные заказы:' . json_encode($cancelledProductsOzon));
+
         foreach ($cancelledProductsOzon as $product) {
             $order = MarketplaceOrder::query()
                 ->where('order_id', $product->id)
@@ -809,7 +812,6 @@ class MarketplaceApiService
 
                 switch ($item->status) {
                     case 0:
-
                         Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' удален.');
 
                         $resultArray[] = [
@@ -818,12 +820,10 @@ class MarketplaceApiService
                         ];
 
                         self::deleteAllOrderItemsMovementsAndOrdersMovements($order->id);
-
                         $order->delete();
-
                         break;
                     case 4:
-
+                    case 5:
                         Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' изменен на FBO.');
 
                         $resultArray[] = [
@@ -836,6 +836,9 @@ class MarketplaceApiService
                 }
             }
         }
+
+        Log::channel('marketplace_api')
+            ->info('Отмененные заказы обработаны:' . json_encode($resultArray));
 
         return $resultArray;
     }
