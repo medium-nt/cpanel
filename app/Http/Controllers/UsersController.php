@@ -116,6 +116,7 @@ class UsersController extends Controller
             'password' => 'nullable|confirmed|string|min:6',
             'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',
             'orders_priority' => 'string|in:all,fbo,fbo_200',
+            'is_cutter' => 'boolean',
         ];
 
         $validatedData = $request->validate($rules);

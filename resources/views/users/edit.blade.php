@@ -88,6 +88,28 @@
                                 <option value="fbo_200" {{ $user->orders_priority == 'fbo_200' ? 'selected' : '' }}>Только FBO 200 (стажер)</option>
                             </select>
                         </div>
+
+                            <div class="form-group">
+                                <div class="d-flex align-items-center">
+                                    <span class="mr-2">Швея (без кроя)</span>
+
+                                    <div class="custom-control custom-switch">
+                                        <input type="hidden" name="is_cutter" value="0">
+
+                                        <input type="checkbox"
+                                               class="custom-control-input"
+                                               name="is_cutter"
+                                               value="1"
+                                               id="is_cutter"
+                                            @checked(old('is_cutter', $user->is_cutter ?? false))>
+
+                                        <label class="custom-control-label" for="is_cutter"></label>
+                                    </div>
+
+                                    <span class="ml-1">Швея-закройщик</span>
+                                </div>
+                            </div>
+
                         @endif
 
                         <div class="form-group">

@@ -29,6 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
+        'is_cutter',
         'salary_rate',
         'avatar',
         'tg_id',
