@@ -258,9 +258,14 @@ class MarketplaceApiService
     {
         if ($status == 'new') {
             $orders = self::getNewStatusOrdersWb();
+            $statusName = '"новый"';
         } else {
             $orders = self::getInWorkStatusOrdersWb();
+            $statusName = '"в работе", "на стикеровке", "в закрое" или "откроено"';
         }
+
+        Log::channel('marketplace_api')
+            ->info('Получены отмененные заказы (статус в системе: ' . $statusName . '):' . json_encode($orders));
 
         $unifiedOrders = [];
 
@@ -315,7 +320,7 @@ class MarketplaceApiService
             ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
             ->where('marketplace_orders.marketplace_id', 2)
             ->where('marketplace_orders.fulfillment_type', 'FBS')
-            ->where('marketplace_order_items.status', 4)
+            ->whereIn('marketplace_order_items.status', [4, 5, 7, 8])
             ->pluck('marketplace_orders.order_id')
             ->map(fn($id) => (int) $id)
             ->toArray();
@@ -824,6 +829,8 @@ class MarketplaceApiService
                         break;
                     case 4:
                     case 5:
+                    case 7:
+                    case 8:
                         Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' изменен на FBO.');
 
                         $resultArray[] = [
