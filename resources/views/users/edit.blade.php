@@ -101,12 +101,17 @@
                                                name="is_cutter"
                                                value="1"
                                                id="is_cutter"
+                                               @if(!$isBeforeStartWorkDay) disabled @endif
                                             @checked(old('is_cutter', $user->is_cutter ?? false))>
 
                                         <label class="custom-control-label" for="is_cutter"></label>
                                     </div>
 
                                     <span class="ml-1">Швея-закройщик</span>
+
+                                    @if(!$isBeforeStartWorkDay)
+                                        <span class="ml-3 text-danger font-weight-bold">Рабочий день уже начался!</span>
+                                    @endif
                                 </div>
                             </div>
 

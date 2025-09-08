@@ -54,4 +54,27 @@ class ScheduleService
         return Setting::query()->where('name', 'working_day_end')->first()->value;
     }
 
+    public static function hasWorkDayStarted(): bool
+    {
+        $nowTime = Carbon::now();
+
+        if (
+            $nowTime->lt(Carbon::createFromFormat('H:i', self::getStartWorkDay()))
+            || $nowTime->gte(Carbon::createFromFormat('H:i', self::getEndWorkDay()))
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function isBeforeStartWorkDay(): bool
+    {
+        $nowTime = Carbon::now();
+        $startWorkDay = Carbon::createFromFormat('H:i', ScheduleService::getStartWorkDay());
+
+        // Проверяем, что сейчас после 01:00 и до начала рабочего дня
+        return $nowTime->gte(Carbon::today()->setTime(1, 0)) && $nowTime->lt($startWorkDay);
+    }
+
 }

@@ -54,6 +54,7 @@ class UsersController extends Controller
             'user' => User::query()->findOrFail($user->id),
             'events' => ScheduleService::getScheduleByUserId($user->id),
             'motivations' => UserService::getMotivationByUserId($user->id),
+            'isBeforeStartWorkDay' => ScheduleService::isBeforeStartWorkDay(),
             'rates' => UserService::getRateByUserId($user->id),
         ]);
     }
