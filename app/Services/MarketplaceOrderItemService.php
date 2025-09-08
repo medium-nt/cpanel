@@ -518,13 +518,13 @@ class MarketplaceOrderItemService
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
 
-//        если швея (без кроя), то заказы со статусом "cutting"
-//        if (auth()->user()->role->name === 'seamstress') {
-//            $items = $items->where('marketplace_order_items.status', 7);
-//        }
+//        если швея (без кроя), то заказы со статусом "раскроено"
+        if ((auth()->user()->role->name === 'seamstress' && !auth()->user()->is_cutter)) {
+            $items = $items->where('marketplace_order_items.status', 8);
+        }
 
-//          если закройщик или швея-закройщик, то заказы со статусом "new"
-        if (auth()->user()->role->name === 'seamstress' || auth()->user()->role->name === 'cutter') {
+//          если закройщик или швея-закройщик, то заказы со статусом "новый"
+        if ((auth()->user()->role->name === 'seamstress' && auth()->user()->is_cutter) || auth()->user()->role->name === 'cutter') {
             $items = $items->where('marketplace_order_items.status', 0);
         }
 
