@@ -98,7 +98,7 @@ class MarketplaceOrderItemService
             DB::beginTransaction();
 
             $logMessage = '';
-            $noCut = !($marketplaceOrderItem->status == 7 && $marketplaceOrderItem->cutter_id);
+            $isNeedDeleteMaterials = false;
 
             //  если на раскрое
             if ($marketplaceOrderItem->status == 7) {
@@ -111,10 +111,13 @@ class MarketplaceOrderItemService
 
                 $marketplaceOrderItem->status = 0;
                 $marketplaceOrderItem->cutter_id = null;
+                $marketplaceOrderItem->completed_at = null;
+
+                $isNeedDeleteMaterials = true;
             }
 
-            //  если на пошиве
-            if ($marketplaceOrderItem->status == 4 || $marketplaceOrderItem->status == 5) {
+            //  если на пошиве, стикеровке или уже выполнен
+            if ($marketplaceOrderItem->status == 4 || $marketplaceOrderItem->status == 5 || $marketplaceOrderItem->status == 3) {
                 $logMessage =
                     'Отменен пошив заказа № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
                     ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено. Не выплаченная зарплата и бонусы - удалены.' . PHP_EOL .
@@ -122,21 +125,24 @@ class MarketplaceOrderItemService
                     ' (' . $marketplaceOrderItem->seamstress->id . ')' . PHP_EOL .
                     'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
 
-
-                $marketplaceOrderItem->status = ($noCut) ? 0 : 8;
+                $marketplaceOrderItem->status = ($marketplaceOrderItem->cutter_id) ? 8 : 0;
                 $marketplaceOrderItem->seamstress_id = 0;
+                $marketplaceOrderItem->completed_at = null;
 
-                Transaction::query()
-                    ->where('marketplace_order_item_id', $marketplaceOrderItem->id)
-                    ->where('user_id', $marketplaceOrderItem->seamstress->id)
-                    ->where('status', '!=', 2)
-                    ->delete();
+                $isNeedDeleteMaterials = !$marketplaceOrderItem->cutter_id;
+
+//                if ($marketplaceOrderItem->status == 3) {
+//                    Transaction::query()
+//                        ->where('marketplace_order_item_id', $marketplaceOrderItem->id)
+//                        ->where('user_id', $marketplaceOrderItem->seamstress->id)
+//                        ->where('status', '!=', 2)
+//                        ->delete();
+//                }
             }
 
-            $marketplaceOrderItem->completed_at = null;
             $marketplaceOrderItem->save();
 
-            if($noCut){
+            if($isNeedDeleteMaterials){
                 $order = Order::query()
                     ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
                     ->first();

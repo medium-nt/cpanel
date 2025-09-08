@@ -306,20 +306,20 @@
                                                 @endif
                                                 @break
                                             @case(3)
-                                                <div class="btn-group" role="group">
-                                                    @if(auth()->user()->role->name == 'admin')
-                                                        <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                              method="POST">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <button type="submit" class="btn btn-danger mr-1"
-                                                                    title="Отменить заказ"
-                                                                    onclick="return confirm('Вы уверены что хотите отменить уже выполненный заказ?')">
-                                                                <i class="fas fa-times"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                </div>
+{{--                                                <div class="btn-group" role="group">--}}
+{{--                                                    @if(auth()->user()->role->name == 'admin')--}}
+{{--                                                        <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"--}}
+{{--                                                              method="POST">--}}
+{{--                                                            @csrf--}}
+{{--                                                            @method('PUT')--}}
+{{--                                                            <button type="submit" class="btn btn-danger mr-1"--}}
+{{--                                                                    title="Отменить заказ"--}}
+{{--                                                                    onclick="return confirm('Вы уверены что хотите отменить уже выполненный заказ?')">--}}
+{{--                                                                <i class="fas fa-times"></i>--}}
+{{--                                                            </button>--}}
+{{--                                                        </form>--}}
+{{--                                                    @endif--}}
+{{--                                                </div>--}}
                                                 @break
                                         @endswitch
                                     @endif
@@ -485,20 +485,20 @@
                                             @endif
                                             @break
                                         @case(3)
-                                            <div class="btn-group" role="group">
-                                                @if(auth()->user()->role->name == 'admin')
-                                                    <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                          method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-danger mr-1"
-                                                                title="Отменить заказ"
-                                                                onclick="return confirm('Вы уверены что хотите отменить уже выполненный заказа?')">
-                                                            <i class="fas fa-times"></i> Отменить заказ
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            </div>
+{{--                                            <div class="btn-group" role="group">--}}
+{{--                                                @if(auth()->user()->role->name == 'admin')--}}
+{{--                                                    <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"--}}
+{{--                                                          method="POST">--}}
+{{--                                                        @csrf--}}
+{{--                                                        @method('PUT')--}}
+{{--                                                        <button type="submit" class="btn btn-danger mr-1"--}}
+{{--                                                                title="Отменить заказ"--}}
+{{--                                                                onclick="return confirm('Вы уверены что хотите отменить уже выполненный заказа?')">--}}
+{{--                                                            <i class="fas fa-times"></i> Отменить заказ--}}
+{{--                                                        </button>--}}
+{{--                                                    </form>--}}
+{{--                                                @endif--}}
+{{--                                            </div>--}}
                                             @break
                                     @endswitch
                                 @endif
