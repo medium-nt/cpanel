@@ -79,9 +79,9 @@
                             </div>
                         </div>
 
-                        @if($user->role->name == 'seamstress')
+                        @if($user->role->name == 'seamstress' || $user->role->name == 'cutter')
                         <div class="form-group">
-                            <label for="orders_priority">Приоритет заказов швеи</label>
+                            <label for="orders_priority">Приоритет заказов швеи или закройщика</label>
                             <select name="orders_priority" id="orders_priority" class="form-control">
                                 <option value="all" {{ $user->orders_priority == 'all' ? 'selected' : '' }}>Все заказы</option>
                                 <option value="fbo" {{ $user->orders_priority == 'fbo' ? 'selected' : '' }}>Только FBO</option>
