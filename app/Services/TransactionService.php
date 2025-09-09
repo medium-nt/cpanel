@@ -172,87 +172,23 @@ class TransactionService
 
     public static function accrualSeamstressesSalary($test = false): void
     {
-        // Выбрать всех швей. По каждой швее выбрать все заказы за вчера
-        $seamstresses = User::query()
-            ->whereHas('role', fn($q) => $q->where('name', 'seamstress'))
-            ->with([
-                'marketplaceOrderItems' => fn($q) => $q
-                    ->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))
-                    ->orderBy('completed_at')
-                    ->with('item')])
-            ->get();
+        // Выбрать всех швей. По каждой швее выбрать все заказы выполненные за вчера
+        $seamstresses = self::getSeamstressesWithOrders();
 
         foreach ($seamstresses as $seamstress) {
-            $totalWidth = $seamstress->marketplaceOrderItems
-                    ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item?->width ?? 0) / 100;
+            self::processAccrual($seamstress, $test);
+        }
 
-            $allMotivationWithBonus = Motivation::query()
-                ->where('user_id', $seamstress->id)
-                ->get();
+        dd('end');
+    }
 
-            echo "<b>Швея: {$seamstress->name}</b><br>";
+    public static function accrualCuttersSalary($test = false): void
+    {
+        // Выбрать всех закройщиков. По каждому закройщику выбрать все заказы выполненные за вчера
+        $cutters = self::getCuttersWithOrders();
 
-            $allSalary = $allBonus = $allWidth = 0;
-            foreach ($seamstress->marketplaceOrderItems as $marketplaceOrderItems) {
-                // Проходим по каждому товару и начисляем зп и бонусы за них
-                $orderId = $marketplaceOrderItems->marketplaceOrder->order_id;
-                $width = $marketplaceOrderItems->item->width / 100 ?? 0;
-                $allWidth += $width;
-
-                $nowMotivationBonus = $allMotivationWithBonus
-                    ->where('from', '<=', $allWidth)
-                    ->where('to', '>', $allWidth)
-                    ->value('bonus') ?? 0;
-
-                $bonus = 0;
-                if ($nowMotivationBonus > 0) {
-                    $bonus = $width * $nowMotivationBonus;
-                    $allBonus += $bonus;
-
-                    if (!$test) {
-                        self::addTransaction(
-                            $seamstress,
-                            $bonus,
-                            'out',
-                            "Бонус за заказ #{$orderId}",
-                            $marketplaceOrderItems->completed_at,
-                            'bonus',
-                            true,
-                        );
-                    }
-                }
-
-                $salary = Rate::query()
-                    ->where('user_id', $seamstress->id)
-                    ->where('width', $marketplaceOrderItems->item->width)
-                    ->value('rate') ?? 0;
-
-                $allSalary += $salary;
-
-                if (!$test) {
-                    self::addTransaction(
-                        $seamstress,
-                        $salary,
-                        'out',
-                        "ЗП за заказ #{$orderId}",
-                        $marketplaceOrderItems->completed_at,
-                        'salary',
-                        false,
-                    );
-
-                    Log::channel('salary')
-                        ->info("Начисляем З/П {$salary} руб. и бонус {$bonus} баллов швее: {$seamstress->name}, за заказ #{$orderId}, ширина: {$width} м.");
-                }
-
-                echo "<br>- Заказ #{$marketplaceOrderItems->id} ({$orderId}), ширина: {$width} м. (сдан: {$marketplaceOrderItems->completed_at}). ";
-                echo " ЗП за заказ: {$salary} руб., бонус: {$bonus} баллов.<br>";
-            }
-
-            echo "Всего: {$totalWidth} м, зп: {$allSalary} руб., бонус: {$allBonus} баллов.<br>";
-
-            echo "<br>";
-            echo "-----------------------------------------------------------------<br>";
-            echo "<br>";
+        foreach ($cutters as $cutter) {
+            self::processAccrual($cutter, $test);
         }
 
         dd('end');
@@ -439,4 +375,155 @@ class TransactionService
             ->where('to', '>', $allWidth)
             ->value('bonus') ?? 0;
     }
+
+    private static function getSeamstressesWithOrders(): Collection
+    {
+        return User::query()
+            ->whereHas('role', fn($q) => $q->where('name', 'seamstress'))
+            ->with([
+                'marketplaceOrderItems' => fn($q) => $q
+                    ->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))
+                    ->orderBy('completed_at')
+                    ->with('item')])
+            ->get();
+    }
+
+    private static function getCuttersWithOrders(): Collection
+    {
+        return User::query()
+            ->whereHas('role', fn($q) => $q->where('name', 'cutter'))
+            ->with([
+                'marketplaceOrderItemsByCutter' => fn($q) => $q
+                    ->whereDate('cutting_completed_at', Carbon::yesterday()->format('Y-m-d'))
+                    ->orderBy('cutting_completed_at')
+                    ->with('item')])
+            ->get();
+    }
+
+    private static function processAccrual(mixed $user, mixed $test): void
+    {
+        if ($user->role->name == 'seamstress') {
+            $roleName = 'Швея';
+            $marketplaceOrderItem = $user->marketplaceOrderItems;
+        } else {
+            $roleName = 'Закройщик';
+            $marketplaceOrderItem = $user->marketplaceOrderItemsByCutter;
+        }
+
+        echo "<b>$roleName: $user->name</b><br>";
+
+        $motivations = Motivation::query()
+            ->where('user_id', $user->id)
+            ->get();
+
+        $result = [
+            'allSalary' => 0,
+            'allBonus' => 0,
+            'allWidth' => 0
+        ];
+
+        foreach ($marketplaceOrderItem as $marketplaceOrderItems) {
+            // Проходим по каждому товару и начисляем зп и бонусы за них
+            $result['allWidth'] += $marketplaceOrderItems->item->width / 100 ?? 0;
+            $result = self::processAccrualMotivationAndSalary($user, $marketplaceOrderItems, $motivations, $result, $test);
+        }
+
+        $totalWidth = $user->marketplaceOrderItems
+                ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item?->width ?? 0) / 100;
+
+        echo "Всего: $totalWidth м, зп: {$result['allSalary']} руб., бонус: {$result['allBonus']} баллов.<br>";
+
+        echo "<br>";
+        echo "-----------------------------------------------------------------<br>";
+        echo "<br>";
+    }
+
+    private static function processAccrualMotivationAndSalary($user, $marketplaceOrderItems, $motivations, $result, $test): array
+    {
+        $orderId = $marketplaceOrderItems->marketplaceOrder->order_id;
+        $width = $marketplaceOrderItems->item->width / 100 ?? 0;
+
+        $resultDetails = self::getCompensationDetails($motivations, $result['allWidth'], $user, $marketplaceOrderItems);
+        $nowMotivationBonus = $resultDetails['nowMotivationBonus'];
+        $salary = $resultDetails['salary'];
+
+        $bonus = 0;
+        if ($nowMotivationBonus > 0) {
+            $bonus = $width * $nowMotivationBonus;
+
+            if (!$test) {
+                self::addTransaction(
+                    $user,
+                    $bonus,
+                    'out',
+                    "Бонус за заказ #$orderId",
+                    $marketplaceOrderItems->completed_at,
+                    'bonus',
+                    true,
+                );
+            }
+        }
+
+        if (!$test) {
+            self::addTransaction(
+                $user,
+                $salary,
+                'out',
+                "ЗП за заказ #$orderId",
+                $marketplaceOrderItems->completed_at,
+                'salary',
+                false,
+            );
+
+            $roleName = match ($user->role->name) {
+                'seamstress' => 'Швея',
+                'cutter' => 'Закройщик',
+                default => 'НЕТ РОЛИ',
+            };
+
+            Log::channel('salary')
+                ->info("$roleName: $user->name. Начисляем З/П $salary руб. и бонус $bonus баллов за заказ #$orderId, ширина: $width м.");
+        }
+
+        echo "<br>- Заказ #$marketplaceOrderItems->id ($orderId), ширина: $width м. ";
+        echo " ЗП за заказ: $salary руб., бонус: $bonus баллов.<br>";
+
+        return [
+            'allSalary' => $result['allSalary'] + $salary,
+            'allBonus' => $result['allBonus'] + $bonus,
+            'allWidth' => $result['allWidth']
+        ];
+    }
+
+    public static function getCompensationDetails($motivations, $allWidth, $user, $marketplaceOrderItems): array
+    {
+        $nowMotivationBonus = $motivations
+            ->where('from', '<=', $allWidth)
+            ->where('to', '>', $allWidth);
+
+        $salary = Rate::query()
+            ->where('user_id', $user->id)
+            ->where('width', $marketplaceOrderItems->item->width);
+
+        if($user->role->name == 'cutter') {
+            $nowMotivationBonus = $nowMotivationBonus->value('cutter_bonus') ?? 0;
+            $salary = $salary->value('cutter_rate') ?? 0;
+        }
+
+        if($user->role->name == 'seamstress') {
+            if ($user->is_cutter) {
+                $nowMotivationBonus = $nowMotivationBonus->value('bonus') ?? 0;
+                $salary = $salary->value('rate') ?? 0;
+            } else {
+                $nowMotivationBonus = $nowMotivationBonus->value('not_cutter_bonus') ?? 0;
+                $salary = $salary->value('not_cutter_rate') ?? 0;
+            }
+        }
+
+        return [
+            'nowMotivationBonus' => $nowMotivationBonus,
+            'salary' => $salary,
+        ];
+    }
+
 }

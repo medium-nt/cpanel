@@ -12,11 +12,12 @@ class MarketplaceOrderItem extends Model
         'marketplace_item_id',
         'quantity',
         'price',
+        'status',
         'seamstress_id',
         'cutter_id',
-        'status',
+        'cutting_completed_at',
         'completed_at',
-        'created_at'
+        'created_at',
     ];
 
     protected $appends = ['status_name', 'status_color'];

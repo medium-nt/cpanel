@@ -147,6 +147,7 @@ class MarketplaceOrderItemController extends Controller
 
         $marketplaceOrderItem->update([
             'status' => 8,
+            'cutting_completed_at' => now()
         ]);
 
         $text = 'Закройщик ' . $marketplaceOrderItem->cutter->name .
