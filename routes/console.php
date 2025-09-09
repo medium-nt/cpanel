@@ -36,4 +36,8 @@ Schedule::call(function () {
 
 Schedule::call(function () {
     TransactionService::accrualSeamstressesSalary();
+})->dailyAt('00:35');
+
+Schedule::call(function () {
+    TransactionService::accrualCuttersSalary();
 })->dailyAt('00:45');
