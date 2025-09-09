@@ -26,11 +26,11 @@ class RateUpdateUsersRequest extends FormRequest
             'width' => 'array',
             'width.*' => 'required|numeric|min:200|max:800',
             'rate' => 'array',
-            'rate.*' => 'nullable|numeric|min:1|max:500',
+            'rate.*' => 'nullable|numeric|min:1|max:1000',
             'not_cutter_rate' => 'array',
-            'not_cutter_rate.*' => 'nullable|numeric|min:1|max:500',
+            'not_cutter_rate.*' => 'nullable|numeric|min:1|max:1000',
             'cutter_rate' => 'array',
-            'cutter_rate.*' => 'nullable|numeric|min:1|max:500',
+            'cutter_rate.*' => 'nullable|numeric|min:1|max:1000',
 
         ];
     }
@@ -45,15 +45,15 @@ class RateUpdateUsersRequest extends FormRequest
 
             'rate.*.numeric' => 'Поле должно быть числом',
             'rate.*.min' => 'Оплата с закроем не должна быть меньше 1',
-            'rate.*.max' => 'Оплата с закроем не должна быть больше 500',
+            'rate.*.max' => 'Оплата с закроем не должна быть больше 1000',
 
             'not_cutter_rate.*.numeric' => 'Поле должно быть числом',
             'not_cutter_rate.*.min' => 'Оплата без кроя не должна быть меньше 1',
-            'not_cutter_rate.*.max' => 'Оплата без кроя не должна быть больше 500',
+            'not_cutter_rate.*.max' => 'Оплата без кроя не должна быть больше 1000',
 
             'cutter_rate.*.numeric' => 'Поле должно быть числом',
             'cutter_rate.*.min' => 'Оплата закройщику не должна быть меньше 1',
-            'cutter_rate.*.max' => 'Оплата закройщику не должна быть больше 500',
+            'cutter_rate.*.max' => 'Оплата закройщику не должна быть больше 1000',
         ];
     }
 }
