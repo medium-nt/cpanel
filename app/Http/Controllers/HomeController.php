@@ -34,6 +34,7 @@ class HomeController extends Controller
             'events' => ScheduleService::getScheduleByUserId($employeeId),
             'newMarketplaceOrderItem' => MarketplaceOrderItemService::new(),
             'marketplaceOrderItemInWork' => MarketplaceOrderItemService::toWork(),
+            'marketplaceOrderItemInCutting' => MarketplaceOrderItemService::toCutting(),
             'urgentMarketplaceOrderItem' => MarketplaceOrderItemService::urgent(),
             'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements(),
             'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(),

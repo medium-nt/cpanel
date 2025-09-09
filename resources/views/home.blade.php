@@ -23,6 +23,7 @@
                     </a>
                 </div>
 
+                @if(auth()->user()->role->name != 'cutter')
                 <div class="col-md-2">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
@@ -34,6 +35,21 @@
                         </div>
                     </a>
                 </div>
+                @endif
+
+                @if(auth()->user()->role->name != 'seamstress')
+                <div class="col-md-2">
+                    <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info"><i class="fas fa-toilet-paper"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Товары в закрое</span>
+                                <span class="info-box-number">{{ $marketplaceOrderItemInCutting }}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                @endif
 
                 <div class="col-md-2">
                     <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="link-black">
@@ -47,7 +63,7 @@
                     </a>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-secondary"><i class="fas fa-dolly"></i></span>
@@ -59,7 +75,7 @@
                     </a>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-secondary"><i class="fas fa-boxes"></i></span>

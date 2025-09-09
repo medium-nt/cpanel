@@ -192,6 +192,19 @@ class MarketplaceOrderItemService
         return $marketplaceOrderItemInWork->sum('quantity');
     }
 
+    public static function toCutting(): int
+    {
+        $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
+            ->where('status', 7);
+
+        if (auth()->user()->role->name === 'cutter') {
+            $marketplaceOrderItemInWork = $marketplaceOrderItemInWork
+                ->where('cutter_id', auth()->id());
+        }
+
+        return $marketplaceOrderItemInWork->sum('quantity');
+    }
+
     public static function new(): int
     {
         return MarketplaceOrderItem::query()
