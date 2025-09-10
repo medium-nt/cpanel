@@ -50,8 +50,8 @@
                                 <label for="marketplace_id">Маркетплейс</label>
                                 <select name="marketplace_id" id="marketplace_id" class="form-control" required>
                                     <option value="" disabled selected>---</option>
-                                    <option value="1">OZON</option>
-                                    <option value="2">WB</option>
+                                    <option value="1" @if(old('marketplace_id') == 1) selected @endif>OZON</option>
+                                    <option value="2" @if(old('marketplace_id') == 2) selected @endif>WB</option>
                                 </select>
                             </div>
                         </div>
@@ -61,8 +61,8 @@
                                 <label for="fulfillment_type">Тип</label>
                                 <select name="fulfillment_type" id="fulfillment_type" class="form-control" required>
                                     <option value="" disabled selected>---</option>
-                                    <option value="FBO">FBO</option>
-                                    <option value="FBS">FBS</option>
+                                    <option value="FBO" @if(old('fulfillment_type') == 'FBO') selected @endif>FBO</option>
+                                    <option value="FBS" @if(old('fulfillment_type') == 'FBS') selected @endif>FBS</option>
                                 </select>
                             </div>
                         </div>
@@ -78,7 +78,7 @@
                                         required>
                                     <option value="" disabled selected>---</option>
                                     @foreach($items as $item)
-                                        <option value="{{ $item->id }}">
+                                        <option value="{{ $item->id }}" @if(old('item_id') == $item->id) selected @endif>
                                             {{ $item->title }} {{ $item->width }}х{{ $item->height }}
                                         </option>
                                     @endforeach
@@ -100,7 +100,7 @@
                         </div>
                     </div>
 
-                    @for($i = 1; $i < 5; $i++)
+                    @for($i = 1; $i < 1; $i++)
                         <x-odred_item-component :items="$items" :i="$i"/>
                     @endfor
 
