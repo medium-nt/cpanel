@@ -11,7 +11,7 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-success"><i class="fas fa-cart-plus"></i></span>
@@ -24,7 +24,7 @@
                 </div>
 
                 @if(auth()->user()->role->name != 'cutter')
-                <div class="col-md-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-warning"><i class="fas fa-tags"></i></span>
@@ -38,7 +38,7 @@
                 @endif
 
                 @if(auth()->user()->role->name != 'seamstress')
-                <div class="col-md-2">
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-info"><i class="fas fa-toilet-paper"></i></span>
@@ -51,7 +51,7 @@
                 </div>
                 @endif
 
-                <div class="col-md-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-danger"><i class="fas fa-bolt"></i></span>
@@ -63,7 +63,7 @@
                     </a>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-secondary"><i class="fas fa-dolly"></i></span>
@@ -75,7 +75,7 @@
                     </a>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
                             <span class="info-box-icon bg-secondary"><i class="fas fa-boxes"></i></span>
