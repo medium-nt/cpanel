@@ -183,7 +183,6 @@
             </div>
         </div>
 
-        @if(auth()->user()->role->name == 'admin')
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Выплата зарплат</h3>
@@ -213,7 +212,7 @@
                 </div>
             </div>
         </div>
-        @endif
+
     </div>
 @stop
 

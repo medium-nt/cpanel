@@ -341,6 +341,10 @@ class TransactionService
             ->where('is_bonus', 0)
             ->whereNotNull('user_id');
 
+        if (auth()->user()->role->name !== 'admin') {
+            $summary = $summary->where('user_id', auth()->id());
+        }
+
         if ($request->date_start) {
             $summary = $summary->where('paid_at', '>=', $request->date_start . ' 00:00:00');
         }
