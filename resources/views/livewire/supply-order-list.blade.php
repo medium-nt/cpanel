@@ -69,7 +69,7 @@
                         @foreach ($supply_orders as $order)
                             <tr>
                                 <td>{!! $order->marketplace_status_label !!}</td>
-                                <td>{{ $order->order_id }}</td>
+                                <td>{{ $order->order_id }} <b>{{ $order->part_b ? "({$order->part_b})" : '' }}</b></td>
                                 <td>{{ $order->items[0]->item->title }} {{ $order->items[0]->item->width }}х{{ $order->items[0]->item->height }}</td>
                                 <td style="width: 100px">
                                 @if($status == 0)

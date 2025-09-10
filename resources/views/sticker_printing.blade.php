@@ -90,6 +90,7 @@
                                             $isPrinted = $item->marketplaceOrder->is_printed;
                                             $orderId = $item->marketplaceOrder->order_id;
                                             $fulfillmentType = $item->marketplaceOrder->fulfillment_type;
+                                            $partBtoWB = $item->marketplaceOrder->part_b ? "({$item->marketplaceOrder->part_b})" : ''
                                         @endphp
                                         <script>
                                             $(document).ready(function() {
@@ -130,7 +131,7 @@
                                             </td>
 
                                             <td class="td_style">
-                                                {{ $orderId }}
+                                                {{ $orderId }} <b>{{ $partBtoWB }}</b>
                                             </td>
                                             <td class="td_style">
                                                 {{ $item->item->title }} - {{ $item->item->width / 100 }} х {{ $item->item->height }}
