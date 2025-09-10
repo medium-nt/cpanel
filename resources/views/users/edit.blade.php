@@ -94,7 +94,7 @@
                                     <span class="mr-2">Швея (без кроя)</span>
 
                                     <div class="custom-control custom-switch">
-                                        <input type="hidden" name="is_cutter" value="0">
+                                        <input type="hidden" name="is_cutter" value="{{ $isBeforeStartWorkDay ? 0 : $user->is_cutter }}">
 
                                         <input type="checkbox"
                                                class="custom-control-input"
@@ -102,7 +102,7 @@
                                                value="1"
                                                id="is_cutter"
                                                @if(!$isBeforeStartWorkDay) disabled @endif
-                                            @checked(old('is_cutter', $user->is_cutter ?? false))>
+                                            @checked(old('is_cutter', $user->is_cutter))>
 
                                         <label class="custom-control-label" for="is_cutter"></label>
                                     </div>
