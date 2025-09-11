@@ -33,6 +33,7 @@ class SupplyOrderList extends Component
         }
 
         $this->dispatch('orderRemoved');
+        $this->dispatch('focusOrderInput');
     }
 
     public function render()

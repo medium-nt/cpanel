@@ -68,6 +68,7 @@ class SupplyOrderSearch extends Component
         }
 
         $this->attachOrder($matches->first());
+        $this->dispatch('focusOrderInput');
     }
 
 

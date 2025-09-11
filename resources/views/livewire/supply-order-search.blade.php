@@ -1,9 +1,10 @@
 <div>
-    <div class="row">
-        <div class="col-md-9">
+    <div class="row" x-data x-init="$refs.orderInput.focus()">
+    <div class="col-md-9">
             <input type="text"
                    wire:model.defer="orderId"
                    wire:keydown.enter="addOrderToSupply"
+                   x-ref="orderInput"
                    class="form-control mb-3"
                    placeholder="Введите номер заказа">
         </div>
@@ -72,6 +73,12 @@
                 Livewire.on('orderError', () =>
                     playSound('error-sound')
                 );
+
+                // обработчик фокуса
+                Livewire.on('focusOrderInput', () => {
+                    const input = document.querySelector('[x-ref="orderInput"]');
+                    if (input) input.focus();
+                });
 
             } else {
                 console.warn('Livewire не загружен');

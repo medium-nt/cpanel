@@ -46,7 +46,7 @@ class MarketplaceOrder extends Model
             'complete', 'delivering' => '<span class="badge bg-success">в доставке</span>',
             'delivered' => '<span class="badge bg-success">доставлено</span>',
             'cancel', 'cancelled', => '<span class="badge bg-danger">отменено</span>',
-            default => $this->marketplace_status,
+            default => $this->marketplace_status ?? '',
         };
     }
 
