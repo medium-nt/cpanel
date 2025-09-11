@@ -29,7 +29,7 @@
                         <div class="position-relative">
                             <div class="card-body">
                                 <small>
-                                    <b>{{ now()->parse($order->created_at)->format('d/m/Y') }}</b>
+                                    <b>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</b>
                                 </small>
                                 <span class="mx-1 badge {{ $order->status_color }}">
                                     {{ $order->status_name }}
@@ -49,6 +49,13 @@
                                     <div class="my-2">
                                         Комментарий: <b>{{ $order->comment }}</b>
                                     </div>
+
+                                    @if($order->status == '3' && $order->completed_at)
+                                        <div class="my-2" style="white-space: nowrap; font-size: 0.8em;">
+                                            <b>Получено:</b>
+                                            {{ now()->parse($order->completed_at)->format('d/m/Y H:i') }}
+                                        </div>
+                                    @endif
 
                                     @if( $order->status == '0' &&  $userRole == 'storekeeper')
                                         <div class="btn-group" role="group">
@@ -96,8 +103,9 @@
                             <th scope="col">#</th>
                             <th scope="col" style="white-space: nowrap;">запрошено / отгружено</th>
                             <th scope="col">Комментарии</th>
-                            <th scope="col">Статус</th>
-                            <th scope="col">Дата</th>
+                            <th scope="col">Статус </th>
+                            <th scope="col">Заказ создан</th>
+                            <th scope="col">Получено</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -117,7 +125,11 @@
                                 </td>
                                 <td>{{ $order->comment }}</td>
                                 <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
-                                <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
+                                <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    @if($order->status == '3' && $order->completed_at)
+                                        {{ now()->parse($order->completed_at)->format('d/m/Y H:i') }}
+                                    @endif
 
                                 <td style="width: 100px">
                                     @if( $order->status == '0' &&  $userRole == 'storekeeper')
