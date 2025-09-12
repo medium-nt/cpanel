@@ -131,6 +131,8 @@ class DefectMaterialService
                 $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
             }
 
+            DB::commit();
+
             $text = 'Сотрудник ' . auth()->user()->name . ' указал ' . $typeName . ': ' . "\n"  . $list;
 
             Log::channel('erp')
@@ -141,8 +143,6 @@ class DefectMaterialService
             foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
                 TgService::sendMessage($tgId, $text);
             }
-
-            DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
 
