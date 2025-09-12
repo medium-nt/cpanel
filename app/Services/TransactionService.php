@@ -283,7 +283,7 @@ class TransactionService
             }
         }
 
-        if ($request->date_start && $request->date_end && $company) {
+        if ($request->date_start && $request->date_end && !$company) {
             $query = $query->whereBetween('accrual_for_date', [$request->date_start, $request->date_end]);
         }
 
