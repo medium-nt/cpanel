@@ -283,10 +283,6 @@ class TransactionService
             }
         }
 
-        if ($request->date_start && $request->date_end) {
-            $query = $query->whereBetween('accrual_for_date', [$request->date_start, $request->date_end]);
-        }
-
         $employeeOut = (clone $query)->where('transaction_type', 'in')->sum('amount');
         $employeeIn = (clone $query)->where('transaction_type', 'out')->sum('amount');
 
