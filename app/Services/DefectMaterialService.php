@@ -142,6 +142,7 @@ class DefectMaterialService
 
             foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
                 TgService::sendMessage($tgId, $text);
+                sleep(1);
             }
         } catch (Throwable $e) {
             DB::rollBack();
