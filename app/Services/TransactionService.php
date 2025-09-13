@@ -167,6 +167,12 @@ class TransactionService
             $transactions->where('accrual_for_date', '<=', $request->date_end);
         }
 
+        match ($request->type) {
+            'salary' => $transactions->whereNotNull('user_id'),
+            'company' => $transactions->whereNull('user_id'),
+            default => null,
+        };
+
         return $transactions;
     }
 

@@ -71,6 +71,16 @@
                                        value="{{ request('date_end') }}">
                             </div>
 
+                            @if(auth()->user()->role->name == 'admin')
+                            <div class="col-auto mb-3">
+                                <select class="form-control" name="type" id="type">
+                                    <option value="0" selected>Все</option>
+                                    <option value="salary" @if(request('type') == 'salary') selected @endif>Операции сотрудников</option>
+                                    <option value="company" @if(request('type') == 'company') selected @endif>Операция компании</option>
+                                </select>
+                            </div>
+                            @endif
+
                             <div class="col-auto mb-3">
                                 <button type="submit" class="btn btn-primary">Фильтр</button>
                             </div>
