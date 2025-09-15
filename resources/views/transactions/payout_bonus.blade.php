@@ -61,7 +61,7 @@
                       onsubmit="return confirm('Вы уверены что хотите выплатить все доступные бонусы?')">
                     @method('POST')
                     @csrf
-                    <input type="hidden" name="user_id" value="{{ $selected_user->id }}">
+                    <input type="hidden" name="user_id" value="{{ $selected_user->id ?? '' }}">
                     <button class="btn btn-success">Выплатить все доступные бонусы</button>
                 </form>
 
