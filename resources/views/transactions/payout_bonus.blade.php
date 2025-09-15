@@ -43,7 +43,7 @@
 
                     <div class="col-md-3">
                         <div class="form-group">
-                            <a class="btn btn-link mt-4" href="{{ route('transactions.payout_salary') }}">Сбросить фильтр</a>
+                            <a class="btn btn-link mt-4" href="{{ route('transactions.payout_bonus') }}">Сбросить фильтр</a>
                         </div>
                     </div>
                 </div>
