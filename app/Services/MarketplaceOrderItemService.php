@@ -277,7 +277,7 @@ class MarketplaceOrderItemService
         return $result;
     }
 
-    public static function getSeamstressesRating()
+    public static function getRating(): Collection|\Illuminate\Support\Collection
     {
         return User::query()
             ->whereIn('role_id', [1, 4])

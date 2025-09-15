@@ -43,7 +43,7 @@ class HomeController extends Controller
             'dates' => json_encode($dates),
             'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
             'days_ago' => $daysAgo,
-            'seamstressesRating' => MarketplaceOrderItemService::getSeamstressesRating(),
+            'rating' => MarketplaceOrderItemService::getRating(),
             'seamstressesCurrentSalary' => TransactionService::getSeamstressBalance('salary'),
             'seamstressesCurrentBonus' => TransactionService::getSeamstressBalance('bonus'),
         ]);

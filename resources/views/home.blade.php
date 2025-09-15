@@ -114,20 +114,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($seamstressesRating as $seamstress)
+                @foreach($rating as $user)
                     <tr>
                         <td style="max-width: 200px">
-                            <img src="{{ asset('storage/' . $seamstress->avatar) }}"
+                            <img src="{{ asset('storage/' . $user->avatar) }}"
                                  style="width:50px; height:50px;" alt="">
 
-                            {{ $seamstress->name }}
+                            {{ $user->name }}
                         </td>
                         <td style="max-width: 200px">
-                            за сегодня: <b>{{ $seamstress->ratingNow }}</b>
+                            за сегодня: <b>{{ $user->ratingNow }}</b>
                             <br>
-                            за 2 недели: <b>{{ $seamstress->rating2week }}</b>
+                            за 2 недели: <b>{{ $user->rating2week }}</b>
                             <br>
-                            за месяц: <b>{{ $seamstress->rating1month }}</b>
+                            за месяц: <b>{{ $user->rating1month }}</b>
                         </td>
                     </tr>
                 @endforeach
