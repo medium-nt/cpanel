@@ -16,6 +16,8 @@ if (App::environment(['local'])) {
 
 Route::get('/sticker_printing', [App\Http\Controllers\StickerPrintingController::class, 'index'])->name('sticker_printing');
 
+Route::get('/open_close_work shift', [App\Http\Controllers\StickerPrintingController::class, 'openCloseWorkShift'])->name('open_close_work_shift');
+
 Route::get('barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getBarcodeFile'])
     ->name('marketplace_api.barcode');
 

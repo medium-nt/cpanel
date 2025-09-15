@@ -34,6 +34,9 @@ class User extends Authenticatable
         'avatar',
         'tg_id',
         'orders_priority',
+        'shift_is_open',
+        'start_work_shift',
+        'number_working_hours',
     ];
 
     /**

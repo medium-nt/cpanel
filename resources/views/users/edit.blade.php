@@ -81,6 +81,23 @@
 
                         @if($user->role->name == 'seamstress' || $user->role->name == 'cutter')
                         <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="start_work_shift">Время начала смены</label>
+                                    <input type="time" id="start_work_shift" name="start_work_shift"
+                                           class="form-control @error('start_work_shift') is-invalid @enderror"
+                                           value="{{ \Carbon\Carbon::parse($user->start_work_shift)->format('H:i') }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="number_working_hours">кол-во рабочих часов</label>
+                                    <input type="number" id="number_working_hours"
+                                           class="form-control @error('number_working_hours') is-invalid @enderror"
+                                           name="number_working_hours" min="0" step="1" value="{{ $user->number_working_hours }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label for="orders_priority">Приоритет заказов швеи или закройщика</label>
                             <select name="orders_priority" id="orders_priority" class="form-control">
                                 <option value="all" {{ $user->orders_priority == 'all' ? 'selected' : '' }}>Все заказы</option>

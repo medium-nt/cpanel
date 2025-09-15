@@ -73,17 +73,15 @@
             </form>
         </div>
     </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Персональный штрих-код</h3>
+            </div>
+            <div class="card-body">
+                <a href="{{ route('users.get_barcode', ['user' => $user]) }}" target="_blank">Открыть</a>
+            </div>
+        </div>
+    </div>
 @stop
-
-{{-- Push extra CSS --}}
-
-@push('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-@endpush
-
-{{-- Push extra scripts --}}
-
-@push('js')
-{{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
-@endpush

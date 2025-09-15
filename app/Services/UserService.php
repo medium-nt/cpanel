@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Motivation;
 use App\Models\Rate;
 use App\Models\Schedule;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -88,5 +89,18 @@ class UserService
         return Rate::query()
             ->where('user_id', $id)
             ->get();
+    }
+
+    public static function getUserByBarcode($barcode): ?User
+    {
+            $parts = explode('-', $barcode);
+            $id = $parts[1] ?? null;
+
+            $user = User::query()->find($id);
+            if ($user) {
+                return $user;
+            }
+
+        return null;
     }
 }

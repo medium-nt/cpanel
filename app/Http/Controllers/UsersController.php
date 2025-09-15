@@ -118,6 +118,8 @@ class UsersController extends Controller
             'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',
             'orders_priority' => 'string|in:all,fbo,fbo_200',
             'is_cutter' => 'boolean',
+            'start_work_shift' => 'sometimes|date_format:H:i',
+            'number_working_hours' => 'sometimes|integer|numeric|min:0|max:16',
         ];
 
         $validatedData = $request->validate($rules);
@@ -215,5 +217,12 @@ class UsersController extends Controller
         return redirect()
             ->route('users.edit', ['user' => $user->id])
             ->with('success', 'Изменения в таблице зарплат сохранены.');
+    }
+
+    public function getBarcode(User $user)
+    {
+        return view('pdf.user_barcode', [
+            'user' => $user
+        ]);
     }
 }

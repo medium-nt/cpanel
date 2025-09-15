@@ -34,4 +34,8 @@ Route::prefix('/users')->group(function () {
     Route::delete('/delete/{user}', [App\Http\Controllers\UsersController::class, 'destroy'])
         ->can('delete', 'user')
         ->name('users.destroy');
+
+    Route::get('/{user}/get_barcode', [App\Http\Controllers\UsersController::class, 'getBarcode'])
+        ->can('update', 'user')
+        ->name('users.get_barcode');
 });
