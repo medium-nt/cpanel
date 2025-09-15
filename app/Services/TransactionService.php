@@ -323,7 +323,7 @@ class TransactionService
                             $tx->transaction_type === 'in' ? -$tx->amount : 0);
                         }),
                         'status' => $group->first()->status,
-                        'date_pay' => (Carbon::parse($payoutDate)->addDays(30)->format('d/m/Y')),
+                        'date_pay' => (Carbon::parse($payoutDate)->addDays(14)->format('d/m/Y')),
                     ];
                 })
                 ->sortBy('accrual_for_date')

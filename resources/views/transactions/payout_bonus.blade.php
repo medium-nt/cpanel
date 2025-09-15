@@ -57,12 +57,20 @@
                 <h3 class="card-title">Бонусы на холде</h3>
             </div>
             <div class="card-body">
+                <form class="mb-3" action="{{ route('transactions.store_payout_bonus') }}" method="POST"
+                      onsubmit="return confirm('Вы уверены что хотите выплатить все доступные бонусы?')">
+                    @method('POST')
+                    @csrf
+                    <input type="hidden" name="user_id" value="{{ $selected_user->id }}">
+                    <button class="btn btn-success">Выплатить все доступные бонусы</button>
+                </form>
+
                 <table class="table table-bordered table-striped">
                     <thead>
                     <tr>
                         <th>Даты начисления</th>
                         <th>Сумма</th>
-                        <th></th>
+                        <th>заморожено</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -72,16 +80,9 @@
                             <td>{{ $payout['net_total'] }} руб.</td>
                             <td>
                                 @if($payout['status'] == 1)
-                                    <form action="{{ route('transactions.store_payout_bonus') }}" method="POST"
-                                    onsubmit="return confirm('Вы передали сумму {{ $payout['net_total'] }} руб. сотруднику?')">
-                                        @method('POST')
-                                        @csrf
-                                        <input type="hidden" name="accrual_for_date" value="{{ $payout['accrual_for_date'] }}">
-                                        <input type="hidden" name="user_id" value="{{ $selected_user->id }}">
-                                    <button class="btn btn-success">Выплатить</button>
-                                    </form>
+                                    <i class="text-success">готово к выплате</i>
                                 @else
-                                    <i>
+                                    <i class="text-danger">
                                         до {{ $payout['date_pay'] }}
                                     </i>
                                 @endif

@@ -132,20 +132,23 @@ class TransactionController extends Controller
             'hold_bonus' => TransactionService::getHoldBonus($user),
             'request' => $request,
         ]);
-
     }
 
     public function storePayoutBonus(Request $request)
     {
-        Transaction::query()
-            ->where('accrual_for_date', $request->accrual_for_date)
+        $updateCount = Transaction::query()
             ->where('user_id', $request->user_id)
+            ->where('status', 1)
             ->where('is_bonus', true)
             ->whereNull('paid_at')
             ->update([
                 'paid_at' => now(),
                 'status' => 2
             ]);
+
+        if ($updateCount == 0) {
+            return back()->with('error', 'Нет бонусов для выплаты');
+        }
 
         return back()
             ->with('success', ' Бонусы выплачены');
