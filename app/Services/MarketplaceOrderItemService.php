@@ -280,7 +280,7 @@ class MarketplaceOrderItemService
     public static function getSeamstressesRating()
     {
         return User::query()
-            ->where('role_id', '1')
+            ->whereIn('role_id', [1, 4])
             ->where('name', 'not like', '%Тест%')
             ->get()
             ->map(function ($user) {
