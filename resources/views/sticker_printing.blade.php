@@ -54,18 +54,18 @@
 
                         <x-modal-scan-barcode-component/>
 
-                        <x-modal-work-shift-component :seamstressId="$seamstressId"/>
+                        <x-modal-work-shift-component :userId="$userId"/>
 
                         <div class="form-group col-md-2">
-                            <select name="seamstress_id"
-                                    id="seamstress_id"
+                            <select name="user_id"
+                                    id="user_id"
                                     class="form-control form-control-lg"
                                     onchange="updatePageWithQueryParam(this)"
                                     required>
                                 <option value="" selected disabled>Выберите швею</option>
                                 @foreach($seamstresses as $seamstress)
                                     <option value="{{ $seamstress->id }}"
-                                            @if(request('seamstress_id') == $seamstress->id) selected @endif
+                                            @if(request('user_id') == $seamstress->id) selected @endif
                                     >{{ $seamstress->name }}</option>
                                 @endforeach
                             </select>
@@ -109,7 +109,7 @@
                     </div>
                 </div>
 
-                @if($items->isNotEmpty() || $seamstressId != 0)
+                @if($items->isNotEmpty() || $userId != 0)
                 <div class="card" style="top: 10px;">
                     <div class="card-body">
                         <div class="table-responsive">

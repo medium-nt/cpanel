@@ -7,6 +7,7 @@ use App\Services\MarketplaceOrderItemService;
 use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class StickerPrintingController extends Controller
 {
@@ -22,7 +23,7 @@ class StickerPrintingController extends Controller
             }
 
             $query = $request->except('barcode');
-            $query['seamstress_id'] = $user->id;
+            $query['user_id'] = $user->id;
 
             return redirect()->route('sticker_printing', $query);
         }
@@ -37,20 +38,20 @@ class StickerPrintingController extends Controller
         $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
 
         $workShift = [];
-        if ($request->filled('seamstress_id')) {
-            $user = User::query()->find($request->seamstress_id);
+        if ($request->filled('user_id')) {
+            $user = User::query()->find($request->user_id);
 
             $workShift = [
                 'shift_is_open' => $user->shift_is_open,
-                'start' => $user->start_work_shift,
-                'end' => Carbon::parse($user->start_work_shift)
+                'start' => $user->actual_start_work_shift,
+                'end' => Carbon::parse($user->actual_start_work_shift)
                     ->copy()->addHours($user->number_working_hours),
             ];
         }
 
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
-            'seamstressId' => $request->seamstress_id ?? 0,
+            'userId' => $request->user_id ?? 0,
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
             'seamstresses' => User::query()->where('role_id', '1')
                 ->where('name', 'not like', '%Тест%')->get(),
@@ -63,47 +64,84 @@ class StickerPrintingController extends Controller
 
     public function openCloseWorkShift(Request $request)
     {
-        $userId = $request->seamstress_id ?? 0;
-
-        if ($request->filled('barcode')) {
-            $user = UserService::getUserByBarcode($request->barcode);
-
-            if (!$user) {
-                return redirect()
-                    ->route('sticker_printing' , ['seamstress_id' => $userId])
-                    ->with('error', 'Штрихкод неверен! Такой пользователь в системе не найден.');
-            }
-
-            if ($request->seamstress_id != $user->id) {
-                return redirect()
-                    ->route('sticker_printing' , ['seamstress_id' => $userId])
-                    ->with('error', 'Ошибка! Штрихкод не соответствует выбранному пользователю.');
-            }
-
-            if ($user->shift_is_open) {
-                $end = Carbon::parse($user->start_work_shift)
-                    ->copy()->addHours($user->number_working_hours);
-
-                if ($end->greaterThan(now())) {
-                    return redirect()
-                        ->route('sticker_printing', ['seamstress_id' => $userId])
-                        ->with('error', 'Нельзя закрыть смену, пока не закончилось рабочее время!');
-                }
-
-                $user->shift_is_open = false;
-            } else {
-                $user->shift_is_open = true;
-            }
-
-            $user->save();
+        if (!$request->filled('barcode')) {
+                Log::channel('work_shift')
+                ->error('Внимание! Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') '
+                    . 'не отсканировал штрихкод (штрихкод отсутствует).');
 
             return redirect()
-                ->route('sticker_printing', ['seamstress_id' => $userId])
-                ->with('success', 'Смена ' . ($user->shift_is_open ? 'открыта' : 'закрыта'));
+                ->route('sticker_printing')
+                ->with('error', 'Ошибка! Штрихкод не отсканирован!');
         }
 
+        $user = UserService::getUserByBarcode($request->barcode);
+        $selectedUserId = $request->user_id ?? 0;
+
+        if (!$user) {
+            Log::channel('work_shift')
+                ->error('Внимание! Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') '
+                    . 'отсканировал неверный штрихкод: ' . $request->barcode);
+
+            return redirect()
+                ->route('sticker_printing' , ['user_id' => $selectedUserId])
+                ->with('error', 'Штрихкод неверен! Такой сотрудник в системе не найден.');
+        }
+
+        if ($selectedUserId != $user->id) {
+            Log::channel('work_shift')
+                ->error('Внимание! Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') ' .
+                    'пытался закрыть смену сотрудника ' . $user->name . ' (' . $user->id . ') ');
+
+            return redirect()
+                ->route('sticker_printing' , ['user_id' => $selectedUserId])
+                ->with('error', 'Ошибка! Штрихкод не соответствует выбранному сотруднику.');
+        }
+
+        if ($user->shift_is_open) {
+            $end = Carbon::parse($user->actual_start_work_shift)
+                ->copy()->addHours($user->number_working_hours);
+
+            if ($end->greaterThan(now())) {
+                Log::channel('work_shift')
+                    ->error('Внимание! Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') ' .
+                        'пытался закрыть смену до окончания рабочего времени.');
+
+                return redirect()
+                    ->route('sticker_printing', ['user_id' => $selectedUserId])
+                    ->with('error', 'Ошибка! Нельзя закрыть смену, пока не закончилось рабочее время!');
+            }
+
+            $user->shift_is_open = false;
+            $user->actual_start_work_shift = '00:00:00';
+        } else {
+            $user->shift_is_open = true;
+            $user->actual_start_work_shift = now()->format('H:i');
+        }
+
+        $user->save();
+
+        Log::channel('work_shift')
+            ->info('Сотрудник ' . $user->name . ' (' . $user->id . ') '
+                . ($user->shift_is_open ? 'открыл' : 'закрыл') . ' смену.');
+
         return redirect()
-            ->route('sticker_printing')
-            ->with('error', 'Штрихкод неверен! Такой пользователь в системе не найден.');
+            ->route('sticker_printing', ['user_id' => $selectedUserId])
+            ->with('success', 'Смена успешно ' . ($user->shift_is_open ? 'открыта' : 'закрыта'));
+
+    }
+
+    public function openCloseWorkShiftAdmin(User $user)
+    {
+        $user->shift_is_open = !$user->shift_is_open;
+        $user->actual_start_work_shift = ($user->shift_is_open ? now()->format('H:i') : '00:00:00');
+        $user->save();
+
+        Log::channel('work_shift')
+            ->info('Админ '. ($user->shift_is_open ? 'открыл' : 'закрыл') .
+                ' смену сотруднику ' . $user->name . ' (' . $user->id . ') ');
+
+        return redirect()
+            ->route('home')
+            ->with('success', 'Смена успешно ' . ($user->shift_is_open ? 'открыта' : 'закрыта'));
     }
 }

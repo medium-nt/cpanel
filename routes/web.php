@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +17,12 @@ if (App::environment(['local'])) {
 
 Route::get('/sticker_printing', [App\Http\Controllers\StickerPrintingController::class, 'index'])->name('sticker_printing');
 
-Route::get('/open_close_work shift', [App\Http\Controllers\StickerPrintingController::class, 'openCloseWorkShift'])->name('open_close_work_shift');
+Route::get('/open_close_work_shift', [App\Http\Controllers\StickerPrintingController::class, 'openCloseWorkShift'])
+    ->name('open_close_work_shift');
+
+Route::get('/open_close_work_shift_admin/{user}', [App\Http\Controllers\StickerPrintingController::class, 'openCloseWorkShiftAdmin'])
+    ->can('update', User::class)
+    ->name('open_close_work_shift_admin');
 
 Route::get('barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getBarcodeFile'])
     ->name('marketplace_api.barcode');

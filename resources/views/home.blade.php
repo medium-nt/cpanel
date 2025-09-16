@@ -110,6 +110,9 @@
                 <thead>
                 <tr>
                     <th>Швея</th>
+                    @if(auth()->user()->role->name == 'admin')
+                    <th>Смена</th>
+                    @endif
                     <th>Рейтинг</th>
                 </tr>
                 </thead>
@@ -119,9 +122,42 @@
                         <td style="max-width: 200px">
                             <img src="{{ asset('storage/' . $user->avatar) }}"
                                  style="width:50px; height:50px;" alt="">
-
                             {{ $user->name }}
                         </td>
+
+                        @if(auth()->user()->role->name == 'admin')
+                        <td>
+                            @if(!$user->shift_is_open)
+                                <a class="btn btn-success btn-xs"
+                                   href="{{ route('open_close_work_shift_admin', ['user' => $user]) }}"
+                                   onclick="return confirm('Открыть смену сотрудника?')">
+                                    Открыть смену
+                                </a>
+                            @else
+                                @php
+                                    $endWorkShift = Carbon\Carbon::parse($user->actual_start_work_shift)->copy()->addHours($user->number_working_hours);
+                                @endphp
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <a class="btn btn-warning btn-xs"
+                                           href="{{ route('open_close_work_shift_admin', ['user' => $user]) }}"
+                                           onclick="return confirm('Закрыть смену сотрудника?')">
+                                            Закрыть смену
+                                        </a>
+                                    </div>
+                                    <div class="col-6">
+                                        Начало смены: {{ Carbon\Carbon::parse($user->actual_start_work_shift)->format('H:i') }} <br>
+                                        Конец смены: {{ Carbon\Carbon::parse($endWorkShift)->format('H:i') }}
+                                        @if($endWorkShift < Carbon\Carbon::now())
+                                            <i class="fas fa-exclamation-triangle text-danger" title="Смена должна быть уже закрыта"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                        </td>
+                        @endif
+
                         <td style="max-width: 200px">
                             за сегодня: <b>{{ $user->ratingNow }}</b>
                             <br>

@@ -79,6 +79,13 @@ return [
             'days' => 30,
         ],
 
+        'work_shift' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/work_shift.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),

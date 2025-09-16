@@ -7,7 +7,7 @@
                            placeholder="отсканируйте ваш персональный штрих-код"
                            id="workShiftInput" name="barcode" autocomplete="off" autofocus>
 
-                    <input type="hidden" name="seamstress_id" value="{{ $seamstressId }}">
+                    <input type="hidden" name="user_id" value="{{ $userId }}">
                 </div>
             </div>
         </form>

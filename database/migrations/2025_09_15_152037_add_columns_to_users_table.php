@@ -21,6 +21,9 @@ return new class extends Migration
             $table->integer('number_working_hours')
                 ->after('start_work_shift')
                 ->default(0);
+            $table->time('actual_start_work_shift')
+                ->after('number_working_hours')
+                ->default('00:00:00');
         });
     }
 
@@ -33,6 +36,7 @@ return new class extends Migration
             $table->dropColumn('shift_is_open');
             $table->dropColumn('start_work_shift');
             $table->dropColumn('number_working_hours');
+            $table->dropColumn('actual_start_work_shift');
         });
     }
 };
