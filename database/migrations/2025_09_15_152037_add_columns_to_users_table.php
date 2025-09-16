@@ -40,7 +40,7 @@ return new class extends Migration
             $table->dropColumn('start_work_shift');
             $table->dropColumn('number_working_hours');
             $table->dropColumn('actual_start_work_shift');
-//            $table->dropColumn('max_late_minutes');
+            $table->dropColumn('max_late_minutes');
         });
     }
 };
