@@ -302,8 +302,8 @@ class MarketplaceOrderItemService
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->select('marketplace_order_items.*');
 
-        if ($request->has('seamstress_id')) {
-            $items = $items->where('marketplace_order_items.seamstress_id', $request->seamstress_id);
+        if ($request->has('user_id')) {
+            $items = $items->where('marketplace_order_items.seamstress_id', $request->user_id);
         } else {
             $items = $items->where('marketplace_order_items.seamstress_id', 0);
         }
