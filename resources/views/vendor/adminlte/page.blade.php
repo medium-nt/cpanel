@@ -50,6 +50,24 @@
         @endif
 
     </div>
+
+    {{--модалка для кнопки в \views\vendor\adminlte\partials\navbar\menu-item-left-sidebar-toggler.blade.php--}}
+    @php
+        $user = Auth::user();
+    @endphp
+    <div class="modal fade" id="barcodeModal" tabindex="-1" role="dialog" aria-labelledby="barcodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="barcode">
+                        {!! DNS1D::getBarcodeHTML($user->role_id . '-' . $user->id . '-' . $user->created_at->format('Ymd'), 'C128', 2.2, 100) !!}
+                    </div>
+                    <div class="code-label">{{ $user->name }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @stop
 
 @section('adminlte_js')
