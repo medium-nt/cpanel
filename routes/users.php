@@ -36,6 +36,5 @@ Route::prefix('/users')->group(function () {
         ->name('users.destroy');
 
     Route::get('/{user}/get_barcode', [App\Http\Controllers\UsersController::class, 'getBarcode'])
-        ->can('update', 'user')
         ->name('users.get_barcode');
 });
