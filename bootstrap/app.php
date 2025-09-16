@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\RequireOpenShift;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'require_open_shift' => RequireOpenShift::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -37,28 +37,36 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::prefix('megatulle')->middleware('auth')->group(function () {
+//  доступно без начала смены.
+Route::prefix('megatulle')
+    ->middleware('auth')
+    ->group(function () {
+        require base_path('routes/transactions.php');
+        require base_path('routes/profile.php');
+        require base_path('routes/users.php');
+    });
 
-    require base_path('routes/users.php');
-    require base_path('routes/profile.php');
-    require base_path('routes/materials.php');
-    require base_path('routes/suppliers.php');
-    require base_path('routes/movements_from_supplier.php');
-    require base_path('routes/movements_to_workshop.php');
-    require base_path('routes/inventory.php');
-    require base_path('routes/marketplace_items.php');
-    require base_path('routes/marketplace_orders.php');
-    require base_path('routes/marketplace_order_items.php');
-    require base_path('routes/material_consumption.php');
-    require base_path('routes/defect_materials.php');
-    require base_path('routes/transactions.php');
-    require base_path('routes/salary.php');
-    require base_path('routes/movements_by_marketplace_order.php');
-    require base_path('routes/schedule.php');
-    require base_path('routes/movements_defect_to_supplier.php');
-    require base_path('routes/marketplace_api.php');
-    require base_path('routes/setting.php');
-    require base_path('routes/write_off_remnants.php');
-    require base_path('routes/marketplace_supplies.php');
-
-});
+//  доступно только после начала смены.
+Route::prefix('megatulle')
+    ->middleware('auth')
+    ->middleware('require_open_shift')
+    ->group(function () {
+        require base_path('routes/materials.php');
+        require base_path('routes/suppliers.php');
+        require base_path('routes/movements_from_supplier.php');
+        require base_path('routes/movements_to_workshop.php');
+        require base_path('routes/inventory.php');
+        require base_path('routes/marketplace_items.php');
+        require base_path('routes/marketplace_orders.php');
+        require base_path('routes/marketplace_order_items.php');
+        require base_path('routes/material_consumption.php');
+        require base_path('routes/defect_materials.php');
+//        require base_path('routes/salary.php');
+        require base_path('routes/movements_by_marketplace_order.php');
+        require base_path('routes/schedule.php');
+        require base_path('routes/movements_defect_to_supplier.php');
+        require base_path('routes/marketplace_api.php');
+        require base_path('routes/setting.php');
+        require base_path('routes/write_off_remnants.php');
+        require base_path('routes/marketplace_supplies.php');
+    });
