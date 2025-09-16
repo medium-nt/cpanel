@@ -21,8 +21,11 @@ return new class extends Migration
             $table->integer('number_working_hours')
                 ->after('start_work_shift')
                 ->default(0);
-            $table->time('actual_start_work_shift')
+            $table->integer('max_late_minutes')
                 ->after('number_working_hours')
+                ->default(0);
+            $table->time('actual_start_work_shift')
+                ->after('max_late_minutes')
                 ->default('00:00:00');
         });
     }
@@ -37,6 +40,7 @@ return new class extends Migration
             $table->dropColumn('start_work_shift');
             $table->dropColumn('number_working_hours');
             $table->dropColumn('actual_start_work_shift');
+//            $table->dropColumn('max_late_minutes');
         });
     }
 };
