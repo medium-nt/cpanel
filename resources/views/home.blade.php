@@ -90,6 +90,7 @@
         </div>
     </div>
 
+    @if(auth()->user()->role->name != 'admin')
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Зарплата</h3>
@@ -100,7 +101,9 @@
             Ваши бонусы: <b>{{ $seamstressesCurrentBonus ?? '-' }} баллов.</b> (в ожидании разморозки)
         </div>
     </div>
+    @endif
 
+    @if(auth()->user()->role->name != 'admin')
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Рейтинг</h3>
@@ -110,9 +113,6 @@
                 <thead>
                 <tr>
                     <th>Швея</th>
-                    @if(auth()->user()->role->name == 'admin')
-                    <th>Смена</th>
-                    @endif
                     <th>Рейтинг</th>
                 </tr>
                 </thead>
@@ -124,8 +124,40 @@
                                  style="width:50px; height:50px;" alt="">
                             {{ $user->name }}
                         </td>
-
-                        @if(auth()->user()->role->name == 'admin')
+                        <td style="max-width: 200px">
+                            за сегодня: <b>{{ $user->ratingNow }}</b>
+                            <br>
+                            за 2 недели: <b>{{ $user->rating2week }}</b>
+                            <br>
+                            за месяц: <b>{{ $user->rating1month }}</b>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @else
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Смены сотрудников</h3>
+        </div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-valign-middle">
+                <thead>
+                <tr>
+                    <th>ФИО</th>
+                    <th>Смена</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($rating as $user)
+                    <tr>
+                        <td>
+                            <img src="{{ asset('storage/' . $user->avatar) }}"
+                                 style="width:50px; height:50px;" alt="">
+                            {{ $user->name }}
+                        </td>
                         <td>
                             @if(!$user->shift_is_open)
                                 <a class="btn btn-success btn-xs"
@@ -156,21 +188,13 @@
                                 </div>
                             @endif
                         </td>
-                        @endif
-
-                        <td style="max-width: 200px">
-                            за сегодня: <b>{{ $user->ratingNow }}</b>
-                            <br>
-                            за 2 недели: <b>{{ $user->rating2week }}</b>
-                            <br>
-                            за месяц: <b>{{ $user->rating1month }}</b>
-                        </td>
                     </tr>
                 @endforeach
                 </tbody>
             </table>
         </div>
     </div>
+    @endif
 
     <div class="card">
         <div class="card-header row">
