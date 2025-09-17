@@ -9,37 +9,37 @@ class MarketplaceSupplyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function view(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function create(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function destroy(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function complete(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function download_video(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function delete_video(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
 }

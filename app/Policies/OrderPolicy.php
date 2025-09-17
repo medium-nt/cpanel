@@ -19,19 +19,19 @@ class OrderPolicy
 
     public function create(User $user): bool
     {
-        return $user->role->name == 'seamstress' || $user->role->name == 'cutter';
+        return $user->isSeamstress() || $user->isCutter();
     }
 
     public function update(User $user, Order $order): bool
     {
-        if ($user->role->name == 'admin'){
+        if ($user->isAdmin()){
             return true;
         }
         $return = false;
 
         match ($order->status) {
-            1 => $return = $user->role->name == 'storekeeper',
-            2 => $return = $user->role->name == 'seamstress' || $user->role->name == 'cutter',
+            1 => $return = $user->isStorekeeper(),
+            2 => $return = $user->isSeamstress() || $user->isCutter(),
             default => false
         };
 
@@ -40,27 +40,27 @@ class OrderPolicy
 
     public function approve_reject(User $user, Order $order): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     public function pick_up(User $user, Order $order): bool
     {
-        return $user->role->name == 'storekeeper';
+        return $user->isStorekeeper();
     }
 
     public function collect(User $user, Order $order): bool
     {
-        return $user->role->name == 'storekeeper';
+        return $user->isStorekeeper();
     }
 
     public function write_off(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     public function delete(User $user, Order $order): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     public function restore(User $user, Order $order): bool

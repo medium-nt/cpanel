@@ -29,7 +29,7 @@ class TransactionPolicy
      */
     public function create(User $user): bool
     {
-        return auth()->user()->role->name == 'admin';
+        return auth()->user()->isAdmin();
     }
 
     /**
@@ -37,7 +37,7 @@ class TransactionPolicy
      */
     public function update(User $user, Transaction $transaction): bool
     {
-        return auth()->user()->role->name == 'admin';
+        return auth()->user()->isAdmin();
     }
 
     /**
@@ -45,7 +45,7 @@ class TransactionPolicy
      */
     public function delete(User $user, Transaction $transaction): bool
     {
-        return auth()->user()->role->name == 'admin';
+        return auth()->user()->isAdmin();
     }
 
     /**

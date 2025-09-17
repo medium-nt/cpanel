@@ -26,27 +26,27 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapFour();
 
         Gate::define('is-admin', function (User $user) {
-            return $user->role->name === 'admin';
+            return $user->isAdmin();
         });
 
         Gate::define('is-storekeeper', function (User $user) {
-            return $user->role->name === 'storekeeper';
+            return $user->isStorekeeper();
         });
 
         Gate::define('is-seamstress', function (User $user) {
-            return $user->role->name === 'seamstress';
+            return $user->isSeamstress();
         });
 
         Gate::define('is-storekeeper-or-admin', function (User $user) {
-            return $user->role->name === 'storekeeper' || $user->role->name === 'admin';
+            return $user->isStorekeeper() || $user->isAdmin();
         });
 
         Gate::define('is-seamstress-or-admin', function (User $user) {
-            return $user->role->name === 'seamstress' || $user->role->name === 'admin';
+            return $user->isSeamstress() || $user->isAdmin();
         });
 
         Gate::define('viewLogViewer', function ($user) {
-            return $user->role->name === 'admin';
+            return $user->isAdmin();
         });
     }
 }

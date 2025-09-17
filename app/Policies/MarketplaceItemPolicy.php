@@ -12,7 +12,7 @@ class MarketplaceItemPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -28,7 +28,7 @@ class MarketplaceItemPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -36,7 +36,7 @@ class MarketplaceItemPolicy
      */
     public function update(User $user, MarketplaceItem $marketplaceItem): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -44,7 +44,7 @@ class MarketplaceItemPolicy
      */
     public function delete(User $user, MarketplaceItem $marketplaceItem): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**

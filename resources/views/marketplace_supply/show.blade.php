@@ -58,14 +58,14 @@
                             <source src="{{ asset('storage/videos/' . $supply->video) }}" size="1080">
                         </video>
                     </div>
-                    @if($supply->status == 0 || auth()->user()->role->name === 'admin')
+                    @if($supply->status == 0 || auth()->user()->isAdmin())
                         <a href="{{ route('marketplace_supplies.delete_video', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-danger mr-3 mb-2" onclick="return confirm('Вы уверены что хотите удалить видео?')">
                             Удалить видео
                         </a>
                     @endif
                 @else
-                    @if($supply->status == 0 || auth()->user()->role->name === 'admin')
+                    @if($supply->status == 0 || auth()->user()->isAdmin())
                         <span class="text-muted">
                             разрешено загружать максимум 1 видео в формате mp4 (720p), длинной не более 2х минут и размером не более 500мб
                         </span>

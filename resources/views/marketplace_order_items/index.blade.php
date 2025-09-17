@@ -13,7 +13,7 @@
             <div class="card-body">
 
                 <div class="row">
-                    @if(auth()->user()->role->name == 'admin' || auth()->user()->role->name == 'storekeeper')
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                     <div class="form-group col-md-3">
                         <select name="user_id"
                                 id="user_id"
@@ -62,7 +62,7 @@
 
                 </div>
 
-                @if(auth()->user()->role->name === 'admin')
+                @if(auth()->user()->isAdmin())
                     <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'new',
                     'user_id' => request('user_id'),
@@ -73,7 +73,7 @@
                        class="btn btn-link">Новые</a>
                 @endif
 
-                @if(auth()->user()->role->name == 'cutter' || auth()->user()->role->name == 'admin')
+                @if(auth()->user()->isCutter() || auth()->user()->isAdmin())
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'cutting',
                     'user_id' => request('user_id'),
@@ -148,7 +148,7 @@
         <div class="card only-on-desktop">
             <div class="card-body">
 
-                @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
+                @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
                 <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                    class="btn btn-primary mb-3">Получить новый заказ</a>
                 @endif
@@ -219,11 +219,11 @@
                                 <td style="text-align: center">{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter' || auth()->user()->role->name == 'admin')
+                                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isAdmin())
                                         @switch($item->status)
                                             @case(4)
                                                 <div class="btn-group" role="group">
-                                                    @if(auth()->user()->role->name == 'seamstress')
+                                                    @if(auth()->user()->isSeamstress())
                                                         <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
                                                               method="POST">
                                                             @csrf
@@ -242,7 +242,7 @@
                                                         @endif
                                                     @endif
 
-                                                    @if(auth()->user()->role->name == 'admin')
+                                                    @if(auth()->user()->isAdmin())
                                                     <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
@@ -258,7 +258,7 @@
                                                 @break
                                             @case(5)
                                                 <div class="btn-group" role="group">
-                                                    @if(auth()->user()->role->name == 'admin')
+                                                    @if(auth()->user()->isAdmin())
                                                         <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                               method="POST">
                                                             @csrf
@@ -273,7 +273,7 @@
                                                 </div>
                                                 @break
                                             @case(7)
-                                                @if(auth()->user()->role->name == 'cutter')
+                                                @if(auth()->user()->isCutter())
                                                     <form action="{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
@@ -292,7 +292,7 @@
                                                     @endif
                                                 @endif
 
-                                                @if(auth()->user()->role->name == 'admin')
+                                                @if(auth()->user()->isAdmin())
                                                     <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
@@ -307,7 +307,7 @@
                                                 @break
                                             @case(3)
 {{--                                                <div class="btn-group" role="group">--}}
-{{--                                                    @if(auth()->user()->role->name == 'admin')--}}
+{{--                                                    @if(auth()->user()->isAdmin())--}}
 {{--                                                        <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"--}}
 {{--                                                              method="POST">--}}
 {{--                                                            @csrf--}}
@@ -358,7 +358,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body text-center">
-                        @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
+                        @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
                             <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                                class="btn btn-primary">Получить новый заказ</a>
                         @endif
@@ -398,11 +398,11 @@
                                     </badge>
                                 </div>
 
-                                @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter' || auth()->user()->role->name == 'admin')
+                                @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isAdmin())
                                     @switch($item->status)
                                         @case(4)
                                             <div class="btn-group" role="group">
-                                                @if(auth()->user()->role->name == 'seamstress')
+                                                @if(auth()->user()->isSeamstress())
                                                     <form action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
@@ -421,7 +421,7 @@
                                                    @endif
                                                 @endif
 
-                                                @if(auth()->user()->role->name == 'admin')
+                                                @if(auth()->user()->isAdmin())
                                                 <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                       method="POST">
                                                     @csrf
@@ -437,7 +437,7 @@
                                             @break
                                         @case(5)
                                             <div class="btn-group" role="group">
-                                                @if(auth()->user()->role->name == 'admin')
+                                                @if(auth()->user()->isAdmin())
                                                     <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                           method="POST">
                                                         @csrf
@@ -452,7 +452,7 @@
                                             </div>
                                             @break
                                         @case(7)
-                                            @if(auth()->user()->role->name == 'cutter')
+                                            @if(auth()->user()->isCutter())
                                                 <form action="{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}"
                                                       method="POST">
                                                     @csrf
@@ -471,7 +471,7 @@
                                                 @endif
                                             @endif
 
-                                            @if(auth()->user()->role->name == 'admin')
+                                            @if(auth()->user()->isAdmin())
                                                 <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
                                                       method="POST">
                                                     @csrf
@@ -486,7 +486,7 @@
                                             @break
                                         @case(3)
 {{--                                            <div class="btn-group" role="group">--}}
-{{--                                                @if(auth()->user()->role->name == 'admin')--}}
+{{--                                                @if(auth()->user()->isAdmin())--}}
 {{--                                                    <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"--}}
 {{--                                                          method="POST">--}}
 {{--                                                        @csrf--}}

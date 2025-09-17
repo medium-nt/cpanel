@@ -11,7 +11,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -27,7 +27,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -35,7 +35,7 @@ class UserPolicy
      */
     public function update(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -43,7 +43,7 @@ class UserPolicy
      */
     public function delete(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**

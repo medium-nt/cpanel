@@ -51,7 +51,7 @@
                                    name="password_confirmation" placeholder="Подтверждение пароля">
                         </div>
 
-                        @if($user->role->name == 'storekeeper')
+                        @if($user->isStorekeeper())
                         <div class="form-group">
                             <label for="salary_rate">Ставка кладовщика (за день)</label>
                             <input type="number" step="1" min="0"
@@ -79,7 +79,7 @@
                             </div>
                         </div>
 
-                        @if($user->role->name == 'seamstress' || $user->role->name == 'cutter')
+                        @if($user->isSeamstress() || $user->isCutter())
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-md-6">
@@ -156,7 +156,7 @@
                 </div>
             </div>
 
-            @if($user->role->name == 'seamstress' || $user->role->name == 'cutter')
+            @if($user->isSeamstress() || $user->isCutter())
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Таблица мотивации</h3>
@@ -175,11 +175,11 @@
                             <tr>
                                 <th class="text-center">От</th>
                                 <th class="text-center">До</th>
-                                @if($user->role->name == 'seamstress')
+                                @if($user->isSeamstress())
                                 <th class="text-center">с закроем</th>
                                 <th class="text-center">без кроя</th>
                                 @endif
-                                @if($user->role->name == 'cutter')
+                                @if($user->isCutter())
                                 <th class="text-center">закройщик</th>
                                 @endif
                             </tr>
@@ -202,7 +202,7 @@
                                                id="to_{{$i}}" name="to[]"
                                                value="{{ old('to')[$i] ?? $motivation?->to ?? '' }}">
                                     </td>
-                                    @if($user->role->name == 'seamstress')
+                                    @if($user->isSeamstress())
                                     <td>
                                         <input type="number" class="form-control"
                                                id="bonus_{{$i}}" name="bonus[]"
@@ -214,7 +214,7 @@
                                                value="{{ old('not_cutter_bonus')[$i] ?? $motivation?->not_cutter_bonus ?? '' }}">
                                     </td>
                                     @endif
-                                    @if($user->role->name == 'cutter')
+                                    @if($user->isCutter())
                                         <td>
                                             <input type="number" class="form-control"
                                                    id="cutter_bonus_{{$i}}" name="cutter_bonus[]"
@@ -251,11 +251,11 @@
                             </tr>
                             <tr>
                                 <th class="text-center">метраж</th>
-                                @if($user->role->name == 'seamstress')
+                                @if($user->isSeamstress())
                                 <th class="text-center">с закроем</th>
                                 <th class="text-center">без кроя</th>
                                 @endif
-                                @if($user->role->name == 'cutter')
+                                @if($user->isCutter())
                                 <th class="text-center">закройщик</th>
                                 @endif
                             </tr>
@@ -274,7 +274,7 @@
                                                value="{{ old('width')[$i] ?? $rate?->width ?? $width }}"
                                                readonly>
                                     </td>
-                                    @if($user->role->name == 'seamstress')
+                                    @if($user->isSeamstress())
                                     <td>
                                         <input type="number" class="form-control"
                                                id="rate_{{$i}}" name="rate[]"
@@ -286,7 +286,7 @@
                                                value="{{ old('not_cutter_rate')[$i] ?? $rate?->not_cutter_rate ?? '' }}">
                                     </td>
                                     @endif
-                                    @if($user->role->name == 'cutter')
+                                    @if($user->isCutter())
                                         <td>
                                             <input type="number" class="form-control"
                                                    id="cutter_rate_{{$i}}" name="cutter_rate[]"

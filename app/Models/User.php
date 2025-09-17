@@ -96,4 +96,24 @@ class User extends Authenticatable
     {
         return $this->updated_at->format('d/m/Y H:i');
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role?->name === 'admin';
+    }
+
+    public function isCutter(): bool
+    {
+        return $this->role?->name === 'cutter';
+    }
+
+    public function isSeamstress(): bool
+    {
+        return $this->role?->name === 'seamstress';
+    }
+
+    public function isStorekeeper(): bool
+    {
+        return $this->role?->name === 'storekeeper';
+    }
 }

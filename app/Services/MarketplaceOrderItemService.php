@@ -45,11 +45,11 @@ class MarketplaceOrderItemService
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*');
 
-        if(auth()->user()->role->name === 'seamstress' && $status != 'new') {
+        if(auth()->user()->isSeamstress() && $status != 'new') {
             $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
         }
 
-        if(auth()->user()->role->name === 'cutter' && $status != 'new') {
+        if(auth()->user()->isCutter() && $status != 'new') {
             $items = $items->where('marketplace_order_items.cutter_id', auth()->user()->id);
         }
 
@@ -184,7 +184,7 @@ class MarketplaceOrderItemService
         $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
             ->where('status', 4);
 
-        if (auth()->user()->role->name === 'seamstress') {
+        if (auth()->user()->isSeamstress()) {
             $marketplaceOrderItemInWork = $marketplaceOrderItemInWork
                 ->where('seamstress_id', auth()->id());
         }
@@ -197,7 +197,7 @@ class MarketplaceOrderItemService
         $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
             ->where('status', 7);
 
-        if (auth()->user()->role->name === 'cutter') {
+        if (auth()->user()->isCutter()) {
             $marketplaceOrderItemInWork = $marketplaceOrderItemInWork
                 ->where('cutter_id', auth()->id());
         }
@@ -525,12 +525,12 @@ class MarketplaceOrderItemService
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
 
 //        если швея (без кроя), то заказы со статусом "раскроено"
-        if ((auth()->user()->role->name === 'seamstress' && !auth()->user()->is_cutter)) {
+        if ((auth()->user()->isSeamstress() && !auth()->user()->is_cutter)) {
             $items = $items->where('marketplace_order_items.status', 8);
         }
 
 //          если закройщик или швея-закройщик, то заказы со статусом "новый"
-        if ((auth()->user()->role->name === 'seamstress' && auth()->user()->is_cutter) || auth()->user()->role->name === 'cutter') {
+        if ((auth()->user()->isSeamstress() && auth()->user()->is_cutter) || auth()->user()->isCutter()) {
             $items = $items->where('marketplace_order_items.status', 0);
         }
 

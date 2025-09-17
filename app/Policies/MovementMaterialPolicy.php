@@ -15,12 +15,12 @@ class MovementMaterialPolicy
 
     public function viewAny_defect(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'storekeeper' || $user->role->name == 'cutter';
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isCutter();
     }
 
     public function viewAny_remnants(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'storekeeper' || $user->role->name == 'cutter';
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isCutter();
     }
 
     public function view(User $user, MovementMaterial $movementMaterial): bool
@@ -35,17 +35,17 @@ class MovementMaterialPolicy
 
     public function create_defect(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function create_remnants(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function update(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'storekeeper' || $user->role->name === 'seamstress' || $user->role->name === 'cutter';
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter();
     }
 
     public function delete(User $user, MovementMaterial $movementMaterial): bool

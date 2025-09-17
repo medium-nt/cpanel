@@ -28,7 +28,7 @@ class MaterialConsumptionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -36,7 +36,7 @@ class MaterialConsumptionPolicy
      */
     public function update(User $user, MaterialConsumption $materialConsumption): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -44,7 +44,7 @@ class MaterialConsumptionPolicy
      */
     public function delete(User $user, MaterialConsumption $materialConsumption): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**

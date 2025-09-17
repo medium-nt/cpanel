@@ -11,7 +11,7 @@ class SettingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -19,6 +19,6 @@ class SettingPolicy
      */
     public function update(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 }

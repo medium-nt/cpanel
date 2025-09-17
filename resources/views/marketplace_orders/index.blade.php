@@ -13,7 +13,7 @@
             <div class="card-body">
 
                 <div class="row">
-                    @if(auth()->user()->role->name == 'admin')
+                    @if(auth()->user()->isAdmin())
                         <a href="{{ route('marketplace_orders.create') }}" class="btn btn-primary mr-3 mb-3">Добавить заказ вручную</a>
 
                         <a href="{{ route('marketplace_api.newOrder') }}" class="btn btn-success mr-3 mb-3">Загрузить заказы с API</a>
@@ -95,7 +95,7 @@
                                     </div>
                                 </div>
 
-                                @if(auth()->user()->role->name == 'admin')
+                                @if(auth()->user()->isAdmin())
                                 <div class="btn-group" role="group">
                                     <a href="{{ route('marketplace_orders.edit', ['marketplace_order' => $order->id]) }}"
                                        class="btn btn-primary mr-3">
@@ -188,7 +188,7 @@
                                 <td>{{ is_null($order->completed_at) ? '' : now()->parse($order->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->role->name == 'admin')
+                                    @if(auth()->user()->isAdmin())
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('marketplace_orders.edit', ['marketplace_order' => $order->id]) }}" class="btn btn-primary mr-1">
                                             <i class="fas fa-edit"></i>

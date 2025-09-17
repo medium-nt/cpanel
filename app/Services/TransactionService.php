@@ -58,7 +58,7 @@ class TransactionService
             ->get();
 
         foreach ($workers as $worker) {
-            if ($worker->user && $worker->user->role && $worker->user->role->name === 'storekeeper') {
+            if ($worker->user && $worker->user->role && $worker->user->isStorekeeper()) {
 
                 $accrualForDate = \Carbon\Carbon::parse($worker->date);
 
@@ -151,7 +151,7 @@ class TransactionService
         $transactions = Transaction::query()
             ->orderBy('created_at', 'desc');
 
-        if (auth()->user()->role->name != 'admin') {
+        if (!auth()->user()->isAdmin()) {
             $transactions->where('user_id', auth()->user()->id);
         } else {
             if ($request->user_id) {
@@ -274,7 +274,7 @@ class TransactionService
         $query = Transaction::query()
             ->where('is_bonus', $isBonus);
 
-        if(auth()->user()->role->name !== 'admin') {
+        if(!auth()->user()->isAdmin()) {
             $query = $query->where('user_id', auth()->id());
         }
 
@@ -347,7 +347,7 @@ class TransactionService
             ->where('is_bonus', 0)
             ->whereNotNull('user_id');
 
-        if (auth()->user()->role->name !== 'admin') {
+        if (!auth()->user()->isAdmin()) {
             $summary = $summary->where('user_id', auth()->id());
         }
 
@@ -412,7 +412,7 @@ class TransactionService
 
     private static function processAccrual(mixed $user, mixed $test): void
     {
-        if ($user->role->name == 'seamstress') {
+        if ($user->isSeamstress()) {
             $roleName = 'Швея';
             $marketplaceOrderItem = $user->marketplaceOrderItems;
         } else {
@@ -515,12 +515,12 @@ class TransactionService
             ->where('user_id', $user->id)
             ->where('width', $marketplaceOrderItems->item->width);
 
-        if($user->role->name == 'cutter') {
+        if($user->isCutter()) {
             $nowMotivationBonus = $nowMotivationBonus->value('cutter_bonus') ?? 0;
             $salary = $salary->value('cutter_rate') ?? 0;
         }
 
-        if($user->role->name == 'seamstress') {
+        if($user->isSeamstress()) {
             if ($user->is_cutter) {
                 $nowMotivationBonus = $nowMotivationBonus->value('bonus') ?? 0;
                 $salary = $salary->value('rate') ?? 0;

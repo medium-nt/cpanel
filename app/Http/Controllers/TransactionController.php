@@ -13,7 +13,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $title = 'Финансы';
-        if(auth()->user()->role->name == 'admin') {
+        if(auth()->user()->isAdmin()) {
             $title .= ' компании';
         }
 

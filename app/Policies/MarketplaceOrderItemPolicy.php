@@ -17,7 +17,7 @@ class MarketplaceOrderItemPolicy
 
     public function getNew(User $user): bool
     {
-        return $user->role->name == 'seamstress' || $user->role->name == 'cutter';
+        return $user->isSeamstress() || $user->isCutter();
     }
 
     /**
@@ -25,6 +25,6 @@ class MarketplaceOrderItemPolicy
      */
     public function update(User $user, MarketplaceOrderItem $marketplaceOrderItem): bool
     {
-        return $user->role->name === 'admin' || $user->role->name === 'seamstress' || $user->role->name == 'cutter';
+        return $user->isAdmin() || $user->isSeamstress() || $user->isCutter();
     }
 }

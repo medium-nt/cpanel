@@ -33,7 +33,7 @@ class SchedulePolicy
 
     public function changeDate(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**

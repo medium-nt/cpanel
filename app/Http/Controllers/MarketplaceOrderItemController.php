@@ -18,11 +18,11 @@ class MarketplaceOrderItemController extends Controller
     public function index(Request $request)
     {
         //  запретить швеям смотреть новые заказы и заказы в закрое.
-        if(($request->status == 'new' || $request->status == 'cutting') && auth()->user()->role->name === 'seamstress') {
+        if(($request->status == 'new' || $request->status == 'cutting') && auth()->user()->isSeamstress()) {
             return redirect()->route('marketplace_order_items.index', ['status' => 'in_work']);
         }
         // запретить закройщикам смотреть новые заказы
-        if($request->status == 'new' && auth()->user()->role->name === 'cutter') {
+        if($request->status == 'new' && auth()->user()->isCutter()) {
             return redirect()->route('marketplace_order_items.index', ['status' => 'cutting']);
         }
 

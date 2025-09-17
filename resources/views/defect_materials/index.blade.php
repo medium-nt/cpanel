@@ -9,7 +9,7 @@
 
 @section('content_body')
     <div class="row">
-        @if(auth()->user()->role->name == 'storekeeper' || auth()->user()->role->name == 'admin')
+        @if(auth()->user()->isStorekeeper() || auth()->user()->isAdmin())
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
@@ -59,7 +59,7 @@
             <div class="card">
                 <div class="card-body">
 
-                    @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
+                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
                     <div class="row">
                         <div class="form-group col-md-6">
                             <a href="{{ route('defect_materials.create', ['type_movement_id' => 4]) }}" class="btn btn-primary mr-3 mb-3">Добавить новый брак</a>
@@ -173,7 +173,7 @@
 
                                         @switch($order->status)
                                             @case(0)
-                                                @if(auth()->user()->role->name == 'admin')
+                                                @if(auth()->user()->isAdmin())
                                                     <div class="btn-group" role="group">
                                                         <a href="{{ route('defect_materials.approve_reject', ['order' => $order->id]) }}"
                                                            class="btn btn-warning mr-1">
@@ -183,7 +183,7 @@
                                                 @endif
                                                 @break
                                             @case(1)
-                                                @if(auth()->user()->role->name == 'storekeeper')
+                                                @if(auth()->user()->isStorekeeper())
                                                     <div class="btn-group" role="group">
                                                         <a href="{{ route('defect_materials.pick_up', ['order' => $order->id]) }}"
                                                            class="btn btn-warning mr-1">
@@ -225,7 +225,7 @@
                                     <td style="width: 70px">
                                         @switch($order->status)
                                             @case(0)
-                                                @if(auth()->user()->role->name == 'admin')
+                                                @if(auth()->user()->isAdmin())
                                                     <div class="btn-group" role="group">
                                                         <a href="{{ route('defect_materials.approve_reject', ['order' => $order->id]) }}"
                                                            class="btn btn-warning mr-1">
@@ -235,7 +235,7 @@
                                                 @endif
                                                 @break
                                             @case(1)
-                                                @if(auth()->user()->role->name == 'storekeeper')
+                                                @if(auth()->user()->isStorekeeper())
                                                     <div class="btn-group" role="group">
                                                         <a href="{{ route('defect_materials.pick_up', ['order' => $order->id]) }}"
                                                            class="btn btn-warning mr-1">
@@ -244,7 +244,7 @@
                                                     </div>
                                                 @endif
 
-                                                @if(auth()->user()->role->name == 'admin')
+                                                @if(auth()->user()->isAdmin())
                                                     <form action="{{ route('defect_materials.delete', ['order' => $order->id]) }}"
                                                           method="POST">
                                                         @csrf

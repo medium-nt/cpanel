@@ -13,7 +13,7 @@ class MaterialPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -29,7 +29,7 @@ class MaterialPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -37,7 +37,7 @@ class MaterialPolicy
      */
     public function update(User $user, Material $material): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -45,7 +45,7 @@ class MaterialPolicy
      */
     public function delete(User $user, Material $material): bool
     {
-        return $user->role->name == 'admin';
+        return $user->isAdmin();
     }
 
     /**

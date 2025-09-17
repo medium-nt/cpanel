@@ -25,7 +25,6 @@ class MovementMaterialToWorkshopController extends Controller
 
         return view('movements_to_workshop.index', [
             'title' => 'Отгрузка на производство',
-            'userRole' => auth()->user()->role->name,
             'orders' => $paginatedOrders->appends($queryParams),
         ]);
     }

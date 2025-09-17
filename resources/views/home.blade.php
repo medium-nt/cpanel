@@ -23,7 +23,7 @@
                     </a>
                 </div>
 
-                @if(auth()->user()->role->name != 'cutter')
+                @if(!auth()->user()->isCutter())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
@@ -90,7 +90,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->role->name != 'admin')
+    @if(!auth()->user()->isAdmin())
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Зарплата</h3>
@@ -103,7 +103,8 @@
     </div>
     @endif
 
-    @if(auth()->user()->role->name != 'admin')
+    @if(!auth()->user()->isAdmin())
+    <div class="card">
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Рейтинг</h3>

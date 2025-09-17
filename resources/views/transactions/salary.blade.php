@@ -8,7 +8,7 @@
 {{-- Content body: main page content --}}
 
 @section('content_body')
-    @if(auth()->user()->role->name == 'admin')
+    @if(auth()->user()->isAdmin())
         <div class="col-md-12">
     @else
         <div class="col-md-4">

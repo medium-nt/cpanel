@@ -12,7 +12,7 @@
         <div class="card">
             <div class="card-body">
 
-                @if(auth()->user()->role->name == 'admin')
+                @if(auth()->user()->isAdmin())
                     <a href="{{ route('movements_to_workshop.write_off') }}"
                        class="btn btn-primary mr-3 mb-3">Списание материала</a>
                 @endif

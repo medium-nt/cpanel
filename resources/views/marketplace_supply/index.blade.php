@@ -104,7 +104,7 @@
                                     </div>
                                 </div>
 
-                                @if(auth()->user()->role->name == 'admin' || auth()->user()->role->name == 'storekeeper')
+                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply->id]) }}"
                                            class="btn btn-primary mr-3">
@@ -183,7 +183,7 @@
                                 <td>{{ is_null($marketplace_supply->completed_at) ? '' : now()->parse($marketplace_supply->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->role->name == 'admin' || auth()->user()->role->name == 'storekeeper')
+                                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply->id]) }}"
                                                class="btn btn-primary mr-1">

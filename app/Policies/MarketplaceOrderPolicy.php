@@ -9,7 +9,7 @@ class MarketplaceOrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function view(User $user, MarketplaceOrder $marketplaceOrder): bool
@@ -19,26 +19,26 @@ class MarketplaceOrderPolicy
 
     public function create(User $user): bool
     {
-        return $user->role->name === 'admin';
+        return $user->isAdmin();
     }
 
     public function update(User $user, MarketplaceOrder $marketplaceOrder): bool
     {
-        return $user->role->name === 'admin';
+        return $user->isAdmin();
     }
 
     public function complete(User $user, MarketplaceOrder $marketplaceOrder): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function delete(User $user, MarketplaceOrder $marketplaceOrder): bool
     {
-        return $user->role->name === 'admin';
+        return $user->isAdmin();
     }
 
     public function remove(User $user, MarketplaceOrder $marketplaceOrder): bool
     {
-        return $user->role->name === 'admin' || $user->role->name == 'storekeeper';
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 }

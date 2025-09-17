@@ -14,7 +14,7 @@
                 <div class="card">
                     <div class="card-body">
 
-                        @if(auth()->user()->role->name == 'admin')
+                        @if(auth()->user()->isAdmin())
                         <div class="row">
                             <div class="col-8 mb-3">
                                 <div class="dropdown mb-3 mr-3">
@@ -41,7 +41,7 @@
                         @endif
 
                         <form action="{{ route('transactions.index') }}" method="get" class="row g-2">
-                            @if(auth()->user()->role->name == 'admin')
+                            @if(auth()->user()->isAdmin())
                             <div class="col-auto mb-3">
                                 <select class="form-control" name="user_id" id="user_id">
                                     <option value="0">Все</option>
@@ -71,7 +71,7 @@
                                        value="{{ request('date_end') }}">
                             </div>
 
-                            @if(auth()->user()->role->name == 'admin')
+                            @if(auth()->user()->isAdmin())
                             <div class="col-auto mb-3">
                                 <select class="form-control" name="type" id="type">
                                     <option value="0" selected>Все</option>
@@ -94,7 +94,7 @@
             </div>
 
             <div class="col-12 col-md-3">
-                @if(auth()->user()->role->name == 'admin')
+                @if(auth()->user()->isAdmin())
                 <div class="card">
                     <div class="card-body">
                         <b>Денег в компании: {{ $totalInCompany }}</b>
@@ -135,14 +135,14 @@
                                 <td style="width: 50px">
                                     @switch($transaction->transaction_type)
                                         @case('out')
-                                            @if(auth()->user()->role->name == 'admin')
+                                            @if(auth()->user()->isAdmin())
                                                 <i class="fas fa-minus-circle" style="color: red"></i>
                                             @else
                                                 <i class="fas fa-plus-circle" style="color: green"></i>
                                             @endif
                                         @break
                                         @case('in')
-                                            @if(auth()->user()->role->name == 'admin')
+                                            @if(auth()->user()->isAdmin())
                                                 <i class="fas fa-plus-circle" style="color: green"></i>
                                             @else
                                                 <i class="fas fa-minus-circle" style="color: red"></i>
@@ -165,7 +165,7 @@
                                 }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->role->name == 'admin')
+                                    @if(auth()->user()->isAdmin())
                                     <div class="btn-group" role="group">
 {{--                                        <a href="{{ route('transactions.edit', ['transaction' => $transaction->id]) }}" class="btn btn-primary mr-1">--}}
 {{--                                            <i class="fas fa-edit"></i>--}}

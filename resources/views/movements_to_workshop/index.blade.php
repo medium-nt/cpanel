@@ -12,7 +12,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    @if(auth()->user()->role->name == 'seamstress' || auth()->user()->role->name == 'cutter')
+                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
                         <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-1">Новый заказ</a>
                     @endif
 
@@ -57,7 +57,7 @@
                                         </div>
                                     @endif
 
-                                    @if( $order->status == '0' &&  $userRole == 'storekeeper')
+                                    @if( $order->status == '0' &&  auth()->user()->isStorekeeper())
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.collect', ['order' => $order->id]) }}"
                                                class="btn btn-warning mr-1"
@@ -65,7 +65,7 @@
                                                 <i class="fas fa-box-open"></i> Сформировать
                                             </a>
                                         </div>
-                                    @elseif( $order->status == '2' && ($userRole == 'cutter' || $userRole == 'seamstress'))
+                                    @elseif( $order->status == '2' && (auth()->user()->isCutter() || auth()->user()->isSeamstress()))
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                                class="btn btn-success mr-1"
@@ -75,7 +75,7 @@
                                         </div>
                                     @endif
 
-                                    @if($userRole == 'admin' && $order->status == '0')
+                                    @if(auth()->user()->isAdmin() && $order->status == '0')
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.destroy', ['order' => $order->id]) }}"
                                                class="btn btn-danger" title="Удалить">
@@ -132,7 +132,7 @@
                                     @endif
 
                                 <td style="width: 100px">
-                                    @if( $order->status == '0' &&  $userRole == 'storekeeper')
+                                    @if( $order->status == '0' &&  auth()->user()->isStorekeeper())
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.collect', ['order' => $order->id]) }}"
                                            class="btn btn-warning mr-1"
@@ -140,7 +140,7 @@
                                             <i class="fas fa-box-open"></i>
                                         </a>
                                     </div>
-                                    @elseif( $order->status == '2' && ($userRole == 'cutter' || $userRole == 'seamstress'))
+                                    @elseif( $order->status == '2' && (auth()->user()->isCutter() || auth()->user()->isSeamstress()))
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                            class="btn btn-success mr-1"
@@ -150,7 +150,7 @@
                                     </div>
                                     @endif
 
-                                    @if($userRole == 'admin' && $order->status == '0')
+                                    @if(auth()->user()->isAdmin() && $order->status == '0')
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.destroy', ['order' => $order->id]) }}"
                                                 class="btn btn-danger" title="Удалить">
