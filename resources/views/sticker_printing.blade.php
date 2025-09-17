@@ -50,9 +50,26 @@
                             <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal">
                                 <i class="fas fa-barcode"></i>
                             </a>
+                            <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal2">
+                                <i class="fas fa-barcode"></i> test
+                            </a>
                         </div>
 
                         <x-modal-scan-barcode-component/>
+
+                        <div class="modal fade" id="barcodeModal2" tabindex="-1" role="dialog" aria-labelledby="barcodeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <form id="barcodeForm" action="{{ route('sticker_printing') }}">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <input type="text" style="color: white; caret-color: #000" class="form-control"
+                                                   placeholder="тест выбора пользователя"
+                                                   id="barcodeInput2" name="barcode" autocomplete="off" autofocus>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
 
                         <x-modal-work-shift-component :userId="$userId"/>
 
@@ -283,30 +300,55 @@
     <script src="{{ asset('js/ratingGraph.js') }}"></script>
 
     <script>
-        function setupModalFocus(modalId, inputId) {
+            function setupModalFocus(modalId, inputId) {
+                const input = document.getElementById(inputId);
+
+                function enforceFocus(e) {
+                    if (!input.contains(e.target)) {
+                        input.focus();
+                    }
+                }
+
+                let modal_id = $(`#${modalId}`);
+
+                modal_id.on('shown.bs.modal', function () {
+                    input.value = '';
+                    input.focus();
+                    document.addEventListener('focusin', enforceFocus);
+                });
+
+                modal_id.on('hidden.bs.modal', function () {
+                    document.removeEventListener('focusin', enforceFocus);
+                });
+            }
+
+            setupModalFocus('barcodeModal', 'barcodeInput');
+            setupModalFocus('workShiftModal', 'workShiftInput');
+            setupModalFocus2('barcodeModal2', 'barcodeInput2');
+
+        function setupModalFocus2(modalId, inputId) {
             const input = document.getElementById(inputId);
 
             function enforceFocus(e) {
-                if (!input.contains(e.target)) {
-                    input.focus();
+                if (e.target !== input) {
+                    input?.focus();
                 }
             }
 
-            let modal_id = $(`#${modalId}`);
+            const modal = $(`#${modalId}`);
 
-            modal_id.on('shown.bs.modal', function () {
-                input.value = '';
-                input.focus();
-                document.addEventListener('focusin', enforceFocus);
+            modal.on('shown.bs.modal', function () {
+                if (input) {
+                    input.value = '';
+                    setTimeout(() => input.focus(), 100);
+                    document.addEventListener('focusin', enforceFocus);
+                }
             });
 
-            modal_id.on('hidden.bs.modal', function () {
+            modal.on('hidden.bs.modal', function () {
                 document.removeEventListener('focusin', enforceFocus);
             });
         }
-
-        setupModalFocus('barcodeModal', 'barcodeInput');
-        setupModalFocus('workShiftModal', 'workShiftInput');
     </script>
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
