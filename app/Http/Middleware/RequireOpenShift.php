@@ -19,7 +19,7 @@ class RequireOpenShift
 
         if (($user->role->name != 'admin' && $user->role->name != 'storekeeper' && !$user->shift_is_open)) {
             return redirect()->route('home')
-                ->with('error', 'Откройте смену для доступа к функционалу.');
+                ->with('error', 'Откройте смену на терминале для доступа к функционалу.');
         }
 
         return $next($request);
