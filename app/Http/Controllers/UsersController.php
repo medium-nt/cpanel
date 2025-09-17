@@ -61,9 +61,11 @@ class UsersController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        $this->saved($request, $user);
+        if (UserService::saved($request, $user)) {
+            return back()->with('success', 'Изменения сохранены.');
+        }
 
-        return back()->with('success', 'Изменения сохранены.');
+        return back()->with('error', 'Ошибка сохранения');
     }
 
     public function destroy(User $user): RedirectResponse
@@ -103,46 +105,11 @@ class UsersController extends Controller
 
     public function profileUpdate(Request $request)
     {
-        $this->saved($request, auth()->user());
-
-        return redirect()->route('profile')->with('success', 'Изменения сохранены.');
-    }
-
-    private function saved(Request $request, User $user): void
-    {
-        $rules = [
-            'name' => 'required|string|min:2|max:255',
-            'email' => 'required|email|max:255',
-            'salary_rate' => 'sometimes|nullable|numeric',
-            'password' => 'nullable|confirmed|string|min:6',
-            'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',
-            'orders_priority' => 'string|in:all,fbo,fbo_200',
-            'is_cutter' => 'boolean',
-            'start_work_shift' => 'sometimes|date_format:H:i',
-            'number_working_hours' => 'sometimes|integer|numeric|min:0|max:16',
-        ];
-
-        $validatedData = $request->validate($rules);
-
-        if ($request->filled('password')) {
-            $validatedData['password'] = bcrypt($validatedData['password']);
-        } else {
-            unset($validatedData['password']);
+        if (UserService::saved($request, auth()->user())) {
+            return redirect()->route('profile')->with('success', 'Изменения сохранены.');
         }
 
-        if ($request->hasFile('avatar')) {
-            if (!Storage::disk('public')->exists('avatars')) {
-                Storage::disk('public')->makeDirectory('avatars');
-            }
-
-            $fileName = $user->id . '.' . $request->file('avatar')
-                    ->getClientOriginalExtension();
-
-            $validatedData['avatar'] = $request->file('avatar')
-                ->storeAs('avatars', $fileName, 'public');
-        }
-
-        $user->update($validatedData);
+        return back()->with('error', 'Ошибка сохранения');
     }
 
     public function disconnectTg()
