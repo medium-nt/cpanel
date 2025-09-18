@@ -17,7 +17,10 @@ Schedule::call(function () {
     MarketplaceApiService::uploadingCancelledProducts();
 })->everyFiveMinutes();
 
-$workingDayStart = Setting::query()->where('name', 'working_day_start')->first()?->value;
+$workingDayStart = app()->runningUnitTests()
+    ? '09:00'
+    : Setting::query()->where('name', 'working_day_start')->first()?->value;
+
 Schedule::call(function () {
     UserService::sendMessageForWorkingTodayEmployees();
 })->dailyAt($workingDayStart);
@@ -41,3 +44,8 @@ Schedule::call(function () {
 Schedule::call(function () {
     TransactionService::accrualCuttersSalary();
 })->dailyAt('00:45');
+
+Schedule::call(function () {
+    MarketplaceSupplyService::deleteOldVideos();
+})->dailyAt('01:00');
+
