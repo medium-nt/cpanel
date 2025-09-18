@@ -10,4 +10,12 @@ class Setting extends Model
         'name',
         'value',
     ];
+
+    public static function getValue(string $name): ?string
+    {
+        return static::query()
+            ->where('name', $name)
+            ->value('value');
+    }
+
 }

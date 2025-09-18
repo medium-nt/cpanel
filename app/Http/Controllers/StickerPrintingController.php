@@ -124,9 +124,14 @@ class StickerPrintingController extends Controller
                     ->with('error', 'Ошибка! Нельзя закрыть смену, пока не закончилось рабочее время!');
             }
 
+            UserService::checkWorkShiftClosure($user);
+
             $user->shift_is_open = false;
             $user->actual_start_work_shift = '00:00:00';
+            $user->closed_work_shift = now()->format('H:i');
         } else {
+            UserService::checkLateStartWorkShift($user);
+
             $user->shift_is_open = true;
             $user->actual_start_work_shift = now()->format('H:i');
         }
@@ -140,7 +145,6 @@ class StickerPrintingController extends Controller
         return redirect()
             ->route('sticker_printing', ['user_id' => $selectedUser->id])
             ->with('success', 'Смена успешно ' . ($user->shift_is_open ? 'открыта' : 'закрыта'));
-
     }
 
     public function openCloseWorkShiftAdmin(User $user)

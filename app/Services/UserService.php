@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Models\Motivation;
 use App\Models\Rate;
 use App\Models\Schedule;
+use App\Models\Setting;
+use App\Models\Transaction;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -141,5 +144,88 @@ class UserService
             }
 
         return null;
+    }
+
+    public static function checkWorkShiftClosure(User $user): void
+    {
+        $previousUserWhoClosedShift = User::query()
+            ->where('shift_is_open', false)
+            ->where('closed_work_shift', '!=', '00:00:00')
+            ->where('id', '!=', $user->id)
+            ->orderByDesc('closed_work_shift')
+            ->first();
+
+        if (!$previousUserWhoClosedShift) {
+            return;
+        }
+
+        $closedTime = Carbon::createFromFormat('H:i:s', $previousUserWhoClosedShift->closed_work_shift)
+            ->setDate(now()->year, now()->month, now()->day);
+
+        $minutes = 2;
+
+        if ($closedTime->diffInMinutes(now()) < $minutes) {
+            $text = 'Внимание! Сотрудник ' . $user->name . ' (' . $user->id . ') ' .
+                'пытался закрыть смену, сразу после ' . $previousUserWhoClosedShift->name . ' (' . $previousUserWhoClosedShift->id . ').';
+
+            Log::channel('work_shift')->error($text);
+
+            TgService::sendMessage(config('telegram.admin_id'), $text);
+        }
+    }
+
+    public static function checkUnclosedWorkShifts(): void
+    {
+        $users = User::query()
+            ->where('shift_is_open', true)
+            ->get();
+
+        $amount = Setting::getValue('unclosed_shift_penalty');
+        $actualDate = now()->subDay();
+
+        foreach ($users as $user) {
+            Transaction::query()->create([
+                'user_id' => $user->id,
+                'title' => 'Штраф за незакрытую смену ' . $actualDate->format('d/m/Y'),
+                'accrual_for_date' => $actualDate->format('Y-m-d'),
+                'amount' => $amount,
+                'transaction_type' => 'in',
+                'status' => 1,
+            ]);
+
+            Log::channel('salary')->info(
+                "Сотруднику $user->name (id $user->id) начислен штраф за незакрытую смену "
+                . $actualDate->format('d/m/Y') . " в размере $amount бонусов."
+            );
+
+            $user->shift_is_open = false;
+            $user->closed_work_shift = '00:00:00';
+            $user->save();
+        }
+    }
+
+    public static function checkLateStartWorkShift(User $user): void
+    {
+        $start_work_shift = Carbon::parse($user->actual_start_work_shift);
+        $maxLateTime = $start_work_shift->addMinutes($user->max_late_minutes);
+
+        if ($maxLateTime->lessThan(now())) {
+            $amount = Setting::getValue('late_opened_shift_penalty');
+            $actualDate = now();
+
+            Transaction::query()->create([
+                'user_id' => $user->id,
+                'title' => 'Штраф за опоздание на смену ' . $actualDate->format('d/m/Y'),
+                'accrual_for_date' => $actualDate->format('Y-m-d'),
+                'amount' => $amount,
+                'transaction_type' => 'in',
+                'status' => 1,
+            ]);
+
+            Log::channel('salary')->info(
+                "Сотруднику $user->name (id $user->id) начислен штраф за опоздание за смену "
+                . $actualDate->format('d/m/Y') . " в размере $amount бонусов."
+            );
+        }
     }
 }

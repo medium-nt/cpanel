@@ -26,8 +26,8 @@ Schedule::call(function () {
 })->dailyAt($workingDayStart);
 
 Schedule::call(function () {
-    MarketplaceSupplyService::deleteOldVideos();
-})->dailyAt('01:00');
+    UserService::checkUnclosedWorkShifts();
+})->dailyAt('00:01');
 
 Schedule::call(function () {
     TransactionService::activateHoldBonus();
