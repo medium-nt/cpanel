@@ -17,6 +17,10 @@ class RequireOpenShift
     {
         $user = auth()->user();
 
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         if ((!$user->isAdmin() && !$user->isStorekeeper() && !$user->shift_is_open)) {
             return redirect()->route('home')
                 ->with('error', 'Откройте смену на терминале для доступа к функционалу.');
