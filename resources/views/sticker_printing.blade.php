@@ -36,23 +36,26 @@
         <div class="content">
             <div class="container-fluid">
                 <div class="card" style="top: 10px;">
-                    <div class="row mt-3 ml-3 mr-1">
+                    <div class="row mt-3 ml-1 mr-1">
                         <div class="form-group col-md-1 mr-5">
                             <a class="btn btn-primary btn-lg" href="{{ route('sticker_printing') }}">Обновить</a>
                         </div>
-                        <div class="form-group col-md-1">
+                        <div class="form-group col-md-1 ml-3">
                             <a class="btn btn-outline-primary btn-lg" href="#" onclick="window.location.reload()">
                                 <i class="fas fa-sync"></i>
                             </a>
                         </div>
 
-                        <div class="form-group col-md-1">
+                        <div class="form-group col-md-2">
                             <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal">
                                 <i class="fas fa-barcode"></i>
                             </a>
-                            <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal2">
-                                <i class="fas fa-barcode"></i> test
-                            </a>
+{{--                            <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal2">--}}
+{{--                                <i class="fas fa-barcode"></i> 1--}}
+{{--                            </a>--}}
+{{--                            <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal3">--}}
+{{--                                <i class="fas fa-barcode"></i> 2--}}
+{{--                            </a>--}}
                         </div>
 
                         <x-modal-scan-barcode-component/>
@@ -68,6 +71,18 @@
                                         </div>
                                     </div>
                                 </form>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="barcodeModal3" tabindex="-1" aria-labelledby="barcodeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <form id="barcodeForm" action="{{ route('sticker_printing') }}">
+                                            <input type="text" name="barcode" id="barcodeInput3" class="form-control" placeholder="Штрихкод">
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -100,7 +115,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-3">
                             @if($workShift)
                                 @if(!$workShift['shift_is_open'])
                                 <a class="btn btn-success btn-lg" href="#" data-toggle="modal" data-target="#workShiftModal">
@@ -299,32 +314,48 @@
     </script>
     <script src="{{ asset('js/ratingGraph.js') }}"></script>
 
+    <!-- Скрипт фокусировки и inert -->
     <script>
-            function setupModalFocus(modalId, inputId) {
-                const input = document.getElementById(inputId);
+        // const mainContent = document.getElementById('mainContent');
+        // const input = document.getElementById('barcodeInput3');
+        //
+        // $('#barcodeModal').on('shown.bs.modal', function () {
+        //     mainContent.setAttribute('inert', '');
+        //     input.value = '';
+        //     setTimeout(() => input.focus(), 100);
+        // });
+        //
+        // $('#barcodeModal').on('hidden.bs.modal', function () {
+        //     mainContent.removeAttribute('inert');
+        // });
+    </script>
 
-                function enforceFocus(e) {
-                    if (!input.contains(e.target)) {
-                        input.focus();
-                    }
-                }
+    <script>
+        function setupModalFocus(modalId, inputId) {
+            const input = document.getElementById(inputId);
 
-                let modal_id = $(`#${modalId}`);
-
-                modal_id.on('shown.bs.modal', function () {
-                    input.value = '';
+            function enforceFocus(e) {
+                if (!input.contains(e.target)) {
                     input.focus();
-                    document.addEventListener('focusin', enforceFocus);
-                });
-
-                modal_id.on('hidden.bs.modal', function () {
-                    document.removeEventListener('focusin', enforceFocus);
-                });
+                }
             }
 
-            setupModalFocus('barcodeModal', 'barcodeInput');
-            setupModalFocus('workShiftModal', 'workShiftInput');
-            setupModalFocus2('barcodeModal2', 'barcodeInput2');
+            let modal_id = $(`#${modalId}`);
+
+            modal_id.on('shown.bs.modal', function () {
+                input.value = '';
+                input.focus();
+                document.addEventListener('focusin', enforceFocus);
+            });
+
+            modal_id.on('hidden.bs.modal', function () {
+                document.removeEventListener('focusin', enforceFocus);
+            });
+        }
+
+        setupModalFocus('barcodeModal', 'barcodeInput');
+        // setupModalFocus2('barcodeModal2', 'barcodeInput2');
+        setupModalFocus('workShiftModal', 'workShiftInput');
 
         function setupModalFocus2(modalId, inputId) {
             const input = document.getElementById(inputId);
