@@ -61,6 +61,34 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="form-group col-md-2">
+                                    <label for="late_opened_shift_penalty">Штраф за опоздание</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="late_opened_shift_penalty"
+                                        name="late_opened_shift_penalty"
+                                        value="{{ $settings->late_opened_shift_penalty }}"
+                                        min="0"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label for="unclosed_shift_penalty">Штраф за не закрытую смену</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="unclosed_shift_penalty"
+                                        name="unclosed_shift_penalty"
+                                        value="{{ $settings->unclosed_shift_penalty }}"
+                                        min="0"
+                                        required
+                                    >
+                                </div>
+                            </div>
                             <hr>
                             <div class="row">
                                 <div class="form-group col-md-12">

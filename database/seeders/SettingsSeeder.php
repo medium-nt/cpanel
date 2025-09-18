@@ -52,5 +52,14 @@ class SettingsSeeder extends Seeder
             ['value' => 'by_date']
         );
 
+        Setting::query()->firstOrCreate(
+            ['name' => 'late_opened_shift_penalty'],
+            ['value' => '0']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'unclosed_shift_penalty'],
+            ['value' => '0']
+        );
     }
 }
