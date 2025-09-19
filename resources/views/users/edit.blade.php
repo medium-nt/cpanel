@@ -138,6 +138,17 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label for="materials">Разрешенные материалы</label>
+                                <select class="form-control choices" name="materials[]" multiple>
+                                    @foreach($materials as $type_work)
+                                        <option value="{{ $type_work->id }}"
+                                            {{ in_array($type_work->id, $selectedMaterials) ? 'selected' : '' }}>
+                                            {{ $type_work->title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                         @endif
 
                         <div class="form-group">
@@ -313,13 +324,30 @@
     </div>
 @stop
 
+@push('css')
+    <link href="{{ asset('css/fullcalendar.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+@endpush
+
 @push('js')
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script>
+        document.querySelectorAll('.choices').forEach(el => {
+            new Choices(el, {
+                removeItemButton: true,
+                searchEnabled: true,
+                shouldSort: false,
+                noResultsText: 'Ничего не найдено',
+                noChoicesText: 'Нет доступных вариантов',
+                itemSelectText: 'Нажмите, чтобы выбрать',
+                placeholderValue: 'Выберите...'
+            });
+        });
+    </script>
+
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="{{ asset('js/fullcalendar_by_admin.js') }}"></script>
     <script src="{{ asset('js/motivation_for_seamstress.js') }}"></script>
-@endpush
-
-@push('css')
-    <link href="{{ asset('css/fullcalendar.css') }}" rel="stylesheet"/>
 @endpush

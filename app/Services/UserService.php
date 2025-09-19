@@ -109,6 +109,7 @@ class UserService
             'start_work_shift' => 'sometimes|date_format:H:i',
             'duration_work_shift' => 'sometimes|date_format:H:i|after_or_equal:00:00|before_or_equal:15:00',
             'max_late_minutes' => 'sometimes|numeric|min:0|max:180',
+            'materials' => 'nullable|array|exists:materials,id',
         ];
 
         $validatedData = $request->validate($rules);
@@ -129,6 +130,10 @@ class UserService
 
             $validatedData['avatar'] = $request->file('avatar')
                 ->storeAs('avatars', $fileName, 'public');
+        }
+
+        if(auth()->user()->isAdmin()) {
+            $user->materials()->sync($validatedData['materials'] ?? []);
         }
 
         return $user->update($validatedData);

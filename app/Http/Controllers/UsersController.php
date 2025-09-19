@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MotivationUpdateUsersRequest;
 use App\Http\Requests\RateUpdateUsersRequest;
 use App\Http\Requests\StoreUsersRequest;
+use App\Models\Material;
 use App\Models\Motivation;
 use App\Models\Rate;
 use App\Models\User;
@@ -55,6 +56,8 @@ class UsersController extends Controller
             'events' => ScheduleService::getScheduleByUserId($user->id),
             'motivations' => UserService::getMotivationByUserId($user->id),
             'isBeforeStartWorkDay' => ScheduleService::isBeforeStartWorkDay(),
+            'materials' => Material::query()->where('type_id', 1)->get(),
+            'selectedMaterials' => $user->materials()->pluck('id')->toArray(),
             'rates' => UserService::getRateByUserId($user->id),
         ]);
     }
