@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Services\UserService;
+use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -36,7 +38,7 @@ class User extends Authenticatable
         'orders_priority',
         'shift_is_open',
         'start_work_shift',
-        'number_working_hours',
+        'duration_work_shift',
     ];
 
     /**
@@ -115,5 +117,12 @@ class User extends Authenticatable
     public function isStorekeeper(): bool
     {
         return $this->role?->name === 'storekeeper';
+    }
+
+    public function getEndWorkShiftAttribute(): Carbon
+    {
+        $interval = CarbonInterval::createFromFormat('H:i:s', $this->duration_work_shift);
+
+        return Carbon::parse($this->actual_start_work_shift)->add($interval);
     }
 }

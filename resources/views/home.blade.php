@@ -167,10 +167,6 @@
                                     Открыть смену
                                 </a>
                             @else
-                                @php
-                                    $endWorkShift = Carbon\Carbon::parse($user->actual_start_work_shift)->copy()->addHours($user->number_working_hours);
-                                @endphp
-
                                 <div class="row">
                                     <div class="col-6">
                                         <a class="btn btn-warning btn-xs"
@@ -181,8 +177,8 @@
                                     </div>
                                     <div class="col-6">
                                         Начало смены: {{ Carbon\Carbon::parse($user->actual_start_work_shift)->format('H:i') }} <br>
-                                        Конец смены: {{ Carbon\Carbon::parse($endWorkShift)->format('H:i') }}
-                                        @if($endWorkShift < Carbon\Carbon::now())
+                                        Конец смены: {{ Carbon\Carbon::parse($user->endWorkShift)->format('H:i') }}
+                                        @if($user->endWorkShift < Carbon\Carbon::now())
                                             <i class="fas fa-exclamation-triangle text-danger" title="Смена должна быть уже закрыта"></i>
                                         @endif
                                     </div>

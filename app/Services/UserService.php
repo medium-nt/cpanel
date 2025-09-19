@@ -107,7 +107,7 @@ class UserService
             'orders_priority' => 'string|in:all,fbo,fbo_200',
             'is_cutter' => 'boolean',
             'start_work_shift' => 'sometimes|date_format:H:i',
-            'number_working_hours' => 'sometimes|integer|numeric|min:0|max:16',
+            'duration_work_shift' => 'sometimes|date_format:H:i|after_or_equal:00:00|before_or_equal:15:00',
         ];
 
         $validatedData = $request->validate($rules);

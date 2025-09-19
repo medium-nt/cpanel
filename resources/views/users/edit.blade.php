@@ -89,10 +89,10 @@
                                            value="{{ \Carbon\Carbon::parse($user->start_work_shift)->format('H:i') }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="number_working_hours">кол-во рабочих часов</label>
-                                    <input type="number" id="number_working_hours"
-                                           class="form-control @error('number_working_hours') is-invalid @enderror"
-                                           name="number_working_hours" min="0" step="1" value="{{ $user->number_working_hours }}">
+                                    <label for="duration_work_shift">Рабочее время</label>
+                                    <input type="time" id="duration_work_shift"
+                                           class="form-control @error('duration_work_shift') is-invalid @enderror"
+                                           name="duration_work_shift" value="{{ $user->duration_work_shift }}">
                                 </div>
                             </div>
                         </div>

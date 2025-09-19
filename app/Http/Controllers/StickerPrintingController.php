@@ -44,8 +44,7 @@ class StickerPrintingController extends Controller
             $workShift = [
                 'shift_is_open' => $user->shift_is_open,
                 'start' => $user->actual_start_work_shift,
-                'end' => Carbon::parse($user->actual_start_work_shift)
-                    ->copy()->addHours($user->number_working_hours),
+                'end' => $user->endWorkShift,
             ];
         }
 
@@ -111,10 +110,8 @@ class StickerPrintingController extends Controller
         }
 
         if ($user->shift_is_open) {
-            $end = Carbon::parse($user->actual_start_work_shift)
-                ->copy()->addHours($user->number_working_hours);
 
-            if ($end->greaterThan(now())) {
+            if ($user->endWorkShift->greaterThan(now())) {
                 Log::channel('work_shift')
                     ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') ' .
                         'пытался закрыть смену до окончания рабочего времени.');
