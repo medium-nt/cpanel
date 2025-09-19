@@ -82,17 +82,23 @@
                         @if($user->isSeamstress() || $user->isCutter())
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="start_work_shift">Время начала смены</label>
                                     <input type="time" id="start_work_shift" name="start_work_shift"
                                            class="form-control @error('start_work_shift') is-invalid @enderror"
                                            value="{{ \Carbon\Carbon::parse($user->start_work_shift)->format('H:i') }}">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="duration_work_shift">Рабочее время</label>
                                     <input type="time" id="duration_work_shift"
                                            class="form-control @error('duration_work_shift') is-invalid @enderror"
-                                           name="duration_work_shift" value="{{ $user->duration_work_shift }}">
+                                           name="duration_work_shift" value="{{ \Carbon\Carbon::parse($user->duration_work_shift)->format('H:i') }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="max_late_minutes">Время опоздания (мин.)</label>
+                                    <input type="number" id="max_late_minutes"
+                                           class="form-control @error('max_late_minutes') is-invalid @enderror"
+                                           name="max_late_minutes" value="{{ $user->max_late_minutes }}">
                                 </div>
                             </div>
                         </div>

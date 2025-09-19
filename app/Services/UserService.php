@@ -108,6 +108,7 @@ class UserService
             'is_cutter' => 'boolean',
             'start_work_shift' => 'sometimes|date_format:H:i',
             'duration_work_shift' => 'sometimes|date_format:H:i|after_or_equal:00:00|before_or_equal:15:00',
+            'max_late_minutes' => 'sometimes|numeric|min:0|max:180',
         ];
 
         $validatedData = $request->validate($rules);
@@ -206,7 +207,7 @@ class UserService
 
     public static function checkLateStartWorkShift(User $user): void
     {
-        $start_work_shift = Carbon::parse($user->actual_start_work_shift);
+        $start_work_shift = Carbon::parse($user->start_work_shift);
         $maxLateTime = $start_work_shift->addMinutes($user->max_late_minutes);
 
         if ($maxLateTime->lessThan(now())) {

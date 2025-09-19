@@ -39,6 +39,7 @@ class User extends Authenticatable
         'shift_is_open',
         'start_work_shift',
         'duration_work_shift',
+        'max_late_minutes',
     ];
 
     /**
