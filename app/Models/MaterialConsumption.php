@@ -19,4 +19,9 @@ class MaterialConsumption extends Model
     {
         return $this->belongsTo(MarketplaceItem::class, 'item_id');
     }
+
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class, 'material_id');
+    }
 }

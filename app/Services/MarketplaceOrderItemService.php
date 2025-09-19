@@ -371,16 +371,16 @@ class MarketplaceOrderItemService
         ];
     }
 
-    private static function checkMaterials($marketplaceOrderItem): array
+    private static function hasMaterialsInWorkshop($marketplaceOrderItem): bool
     {
         $marketplaceItem = $marketplaceOrderItem->item()->first();
         $materialConsumptions = $marketplaceItem->consumption;
 
         if ($materialConsumptions->isEmpty()) {
-            return [
-                'success' => false,
-                'message' => 'Для этого заказа не указаны материалы!'
-            ];
+            $text = 'Для заказа #' . $marketplaceOrderItem->id . ' не указаны материалы!';
+            TgService::sendMessage(config('telegram.admin_id'), $text);
+
+            return false;
         }
 
         $quantityOrderItem = $marketplaceOrderItem->quantity;
@@ -392,17 +392,11 @@ class MarketplaceOrderItemService
             $materialInWorkhouse = InventoryService::materialInWorkshop($materialId);
 
             if ($materialInWorkhouse < $materialConsumptionQuantity * $quantityOrderItem) {
-                return [
-                    'success' => false,
-                    'message' => 'Для этого заказа на производстве недостаточно материала!'
-                ];
+                return false;
             }
         }
 
-        return [
-            'success' => true,
-            'message' => 'OK'
-        ];
+        return true;
     }
 
     private static function assignOrderToUser($marketplaceOrderItem): array
@@ -476,40 +470,41 @@ class MarketplaceOrderItemService
             return $result;
         }
 
-        $items = self::getFilteredItems();
-
-        foreach ($items as $marketplaceOrderItem) {
+        foreach (self::getFilteredItems() as $marketplaceOrderItem) {
             $item = $marketplaceOrderItem->item()->first();
-            $result = self::checkMaterials($marketplaceOrderItem);
 
-            if ($result['success']) {
-                $marketplaceName = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
-                    1 => 'OZON',
-                    2 => 'WB',
-                    default => '---',
-                };
-
-                $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
-                    ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
-                    ') взял в работу сотрудник: ' . auth()->user()->name;
-
+            if (!self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
+                $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала на складе';
                 TgService::sendMessage(config('telegram.admin_id'), $text);
-
-                TgService::sendMessage(
-                    auth()->user()->tg_id,
-                    'Вы взяли в работу заказ # '
-                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' ('. $marketplaceName .'): '
-                    . $item->title . ' '. $item->width . 'x' . $item->height
-                );
-
-                Log::channel('erp')->info($text);
-
-                return self::assignOrderToUser($marketplaceOrderItem);
+                continue;
             }
 
-            $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала';
+            if(!self::canUseMaterial($marketplaceOrderItem)) {
+                continue;
+            }
+
+            $marketplaceName = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
+                1 => 'OZON',
+                2 => 'WB',
+                default => '---',
+            };
+
+            $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
+                ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
+                ') взял в работу сотрудник: ' . auth()->user()->name;
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
+
+            TgService::sendMessage(
+                auth()->user()->tg_id,
+                'Вы взяли в работу заказ # '
+                . $marketplaceOrderItem->marketplaceOrder->order_id . ' ('. $marketplaceName .'): '
+                . $item->title . ' '. $item->width . 'x' . $item->height
+            );
+
+            Log::channel('erp')->info($text);
+
+            return self::assignOrderToUser($marketplaceOrderItem);
         }
 
         return [
@@ -561,6 +556,22 @@ class MarketplaceOrderItemService
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*')
             ->get();
+    }
+
+    private static function canUseMaterial(MarketplaceOrderItem $marketplaceOrderItem): bool
+    {
+        $clothConsumptions = $marketplaceOrderItem->item->consumption
+            ->filter(fn($consumption) => $consumption->material->type_id === 1);
+
+        $allowedMaterialIds = auth()->user()->materials->pluck('id');
+
+        if ($allowedMaterialIds->isEmpty()) {
+            return true;
+        }
+
+        return $clothConsumptions->every(
+            fn($consumption) => $allowedMaterialIds->contains($consumption->material_id)
+        );
     }
 
 }
