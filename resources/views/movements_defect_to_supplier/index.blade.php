@@ -45,7 +45,7 @@
                                     <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                 </td>
                                 <td>{{ $order->comment }}</td>
-                                <td>{{ $order->supplier->title }}</td>
+                                <td>{{ $order->supplier?->title ?? '' }}</td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">
@@ -78,7 +78,7 @@
                                     @endforeach
 
                                     <div class="mt-3">
-                                        Поставщик: {{ $order->supplier->title }}
+                                        Поставщик: {{ $order->supplier?->title ?? '' }}
                                     </div>
 
                                     <div class="mt-1">
