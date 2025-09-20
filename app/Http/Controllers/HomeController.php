@@ -46,6 +46,7 @@ class HomeController extends Controller
             'rating' => MarketplaceOrderItemService::getRating(),
             'seamstressesCurrentSalary' => TransactionService::getSeamstressBalance('salary'),
             'seamstressesCurrentBonus' => TransactionService::getSeamstressBalance('bonus'),
+            'seamstressesCurrentHoldBonus' => TransactionService::getSeamstressBalance('bonus', true),
         ]);
     }
 }

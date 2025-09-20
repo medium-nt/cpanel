@@ -96,9 +96,11 @@
             <h3 class="card-title">Зарплата</h3>
         </div>
         <div class="card-body">
-            Ваша зарплата: <b>{{ $seamstressesCurrentSalary ?? '-' }} руб.</b> (к выплате)
+            Зарплата к выплате: <b>{{ $seamstressesCurrentSalary ?? '-' }} руб.</b>
             <br>
-            Ваши бонусы: <b>{{ $seamstressesCurrentBonus ?? '-' }} баллов.</b> (в ожидании разморозки)
+            Бонусы к выплате: <b>{{ $seamstressesCurrentBonus ?? '-' }} баллов.</b>
+            <br>
+            Бонусы в ожидании: <b>{{ $seamstressesCurrentHoldBonus ?? '-' }} баллов.</b>
         </div>
     </div>
     @endif

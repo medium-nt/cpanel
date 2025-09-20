@@ -117,7 +117,7 @@ class TransactionService
             ->info('Активировали бонусы, по которым прошло более 14 дней');
     }
 
-    public static function getSeamstressBalance(string $type): int
+    public static function getSeamstressBalance(string $type, $isHoldBonus = false): int
     {
         $isBonus = match ($type) {
             'salary' => false,
@@ -127,7 +127,7 @@ class TransactionService
 
         $status = match ($type) {
             'salary' => 1,
-            'bonus' => 0,
+            'bonus' => $isHoldBonus ? 0 : 1,
             default => null,
         };
 
