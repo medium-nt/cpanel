@@ -61,5 +61,10 @@ class SettingsSeeder extends Seeder
             ['name' => 'unclosed_shift_penalty'],
             ['value' => '0']
         );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'is_enabled_work_shift'],
+            ['value' => '0']
+        );
     }
 }

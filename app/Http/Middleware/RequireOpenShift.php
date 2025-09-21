@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,9 +22,12 @@ class RequireOpenShift
             return redirect()->route('login');
         }
 
-        if ((!$user->isAdmin() && !$user->isStorekeeper() && !$user->shift_is_open)) {
-            return redirect()->route('home')
-                ->with('error', 'Откройте смену на терминале для доступа к функционалу.');
+        $is_enabled_work_shift = Setting::getValue('is_enabled_work_shift');
+        if ($is_enabled_work_shift) {
+            if ((!$user->isAdmin() && !$user->isStorekeeper() && !$user->shift_is_open)) {
+                return redirect()->route('home')
+                    ->with('error', 'Откройте смену на терминале для доступа к функционалу.');
+            }
         }
 
         return $next($request);
