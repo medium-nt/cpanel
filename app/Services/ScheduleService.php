@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Schedule;
 use App\Models\Setting;
+use App\Models\User;
 use Carbon\Carbon;
 
 class ScheduleService
@@ -75,6 +76,38 @@ class ScheduleService
 
         // Проверяем, что сейчас после 01:00 и до начала рабочего дня
         return $nowTime->gte(Carbon::today()->setTime(1, 0)) && $nowTime->lt($startWorkDay);
+    }
+
+    public static function openWorkShift(User $user): void
+    {
+        $schedule = self::getSchedule($user);
+        $schedule->shift_opened_time = Carbon::now()->toTimeString();
+        $schedule->save();
+    }
+
+    public static function closeWorkShift(User $user): void
+    {
+        $schedule = self::getSchedule($user);
+        $schedule->shift_closed_time = Carbon::now()->toTimeString();
+        $schedule->save();
+    }
+
+    private static function getSchedule(User $user): Schedule
+    {
+        $today = Carbon::today()->toDateString();
+
+        $schedule = Schedule::query()
+            ->where('user_id', $user->id)
+            ->where('date', $today)
+            ->first();
+
+        if (!$schedule) {
+            $schedule = new Schedule();
+            $schedule->user_id = $user->id;
+            $schedule->date = $today;
+        }
+
+        return $schedule;
     }
 
 }

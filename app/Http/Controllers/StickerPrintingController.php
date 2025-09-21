@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
+use App\Services\ScheduleService;
 use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -126,11 +127,15 @@ class StickerPrintingController extends Controller
             $user->shift_is_open = false;
             $user->actual_start_work_shift = '00:00:00';
             $user->closed_work_shift = now()->format('H:i');
+
+            ScheduleService::closeWorkShift($user);
         } else {
             UserService::checkLateStartWorkShift($user);
 
             $user->shift_is_open = true;
             $user->actual_start_work_shift = now()->format('H:i');
+            ScheduleService::openWorkShift($user);
+
         }
 
         $user->save();
@@ -146,6 +151,13 @@ class StickerPrintingController extends Controller
 
     public function openCloseWorkShiftAdmin(User $user)
     {
+        if ($user->shift_is_open) {
+            $user->closed_work_shift = now()->format('H:i');
+            ScheduleService::closeWorkShift($user);
+        } else {
+            ScheduleService::openWorkShift($user);
+        }
+
         $user->shift_is_open = !$user->shift_is_open;
         $user->actual_start_work_shift = ($user->shift_is_open ? now()->format('H:i') : '00:00:00');
         $user->save();
