@@ -13,12 +13,17 @@ class ScheduleService
     {
         return Schedule::query()
             ->where('user_id', $userId)
-            ->select('id', 'date')
+            ->select('id', 'date', 'shift_opened_time', 'shift_closed_time')
             ->get()
             ->map(function ($event) {
                 $event->start = $event->date;
                 unset($event->date);
                 $event->display = 'background';
+
+                $event->shift_start = $event->shift_opened_time;
+                $event->shift_end = $event->shift_closed_time;
+                unset($event->shift_opened_time, $event->shift_closed_time);
+
                 return $event;
             })
             ->toArray();

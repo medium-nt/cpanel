@@ -308,7 +308,14 @@
         .info-box-number {
             font-size: 1.5rem;
         }
+        .custom-shift-time {
+            font-size: 0.75em;
+            color: #555;
+            display: block;
+            word-wrap: break-word;
+            white-space: normal;
+            max-width: 100%;
+        }
     </style>
-
 
 @endpush
