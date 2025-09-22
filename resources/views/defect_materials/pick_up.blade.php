@@ -62,6 +62,10 @@
                 <div class="form-group">
                     <a href="{{ route('defect_materials.save', ['order' => $order->id, 'status' => 3]) }}"
                        class="btn btn-success mr-5">Забрать брак</a>
+
+                    <a href="{{ route('defect_materials.save', ['order' => $order->id, 'status' => -1]) }}"
+                       onclick="return confirm('Вы уверены, что хотите отменить заявку?')"
+                       class="btn btn-danger">Отменить заявку</a>
                 </div>
             </div>
         </div>
