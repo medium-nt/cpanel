@@ -122,6 +122,24 @@
             </div>
         </div>
 
+        @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="text"
+                               name="search"
+                               id="search"
+                               class="form-control"
+                               placeholder="Поиск по номеру заказа"
+                               value="{{ request('search') }}"
+                               onchange="updatePageWithQueryParam(this)">
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         @php
             $fewMaterials = [];
 //            foreach($materials as $material) {

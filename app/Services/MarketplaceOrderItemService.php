@@ -28,22 +28,25 @@ class MarketplaceOrderItemService
 
         $items = MarketplaceOrderItem::query();
 
-        $items = match ($status) {
-            'new' => $items->where('marketplace_order_items.status', 0),
-            'in_work' => $items->where('marketplace_order_items.status', 4),
-            'done' => $items->where('marketplace_order_items.status', 3),
-            'labeling' => $items->where('marketplace_order_items.status', 5),
-            'cutting' => $items->where('marketplace_order_items.status', 7),
-            'cut' => $items->where('marketplace_order_items.status', 8),
-            default => $items,
-        };
-
         $items = $items->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
-//            ->orderBy('marketplace_orders.marketplace_id', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
             ->select('marketplace_order_items.*');
+
+        if($request->has('search') && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper())) {
+            $items = $items->where('marketplace_orders.order_id', 'like', '%' . $request->search . '%');
+        } else {
+            $items = match ($status) {
+                'new' => $items->where('marketplace_order_items.status', 0),
+                'in_work' => $items->where('marketplace_order_items.status', 4),
+                'done' => $items->where('marketplace_order_items.status', 3),
+                'labeling' => $items->where('marketplace_order_items.status', 5),
+                'cutting' => $items->where('marketplace_order_items.status', 7),
+                'cut' => $items->where('marketplace_order_items.status', 8),
+                default => $items,
+            };
+        }
 
         if(auth()->user()->isSeamstress() && $status != 'new') {
             $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
