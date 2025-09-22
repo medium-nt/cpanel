@@ -20,6 +20,9 @@ class DefectMaterialController extends Controller
         $paginatedItems = $orders->paginate(10);
         $queryParams = $request->except(['page']);
 
+        // Сохраняем полный URL со всеми параметрами
+        session(['return_to_requests' => $request->fullUrl()]);
+
         return view('defect_materials.index', [
             'title' => 'Передача брака на склад',
             'materials' => InventoryService::materialsQuantityBy('defect_warehouse'),
@@ -84,7 +87,7 @@ class DefectMaterialController extends Controller
         ]);
 
         return redirect()
-            ->route('defect_materials.index')
+            ->to(session('return_to_requests', route('defect_materials.index')))
             ->with($result['status'], 'Брак '.$result['text']);
     }
 

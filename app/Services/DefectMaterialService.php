@@ -63,22 +63,6 @@ class DefectMaterialService
                 return false;
         }
 
-//        match($request->status) {
-//            '-1' => [
-//                'status' => 'error',
-//                'text' => 'отменен',
-//            ],
-//            '1' => [
-//                'status' => 'success',
-//                'text' => 'одобрен',
-//            ],
-//            '3' => [
-//                'status' => 'success',
-//                'text' => 'принят на складе',
-//            ],
-//            default => false,
-//        };
-
         return $return;
     }
 
