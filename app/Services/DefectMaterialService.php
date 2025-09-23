@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\SaveDefectMaterialRequest;
+use App\Jobs\SendTelegramMessageJob;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -122,11 +123,11 @@ class DefectMaterialService
             Log::channel('erp')
                 ->notice('    Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
+            SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
 
-            foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
-                TgService::sendMessage($tgId, $text);
-                sleep(1);
+            foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
+                SendTelegramMessageJob::dispatch($tgId, $text)
+                    ->delay(now()->addSeconds($index + 1));
             }
         } catch (Throwable $e) {
             DB::rollBack();

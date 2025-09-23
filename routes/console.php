@@ -49,3 +49,8 @@ Schedule::call(function () {
     MarketplaceSupplyService::deleteOldVideos();
 })->dailyAt('01:00');
 
+Schedule::command('queue:work --stop-when-empty')
+    ->everyMinute()->withoutOverlapping()
+    ->sendOutputTo(storage_path('logs/queue.log'));
+
+
