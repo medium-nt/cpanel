@@ -107,7 +107,6 @@
 
     @if(!auth()->user()->isAdmin())
     <div class="card">
-    <div class="card">
         <div class="card-header">
             <h3 class="card-title">Рейтинг</h3>
         </div>
