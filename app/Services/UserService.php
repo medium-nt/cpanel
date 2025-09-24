@@ -234,4 +234,14 @@ class UserService
             );
         }
     }
+
+    public static function clearTimeForClosedWorkShifts(): void
+    {
+        User::query()
+            ->where('shift_is_open', false)
+            ->where('closed_work_shift', '!=', '00:00:00')
+            ->update([
+                'closed_work_shift' => '00:00:00',
+            ]);
+    }
 }

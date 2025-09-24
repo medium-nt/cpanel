@@ -27,6 +27,7 @@ Schedule::call(function () {
 
 Schedule::call(function () {
     UserService::checkUnclosedWorkShifts();
+    UserService::clearTimeForClosedWorkShifts();
 })->dailyAt('00:01');
 
 Schedule::call(function () {
