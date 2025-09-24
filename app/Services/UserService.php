@@ -74,7 +74,7 @@ class UserService
         $text = "Сегодня работают: \n" . $list;
 
         foreach ($schedules as $schedule) {
-            if ($schedule->user->tg_id) {
+            if ($schedule->user?->tg_id) {
                 TgService::sendMessage($schedule->user->tg_id, $text);
             }
         }
