@@ -50,12 +50,14 @@
                             <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal">
                                 <i class="fas fa-barcode"></i>
                             </a>
-{{--                            <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal2">--}}
-{{--                                <i class="fas fa-barcode"></i> 1--}}
-{{--                            </a>--}}
-{{--                            <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal3">--}}
-{{--                                <i class="fas fa-barcode"></i> 2--}}
-{{--                            </a>--}}
+                            <a class="btn btn-outline-primary btn-lg" href="#"
+                               data-toggle="modal" data-target="#barcodeModal2">
+                                <i class="fas fa-barcode"></i> 1
+                            </a>
+                            <a class="btn btn-outline-primary btn-lg" href="#"
+                               data-toggle="modal" data-target="#barcodeModal3">
+                                <i class="fas fa-barcode"></i> 2
+                            </a>
                         </div>
 
                         <x-modal-scan-barcode-component/>
