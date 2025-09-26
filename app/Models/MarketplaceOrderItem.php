@@ -13,6 +13,8 @@ class MarketplaceOrderItem extends Model
     protected $fillable = [
         'marketplace_order_id',
         'marketplace_item_id',
+        'storage_barcode',
+        'shelf_id',
         'quantity',
         'price',
         'status',
@@ -53,5 +55,10 @@ class MarketplaceOrderItem extends Model
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status];
+    }
+
+    public function shelf(): BelongsTo
+    {
+        return $this->belongsTo(Shelf::class);
     }
 }

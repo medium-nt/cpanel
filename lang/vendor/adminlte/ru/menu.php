@@ -43,4 +43,6 @@ return [
     'write_off_remnants' => 'Списание остатков',
     'marketplace_supplies' => 'Поставки в маркетплейс',
     'logs' => 'Просмотр логов',
+    'warehouse_of_item' => 'Склад товара',
+    'shelves' => 'Полки на складе',
 ];

@@ -319,6 +319,12 @@ return [
                     'url' => 'megatulle/inventory/workshop',
                     'icon' => 'fas fa-fw fa-boxes',
                 ],
+                [
+                    'text' => 'warehouse_of_item',
+                    'url' => 'megatulle/warehouse_of_item',
+                    'icon' => 'fas fa-fw fa-boxes',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
 //              [
 //                  'text' => 'inventory_by_defect_warehouse',
 //                  'url' => 'megatulle/inventory/defect_warehouse',
@@ -399,32 +405,43 @@ return [
         [
             'text' => 'settings',
             'icon' => 'fas fa-fw fa-cog',
-            'can' => 'is-admin',
+            'can' => 'is-storekeeper-or-admin',
             'submenu' => [
                 [
                     'text' => 'system_settings',
                     'url' => 'megatulle/setting',
                     'icon' => 'fas fa-fw fa-tools',
+                    'can' => 'is-admin',
                 ],
                 [
                     'text' => 'users',
                     'url' => 'megatulle/users',
                     'icon' => 'fas fa-fw fa-user',
+                    'can' => 'is-admin',
                 ],
                 [
                     'text' => 'materials',
                     'url' => 'megatulle/materials',
                     'icon' => 'fas fa-fw fa-toilet-paper',
+                    'can' => 'is-admin',
                 ],
                 [
                     'text' => 'suppliers',
                     'url' => 'megatulle/suppliers',
                     'icon' => 'fas fa-fw fa-truck',
+                    'can' => 'is-admin',
                 ],
                 [
                     'text' => 'marketplace_items',
                     'url' => 'megatulle/marketplace_items',
                     'icon' => 'fas fa-fw fa-shopping-basket',
+                    'can' => 'is-admin',
+                ],
+                [
+                    'text' => 'shelves',
+                    'url' => 'megatulle/shelves',
+                    'icon' => 'fas fa-fw fa-pallet',
+                    'can' => 'is-storekeeper-or-admin',
                 ],
             ]
         ],

@@ -85,4 +85,13 @@ class MarketplaceItemService
             ->get();
     }
 
+    public static function getAllHeightMaterials(): Collection
+    {
+        return MarketplaceItem::query()
+            ->select('height')
+            ->distinct()
+            ->orderBy('height')
+            ->get();
+    }
+
 }
