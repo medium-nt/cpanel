@@ -130,12 +130,21 @@ class StickerPrintingController extends Controller
 
             ScheduleService::closeWorkShift($user);
         } else {
+            if (UserService::isSecondShiftOpeningToday($user)) {
+                Log::channel('work_shift')
+                    ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') ' .
+                        'пытался второй раз за день открыть смену.');
+
+                return redirect()
+                    ->route('sticker_printing', ['user_id' => $selectedUser->id])
+                    ->with('error', 'Ошибка! Нельзя второй раз за день открыть смену!');
+            }
+
             UserService::checkLateStartWorkShift($user);
 
             $user->shift_is_open = true;
             $user->actual_start_work_shift = now()->format('H:i');
             ScheduleService::openWorkShift($user);
-
         }
 
         $user->save();

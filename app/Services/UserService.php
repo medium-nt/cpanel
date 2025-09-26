@@ -244,4 +244,13 @@ class UserService
                 'closed_work_shift' => '00:00:00',
             ]);
     }
+
+    public static function isSecondShiftOpeningToday(User $user): bool
+    {
+        return Schedule::query()
+            ->where('user_id', $user->id)
+            ->whereDate('date', now()->toDateString())
+            ->where('shift_opened_time', '!=', '00:00:00')
+            ->exists();
+    }
 }
