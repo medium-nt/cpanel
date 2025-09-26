@@ -32,8 +32,10 @@ class WarehouseOfItemController extends Controller
         if ($barcode) {
             if (mb_strlen(trim($barcode)) == 15) {
                 $barcode = MarketplaceApiService::getOzonPostingNumberByBarcode($barcode);
+            }
 
-                //  TO_DO: а может быть и возвратный стикер? он не по другому ищется в OZON?
+            if (mb_strlen(trim($barcode)) == 13) {
+                $barcode = MarketplaceApiService::getOzonPostingNumberByReturnBarcode($barcode);
             }
 
             $marketplace_item = MarketplaceOrderItem::query()
