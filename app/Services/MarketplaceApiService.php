@@ -938,6 +938,29 @@ class MarketplaceApiService
         return json_decode(json_encode($posting_number));
     }
 
+    public static function getOzonPostingNumberByReturnBarcode($barcode): array|string
+    {
+        $body = [
+            "filter" => [
+                "barcode" => $barcode,
+            ],
+            "limit" => 1,
+        ];
+
+        $response = self::ozonRequest()
+            ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
+
+        if (!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
+            return [];
+        }
+
+        $posting_number = $response->object()->returns[0]->posting_number;
+
+        return json_decode(json_encode($posting_number));
+    }
+
     public static function ozonSupply(MarketplaceSupply $marketplace_supply): bool
     {
         $newSupply = self::createSupplyOzon();
