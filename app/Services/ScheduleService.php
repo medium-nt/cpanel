@@ -74,13 +74,9 @@ class ScheduleService
         return true;
     }
 
-    public static function isBeforeStartWorkDay(): bool
+    public static function isBeforeStartWorkDay(User $user): bool
     {
-        $nowTime = Carbon::now();
-        $startWorkDay = Carbon::createFromFormat('H:i', ScheduleService::getStartWorkDay());
-
-        // Проверяем, что сейчас после 01:00 и до начала рабочего дня
-        return $nowTime->gte(Carbon::today()->setTime(1, 0)) && $nowTime->lt($startWorkDay);
+        return !$user->shift_is_open && $user->closed_work_shift === '00:00:00';
     }
 
     public static function openWorkShift(User $user): void

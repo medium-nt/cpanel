@@ -133,7 +133,8 @@
                                     <span class="ml-1">Швея-закройщик</span>
 
                                     @if(!$isBeforeStartWorkDay)
-                                        <span class="ml-3 text-danger font-weight-bold">Рабочий день уже начался!</span>
+                                        <span
+                                            class="ml-3 text-danger font-weight-bold">Сегодня смена уже открывалась!</span>
                                     @endif
                                 </div>
                             </div>
