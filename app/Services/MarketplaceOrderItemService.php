@@ -6,8 +6,8 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Setting;
-use App\Models\Transaction;
 use App\Models\User;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -35,6 +35,9 @@ class MarketplaceOrderItemService
             ->select('marketplace_order_items.*');
 
         if($request->has('search') && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper())) {
+            if (mb_strlen(trim($request->search)) == 15) {
+                $request->search = MarketplaceApiService::getOzonPostingNumberByBarcode($request->search);
+            }
             $items = $items->where('marketplace_orders.order_id', 'like', '%' . $request->search . '%');
         } else {
             $items = match ($status) {
@@ -461,6 +464,9 @@ class MarketplaceOrderItemService
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getNewOrderItem(): array
     {
         $result = self::checkSchedule();
