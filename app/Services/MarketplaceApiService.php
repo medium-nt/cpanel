@@ -950,7 +950,7 @@ class MarketplaceApiService
         $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
 
-        if (!$response->ok()) {
+        if (!$response->ok() || empty($response->object()->returns)) {
             Log::channel('marketplace_api')
                 ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
             return [];
