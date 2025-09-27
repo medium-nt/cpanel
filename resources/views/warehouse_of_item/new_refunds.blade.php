@@ -17,6 +17,7 @@
                             <input type="text" name="barcode"
                                    class="form-control"
                                    placeholder="Поиск"
+                                   autofocus
                                    value="{{ request('barcode') }}">
                         </div>
                         <div class="col-md-2">
@@ -73,6 +74,7 @@
                     </div>
                     <div class="card">
                         <div class="card-body">
+                            @dump($comment)
                             <div class="form-group">
                                 <label>Комментарий к заказу:</label>
                                 <textarea class="form-control" rows="4"

@@ -61,6 +61,7 @@ class WarehouseOfItemController extends Controller
 
             if ($marketplace_item->count() == 1) {
                 $marketplace_item = $marketplace_item->first();
+                $comment = MarketplaceApiService::getReturnInfo($marketplace_item);
             }
         } else {
             $message = 'Введите штрихкод.';
@@ -72,7 +73,8 @@ class WarehouseOfItemController extends Controller
             'marketplace_items' => $marketplaceItems ?? [],
             'barcode' => $request->barcode ?? '',
             'message' => $message ?? '',
-            'shelves' => Shelf::all()
+            'shelves' => Shelf::all(),
+            'comment' => $comment ?? '',
         ]);
     }
 

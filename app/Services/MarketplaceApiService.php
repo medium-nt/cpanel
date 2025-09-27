@@ -1484,4 +1484,56 @@ class MarketplaceApiService
             ->withOptions(['verify' => false])
             ->withHeaders(['Authorization' => self::getWbApiKey()]);
     }
+
+    public static function getReturnInfo(MarketplaceOrderItem $marketplace_item)
+    {
+        return match ($marketplace_item->marketplaceOrder->marketplace_id) {
+            1 => self::getReturnInfoOzon($marketplace_item),
+            2 => self::getReturnInfoWB($marketplace_item),
+            default => null,
+        };
+    }
+
+    private static function getReturnInfoOzon(MarketplaceOrderItem $marketplace_item)
+    {
+        $body = [
+            "filter" => [
+                "posting_numbers" => [
+                    $marketplace_item->marketplaceOrder->order_id
+                ],
+            ],
+            "limit" => 1,
+        ];
+
+        $response = self::ozonRequest()
+            ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
+
+        if (!$response->ok() || empty($response->object()->returns)) {
+            Log::channel('marketplace_api')
+                ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
+            return [];
+        }
+
+        $posting_number = $response->object()->returns[0];
+
+        return json_decode(json_encode($posting_number));
+    }
+
+    private static function getReturnInfoWB(MarketplaceOrderItem $marketplace_item)
+    {
+        $body = [
+            "orders" => [
+                (int)$marketplace_item->marketplaceOrder->order_id,
+            ],
+        ];
+
+        $response = self::wbRequest()
+            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+
+        if (!$response->ok()) {
+            return false;
+        }
+
+        return $response->object()->orders[0];
+    }
 }
