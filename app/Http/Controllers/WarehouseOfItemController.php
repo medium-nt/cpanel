@@ -19,6 +19,7 @@ class WarehouseOfItemController extends Controller
             'materials' => MarketplaceItemService::getAllTitleMaterials(),
             'widths' => MarketplaceItemService::getAllWidthMaterials(),
             'heights' => MarketplaceItemService::getAllHeightMaterials(),
+            'totalItems' => WarehouseOfItemService::getFiltered($request)->count(),
             'items' => WarehouseOfItemService::getFiltered($request)
                 ->paginate(20),
         ]);

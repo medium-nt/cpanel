@@ -12,7 +12,7 @@
         <div class="card-body">
             <form action="{{ route('warehouse_of_item.index') }}" method="get">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-3 mb-3">
                         <select name="status" id="status" class="form-control"
                                 onchange="updatePageWithQueryParam(this)">
                             <option value="">Все</option>
@@ -34,7 +34,7 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3 mb-3">
                         <select name="material" id="material"
                                 class="form-control"
                                 onchange="updatePageWithQueryParam(this)">
@@ -45,7 +45,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3 mb-3">
                         <select name="width" id="width" class="form-control"
                                 onchange="updatePageWithQueryParam(this)">
                             <option value="all">Все ширины</option>
@@ -55,7 +55,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3 mb-3">
                         <select name="height" id="height" class="form-control"
                                 onchange="updatePageWithQueryParam(this)">
                             <option value="all">Все высоты</option>
@@ -105,6 +105,10 @@
                     @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <div class="ml-2">
+                Всего: {{ $totalItems }}
             </div>
 
             {{-- Pagination --}}
