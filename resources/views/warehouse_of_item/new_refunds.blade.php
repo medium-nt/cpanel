@@ -37,7 +37,7 @@
                         <br>
                         @foreach ($marketplace_items as $marketplace_item)
                             <li>
-                                <a href="{{ route('warehouse_of_item.new_refunds', ['barcode' => $marketplace_item->order_id]) }}">
+                                <a href="{{ route('warehouse_of_item.new_refunds', ['barcode' => $marketplace_item->marketplaceOrder->id]) }}">
                                     {{ $marketplace_item->item->title }}
                                     {{ $marketplace_item->item->width }}
                                     x {{ $marketplace_item->item->height }}

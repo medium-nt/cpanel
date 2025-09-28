@@ -44,11 +44,12 @@ class WarehouseOfItemController extends Controller
                 //  TO_DO: вернуть фильтр по статусу
                 //  ->whereIn('marketplace_order_items.status', [10])
                 ->where(function ($query) use ($barcode) {
-                    $query->where('order_id', 'like', '%' . $barcode . '%')
+                    $query->where('marketplace_orders.order_id', $barcode)
                         ->orWhere('marketplace_order_items.storage_barcode', $barcode)
                         ->orWhere('part_b', $barcode)
                         ->orWhere('barcode', $barcode);
-                })->get();
+                })->select('marketplace_order_items.*')
+                ->get();
 
             if ($marketplace_item->isEmpty()) {
                 $message = 'Нет такого заказа.';
