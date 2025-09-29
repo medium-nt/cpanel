@@ -54,32 +54,25 @@
                 <div class="col-md-8">
                     <div class="card">
                         <div class="card-body">
-                            <div class="form-group">
-                                <h3>
-                                    <b>
-                                        {{ $marketplace_item->item->title }}
-                                        {{ $marketplace_item->item->width }}
-                                        x {{ $marketplace_item->item->height }}
-                                    </b>
-                                </h3>
-                                товар: id {{ $marketplace_item->id }} <br>
-                                заказ:
-                                № {{ $marketplace_item->marketplaceOrder->order_id }}
-                                <br>
-                                стикер
-                                хранения: {{ $marketplace_item->storage_barcode }}
-                                <br>
-                            </div>
+                            <h3>
+                                <b>
+                                    {{ $marketplace_item->item->title }}
+                                    {{ $marketplace_item->item->width }}
+                                    x {{ $marketplace_item->item->height }}
+                                </b>
+                            </h3>
+                            товар: id {{ $marketplace_item->id }} <br>
+                            заказ:
+                            № {{ $marketplace_item->marketplaceOrder->order_id }}
+                            <br>
+                            стикер
+                            хранения: {{ $marketplace_item->storage_barcode }}
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            @dump($comment)
-                            <div class="form-group">
-                                <label>Комментарий к заказу:</label>
-                                <textarea class="form-control" rows="4"
-                                          readonly></textarea>
-                            </div>
+                            Причина возврата: <br> <b>{{ $returnReason }}</b>
+                            <br>
                         </div>
                     </div>
                 </div>

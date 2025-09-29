@@ -1485,16 +1485,16 @@ class MarketplaceApiService
             ->withHeaders(['Authorization' => self::getWbApiKey()]);
     }
 
-    public static function getReturnInfo(MarketplaceOrderItem $marketplace_item)
+    public static function getReturnReason(MarketplaceOrderItem $marketplace_item)
     {
         return match ($marketplace_item->marketplaceOrder->marketplace_id) {
-            1 => self::getReturnInfoOzon($marketplace_item),
-            2 => self::getReturnInfoWB($marketplace_item),
+            1 => self::getReturnReasonOzon($marketplace_item),
+            2 => self::getReturnReasonWB($marketplace_item),
             default => null,
         };
     }
 
-    private static function getReturnInfoOzon(MarketplaceOrderItem $marketplace_item)
+    private static function getReturnReasonOzon(MarketplaceOrderItem $marketplace_item): string
     {
         $body = [
             "filter" => [
@@ -1510,16 +1510,15 @@ class MarketplaceApiService
 
         if (!$response->ok() || empty($response->object()->returns)) {
             Log::channel('marketplace_api')
-                ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
-            return [];
+                ->error('ВНИМАНИЕ! Ошибка получения причины возврата из Ozon по заказу '
+                    . $marketplace_item->marketplaceOrder->order_id);
+            return '---';
         }
 
-        $posting_number = $response->object()->returns[0];
-
-        return json_decode(json_encode($posting_number));
+        return $response->object()->returns[0]->return_reason_name ?? '---';
     }
 
-    private static function getReturnInfoWB(MarketplaceOrderItem $marketplace_item)
+    private static function getReturnReasonWB(MarketplaceOrderItem $marketplace_item): string
     {
         $body = [
             "orders" => [
@@ -1531,9 +1530,22 @@ class MarketplaceApiService
             ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
         if (!$response->ok()) {
-            return false;
+            Log::channel('marketplace_api')
+                ->error('ВНИМАНИЕ! Ошибка получения причины возврата из WB по заказу '
+                    . $marketplace_item->marketplaceOrder->order_id);
+
+            return '---';
         }
 
-        return $response->object()->orders[0];
+        return match ($response->object()->orders[0]->wbStatus) {
+            'waiting', 'sorted' => 'Задание в работе',
+            'ready_for_pickup' => 'Прибыло на (ПВЗ)',
+            'sold' => 'Заказ получен покупателем',
+            'canceled_by_client' => 'Покупатель отменил заказ при получении',
+            'declined_by_client' => 'Покупатель отменил заказ сразу после заказа',
+            'canceled ' => 'Отмена сборочного задания',
+            'defect' => 'Отмена заказа по причине брака',
+            default => '---',
+        };
     }
 }
