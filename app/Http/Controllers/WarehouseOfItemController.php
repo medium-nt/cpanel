@@ -31,7 +31,7 @@ class WarehouseOfItemController extends Controller
 
         $marketplace_item = null;
         if ($barcode) {
-            if (count(explode('-', trim($barcode))) === 3) {
+            if (mb_strlen(trim($barcode)) == 15) {
                 $barcode = MarketplaceApiService::getOzonPostingNumberByBarcode($barcode);
             }
 
