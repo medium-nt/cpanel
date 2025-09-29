@@ -28,7 +28,7 @@
                             <th scope="col">Аватар</th>
                             <th scope="col">Имя</th>
                             <th scope="col">Роль</th>
-                            <th scope="col">email</th>
+                            <th scope="col">Email / Телефон</th>
                             <th scope="col">Ставка</th>
                             <th scope="col">Создан</th>
                             <th scope="col">Обновлен</th>
@@ -47,7 +47,8 @@
                                 </td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ UserService::translateRoleName($user->role->name) }}</td>
-                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->email }} <br> {{ $user->phone }}
+                                </td>
                                 <td>{{ $user->salary_rate }}</td>
                                 <td>{{ $user->created_date }}</td>
                                 <td>{{ $user->updated_date }}</td>

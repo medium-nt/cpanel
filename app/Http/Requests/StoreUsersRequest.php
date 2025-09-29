@@ -24,6 +24,7 @@ class StoreUsersRequest extends FormRequest
         return [
             'name' => 'required|max:255',
             'email' => 'required|unique:users|max:255|email',
+            'phone' => 'sometimes|string|min:8|max:50',
             'password' => 'required|confirmed|min:6|string',
             'role_id' => 'required|in:1,2,4',
             'salary_rate' => 'required|numeric|min:0',
@@ -40,6 +41,9 @@ class StoreUsersRequest extends FormRequest
             'email.email' => 'Поле "Email" должно быть адресом электронной почты',
             'email.max' => 'Поле "Email" должно быть не больше 255 символов',
             'email.unique' => 'Сотрудник с таким Email уже зарегистрирован',
+            'phone.string' => 'Поле "Телефон" должно быть строкой',
+            'phone.min' => 'Поле "Телефон" должно быть не менее 8 символов',
+            'phone.max' => 'Поле "Телефон" должно быть не больше 50 символов',
             'password.required' => 'Поле "Пароль" обязательно для заполнения',
             'password.confirmed' => 'Поля "Пароль" и "Подтверждение пароля" должны совпадать',
             'role_id.required' => 'Поле "Роль" обязательно для заполнения',

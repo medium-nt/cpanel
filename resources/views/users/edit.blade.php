@@ -40,6 +40,13 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="text" class="form-control" id="phone"
+                                   name="phone" value="{{ $user->phone }}"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
                             <label for="password">новый пароль</label>
                             <input type="password" class="form-control" id="password"
                                    name="password">

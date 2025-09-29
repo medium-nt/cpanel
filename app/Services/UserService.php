@@ -101,6 +101,7 @@ class UserService
         $rules = [
             'name' => 'required|string|min:2|max:255',
             'email' => 'required|email|max:255',
+            'phone' => 'sometimes|nullable|string|min:8|max:50',
             'salary_rate' => 'sometimes|nullable|numeric',
             'password' => 'nullable|confirmed|string|min:6',
             'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',

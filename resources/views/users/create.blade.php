@@ -54,6 +54,16 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="text"
+                               class="form-control @error('phone') is-invalid @enderror"
+                               id="phone"
+                               name="phone"
+                               placeholder=""
+                               value="{{ old('phone') }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="password">Пароль</label>
                         <input type="password"
                                class="form-control @error('password') is-invalid @enderror"
