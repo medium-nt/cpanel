@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
+use App\Models\Sku;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\WarehouseOfItemService;
@@ -31,24 +32,37 @@ class WarehouseOfItemController extends Controller
 
         $marketplace_item = null;
         if ($barcode) {
-            if (mb_strlen(trim($barcode)) == 15) {
+            // если это стикер OZON FBS
+            if (!is_array($barcode) && mb_strlen(trim($barcode)) == 15) {
                 $barcode = MarketplaceApiService::getOzonPostingNumberByBarcode($barcode);
             }
 
-            if (mb_strlen(trim($barcode)) == 13 || mb_strlen(trim($barcode)) == 12) {
+            // если это стикер OZON возврат
+            if (!is_array($barcode) && str_starts_with(trim($barcode), 'ii')) {
                 $barcode = MarketplaceApiService::getOzonPostingNumberByReturnBarcode($barcode);
+            }
+
+            // если это стикер OZON FBO
+            if (!is_array($barcode) && str_starts_with(trim($barcode), 'OZN')) {
+                $sku = trim($barcode, 'OZN');
+
+                $barcode = Sku::query()->where('sku', $sku)
+                    ->first()->item->id ?? '-';
             }
 
             $marketplace_item = MarketplaceOrderItem::query()
                 ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+                ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
                 ->with('item')
                 //  TO_DO: вернуть фильтр по статусу
-                //  ->whereIn('marketplace_order_items.status', [10])
+//                  ->whereIn('marketplace_order_items.status', [10])
+                ->whereIn('marketplace_order_items.status', [3])
                 ->where(function ($query) use ($barcode) {
                     $query->where('marketplace_orders.order_id', $barcode)
                         ->orWhere('marketplace_order_items.storage_barcode', $barcode)
                         ->orWhere('part_b', $barcode)
-                        ->orWhere('barcode', $barcode);
+                        ->orWhere('barcode', $barcode)
+                        ->orWhere('marketplace_items.id', $barcode);
                 })->select('marketplace_order_items.*')
                 ->get();
 
@@ -90,7 +104,7 @@ class WarehouseOfItemController extends Controller
             'seamstressName' => $marketplace_item->marketplaceOrder->items[0]->seamstress->name
         ]);
 
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('A4');
         return $pdf->stream('barcode.pdf');
     }
 

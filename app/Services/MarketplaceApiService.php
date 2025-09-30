@@ -1485,12 +1485,12 @@ class MarketplaceApiService
             ->withHeaders(['Authorization' => self::getWbApiKey()]);
     }
 
-    public static function getReturnReason(MarketplaceOrderItem $marketplace_item)
+    public static function getReturnReason(MarketplaceOrderItem $marketplace_item): string
     {
         return match ($marketplace_item->marketplaceOrder->marketplace_id) {
             1 => self::getReturnReasonOzon($marketplace_item),
             2 => self::getReturnReasonWB($marketplace_item),
-            default => null,
+            default => '---',
         };
     }
 
