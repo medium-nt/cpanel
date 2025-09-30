@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MarketplaceOrderItem extends Model
 {
@@ -42,9 +43,9 @@ class MarketplaceOrderItem extends Model
         return $this->hasOne(MarketplaceItem::class, 'id', 'marketplace_item_id');
     }
 
-    public function seamstress()
+    public function seamstress(): HasOne
     {
-        return $this->hasOne(User::class, 'id', 'seamstress_id');
+        return $this->hasOne(User::class, 'id', 'seamstress_id')->withTrashed();
     }
 
     public function cutter()
