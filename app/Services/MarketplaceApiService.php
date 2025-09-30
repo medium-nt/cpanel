@@ -328,7 +328,7 @@ class MarketplaceApiService
 
     private static function getCancelledProductsOZON(): array
     {
-        $since = Carbon::now()->subDays(3)->format('Y-m-d\TH:i:s\Z'); // 3 дня назад
+        $since = Carbon::now()->subDays(7)->format('Y-m-d\TH:i:s\Z'); // 7 дней назад
         $to = Carbon::now()->format('Y-m-d\TH:i:s\Z'); // сегодня
 
         $body = [
@@ -1511,7 +1511,7 @@ class MarketplaceApiService
         if (!$response->ok() || empty($response->object()->returns)) {
             Log::channel('marketplace_api')
                 ->error('ВНИМАНИЕ! Ошибка получения причины возврата из Ozon по заказу '
-                    . $marketplace_item->marketplaceOrder->order_id);
+                    . $marketplace_item->marketplaceOrder->order_id . ' Ответ:' . $response->object());
             return '---';
         }
 
