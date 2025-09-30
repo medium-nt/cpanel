@@ -42,12 +42,16 @@ class WarehouseOfItemController extends Controller
                 $barcode = MarketplaceApiService::getOzonPostingNumberByReturnBarcode($barcode);
             }
 
+            $isFBO = false;
+
             // если это стикер OZON FBO
             if (!is_array($barcode) && str_starts_with(trim($barcode), 'OZN')) {
                 $sku = trim($barcode, 'OZN');
 
                 $barcode = Sku::query()->where('sku', $sku)
                     ->first()->item->id ?? '-';
+
+                $isFBO = true;
             }
 
             $marketplace_item = MarketplaceOrderItem::query()
@@ -63,6 +67,8 @@ class WarehouseOfItemController extends Controller
                         ->orWhere('part_b', $barcode)
                         ->orWhere('barcode', $barcode)
                         ->orWhere('marketplace_items.id', $barcode);
+                })->when($isFBO, function ($query) {
+                    $query->where('marketplace_orders.fulfillment_type', 'FBO');
                 })->select('marketplace_order_items.*')
                 ->get();
 
