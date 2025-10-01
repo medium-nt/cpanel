@@ -30,6 +30,10 @@ class WarehouseOfItemService
             $items = $items->where('marketplace_items.height', $request->height);
         }
 
+        if ($request->has('shelf')) {
+            $items = $items->where('marketplace_order_items.shelf_id', $request->shelf);
+        }
+
         return $items
             ->select('marketplace_order_items.*', 'marketplace_items.title', 'marketplace_items.width', 'marketplace_items.height');
     }

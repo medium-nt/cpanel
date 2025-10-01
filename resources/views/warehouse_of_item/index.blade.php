@@ -45,7 +45,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-2 mb-3">
                         <select name="width" id="width" class="form-control"
                                 onchange="updatePageWithQueryParam(this)">
                             <option value="all">Все ширины</option>
@@ -55,13 +55,23 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-2 mb-3">
                         <select name="height" id="height" class="form-control"
                                 onchange="updatePageWithQueryParam(this)">
                             <option value="all">Все высоты</option>
                             @foreach($heights as $height)
                                 <option value="{{ $height->height }}"
                                         @if($height->height == request('height')) selected @endif>{{ $height->height }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <select name="shelf" id="shelf" class="form-control"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="all">Все полки</option>
+                            @foreach($shelves as $shelf)
+                                <option value="{{ $shelf->id }}"
+                                        @if($shelf->id == request('shelf')) selected @endif>{{ $shelf->title }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -82,6 +92,7 @@
                         <th scope="col">#</th>
                         <th scope="col">Товар</th>
                         <th scope="col">Статус</th>
+                        <th scope="col">Стикер</th>
                         <th scope="col">№ полки</th>
                     </tr>
                     </thead>
@@ -96,6 +107,14 @@
                                 <span
                                     class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
                             </td>
+                            <td>
+                                {{ $item->storage_barcode }}
+                                <a href="{{ route('warehouse_of_item.storage_barcode', ['marketplace_item' => $item]) }}"
+                                   class="btn btn-outline-secondary btn-sm ml-1"
+                                   style="padding: 0px 5px;"
+                                   target="_blank">
+                                    <i class="fas fa-barcode"></i>
+                                </a>
                             <td>
                                 @if($item->shelf)
                                     {{ $item->shelf->title }}
