@@ -1508,14 +1508,14 @@ class MarketplaceApiService
         $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
 
-        if (!$response->ok() || empty($response->object()->returns)) {
+        if (!$response->ok()) {
             Log::channel('marketplace_api')
                 ->error('ВНИМАНИЕ! Ошибка получения причины возврата из Ozon по заказу '
                     . $marketplace_item->marketplaceOrder->order_id . ' Ответ:' . $response->object());
             return '---';
         }
 
-        return $response->object()->returns[0]->return_reason_name ?? '---';
+        return $response->object()?->returns[0]->return_reason_name ?? '---';
     }
 
     private static function getReturnReasonWB(MarketplaceOrderItem $marketplace_item): string
