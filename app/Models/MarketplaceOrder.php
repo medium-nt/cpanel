@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MarketplaceOrder extends Model
 {
@@ -23,7 +25,7 @@ class MarketplaceOrder extends Model
 
     protected $appends = ['marketplace_name', 'status_name', 'status_color'];
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(MarketplaceOrderItem::class);
     }
@@ -41,9 +43,6 @@ class MarketplaceOrder extends Model
     public function getMarketplaceStatusLabelAttribute(): string
     {
         return match ($this->marketplace_status) {
-//            'acceptance_in_progress' => '<span class="badge bg-secondary">идёт приёмка</span>',
-//            'awaiting_approve' => '<span class="badge bg-secondary">ожидает подтверждения</span>',
-//            'awaiting_packaging' => '<span class="badge bg-secondary">ожидает упаковки</span>',
             'awaiting_deliver' => '<span class="badge bg-secondary">ожидает отгрузки</span>',
             'confirm' => '<span class="badge bg-secondary">на сборке</span>',
             'complete', 'delivering' => '<span class="badge bg-success">в доставке</span>',
@@ -61,6 +60,16 @@ class MarketplaceOrder extends Model
     public function supply(): BelongsTo
     {
         return $this->belongsTo(MarketplaceSupply::class);
+    }
+
+    public function getCompletedDateAttribute(): string
+    {
+        return Carbon::parse($this->completed_at)->format('d/m/Y');
+    }
+
+    public function getReturnedDateAttribute(): string
+    {
+        return Carbon::parse($this->returned_at)->format('d/m/Y');
     }
 
 }

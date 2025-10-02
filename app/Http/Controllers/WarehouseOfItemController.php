@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
 use App\Models\Sku;
@@ -134,6 +135,13 @@ class WarehouseOfItemController extends Controller
         $marketplace_item->shelf_id = request('shelf_id');
         $marketplace_item->status = 11;
         $marketplace_item->save();
+
+        MarketplaceOrder::query()
+            ->where('order_id', $marketplace_item->marketplaceOrder->order_id)
+            ->update([
+                'returned_at' => now(),
+                'status' => 9
+            ]);
 
         return redirect()
             ->route('warehouse_of_item.index')

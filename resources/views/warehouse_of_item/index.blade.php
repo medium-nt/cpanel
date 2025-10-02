@@ -94,6 +94,8 @@
                         <th scope="col">Статус</th>
                         <th scope="col">Стикер</th>
                         <th scope="col">№ полки</th>
+                        <th scope="col">Дата отгрузки</th>
+                        <th scope="col">Дата возврата</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -120,6 +122,8 @@
                                     {{ $item->shelf->title }}
                                 @endif
                             </td>
+                            <td>{{ $item->marketplaceOrder->completed_date }}</td>
+                            <td>{{ $item->marketplaceOrder->returned_date }}</td>
                         </tr>
                     @endforeach
                     </tbody>
