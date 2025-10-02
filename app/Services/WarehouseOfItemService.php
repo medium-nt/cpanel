@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Sku;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class WarehouseOfItemService
 {
-    public static function getFiltered($request): Builder
+    public function getFiltered(Request $request): Builder
     {
         $items = MarketplaceOrderItem::query()
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
@@ -38,12 +41,12 @@ class WarehouseOfItemService
             ->select('marketplace_order_items.*', 'marketplace_items.title', 'marketplace_items.width', 'marketplace_items.height');
     }
 
-    public static function getStorageBarcode(MarketplaceOrderItem $marketplace_item)
+    public function getStorageBarcode(MarketplaceOrderItem $marketplace_item): string
     {
         $barcode = $marketplace_item->storage_barcode;
 
         if (!$barcode) {
-            $barcode = self::generateBarcode($marketplace_item->id);
+            $barcode = $this->generateBarcode($marketplace_item->id);
 
             $marketplace_item->storage_barcode = $barcode;
             $marketplace_item->save();
@@ -52,7 +55,7 @@ class WarehouseOfItemService
         return $barcode;
     }
 
-    private static function generateBarcode(int $id): string
+    private function generateBarcode(int $id): string
     {
         //  используется алгоритм Луна.
         $base = str_pad($id, 8, '0', STR_PAD_LEFT);
@@ -64,5 +67,99 @@ class WarehouseOfItemService
         }
 
         return $base . ((10 - $sum % 10) % 10);
+    }
+
+    public function saveItemToStorage(MarketplaceOrderItem $item, int $shelfId): void
+    {
+        $item->shelf_id = $shelfId;
+        $item->status = 11;
+        $item->save();
+
+        MarketplaceOrder::query()
+            ->where('id', $item->marketplace_order_id)
+            ->update([
+                'returned_at' => now(),
+                'status' => 9
+            ]);
+    }
+
+    public function findRefundItemByBarcode($barcode): array
+    {
+        if (!$barcode) {
+            return [
+                'message' => 'Введите штрихкод',
+                'marketplace_item' => null,
+                'marketplace_items' => collect(),
+                'returnReason' => '',
+            ];
+        }
+
+        // если это стикер OZON FBS
+        if (!is_array($barcode) && mb_strlen(trim($barcode)) == 15) {
+            $barcode = MarketplaceApiService::getOzonPostingNumberByBarcode($barcode);
+        }
+
+        // если это стикер OZON возврат
+        if (!is_array($barcode) && str_starts_with(trim($barcode), 'ii')) {
+            $barcode = MarketplaceApiService::getOzonPostingNumberByReturnBarcode($barcode);
+        }
+
+        $isFBO = false;
+
+        // если это стикер OZON FBO
+        if (!is_array($barcode) && str_starts_with(trim($barcode), 'OZN')) {
+            $sku = trim($barcode, 'OZN');
+
+            $barcode = Sku::query()->where('sku', $sku)
+                ->first()?->item?->id ?? '-';
+
+            $isFBO = true;
+        }
+
+        $items = MarketplaceOrderItem::query()
+            ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+            ->with('item')
+            //  TO_DO: вернуть фильтр по статусу
+//                  ->whereIn('marketplace_order_items.status', [10])
+            ->whereIn('marketplace_order_items.status', [3])
+            ->where(function ($query) use ($barcode) {
+                $query->where('marketplace_orders.order_id', $barcode)
+                    ->orWhere('marketplace_order_items.storage_barcode', $barcode)
+                    ->orWhere('part_b', $barcode)
+                    ->orWhere('barcode', $barcode)
+                    ->orWhere('marketplace_items.id', $barcode);
+            })->when($isFBO, function ($query) {
+                $query->where('marketplace_orders.fulfillment_type', 'FBO');
+            })->select('marketplace_order_items.*')
+            ->get();
+
+        if ($items->isEmpty()) {
+            return [
+                'message' => 'Нет такого заказа',
+                'marketplace_item' => null,
+                'marketplace_items' => collect(),
+                'returnReason' => '',
+            ];
+        }
+
+        if ($items->count() > 1) {
+            return [
+                'message' => 'Найдено несколько заказов. Выберите нужный:',
+                'marketplace_item' => null,
+                'marketplace_items' => $items,
+                'returnReason' => '',
+            ];
+        }
+
+        $item = $items->first();
+        $returnReason = MarketplaceApiService::getReturnReason($item);
+
+        return [
+            'message' => '',
+            'marketplace_item' => $item,
+            'marketplace_items' => collect(),
+            'returnReason' => $returnReason,
+        ];
     }
 }

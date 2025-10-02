@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
-use App\Models\Sku;
-use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\WarehouseOfItemService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -14,134 +11,65 @@ use Illuminate\Http\Request;
 
 class WarehouseOfItemController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, WarehouseOfItemService $warehouseOfItemService)
     {
+        $filteredItems = $warehouseOfItemService->getFiltered($request);
+
         return view('warehouse_of_item.index', [
             'title' => 'Склад товара',
             'materials' => MarketplaceItemService::getAllTitleMaterials(),
             'widths' => MarketplaceItemService::getAllWidthMaterials(),
             'heights' => MarketplaceItemService::getAllHeightMaterials(),
             'shelves' => Shelf::all(),
-            'totalItems' => WarehouseOfItemService::getFiltered($request)->count(),
-            'items' => WarehouseOfItemService::getFiltered($request)
-                ->paginate(20),
+            'totalItems' => $filteredItems->count(),
+            'items' => $filteredItems->paginate(20),
         ]);
     }
 
-    public function newRefunds(Request $request)
+    public function newRefunds(Request $request, WarehouseOfItemService $warehouseOfItemService)
     {
-        $barcode = $request->barcode;
-
-        $marketplace_item = null;
-        if ($barcode) {
-            // если это стикер OZON FBS
-            if (!is_array($barcode) && mb_strlen(trim($barcode)) == 15) {
-                $barcode = MarketplaceApiService::getOzonPostingNumberByBarcode($barcode);
-            }
-
-            // если это стикер OZON возврат
-            if (!is_array($barcode) && str_starts_with(trim($barcode), 'ii')) {
-                $barcode = MarketplaceApiService::getOzonPostingNumberByReturnBarcode($barcode);
-            }
-
-            $isFBO = false;
-
-            // если это стикер OZON FBO
-            if (!is_array($barcode) && str_starts_with(trim($barcode), 'OZN')) {
-                $sku = trim($barcode, 'OZN');
-
-                $barcode = Sku::query()->where('sku', $sku)
-                    ->first()->item->id ?? '-';
-
-                $isFBO = true;
-            }
-
-            $marketplace_item = MarketplaceOrderItem::query()
-                ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
-                ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
-                ->with('item')
-                //  TO_DO: вернуть фильтр по статусу
-//                  ->whereIn('marketplace_order_items.status', [10])
-                ->whereIn('marketplace_order_items.status', [3])
-                ->where(function ($query) use ($barcode) {
-                    $query->where('marketplace_orders.order_id', $barcode)
-                        ->orWhere('marketplace_order_items.storage_barcode', $barcode)
-                        ->orWhere('part_b', $barcode)
-                        ->orWhere('barcode', $barcode)
-                        ->orWhere('marketplace_items.id', $barcode);
-                })->when($isFBO, function ($query) {
-                    $query->where('marketplace_orders.fulfillment_type', 'FBO');
-                })->select('marketplace_order_items.*')
-                ->get();
-
-            if ($marketplace_item->isEmpty()) {
-                $message = 'Нет такого заказа.';
-            }
-
-            if ($marketplace_item->count() > 1) {
-                $message = 'Найдено несколько заказов. Выберите нужный:';
-                $marketplaceItems = $marketplace_item;
-            }
-
-            if ($marketplace_item->count() == 1) {
-                $marketplace_item = $marketplace_item->first();
-                $returnReason = MarketplaceApiService::getReturnReason($marketplace_item);
-            }
-        } else {
-            $message = 'Введите штрихкод.';
-        }
+        $result = $warehouseOfItemService->findRefundItemByBarcode($request->barcode);
 
         return view('warehouse_of_item.new_refunds', [
             'title' => 'Товар с возврата',
-            'marketplace_item' => $marketplace_item,
-            'marketplace_items' => $marketplaceItems ?? [],
+            'marketplace_item' => $result['marketplace_item'],
+            'marketplace_items' => $result['marketplace_items'],
             'barcode' => $request->barcode ?? '',
-            'message' => $message ?? '',
+            'message' => $result['message'],
             'shelves' => Shelf::all(),
-            'returnReason' => $returnReason ?? '',
+            'returnReason' => $result['returnReason'],
         ]);
     }
 
-    public static function getStorageBarcodeFile(MarketplaceOrderItem $marketplace_item)
+    public function getStorageBarcodeFile(MarketplaceOrderItem $marketplace_item, WarehouseOfItemService $service)
     {
-        $barcode = WarehouseOfItemService::getStorageBarcode($marketplace_item);
-
         $pdf = PDF::loadView('pdf.storage_barcode_sticker', [
-            'barcode' => $barcode,
+            'barcode' => $service->getStorageBarcode($marketplace_item),
             'item' => $marketplace_item->item,
-            'seamstressName' => $marketplace_item->marketplaceOrder->items[0]->seamstress->name
+            'seamstressName' => $marketplace_item->marketplaceOrder?->items?->first()?->seamstress?->name ?? '---',
         ]);
 
         $pdf->setPaper('A4');
         return $pdf->stream('barcode.pdf');
     }
 
-    public function saveStorage(MarketplaceOrderItem $marketplace_item)
+    public function saveStorage(Request $request, MarketplaceOrderItem $marketplace_item, WarehouseOfItemService $service)
     {
         if (!$marketplace_item->storage_barcode) {
             return redirect()
                 ->route('warehouse_of_item.new_refunds',
                     ['barcode' => $marketplace_item->marketplaceOrder->order_id])
-                ->with('error', 'Не распечатан штрихкод хранения');
+                ->with('error', 'Не распечатан штрихкод хранения!');
         }
 
-        if (!request('shelf_id')) {
+        if (!$request->shelf_id) {
             return redirect()
                 ->route('warehouse_of_item.new_refunds',
                     ['barcode' => $marketplace_item->marketplaceOrder->order_id])
-                ->with('error', 'Не указан номер полки');
+                ->with('error', 'Не указан номер полки!');
         }
 
-        $marketplace_item->shelf_id = request('shelf_id');
-        $marketplace_item->status = 11;
-        $marketplace_item->save();
-
-        MarketplaceOrder::query()
-            ->where('order_id', $marketplace_item->marketplaceOrder->order_id)
-            ->update([
-                'returned_at' => now(),
-                'status' => 9
-            ]);
+        $service->saveItemToStorage($marketplace_item, $request->shelf_id);
 
         return redirect()
             ->route('warehouse_of_item.index')
