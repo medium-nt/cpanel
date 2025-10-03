@@ -69,7 +69,7 @@ class MarketplaceOrder extends Model
 
     public function getReturnedDateAttribute(): string
     {
-        return Carbon::parse($this->returned_at)->format('d/m/Y');
+        return $this->returned_at ? Carbon::parse($this->returned_at)->format('d/m/Y') : '';
     }
 
 }
