@@ -42,8 +42,7 @@
                         <div class="form-group">
                             <label for="phone">Телефон</label>
                             <input type="text" class="form-control" id="phone"
-                                   name="phone" value="{{ $user->phone }}"
-                                   required>
+                                   name="phone" value="{{ $user->phone }}">
                         </div>
 
                         <div class="form-group">
@@ -119,12 +118,14 @@
                             </select>
                         </div>
 
+                            @if($user->isSeamstress())
                             <div class="form-group">
                                 <div class="d-flex align-items-center">
                                     <span class="mr-2">Швея (без кроя)</span>
 
                                     <div class="custom-control custom-switch">
-                                        <input type="hidden" name="is_cutter" value="{{ $isBeforeStartWorkDay ? 0 : $user->is_cutter }}">
+                                        <input type="hidden" name="is_cutter"
+                                               value="{{ $isBeforeStartWorkDay ? 0 : $user->is_cutter }}">
 
                                         <input type="checkbox"
                                                class="custom-control-input"
@@ -141,14 +142,19 @@
 
                                     @if(!$isBeforeStartWorkDay)
                                         <span
-                                            class="ml-3 text-danger font-weight-bold">Сегодня смена уже открывалась!</span>
+                                            class="ml-3 text-danger font-weight-bold">
+                                            Сегодня смена уже открывалась!
+                                        </span>
                                     @endif
                                 </div>
                             </div>
+                            @endif
 
                             <div class="form-group">
-                                <label for="materials">Разрешенные материалы</label>
-                                <select class="form-control choices" name="materials[]" multiple>
+                                <label for="materials">Разрешенные
+                                    материалы</label>
+                                <select class="form-control choices"
+                                        name="materials[]" multiple>
                                     @foreach($materials as $type_work)
                                         <option value="{{ $type_work->id }}"
                                             {{ in_array($type_work->id, $selectedMaterials) ? 'selected' : '' }}>
@@ -156,7 +162,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
                         @endif
 
                         <div class="form-group">
