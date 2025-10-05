@@ -406,6 +406,9 @@ class MarketplaceApiService
                 foreach ($order->skus as $skus) {
                     $sku = self::hasSkuInSystem($skus->sku);
 
+                    //  TO_DO: проверить что нет такого уже готового товара в системе
+                    //      и если есть, то взять из готового, а не создавать новый товар.
+
                     $orderItem['marketplace_order_id'] = $marketplaceOrder->id;
                     $orderItem['marketplace_item_id'] = $sku->item_id;
                     $orderItem['quantity'] = 1;
