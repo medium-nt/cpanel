@@ -1429,36 +1429,36 @@ class MarketplaceApiService
 
     private static function markExemplarAsGtdAbsent($response): bool
     {
-        $response = $response->object();
+        $response = $response->json();
 
         Log::channel('marketplace_api')->error('Вот что в response: ', ['response' => $response]);
 
         if (
-            empty($response->products) ||
-            empty($response->products[0]) ||
-            empty($response->products[0]->exemplars) ||
-            empty($response->products[0]->exemplars[0])
+            empty($response['products']) ||
+            empty($response['products'][0]) ||
+            empty($response['products'][0]['exemplars']) ||
+            empty($response['products'][0]['exemplars'][0])
         ) {
             Log::channel('marketplace_api')->error('Нет данных о продукте или экземпляре', ['response' => $response]);
             return false;
         }
 
-        $product = $response->products[0];
-        $exemplar = $product->exemplars[0];
+        $product = $response['products'][0];
+        $exemplar = $product['exemplars'][0];
 
-        Log::channel('marketplace_api')->error('product: ' . $product);
-        Log::channel('marketplace_api')->error('exemplar: ' . $exemplar);
-        Log::channel('marketplace_api')->error('posting_number: ' . $response->posting_number);
+        Log::channel('marketplace_api')->error('product: ', ['product' => $product]);
+        Log::channel('marketplace_api')->error('exemplar: ', ['exemplar' => $exemplar]);
+        Log::channel('marketplace_api')->error('posting_number: ', ['posting_number' => $response['posting_number']]);
 
         $body = [
-            "posting_number" => $response->posting_number,
+            "posting_number" => $response['posting_number'],
             "products" => [
                 [
-                    "product_id" => $product->product_id,
+                    "product_id" => $product['product_id'],
                     "is_gtd_needed" => true,
                     "exemplars" => [
                         [
-                            "exemplar_id" => $exemplar->exemplar_id,
+                            "exemplar_id" => $exemplar['exemplar_id'],
                             "is_gtd_absent" => true
                         ]
                     ]
