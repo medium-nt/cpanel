@@ -1427,9 +1427,9 @@ class MarketplaceApiService
         return self::markExemplarAsGtdAbsent($response);
     }
 
-    private static function markExemplarAsGtdAbsent($response): bool
+    private static function markExemplarAsGtdAbsent($resp): bool
     {
-        $response = $response->json();
+        $response = $resp->json();
 
         Log::channel('marketplace_api')->error('Вот что в response: ', ['response' => $response]);
 
@@ -1446,8 +1446,8 @@ class MarketplaceApiService
         $product = $response['products'][0];
         $exemplar = $product['exemplars'][0];
 
-        Log::channel('marketplace_api')->error('product: ', ['product' => $product]);
-        Log::channel('marketplace_api')->error('exemplar: ', ['exemplar' => $exemplar]);
+        Log::channel('marketplace_api')->error('product: ', ['product' => $product['product_id']]);
+        Log::channel('marketplace_api')->error('exemplar: ', ['exemplar' => $exemplar['exemplar_id']]);
         Log::channel('marketplace_api')->error('posting_number: ', ['posting_number' => $response['posting_number']]);
 
         $body = [
