@@ -1424,7 +1424,7 @@ class MarketplaceApiService
         Log::channel('marketplace_api')
             ->error($text);
 
-        return self::markExemplarAsGtdAbsent($response);
+        return self::markExemplarAsGtdAbsent($response->object());
     }
 
     private static function markExemplarAsGtdAbsent($response): bool
