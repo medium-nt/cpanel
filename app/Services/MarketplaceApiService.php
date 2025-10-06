@@ -933,7 +933,7 @@ class MarketplaceApiService
         if(!$response->ok()) {
             Log::channel('marketplace_api')
                 ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара');
-            return [];
+            return '-';
         }
 
         $posting_number = $response->object()->result->posting_number;
@@ -956,7 +956,7 @@ class MarketplaceApiService
         if (!$response->ok() || empty($response->object()->returns)) {
             Log::channel('marketplace_api')
                 ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
-            return [];
+            return '-';
         }
 
         $posting_number = $response->object()->returns[0]->posting_number;
