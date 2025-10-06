@@ -1424,18 +1424,31 @@ class MarketplaceApiService
         Log::channel('marketplace_api')
             ->error($text);
 
-        return self::markExemplarAsGtdAbsent($response->object());
+        return self::markExemplarAsGtdAbsent($response);
     }
 
     private static function markExemplarAsGtdAbsent($response): bool
     {
-        if (empty($response->products[0]?->exemplars[0])) {
+        $response = $response->object();
+
+        Log::channel('marketplace_api')->error('Вот что в response: ', ['response' => $response]);
+
+        if (
+            empty($response->products) ||
+            empty($response->products[0]) ||
+            empty($response->products[0]->exemplars) ||
+            empty($response->products[0]->exemplars[0])
+        ) {
             Log::channel('marketplace_api')->error('Нет данных о продукте или экземпляре', ['response' => $response]);
             return false;
         }
 
         $product = $response->products[0];
         $exemplar = $product->exemplars[0];
+
+        Log::channel('marketplace_api')->error('product: ' . $product);
+        Log::channel('marketplace_api')->error('exemplar: ' . $exemplar);
+        Log::channel('marketplace_api')->error('posting_number: ' . $response->posting_number);
 
         $body = [
             "posting_number" => $response->posting_number,
