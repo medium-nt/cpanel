@@ -1469,6 +1469,12 @@ class MarketplaceApiService
         $apiResponse = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v5/fbs/posting/product/exemplar/set', $body);
 
+        Log::channel('marketplace_api')
+            ->info('Пытаемся установить "ГТД отсутствует" для заказа ', [
+                'body' => $body,
+                'response' => $apiResponse->object()
+            ]);
+
         if(!$apiResponse->ok()) {
             Log::channel('marketplace_api')
                 ->error('Не удалось установить "ГТД отсутствует" для заказа '. $apiResponse->object()->posting_number, [
