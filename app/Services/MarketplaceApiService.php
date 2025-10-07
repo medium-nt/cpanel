@@ -1416,11 +1416,6 @@ class MarketplaceApiService
             ' Статус: '. $response->object()->status .
             ' Пробуем передать что ГТД не обязательна...';
 
-        TgService::sendMessage(
-            config('telegram.admin_id'),
-            'Срочно! Передайте разработчику сообщение для проверки заказа с ГТД: ' . $text
-        );
-
         Log::channel('marketplace_api')
             ->error($text);
 
@@ -1430,8 +1425,6 @@ class MarketplaceApiService
     private static function markExemplarAsGtdAbsent($resp): bool
     {
         $response = $resp->json();
-
-        Log::channel('marketplace_api')->error('Вот что в response: ', ['response' => $response]);
 
         if (
             empty($response['products']) ||
@@ -1445,10 +1438,6 @@ class MarketplaceApiService
 
         $product = $response['products'][0];
         $exemplar = $product['exemplars'][0];
-
-        Log::channel('marketplace_api')->error('product: ', ['product' => $product['product_id']]);
-        Log::channel('marketplace_api')->error('exemplar: ', ['exemplar' => $exemplar['exemplar_id']]);
-        Log::channel('marketplace_api')->error('posting_number: ', ['posting_number' => $response['posting_number']]);
 
         $body = [
             "posting_number" => $response['posting_number'],
