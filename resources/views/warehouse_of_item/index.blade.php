@@ -32,6 +32,10 @@
                                     @if(request()->get('status') == 12) selected @endif>
                                 На проверке
                             </option>
+                            <option value="13"
+                                    @if(request()->get('status') == 13) selected @endif>
+                                На сборке
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-3 mb-3">
