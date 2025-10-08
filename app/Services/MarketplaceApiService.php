@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
@@ -406,33 +407,46 @@ class MarketplaceApiService
                 foreach ($order->skus as $skus) {
                     $sku = self::hasSkuInSystem($skus->sku);
 
-                    //  TO_DO: проверить что нет такого уже готового товара в системе
-                    //      и если есть, то взять из готового, а не создавать новый товар.
+                    if (MarketplaceOrderItemService::hasReadyItem($sku)) {
+                        Log::channel('marketplace_api')
+                            ->info('Товар под заказ №' . $order->id . ' уже имеется в системе.');
 
-                    $orderItem['marketplace_order_id'] = $marketplaceOrder->id;
-                    $orderItem['marketplace_item_id'] = $sku->item_id;
-                    $orderItem['quantity'] = 1;
-                    $orderItem['price'] = 0;
-                    $orderItem['created_at'] = Carbon::parse($order->order_created)->setTimezone('Europe/Moscow');
+                        MarketplaceOrderItemService::reserveReadyItem($sku, $marketplaceOrder);
 
-                    MarketplaceOrderItem::query()->create($orderItem);
-                }
+                        $text = 'Поступил заказ на подбор со склада товара: ' .
+                            $sku->title . ' - ' . $sku->width . ' x ' . $sku->height;
 
-                Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
+                        Log::channel('marketplace_api')
+                            ->notice('Отправляем сообщение в ТГ работающему кладовщику и админу: ' . $text);
+
+                        TgService::sendMessage(config('telegram.admin_id'), $text);
+
+                        foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
+                            SendTelegramMessageJob::dispatch($tgId, $text)
+                                ->delay(now()->addSeconds($index + 1));
+                        }
+                    } else {
+                        Log::channel('marketplace_api')
+                            ->info('Заказ №' . $order->id . ' добавлен в систему.');
+
+                        MarketplaceOrderItemService::createItem($sku, $marketplaceOrder);
 
                         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrder->marketplace_id);
 
-                $materialName = $marketplaceOrder->items->first()->item->title;
+                        $materialName = $marketplaceOrder->items->first()->item->title;
 
-                $text = 'Поступил новый заказ ' . $materialName . ' на ' . $marketplaceName;
+                        $text = 'Поступил новый заказ ' . $materialName . ' на ' . $marketplaceName;
 
-                Log::channel('marketplace_api')
-                    ->notice('    Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+                        Log::channel('marketplace_api')
+                            ->notice('Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
 
-                TgService::sendMessage(config('telegram.admin_id'), $text);
+                        TgService::sendMessage(config('telegram.admin_id'), $text);
 
-                foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
-                    TgService::sendMessage($tgId, $text);
+                        foreach (UserService::getListSeamstressesWorkingToday() as $index => $tgId) {
+                            SendTelegramMessageJob::dispatch($tgId, $text)
+                                ->delay(now()->addSeconds($index + 1));
+                        }
+                    }
                 }
 
                 DB::commit();
