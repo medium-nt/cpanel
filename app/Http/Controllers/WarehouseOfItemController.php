@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
+use App\Models\Sku;
+use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
+use App\Services\MarketplaceOrderItemService;
 use App\Services\WarehouseOfItemService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WarehouseOfItemController extends Controller
 {
@@ -76,4 +81,113 @@ class WarehouseOfItemController extends Controller
             ->with('success', 'Изменения сохранены');
     }
 
+    public function toPickList()
+    {
+        return view('warehouse_of_item.to_pick_list', [
+            'title' => 'Товары для подбора со склада',
+            'orders' => MarketplaceOrder::query()
+                ->where('status', 13)
+                ->paginate(20),
+        ]);
+    }
+
+    public function toPick(MarketplaceOrder $order, Request $request)
+    {
+        $items = MarketplaceOrderItem::query()
+            ->where('marketplace_item_id', $order->items[0]->item->id)
+            ->whereIn('status', [11, 13]);
+
+        if ($request->barcode) {
+            $item = (clone $items)->where('storage_barcode', $request->barcode)
+                ->first();
+        }
+
+        $itemName = $order->items[0]->item->title . ' ' .
+            $order->items[0]->item->width . 'x' . $order->items[0]->item->height;
+
+        return view('warehouse_of_item.to_pick', [
+            'title' => 'Сборка товара ' . $itemName,
+            'itemName' => $itemName,
+            'barcode' => $request->barcode,
+            'order' => $order,
+            'item' => $item ?? null,
+            'count' => (clone $items)->count(),
+        ]);
+    }
+
+    public function labeling(Request $request, MarketplaceOrder $marketplaceOrder, MarketplaceOrderItem $marketplaceOrderItem)
+    {
+        $orderId = $marketplaceOrder->order_id;
+        $sku = $marketplaceOrderItem->item->sku()->first()->sku;
+
+        $result = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
+            1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
+            2 => MarketplaceApiService::collectOrderWb($orderId),
+            default => false,
+        };
+
+        if (!$result) {
+            Log::channel('marketplace_api')
+                ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+            return redirect()->back()
+                ->with('error', 'Не удалось передать заказ на стикеровку');
+        }
+
+        $text = 'Кладовщик ' . auth()->user()->name .
+            ' передал товар #' . $marketplaceOrderItem->id .
+            ' (заказ ' . $marketplaceOrder->order_id . ') на стикеровку';
+
+        Log::channel('erp')->info($text);
+
+        $selectedMarketplaceOrderItem = $marketplaceOrder->items->first();
+
+        if ($marketplaceOrderItem->id !== $selectedMarketplaceOrderItem->id) {
+            MarketplaceOrderItemService::restoreOrderFromHistory($selectedMarketplaceOrderItem);
+            MarketplaceOrderItemService::saveOrderToHistory($marketplaceOrderItem);
+        }
+
+        $marketplaceOrderItem->marketplace_order_id = $marketplaceOrder->id;
+        $marketplaceOrderItem->status = 13; // в сборке
+        $marketplaceOrderItem->save();
+
+        $marketplaceOrder->status = 5; // в стикеровке
+        $marketplaceOrder->save();
+
+        return redirect()->back()
+            ->with('success', 'Заказ передан на стикеровку');
+    }
+
+    public function done(MarketplaceOrder $marketplace_order)
+    {
+        if (!$marketplace_order->is_printed) {
+            return redirect()->back()
+                ->with('error', 'Стикер не распечатан!');
+        }
+
+        $marketplace_order->status = 6; // на поставку
+        $marketplace_order->completed_at = now();
+        $marketplace_order->save();
+
+        return redirect()->route('warehouse_of_item.index')
+            ->with('success', 'Заказ передан на поставку');
+    }
+
+    public function toWork(MarketplaceOrder $marketplaceOrder)
+    {
+        $marketplaceOrderItem = $marketplaceOrder->items->first();
+        MarketplaceOrderItemService::restoreOrderFromHistory($marketplaceOrderItem);
+
+        $marketplaceOrder->status = 0;
+        $marketplaceOrder->save();
+
+        $sku = Sku::query()
+            ->where('item_id', $marketplaceOrderItem->marketplace_item_id)
+            ->where('marketplace_id', $marketplaceOrder->marketplace_id)
+            ->first();
+
+        MarketplaceOrderItemService::createItem($sku, $marketplaceOrder);
+
+        return redirect()->route('warehouse_of_item.to_pick')
+            ->with('success', 'Заказ передан в цех на пошив');
+    }
 }

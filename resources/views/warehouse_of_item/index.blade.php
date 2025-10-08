@@ -83,7 +83,10 @@
         <div class="card-body">
 
             <a href="{{ route('warehouse_of_item.new_refunds') }}"
-               class="btn btn-primary mr-3 mb-3">Принять новые возвраты</a>
+               class="btn btn-success mr-3 mb-3">Принять новые возвраты</a>
+
+            <a href="{{ route('warehouse_of_item.to_pick_list') }}"
+               class="btn btn-primary mr-3 mb-3">Товары к подбору</a>
 
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">

@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\MarketplaceOrder;
+use App\Models\MarketplaceOrderHistory;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Setting;
+use App\Models\Sku;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -579,4 +582,64 @@ class MarketplaceOrderItemService
         );
     }
 
+    public static function createItem(Sku $sku, MarketplaceOrder $marketplaceOrder): void
+    {
+        MarketplaceOrderItem::query()->create([
+            'marketplace_order_id' => $marketplaceOrder->id,
+            'marketplace_item_id' => $sku->item_id,
+            'quantity' => 1,
+            'price' => 0,
+            'created_at' => Carbon::parse($marketplaceOrder->created_at),
+        ]);
+    }
+
+    public static function hasReadyItem(Sku $sku): bool
+    {
+        return MarketplaceOrderItem::query()
+            ->where('marketplace_item_id', $sku->item_id)
+            ->where('status', 11)
+            ->exists();
+    }
+
+    public static function reserveReadyItem(Sku $sku, MarketplaceOrder $marketplaceOrder): void
+    {
+        $marketplaceOrderItem = MarketplaceOrderItem::query()
+            ->where('marketplace_item_id', $sku->item_id)
+            ->where('status', 11)
+            ->first();
+
+        self::saveOrderToHistory($marketplaceOrderItem);
+
+        $marketplaceOrderItem->marketplace_order_id = $marketplaceOrder->id;
+        $marketplaceOrderItem->status = 13; // в сборке
+        $marketplaceOrderItem->save();
+    }
+
+    public static function saveOrderToHistory(MarketplaceOrderItem $marketplaceOrderItem): void
+    {
+        MarketplaceOrderHistory::firstOrCreate([
+            'marketplace_order_id' => $marketplaceOrderItem->marketplace_order_id,
+            'marketplace_order_item_id' => $marketplaceOrderItem->id,
+            'status' => 'returned',
+        ]);
+
+        $marketplaceOrderItem->marketplaceOrder->status = 9; // возврат
+        $marketplaceOrderItem->marketplaceOrder->save();
+    }
+
+    public static function restoreOrderFromHistory(MarketplaceOrderItem $selectedItem): void
+    {
+        $marketplaceOrder = $selectedItem->history()
+            ->orderByDesc('created_at')
+            ->first();
+
+        MarketplaceOrderHistory::query()
+            ->where('marketplace_order_id', $marketplaceOrder->id)
+            ->where('marketplace_order_item_id', $selectedItem->id)
+            ->delete();
+
+        $selectedItem->marketplace_order_id = $marketplaceOrder->id;
+        $selectedItem->status = 11; // на хранении
+        $selectedItem->save();
+    }
 }
