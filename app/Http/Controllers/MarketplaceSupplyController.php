@@ -43,10 +43,7 @@ class MarketplaceSupplyController extends Controller
 
     public function show(MarketplaceSupply $marketplaceSupply)
     {
-        $marketplaceName = match ($marketplaceSupply->marketplace_id) {
-            1 => 'OZON',
-            2 => 'WB',
-        };
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         return view('marketplace_supply.show', [
             'title' => 'Поставка для маркетплейса ' . $marketplaceName,
@@ -74,11 +71,7 @@ class MarketplaceSupplyController extends Controller
             'marketplace_id' => $marketplace_id,
         ]);
 
-        $marketplaceName = match ($marketplaceSupply->marketplace_id) {
-            '1' => 'OZON',
-            '2' => 'WB',
-            default => '---',
-        };
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         Log::channel('erp')->notice('    ' . auth()->user()->name . ' создал поставку для маркетплейса ' . $marketplaceName . ' (#' . $marketplaceSupply->id . ').');
 
@@ -142,11 +135,7 @@ class MarketplaceSupplyController extends Controller
             'completed_at' => now(),
         ]);
 
-        $marketplaceName = match ($marketplace_supply->marketplace_id) {
-            1 => 'OZON',
-            2 => 'WB',
-            default => '---',
-        };
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
         Log::channel('erp')->notice('    ' . auth()->user()->name . ' передал в отгрузку поставку #' . $marketplace_supply->id . ' для маркетплейса ' . $marketplaceName . '.');
 
@@ -162,11 +151,7 @@ class MarketplaceSupplyController extends Controller
             'completed_at' => now(),
         ]);
 
-        $marketplaceName = match ($marketplace_supply->marketplace_id) {
-            '1' => 'OZON',
-            '2' => 'WB',
-            default => '---',
-        };
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
         Log::channel('erp')->notice('    ' . auth()->user()->name . ' сдал поставку #' . $marketplace_supply->id . ' в маркетплейс ' . $marketplaceName . '.');
 

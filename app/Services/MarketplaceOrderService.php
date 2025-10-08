@@ -62,14 +62,18 @@ class MarketplaceOrderService
             'price' => 0,
         ]);
 
-        $marketplaceName = match ($request->marketplace_id) {
-            '1' => 'OZON',
-            '2' => 'WB',
-            default => '---',
-        };
+        $marketplaceName = self::getMarketplaceName($request->marketplace_id);
 
         Log::channel('erp')
             ->notice('    Вручную добавлен новый заказ: ' . $request->order_id . $orderIndex . ' (' . $marketplaceName . ')');
     }
 
+    public static function getMarketplaceName(string $marketplace_id): string
+    {
+        return match ($marketplace_id) {
+            '1' => 'OZON',
+            '2' => 'WB',
+            default => '---',
+        };
+    }
 }

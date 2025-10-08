@@ -492,11 +492,7 @@ class MarketplaceOrderItemService
                 continue;
             }
 
-            $marketplaceName = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
-                1 => 'OZON',
-                2 => 'WB',
-                default => '---',
-            };
+            $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrderItem->marketplaceOrder->marketplace_id);
 
             $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
                 ' (' . $item->title . ' '. $item->width . 'x' . $item->height .

@@ -420,11 +420,7 @@ class MarketplaceApiService
 
                 Log::channel('marketplace_api')->info('    Заказ №' . $order->id . ' добавлен в систему.');
 
-                $marketplaceName = match($marketplaceOrder->marketplace_id) {
-                    '1' => 'OZON',
-                    '2' => 'WB',
-                    default => '---',
-                };
+                        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrder->marketplace_id);
 
                 $materialName = $marketplaceOrder->items->first()->item->title;
 
