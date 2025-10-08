@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MarketplaceOrderItem extends Model
@@ -38,7 +39,7 @@ class MarketplaceOrderItem extends Model
         return StatusMovement::BADGE_COLORS[$this->status];
     }
 
-    public function item()
+    public function item(): HasOne
     {
         return $this->hasOne(MarketplaceItem::class, 'id', 'marketplace_item_id');
     }
@@ -48,7 +49,7 @@ class MarketplaceOrderItem extends Model
         return $this->hasOne(User::class, 'id', 'seamstress_id')->withTrashed();
     }
 
-    public function cutter()
+    public function cutter(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'cutter_id');
     }
@@ -61,5 +62,10 @@ class MarketplaceOrderItem extends Model
     public function shelf(): BelongsTo
     {
         return $this->belongsTo(Shelf::class);
+    }
+
+    public function history(): HasMany
+    {
+        return $this->hasMany(MarketplaceOrderHistory::class);
     }
 }

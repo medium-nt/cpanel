@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MarketplaceOrder extends Model
 {
@@ -70,6 +71,16 @@ class MarketplaceOrder extends Model
     public function getReturnedDateAttribute(): string
     {
         return $this->returned_at ? Carbon::parse($this->returned_at)->format('d/m/Y') : '';
+    }
+
+    public function history(): HasOne
+    {
+        return $this->hasOne(MarketplaceOrderHistory::class);
+    }
+
+    public function isStickering(): bool
+    {
+        return $this->status == 5;
     }
 
 }
