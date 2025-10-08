@@ -413,6 +413,9 @@ class MarketplaceApiService
 
                         MarketplaceOrderItemService::reserveReadyItem($sku, $marketplaceOrder);
 
+                        $marketplaceOrder->status = 13; // в сборке
+                        $marketplaceOrder->save();
+
                         $text = 'Поступил заказ на подбор со склада товара: ' .
                             $sku->title . ' - ' . $sku->width . ' x ' . $sku->height;
 
