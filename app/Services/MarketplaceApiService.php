@@ -417,7 +417,7 @@ class MarketplaceApiService
                         $marketplaceOrder->save();
 
                         $text = 'Поступил заказ на подбор со склада товара: ' .
-                            $sku->title . ' - ' . $sku->width . ' x ' . $sku->height;
+                            $sku->item->title . ' - ' . $sku->item->width . ' x ' . $sku->item->height;
 
                         Log::channel('marketplace_api')
                             ->notice('Отправляем сообщение в ТГ работающему кладовщику и админу: ' . $text);
