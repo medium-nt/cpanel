@@ -163,16 +163,20 @@ class WarehouseOfItemController extends Controller
             ->with('success', 'Заказ передан на стикеровку');
     }
 
-    public function done(MarketplaceOrder $marketplace_order)
+    public function done(MarketplaceOrder $marketplaceOrder)
     {
-        if (!$marketplace_order->is_printed) {
+        if (!$marketplaceOrder->is_printed) {
             return redirect()->back()
                 ->with('error', 'Стикер не распечатан!');
         }
 
-        $marketplace_order->status = 6; // на поставку
-        $marketplace_order->completed_at = now();
-        $marketplace_order->save();
+        $marketplaceOrder->status = 6; // на поставку
+        $marketplaceOrder->completed_at = now();
+        $marketplaceOrder->save();
+
+        $marketplaceOrderItem = $marketplaceOrder->items->first();
+        $marketplaceOrderItem->status = 3; // выполнен
+        $marketplaceOrderItem->save();
 
         return redirect()->route('warehouse_of_item.index')
             ->with('success', 'Заказ передан на поставку');
