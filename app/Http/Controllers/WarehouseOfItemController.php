@@ -12,6 +12,7 @@ use App\Services\MarketplaceOrderItemService;
 use App\Services\WarehouseOfItemService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class WarehouseOfItemController extends Controller
@@ -93,25 +94,30 @@ class WarehouseOfItemController extends Controller
 
     public function toPick(MarketplaceOrder $order, Request $request)
     {
+        $itemModel = $order->items[0]->item;
+        $itemName = "{$itemModel->title} {$itemModel->width}x{$itemModel->height}";
+
         $items = MarketplaceOrderItem::query()
-            ->where('marketplace_item_id', $order->items[0]->item->id)
+            ->where('marketplace_item_id', $itemModel->id)
             ->whereIn('status', [11, 13]);
 
-        if ($request->barcode) {
-            $item = (clone $items)->where('storage_barcode', $request->barcode)
-                ->first();
-        }
+        $shelfStats = (clone $items)
+            ->select('shelf_id', DB::raw('COUNT(*) as quantity'))
+            ->groupBy('shelf_id')
+            ->get();
 
-        $itemName = $order->items[0]->item->title . ' ' .
-            $order->items[0]->item->width . 'x' . $order->items[0]->item->height;
+        $item = $request->barcode
+            ? (clone $items)->where('storage_barcode', $request->barcode)->first()
+            : null;
 
         return view('warehouse_of_item.to_pick', [
-            'title' => 'Сборка товара ' . $itemName,
+            'title' => "Сборка товара $itemName",
             'itemName' => $itemName,
             'barcode' => $request->barcode,
             'order' => $order,
-            'item' => $item ?? null,
-            'count' => (clone $items)->count(),
+            'item' => $item,
+            'itemsCount' => $items->count(),
+            'shelfStats' => $shelfStats,
         ]);
     }
 

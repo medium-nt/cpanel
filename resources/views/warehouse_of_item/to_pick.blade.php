@@ -92,7 +92,15 @@
                 </a>
                 <br><small>(отправить на отшив в цех)</small>
                 <br><br>
-                Числится на складе: <b id="count">{{ $count }}</b>
+                Числится на складе: <b id="count">{{ $itemsCount }}</b>
+
+                <br><br>
+                Полки:
+                @foreach($shelfStats as $item)
+                    <li>
+                        {{ $item->shelf->title }} - {{ $item->quantity }} шт.
+                    </li>
+                @endforeach
             </div>
         </div>
     @endif
