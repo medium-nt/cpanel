@@ -9,6 +9,7 @@ use App\Models\Sku;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
+use App\Services\MarketplaceOrderService;
 use App\Services\WarehouseOfItemService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -86,8 +87,7 @@ class WarehouseOfItemController extends Controller
     {
         return view('warehouse_of_item.to_pick_list', [
             'title' => 'Товары для подбора со склада',
-            'orders' => MarketplaceOrder::query()
-                ->where('status', 13)
+            'orders' => MarketplaceOrderService::pickupOrders()
                 ->paginate(20),
         ]);
     }

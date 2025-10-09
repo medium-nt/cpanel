@@ -37,7 +37,7 @@
                 </div>
                 @endif
 
-                @if(auth()->user()->role->name != 'seamstress')
+                @if(!auth()->user()->isSeamstress())
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
@@ -62,6 +62,23 @@
                         </div>
                     </a>
                 </div>
+
+                @if(!auth()->user()->isCutter() && !auth()->user()->isSeamstress())
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <a href="{{ route('warehouse_of_item.to_pick_list') }}"
+                           class="link-black">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-primary"><i
+                                        class="fas fa-box-open"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Товары к подбору со склада</span>
+                                    <span
+                                        class="info-box-number">{{ $pickupOrders }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                @endif
 
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">

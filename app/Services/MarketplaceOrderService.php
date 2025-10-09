@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\StoreMarketplaceOrderRequest;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -75,5 +76,11 @@ class MarketplaceOrderService
             '2' => 'WB',
             default => '---',
         };
+    }
+
+    public static function pickupOrders(): Builder
+    {
+        return MarketplaceOrder::query()
+            ->where('status', 13);
     }
 }

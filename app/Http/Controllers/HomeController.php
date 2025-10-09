@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
+use App\Services\MarketplaceOrderService;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\ScheduleService;
 use App\Services\TransactionService;
@@ -47,6 +48,7 @@ class HomeController extends Controller
             'seamstressesCurrentSalary' => TransactionService::getSeamstressBalance('salary'),
             'seamstressesCurrentBonus' => TransactionService::getSeamstressBalance('bonus'),
             'seamstressesCurrentHoldBonus' => TransactionService::getSeamstressBalance('bonus', true),
+            'pickupOrders' => MarketplaceOrderService::pickupOrders()->count(),
         ]);
     }
 }
