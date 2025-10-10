@@ -126,7 +126,7 @@ class WarehouseOfItemController extends Controller
         $orderId = $marketplaceOrder->order_id;
         $sku = $marketplaceOrderItem->item->sku()->first()->sku;
 
-        $result = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
+        $result = match ($marketplaceOrder->marketplace_id) {
             1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
             2 => MarketplaceApiService::collectOrderWb($orderId),
             default => false,
