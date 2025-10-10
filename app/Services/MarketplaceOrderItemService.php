@@ -629,17 +629,35 @@ class MarketplaceOrderItemService
 
     public static function restoreOrderFromHistory(MarketplaceOrderItem $selectedItem): void
     {
-        $marketplaceOrder = $selectedItem->history()
-            ->orderByDesc('created_at')
-            ->first();
+        try {
+            DB::beginTransaction();
 
-        MarketplaceOrderHistory::query()
-            ->where('marketplace_order_id', $marketplaceOrder->id)
-            ->where('marketplace_order_item_id', $selectedItem->id)
-            ->delete();
+            $marketplaceOrderHistory = $selectedItem->history()
+                ->orderByDesc('created_at')
+                ->first();
 
-        $selectedItem->marketplace_order_id = $marketplaceOrder->id;
-        $selectedItem->status = 11; // на хранении
-        $selectedItem->save();
+            if (!$marketplaceOrderHistory) {
+                Log::channel('erp')
+                    ->error('В Истории нет заказа ' . $selectedItem->marketplace_order_id . ' по товару ' . $selectedItem->id);
+                DB::rollBack();
+                return;
+            }
+
+            $selectedItem->marketplace_order_id = $marketplaceOrderHistory->marketplace_order_id;
+            $selectedItem->status = 11; // на хранении
+            $selectedItem->save();
+
+            $marketplaceOrderHistory->delete();
+
+            DB::commit(); // фиксируем изменения
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::channel('erp')->error('Ошибка при восстановлении заказа из истории: ' . $e->getMessage(), [
+                'marketplace_order_item_id' => $selectedItem->id,
+                'marketplace_order_id' => $selectedItem->marketplace_order_id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
     }
 }
