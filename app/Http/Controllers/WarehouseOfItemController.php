@@ -126,18 +126,18 @@ class WarehouseOfItemController extends Controller
         $orderId = $marketplaceOrder->order_id;
         $sku = $marketplaceOrderItem->item->sku()->first()->sku;
 
-//        $result = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
-//            1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
-//            2 => MarketplaceApiService::collectOrderWb($orderId),
-//            default => false,
-//        };
-//
-//        if (!$result) {
-//            Log::channel('marketplace_api')
-//                ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
-//            return redirect()->back()
-//                ->with('error', 'Не удалось передать заказ на стикеровку');
-//        }
+        $result = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
+            1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
+            2 => MarketplaceApiService::collectOrderWb($orderId),
+            default => false,
+        };
+
+        if (!$result) {
+            Log::channel('marketplace_api')
+                ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+            return redirect()->back()
+                ->with('error', 'Не удалось передать заказ на стикеровку');
+        }
 
         $text = 'Кладовщик ' . auth()->user()->name .
             ' передал товар #' . $marketplaceOrderItem->id .
