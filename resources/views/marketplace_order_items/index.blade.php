@@ -401,7 +401,7 @@
                                 <br>
                                 @isset($item->cutter_id)
                                     <small>Кроил:
-                                        <b>{{ $item->cutter->shortName }}</b>
+                                        <b>{{ $item->cutter->shortName ?? '' }}</b>
                                     </small>
                                 @endisset
                                 <div class="my-2">
