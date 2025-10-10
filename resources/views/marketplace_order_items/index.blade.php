@@ -398,8 +398,13 @@
                                 <b>{{ $item->marketplaceOrder->order_id }} </b>
                                 <b> {{ $item->marketplaceOrder->fulfillment_type }}</b><br>
                                 <span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
-
-                                <div class="my-3">
+                                <br>
+                                @isset($item->cutter_id)
+                                    <small>Кроил:
+                                        <b>{{ $item->cutter->shortName }}</b>
+                                    </small>
+                                @endisset
+                                <div class="my-2">
                                     Товар: <span style="font-size: 25px;"> <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b></span><br>
                                     Ширина: <b><span style="font-size: 25px;"> {{ $item->item->width }} </span> </b> см.<br>
                                     Высота: <b><span style="font-size: 25px;"> {{ $item->item->height }} </span> </b> см.<br>

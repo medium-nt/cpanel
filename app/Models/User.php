@@ -133,4 +133,19 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Material::class);
     }
+
+    public function getShortNameAttribute(): string
+    {
+        $parts = explode(' ', $this->name);
+
+        if (count($parts) < 2) {
+            return $this->name;
+        }
+
+        $lastName = $parts[0];
+        $firstInitial = mb_substr($parts[1], 0, 1);
+        $middleInitial = isset($parts[2]) ? mb_substr($parts[2], 0, 1) : '';
+
+        return $lastName . ' ' . $firstInitial . '.' . ($middleInitial ? $middleInitial . '.' : '');
+    }
 }
