@@ -122,7 +122,7 @@ class WarehouseOfItemService
             ->with('item')
             //  TO_DO: вернуть фильтр по статусу
 //                  ->whereIn('marketplace_order_items.status', [10])
-            ->whereIn('marketplace_order_items.status', [3])
+            ->whereIn('marketplace_order_items.status', [3, 11])
             ->where(function ($query) use ($barcode) {
                 $query->where('marketplace_orders.order_id', $barcode)
                     ->orWhere('marketplace_order_items.storage_barcode', $barcode)
@@ -153,6 +153,16 @@ class WarehouseOfItemService
         }
 
         $item = $items->first();
+
+        if ($item->status == 11) {
+            return [
+                'message' => 'Товар уже находится на складе',
+                'marketplace_item' => null,
+                'marketplace_items' => collect(),
+                'returnReason' => '',
+            ];
+        }
+
         $returnReason = MarketplaceApiService::getReturnReason($item);
 
         return [
