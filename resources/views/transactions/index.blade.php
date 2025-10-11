@@ -158,7 +158,10 @@
                                     <td>{{ $transaction->amount }} <i class="fas fa-ruble-sign"></i></td>
                                     <td></td>
                                 @endif
-                                <td>{{ $transaction->title }} @if($transaction->user_id) ({{ $transaction->user->name }}) @endif</td>
+                                <td>{{ $transaction->title }} @if($transaction->user_id)
+                                        ({{ $transaction->user->name ?? '---' }}
+                                        )
+                                    @endif</td>
                                 <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>{{
                                     $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('d/m/Y H:i') : '-'
