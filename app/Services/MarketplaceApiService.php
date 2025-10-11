@@ -856,6 +856,31 @@ class MarketplaceApiService
                         $order->fulfillment_type = 'FBO';
                         $order->save();
                         break;
+                    case 11:
+                        if ($order->status != 13) {
+                            break;
+                        }
+
+                        MarketplaceOrderItemService::restoreOrderFromHistory($order->items->first());
+
+                        $hasItems = MarketplaceOrderItem::query()
+                            ->where('marketplace_order_id', $order->id)
+                            ->exists();
+
+                        if ($hasItems) {
+                            Log::channel('marketplace_api')
+                                ->error('Внимание! Заказа №' . $order->order_id . ' НЕ удален. Найдены товары для этого заказа.');
+                            break;
+                        }
+
+                        $resultArray[] = [
+                            'order_id' => $order->order_id,
+                            'status' => 'удален',
+                        ];
+
+                        $order->delete();
+                        Log::channel('marketplace_api')->info('Заказа №' . $order->order_id . ' удален.');
+                        break;
                 }
             }
         }

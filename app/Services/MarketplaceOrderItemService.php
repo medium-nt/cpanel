@@ -643,6 +643,10 @@ class MarketplaceOrderItemService
                 return;
             }
 
+            Log::channel('erp')
+                ->info('Для товара id' . $selectedItem->id . 'Восстановлен заказ #' . $marketplaceOrderHistory->marketplace_order_id .
+                    ' вместо текущего заказа #' . $selectedItem->marketplace_order_id);
+
             $selectedItem->marketplace_order_id = $marketplaceOrderHistory->marketplace_order_id;
             $selectedItem->status = 11; // на хранении
             $selectedItem->save();
