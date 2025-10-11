@@ -457,6 +457,21 @@ class TransactionService
         $nowMotivationBonus = $resultDetails['nowMotivationBonus'];
         $salary = $resultDetails['salary'];
 
+        switch ($user->role->name) {
+            case 'seamstress':
+                $accrualForDate = $marketplaceOrderItems->completed_at;
+                $roleName = 'Швея';
+                break;
+            case 'cutter':
+                $accrualForDate = $marketplaceOrderItems->cutting_completed_at;
+                $roleName = 'Закройщик';
+                break;
+            default:
+                $accrualForDate = null;
+                $roleName = 'НЕТ РОЛИ';
+                break;
+        }
+
         $bonus = 0;
         if ($nowMotivationBonus > 0) {
             $bonus = $width * $nowMotivationBonus;
@@ -467,7 +482,7 @@ class TransactionService
                     $bonus,
                     'out',
                     "Бонус за заказ #$orderId",
-                    $marketplaceOrderItems->completed_at,
+                    $accrualForDate,
                     'bonus',
                     true,
                 );
@@ -480,16 +495,10 @@ class TransactionService
                 $salary,
                 'out',
                 "ЗП за заказ #$orderId",
-                $marketplaceOrderItems->completed_at,
+                $accrualForDate,
                 'salary',
                 false,
             );
-
-            $roleName = match ($user->role->name) {
-                'seamstress' => 'Швея',
-                'cutter' => 'Закройщик',
-                default => 'НЕТ РОЛИ',
-            };
 
             Log::channel('salary')
                 ->info("$roleName: $user->name. Начисляем З/П $salary руб. и бонус $bonus баллов за заказ #$orderId, ширина: $width м.");
