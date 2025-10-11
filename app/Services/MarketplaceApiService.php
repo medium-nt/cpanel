@@ -857,6 +857,9 @@ class MarketplaceApiService
                         $order->save();
                         break;
                     case 11:
+                        Log::channel('marketplace_api')
+                            ->info('Клиент отменил заказ №' . $order->order_id . ' Пробуем его удалить из системы...');
+
                         if ($order->status != 13) {
                             break;
                         }
