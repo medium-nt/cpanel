@@ -644,7 +644,7 @@ class MarketplaceOrderItemService
             }
 
             Log::channel('erp')
-                ->info('Для товара id' . $selectedItem->id . 'Восстановлен заказ #' . $marketplaceOrderHistory->marketplace_order_id .
+                ->info('Для товара id ' . $selectedItem->id . 'Восстановлен заказ #' . $marketplaceOrderHistory->marketplace_order_id .
                     ' вместо текущего заказа #' . $selectedItem->marketplace_order_id);
 
             $selectedItem->marketplace_order_id = $marketplaceOrderHistory->marketplace_order_id;

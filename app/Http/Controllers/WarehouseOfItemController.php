@@ -201,7 +201,7 @@ class WarehouseOfItemController extends Controller
 
         MarketplaceOrderItemService::createItem($sku, $marketplaceOrder);
 
-        return redirect()->route('warehouse_of_item.to_pick')
+        return redirect()->route('warehouse_of_item.to_pick_list')
             ->with('success', 'Заказ передан в цех на пошив');
     }
 }
