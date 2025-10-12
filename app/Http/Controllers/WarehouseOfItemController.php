@@ -188,6 +188,11 @@ class WarehouseOfItemController extends Controller
 
     public function toWork(MarketplaceOrder $marketplaceOrder)
     {
+        if ($marketplaceOrder->status !== 13) {
+            return redirect()->back()
+                ->with('error', 'Заказ не находится в сборке!');
+        }
+
         $marketplaceOrderItem = $marketplaceOrder->items->first();
         MarketplaceOrderItemService::restoreOrderFromHistory($marketplaceOrderItem);
 
