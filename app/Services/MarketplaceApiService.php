@@ -247,22 +247,34 @@ class MarketplaceApiService
         $cancelledProductsWbInWorkStatus = self::getCancelledProductsWB('in_work');
         $resultWb2 = self::changeToFBOCancelledProductsWb($cancelledProductsWbInWorkStatus);
 
+        $cancelledProductsWbAssemblyStatus = self::getCancelledProductsWB('in_assembly');
+        $resultWb3 = self::deleteAssemblyCancelledProductsWb($cancelledProductsWbAssemblyStatus);
+
         $cancelledProductsOzon = self::getCancelledProductsOZON();
         $resultOzon = self::checkCancelledProductsOzon($cancelledProductsOzon);
 
         Log::channel('marketplace_api')->notice('    Загрузка отмененных заказов завершена.');
 
-        return array_merge($resultWb1, $resultWb2, $resultOzon);
+        return array_merge($resultWb1, $resultWb2, $resultWb3, $resultOzon);
     }
 
     private static function getCancelledProductsWB($status): array
     {
-        if ($status == 'new') {
-            $orders = self::getNewStatusOrdersWb();
-            $statusName = '"новый"';
-        } else {
-            $orders = self::getInWorkStatusOrdersWb();
-            $statusName = '"в работе", "на стикеровке", "в закрое" или "откроено"';
+        switch ($status) {
+            case 'new':
+                $orders = self::getNewStatusOrdersWb();
+                $statusName = '"новый"';
+                break;
+            case 'in_work':
+                $orders = self::getInWorkStatusOrdersWb();
+                $statusName = '"в работе", "на стикеровке", "в закрое" или "откроено"';
+                break;
+            case 'in_assembly':
+                $orders = self::getInAssemblyStatusOrdersWb();
+                $statusName = '"в сборке"';
+                break;
+            default:
+                return [];
         }
 
         Log::channel('marketplace_api')
@@ -324,6 +336,18 @@ class MarketplaceApiService
             ->whereIn('marketplace_order_items.status', [4, 5, 7, 8])
             ->pluck('marketplace_orders.order_id')
             ->map(fn($id) => (int) $id)
+            ->toArray();
+    }
+
+    private static function getInAssemblyStatusOrdersWb(): array
+    {
+        return MarketplaceOrderItem::query()
+            ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->where('marketplace_orders.marketplace_id', 2)
+            ->where('marketplace_orders.fulfillment_type', 'FBS')
+            ->where('marketplace_order_items.status', 13)
+            ->pluck('marketplace_orders.order_id')
+            ->map(fn($id) => (int)$id)
             ->toArray();
     }
 
@@ -856,7 +880,7 @@ class MarketplaceApiService
                         $order->fulfillment_type = 'FBO';
                         $order->save();
                         break;
-                    case 11:
+                    case 13:
                         Log::channel('marketplace_api')
                             ->info('Клиент отменил заказ №' . $order->order_id . ' Пробуем его удалить из системы...');
 
@@ -933,6 +957,42 @@ class MarketplaceApiService
             self::deleteAllOrderItemsMovementsAndOrdersMovements($order->id);
 
             $order->delete();
+        }
+
+        return $resultArray;
+    }
+
+    private static function deleteAssemblyCancelledProductsWb(array $cancelledProductsWbNewStatus): array
+    {
+        $resultArray = [];
+
+        foreach ($cancelledProductsWbNewStatus as $product) {
+            Log::channel('marketplace_api')
+                ->info('Клиент отменил заказ №' . $product->id . ' Пробуем его удалить из системы...');
+
+            $order = MarketplaceOrder::query()
+                ->where('order_id', $product->id)
+                ->first();
+
+            MarketplaceOrderItemService::restoreOrderFromHistory($order->items->first());
+
+            $hasItems = MarketplaceOrderItem::query()
+                ->where('marketplace_order_id', $order->id)
+                ->exists();
+
+            if ($hasItems) {
+                Log::channel('marketplace_api')
+                    ->error('Внимание! Заказа №' . $order->order_id . ' НЕ удален. Найдены товары для этого заказа.');
+                continue;
+            }
+
+            $resultArray[] = [
+                'order_id' => $order->order_id,
+                'status' => 'удален',
+            ];
+
+            $order->delete();
+            Log::channel('marketplace_api')->info('Заказа №' . $order->order_id . ' удален.');
         }
 
         return $resultArray;
