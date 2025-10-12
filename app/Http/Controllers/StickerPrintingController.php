@@ -53,7 +53,7 @@ class StickerPrintingController extends Controller
             'title' => 'Печать стикеров',
             'userId' => $request->user_id ?? 0,
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
-            'seamstresses' => User::query()->where('role_id', '1')
+            'seamstresses' => User::query()->whereIn('role_id', [1, 4])
                 ->where('name', 'not like', '%Тест%')->get(),
             'dates' => json_encode($dates),
             'seamstressesJson' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
