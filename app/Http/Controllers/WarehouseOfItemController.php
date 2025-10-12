@@ -89,6 +89,7 @@ class WarehouseOfItemController extends Controller
             'title' => 'Товары для подбора со склада',
             'orders' => MarketplaceOrderService::pickupOrders()
                 ->paginate(20),
+            'ordersAssembled' => MarketplaceOrderService::assembledOrders(),
         ]);
     }
 

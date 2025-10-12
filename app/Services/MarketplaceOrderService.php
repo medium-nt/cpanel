@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMarketplaceOrderRequest;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -82,5 +83,15 @@ class MarketplaceOrderService
     {
         return MarketplaceOrder::query()
             ->where('status', 13);
+    }
+
+    public static function assembledOrders(): Collection
+    {
+        return MarketplaceOrder::query()
+            ->where('status', 5)
+            ->whereHas('items', function ($query) {
+                $query->where('status', 13);
+            })
+            ->get();
     }
 }
