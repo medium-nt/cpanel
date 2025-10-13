@@ -855,6 +855,15 @@ class MarketplaceApiService
             if ($order) {
                 $item = $order->items->first();
 
+                if (!$item) {
+                    Log::channel('marketplace_api')
+                        ->error('Внимание! Заказ №' . $order->order_id . ' НЕ отменен. Не найдены товары для этого заказа.');
+                    continue;
+                }
+
+                Log::channel('marketplace_api')
+                    ->info('Для заказа №' . $order->order_id . ' проверяем статус его товара № ' . $item->id);
+
                 switch ($item->status) {
                     case 0:
                         Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' удален.');
