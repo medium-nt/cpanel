@@ -189,7 +189,7 @@ class WarehouseOfItemController extends Controller
 
     public function toWork(MarketplaceOrder $marketplaceOrder)
     {
-        if ($marketplaceOrder->status !== 13) {
+        if ($marketplaceOrder->status != 13) {
             return redirect()->back()
                 ->with('error', 'Заказ не находится в сборке!');
         }
