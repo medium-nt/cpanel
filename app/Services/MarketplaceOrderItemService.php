@@ -613,6 +613,9 @@ class MarketplaceOrderItemService
         $marketplaceOrderItem->marketplace_order_id = $marketplaceOrder->id;
         $marketplaceOrderItem->status = 13; // в сборке
         $marketplaceOrderItem->save();
+
+        Log::channel('erp')
+            ->info('Зарезервировали заказ ' . $marketplaceOrder->id . ' с товаром ' . $marketplaceOrderItem->id);
     }
 
     public static function saveOrderToHistory(MarketplaceOrderItem $marketplaceOrderItem): void
@@ -622,6 +625,10 @@ class MarketplaceOrderItemService
             'marketplace_order_item_id' => $marketplaceOrderItem->id,
             'status' => 'returned',
         ]);
+
+        Log::channel('erp')
+            ->info('Заказ ' . $marketplaceOrderItem->marketplace_order_id . ' сохранен в историю с товаром '
+                . $marketplaceOrderItem->id . ' (значит этот заказ отмененный, раз товар на хранении)');
 
         $marketplaceOrderItem->marketplaceOrder->status = 9; // возврат
         $marketplaceOrderItem->marketplaceOrder->save();
