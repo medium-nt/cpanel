@@ -150,7 +150,8 @@ class WarehouseOfItemController extends Controller
 
         if ($marketplaceOrderItem->id !== $selectedMarketplaceOrderItem->id) {
             Log::channel('erp')
-                ->info('Передан товар ' . $marketplaceOrderItem->id . ' вместо ранее выбранного ' . $selectedMarketplaceOrderItem->id);
+                ->info('Для заказа ' . $orderId . ' передан товар ' . $marketplaceOrderItem->id .
+                    ' вместо ранее выбранного ' . $selectedMarketplaceOrderItem->id);
 
             MarketplaceOrderItemService::restoreOrderFromHistory($selectedMarketplaceOrderItem);
             MarketplaceOrderItemService::saveOrderToHistory($marketplaceOrderItem);
