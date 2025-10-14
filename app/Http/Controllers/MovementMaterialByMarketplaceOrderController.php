@@ -14,7 +14,7 @@ class MovementMaterialByMarketplaceOrderController extends Controller
             'orders' => Order::query()
                 ->where('type_movement', 3)
                 ->latest()
-                ->paginate(10)
+                ->paginate(100)
         ]);
     }
 }
