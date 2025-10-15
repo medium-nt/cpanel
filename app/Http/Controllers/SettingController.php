@@ -86,6 +86,7 @@ class SettingController extends Controller
                 ->whereNotNull('marketplace_order_id')
                 ->where('type_movement', 3)
                 ->where('id', '>', 3500)
+                ->where('id', '<', 10940)
                 ->whereIn('marketplace_order_id', function ($subQuery) {
                     return $subQuery->select('marketplace_order_id')
                         ->from('orders')
