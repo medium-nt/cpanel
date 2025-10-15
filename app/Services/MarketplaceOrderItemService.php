@@ -107,7 +107,6 @@ class MarketplaceOrderItemService
             DB::beginTransaction();
 
             $logMessage = '';
-            $isNeedDeleteMaterials = false;
 
             //  если на раскрое
             if ($marketplaceOrderItem->status == 7) {
@@ -121,8 +120,17 @@ class MarketplaceOrderItemService
                 $marketplaceOrderItem->status = 0;
                 $marketplaceOrderItem->cutter_id = null;
                 $marketplaceOrderItem->completed_at = null;
+                $marketplaceOrderItem->save();
 
-                $isNeedDeleteMaterials = true;
+                $order = Order::query()
+                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+                    ->first();
+
+                MovementMaterial::query()
+                    ->where('order_id', $order->id)
+                    ->delete();
+
+                $order->delete();
             }
 
             //  если на пошиве, стикеровке или уже выполнен
@@ -137,24 +145,16 @@ class MarketplaceOrderItemService
                 $marketplaceOrderItem->status = ($marketplaceOrderItem->cutter_id) ? 8 : 0;
                 $marketplaceOrderItem->seamstress_id = 0;
                 $marketplaceOrderItem->completed_at = null;
+                $marketplaceOrderItem->save();
 
-                $isNeedDeleteMaterials = !$marketplaceOrderItem->cutter_id;
-
-//                if ($marketplaceOrderItem->status == 3) {
-//                    Transaction::query()
-//                        ->where('marketplace_order_item_id', $marketplaceOrderItem->id)
-//                        ->where('user_id', $marketplaceOrderItem->seamstress->id)
-//                        ->where('status', '!=', 2)
-//                        ->delete();
-//                }
-            }
-
-            $marketplaceOrderItem->save();
-
-            if($isNeedDeleteMaterials){
                 $order = Order::query()
-                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
-                    ->first();
+                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id);
+
+                if ($marketplaceOrderItem->cutter_id) {
+                    $order = $order->whereNull('cutter_id');
+                }
+
+                $order = $order->first();
 
                 MovementMaterial::query()
                     ->where('order_id', $order->id)
@@ -443,11 +443,33 @@ class MarketplaceOrderItemService
             ]);
 
             foreach ($materialConsumptions as $item) {
-                $movementData['material_id'] = $item->material_id;
-                $movementData['quantity'] = $item->quantity * $quantityOrderItem;
-                $movementData['order_id'] = $order->id;
+                $movementMaterial = new MovementMaterial();
 
-                MovementMaterial::query()->create($movementData);
+                switch (auth()->user()->role->name) {
+                    case 'cutter':
+                        if ($item->material->type_id == 1) {
+                            $movementMaterial->material_id = $item->material_id;
+                            $movementMaterial->quantity = $item->quantity * $quantityOrderItem;
+                            $movementMaterial->order_id = $order->id;
+                            $movementMaterial->save();
+                        }
+                        break;
+                    case 'seamstress':
+                        if ($marketplaceOrderItem->cutter_id) {
+                            if ($item->material->type_id != 1) {
+                                $movementMaterial->material_id = $item->material_id;
+                                $movementMaterial->quantity = $item->quantity * $quantityOrderItem;
+                                $movementMaterial->order_id = $order->id;
+                                $movementMaterial->save();
+                            }
+                        } else {
+                            $movementMaterial->material_id = $item->material_id;
+                            $movementMaterial->quantity = $item->quantity * $quantityOrderItem;
+                            $movementMaterial->order_id = $order->id;
+                            $movementMaterial->save();
+                        }
+                        break;
+                }
             }
 
             DB::commit();
