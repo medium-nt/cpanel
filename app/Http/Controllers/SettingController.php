@@ -97,6 +97,28 @@ class SettingController extends Controller
         foreach ($groupedOrders as $marketplaceId => $orders) {
             $count = count($orders);
 
+            // Проверяем только случаи с двумя записями
+            if ($count == 2) {
+                // Получаем первую и вторую запись
+                $first = $orders[0];
+                $second = $orders[1];
+
+                // Проверяем условия для пропуска:
+                // 1. У одной есть seamstress_id и нет cutter_id
+                // 2. У другой есть cutter_id и нет seamstress_id
+                if (
+                    // Первая запись: seamstress есть, cutter отсутствует
+                    ($first->seamstress_id && is_null($first->cutter_id) &&
+                        $second->cutter_id && is_null($second->seamstress_id)) ||
+
+                    // Или наоборот: вторая запись seamstress, первая cutter
+                    ($first->cutter_id && is_null($first->seamstress_id) &&
+                        $second->seamstress_id && is_null($second->cutter_id))
+                ) {
+                    continue;
+                }
+            }
+
             echo <<<HTML
                 <!-- Подключите Bootstrap CSS в head вашего документа -->
                 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
