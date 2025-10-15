@@ -168,7 +168,8 @@
 
                 @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
                 <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
-                   class="btn btn-primary mb-3">Получить новый заказ</a>
+                   class="btn btn-primary mb-3 getNewOrderItem">Получить новый
+                    заказ</a>
                 @endif
 
                 <div class="table-responsive">
@@ -378,7 +379,8 @@
                     <div class="card-body text-center">
                         @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
                             <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
-                               class="btn btn-primary">Получить новый заказ</a>
+                               class="btn btn-primary getNewOrderItem">Получить
+                                новый заказ</a>
                         @endif
                     </div>
                 </div>
@@ -543,4 +545,27 @@
 
 @push('js')
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
+
+    <script>
+        $('.getNewOrderItem').on('click', function () {
+            var button = $(this);
+            button.hide();
+            button.after('<span class="saving"><i class="fas fa-spinner fa-2x fa-pulse mr-1"></i>Выбираем заказ...</span>');
+
+            setTimeout(function () {
+                button.next('.saving').remove();
+                button.after('<span class="saving"><i class="fas fa-spinner fa-2x fa-pulse mr-1"></i>Получаем список заказов...</span>');
+            }, 3000);
+
+            setTimeout(function () {
+                button.next('.saving').remove();
+                button.after('<span class="saving"><i class="fas fa-spinner fa-2x fa-pulse mr-1"></i>Выбираем подходящий...</span>');
+            }, 6000);
+
+            setTimeout(function () {
+                button.next('.saving').remove();
+                button.after('<span class="saving"><i class="fas fa-spinner fa-2x fa-pulse mr-1"></i>Еще немного...</span>');
+            }, 10000);
+        });
+    </script>
 @endpush
