@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveSettingRequest;
+use App\Models\Order;
 use App\Models\Setting;
 use App\Services\TgService;
 use App\Services\TransactionService;
-use GuzzleHttp\Client;
-use Telegram\Bot\Laravel\Facades\Telegram;
+use Illuminate\Support\Facades\DB;
 
 class SettingController extends Controller
 {
@@ -71,5 +71,23 @@ class SettingController extends Controller
             dd('Is test server');
         }
         dd('Is no development server');
+    }
+
+    public function duplicates()
+    {
+        $duplicates = Order::query()
+            ->select('marketplace_order_id', DB::raw('COUNT(*) as count'))
+            ->groupBy('marketplace_order_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+
+        foreach ($duplicates as $duplicate) {
+            echo $duplicate->marketplace_order_id;
+            echo ' - ';
+            echo $duplicate->count . ' шт.';
+            echo '<br>';
+        }
+
+        dd($duplicates);
     }
 }
