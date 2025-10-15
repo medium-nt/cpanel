@@ -75,19 +75,77 @@ class SettingController extends Controller
 
     public function duplicates()
     {
-        $duplicates = Order::query()
-            ->select('marketplace_order_id', DB::raw('COUNT(*) as count'))
-            ->groupBy('marketplace_order_id')
-            ->havingRaw('COUNT(*) > 1')
-            ->get();
+        $fullOrders = Order::whereIn('id', function ($query) {
+            return $query->select(DB::raw('id'))
+                ->from('orders')
+                ->whereNotNull('marketplace_order_id')
+                ->where('type_movement', 3)
+                ->whereIn('marketplace_order_id', function ($subQuery) {
+                    return $subQuery->select('marketplace_order_id')
+                        ->from('orders')
+                        ->groupBy('marketplace_order_id')
+                        ->havingRaw('COUNT(*) > 1');
+                });
+        })->get();
 
-        foreach ($duplicates as $duplicate) {
-            echo $duplicate->marketplace_order_id;
-            echo ' - ';
-            echo $duplicate->count . ' шт.';
-            echo '<br>';
+        // Группируем заказы по marketplace_order_id
+        $groupedOrders = $fullOrders->groupBy('marketplace_order_id');
+
+        echo "<h2>Всего заказов: " . $groupedOrders->count() . "</h2>";
+        echo "<hr>";
+
+        foreach ($groupedOrders as $marketplaceId => $orders) {
+            $count = count($orders);
+
+            echo <<<HTML
+                <!-- Подключите Bootstrap CSS в head вашего документа -->
+                <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+                <style>
+                    .table {
+                        width: 100%;
+                        margin-bottom: 20px;
+                    }
+
+                    .table th {
+                        background-color: #f8f9fa;
+                        font-weight: bold;
+                    }
+
+                    .table tbody tr:nth-child(even) {
+                        background-color: #f8f9fa;
+                    }
+                </style>
+
+                <h3>Заказ: {$marketplaceId} (повторений: {$count})</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID заказа</th>
+                            <th>Швея</th>
+                            <th>Раскройщик</th>
+                            <th>Комментарии</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            HTML;
+
+            foreach ($orders as $order) {
+                echo <<<HTML
+                    <tr>
+                        <td>{$order->id}</td>
+                        <td>{$order->seamstress_id}</td>
+                        <td>{$order->cutter_id}</td>
+                        <td>{$order->comment}</td>
+                        <td>{$order->created_at->format('d.m.Y H:i:s')}</td>
+                    </tr>
+                HTML;
+            }
+
+            echo '</tbody></table><hr>';
         }
 
-        dd($duplicates);
+        die;
     }
 }
