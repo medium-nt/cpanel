@@ -161,6 +161,16 @@ class SettingController extends Controller
             HTML;
 
             foreach ($orders as $order) {
+                if ($order->cutter_id) {
+                    echo '<span style="color:red;">Удаляем заказ: ' . $order->id . '</span><br>';
+
+//                    MovementMaterial::query()
+//                        ->where('order_id', $order->id)
+//                        ->delete();
+//
+//                    $order->delete();
+                }
+
                 echo <<<HTML
                     <tr>
                         <td>{$order->id}</td>
