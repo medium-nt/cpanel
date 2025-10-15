@@ -70,7 +70,8 @@ class MovementMaterialToWorkshopController extends Controller
         }
 
         return redirect()
-            ->route('movements_to_workshop.index')
+//            ->route('movements_to_workshop.index')
+            ->route('inventory.workshop')
             ->with('success', 'Материал списан');
     }
 

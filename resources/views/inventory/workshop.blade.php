@@ -32,7 +32,7 @@
                                 <td>{{ $item['material']->title }}</td>
                                 <td>
                                     <span style="width: 100px; display: inline-block;">
-                                        {{ $item['quantity'] }}
+                                        {{ $item['quantity'] }} {{ $item['material']->unit }}
                                     </span>
                                 </td>
 
