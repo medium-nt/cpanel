@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Services\TgService;
 use App\Services\TransactionService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SettingController extends Controller
 {
@@ -35,6 +36,10 @@ class SettingController extends Controller
             }
             Setting::query()->where('name', $name)->update(['value' => $value]);
         }
+
+        Log::channel('erp')->info('Настройки сохранены', [
+            'data' => print_r($data, true)
+        ]);
 
         return redirect()->route('setting.index')->with('success', 'Изменения сохранены');
     }
