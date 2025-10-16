@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderHistory;
 use App\Models\MarketplaceOrderItem;
@@ -477,6 +478,8 @@ class MarketplaceOrderItemService
         } catch (Throwable $e) {
             DB::rollBack();
 
+            self::restoreReserve($marketplaceOrderItem);
+
             return [
                 'success' => false,
                 'message' => 'Внутренняя ошибка'
@@ -517,20 +520,28 @@ class MarketplaceOrderItemService
                 continue;
             }
 
+            if (self::isReserved($marketplaceOrderItem)) {
+                continue;
+            } else {
+                self::reserve($marketplaceOrderItem);
+            }
+
             $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrderItem->marketplaceOrder->marketplace_id);
 
             $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
                 ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
                 ') взял в работу сотрудник: ' . auth()->user()->name;
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
+            SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
 
-            TgService::sendMessage(
-                auth()->user()->tg_id,
-                'Вы взяли в работу заказ # '
-                . $marketplaceOrderItem->marketplaceOrder->order_id . ' ('. $marketplaceName .'): '
-                . $item->title . ' '. $item->width . 'x' . $item->height
-            );
+            if (auth()->user()->tg_id) {
+                SendTelegramMessageJob::dispatch(
+                    auth()->user()->tg_id,
+                    'Вы взяли в работу заказ # '
+                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' (' . $marketplaceName . '): '
+                    . $item->title . ' ' . $item->width . 'x' . $item->height
+                );
+            }
 
             Log::channel('erp')->info($text);
 
@@ -692,5 +703,34 @@ class MarketplaceOrderItemService
                 'trace' => $e->getTraceAsString(),
             ]);
         }
+    }
+
+    private static function isReserved($marketplaceOrderItem): bool
+    {
+        if ($marketplaceOrderItem->status == 99) {
+            Log::channel('erp')
+                ->warning('Конкурентный доступ! Заказ ' . $marketplaceOrderItem->id . ' находится в резерве');
+            return true;
+        }
+
+        return false;
+    }
+
+    private static function reserve($marketplaceOrderItem): void
+    {
+        $marketplaceOrderItem->status = 99;
+        $marketplaceOrderItem->save();
+
+        Log::channel('erp')
+            ->warning('Зарезервирован товар ' . $marketplaceOrderItem->id);
+    }
+
+    private static function restoreReserve($marketplaceOrderItem): void
+    {
+        $marketplaceOrderItem->status = ($marketplaceOrderItem->cutter_id) ? 8 : 0;
+        $marketplaceOrderItem->save();
+
+        Log::channel('erp')
+            ->warning('Восстановлен резервированный товара ' . $marketplaceOrderItem->id);
     }
 }
