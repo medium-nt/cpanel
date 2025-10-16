@@ -166,11 +166,11 @@ class SettingController extends Controller
                 if ($order->cutter_id) {
                     echo '<span style="color:red;">Удаляем расход материала: ' . $order->id . '</span><br>';
 
-                    MovementMaterial::query()
-                        ->where('order_id', $order->id)
-                        ->delete();
-
-                    $order->delete();
+//                    MovementMaterial::query()
+//                        ->where('order_id', $order->id)
+//                        ->delete();
+//
+//                    $order->delete();
 
                     $countDeleted++;
                 }
