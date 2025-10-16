@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveSettingRequest;
+use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Services\TgService;
@@ -78,7 +79,7 @@ class SettingController extends Controller
         dd('Is no development server');
     }
 
-    public function duplicates()
+    public static function duplicates()
     {
         $fullOrders = Order::whereIn('id', function ($query) {
             return $query->select(DB::raw('id'))
@@ -160,15 +161,18 @@ class SettingController extends Controller
                     <tbody>
             HTML;
 
+            $countDeleted = 0;
             foreach ($orders as $order) {
                 if ($order->cutter_id) {
-                    echo '<span style="color:red;">Удаляем заказ: ' . $order->id . '</span><br>';
+                    echo '<span style="color:red;">Удаляем расход материала: ' . $order->id . '</span><br>';
 
-//                    MovementMaterial::query()
-//                        ->where('order_id', $order->id)
-//                        ->delete();
-//
-//                    $order->delete();
+                    MovementMaterial::query()
+                        ->where('order_id', $order->id)
+                        ->delete();
+
+                    $order->delete();
+
+                    $countDeleted++;
                 }
 
                 echo <<<HTML
@@ -183,6 +187,9 @@ class SettingController extends Controller
             }
 
             echo '</tbody></table><hr>';
+
+            echo "<h3>Всего удалено: {$countDeleted}</h3>";
+            echo "<hr>";
         }
 
         die;
