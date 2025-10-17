@@ -86,8 +86,8 @@ class SettingController extends Controller
                 ->from('orders')
                 ->whereNotNull('marketplace_order_id')
                 ->where('type_movement', 3)
-                ->where('id', '>', 3500)
-                ->where('id', '<', 10940)
+//                ->where('id', '>', 3500)
+                ->where('id', '>', 10940)
                 ->whereIn('marketplace_order_id', function ($subQuery) {
                     return $subQuery->select('marketplace_order_id')
                         ->from('orders')
@@ -164,8 +164,8 @@ class SettingController extends Controller
             $countDeleted = 0;
             foreach ($orders as $order) {
                 if ($order->cutter_id) {
-                    echo '<span style="color:red;">Удаляем расход материала: ' . $order->id . '</span><br>';
-
+//                    echo '<span style="color:red;">Удаляем расход материала: ' . $order->id . '</span><br>';
+//
 //                    MovementMaterial::query()
 //                        ->where('order_id', $order->id)
 //                        ->delete();
@@ -188,7 +188,7 @@ class SettingController extends Controller
 
             echo '</tbody></table><hr>';
 
-            echo "<h3>Всего удалено: {$countDeleted}</h3>";
+//            echo "<h3>Всего удалено: {$countDeleted}</h3>";
             echo "<hr>";
         }
 
