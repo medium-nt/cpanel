@@ -175,9 +175,11 @@ class SettingController extends Controller
                     $countDeleted++;
                 }
 
+                $count = $order->movementMaterials->count();
+
                 echo <<<HTML
                     <tr>
-                        <td>{$order->id}</td>
+                        <td>{$order->id} (<b>{{ $count }}</b>)</td>
                         <td>{$order->seamstress_id}</td>
                         <td>{$order->cutter_id}</td>
                         <td>{$order->comment}</td>
