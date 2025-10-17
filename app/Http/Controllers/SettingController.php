@@ -161,9 +161,9 @@ class SettingController extends Controller
                     <tbody>
             HTML;
 
-            $countDeleted = 0;
+//            $countDeleted = 0;
             foreach ($orders as $order) {
-                if ($order->cutter_id) {
+//                if ($order->cutter_id) {
 //                    echo '<span style="color:red;">Удаляем расход материала: ' . $order->id . '</span><br>';
 //
 //                    MovementMaterial::query()
@@ -171,15 +171,15 @@ class SettingController extends Controller
 //                        ->delete();
 //
 //                    $order->delete();
-
-                    $countDeleted++;
-                }
+//
+//                    $countDeleted++;
+//                }
 
                 $count = $order->movementMaterials->count();
 
                 echo <<<HTML
                     <tr>
-                        <td>{$order->id} (<b>{{ $count }}</b>)</td>
+                        <td>{$order->id} (<b> $count </b>)</td>
                         <td>{$order->seamstress_id}</td>
                         <td>{$order->cutter_id}</td>
                         <td>{$order->comment}</td>
