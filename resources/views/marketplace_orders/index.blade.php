@@ -93,6 +93,15 @@
                                             {{ $order->created_at->diffForHumans(['parts' => 2]) }}
                                         </badge>
                                     </div>
+                                    @if(request()->status == 3)
+                                        <td>
+                                            @isset($order->supply_id)
+                                                <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $order->supply_id]) }}">
+                                                    {{ $order->supply->supply_id ?? 'поставка: № ' . $order->supply_id }}
+                                                </a>
+                                            @endisset
+                                        </td>
+                                    @endif
                                 </div>
 
                                 @if(auth()->user()->isAdmin())
@@ -139,6 +148,9 @@
                             <th scope="col">#</th>
                             <th scope="col">Статус</th>
                             <th scope="col">Номер заказа</th>
+                            @if(request()->status == 3)
+                                <th scope="col">Поставка</th>
+                            @endif
                             <th scope="col">Маркетплейс</th>
                             <th scope="col">Тип</th>
                             <th scope="col">Товары</th>
@@ -153,6 +165,15 @@
                                 <td>{{ $order->id }}</td>
                                 <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
                                 <td>{{ $order->order_id }}</td>
+                                @if(request()->status == 3)
+                                    <td>
+                                        @isset($order->supply_id)
+                                            <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $order->supply_id]) }}">
+                                                {{ $order->supply->supply_id ?? 'поставка: № ' . $order->supply_id }}
+                                            </a>
+                                        @endisset
+                                    </td>
+                                @endif
                                 <td>
                                     <img style="width: 80px;"
                                          src="{{ asset($order->marketplace_name) }}"
