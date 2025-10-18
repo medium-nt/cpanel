@@ -802,7 +802,7 @@ class MarketplaceApiService
 
     public static function getBarcodeOzonFBO(MarketplaceOrder $order): \Illuminate\Http\Response
     {
-        $fullName = $order->items[0]->seamstress->name;
+        $fullName = $order->items[0]->seamstress->name ?? '';
 
         $parts = explode(' ', $fullName);
         if (count($parts) >= 1) {

@@ -207,12 +207,17 @@
                                 <td style="text-align: center">
                                     {{ $item->marketplaceOrder->order_id }}
                                     @if($item->status == 3 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
-                                    <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $item->marketplaceOrder->order_id]) }}"
-                                       class="btn btn-outline-secondary btn-sm ml-1"
-                                       style="padding: 0px 5px;"
-                                       target="_blank">
-                                        <i class="fas fa-barcode"></i>
-                                    </a>
+                                        @php
+                                            $routeName = $item->marketplaceOrder->fulfillment_type === 'FBO'
+                                                ? 'marketplace_api.fbo_barcode'
+                                                : 'marketplace_api.barcode';
+                                        @endphp
+                                        <a href="{{ route($routeName, ['marketplaceOrderId' => $item->marketplaceOrder->order_id]) }}"
+                                           class="btn btn-outline-secondary btn-sm ml-1"
+                                           style="padding: 1px 5px;"
+                                           target="_blank">
+                                            <i class="fas fa-barcode"></i>
+                                        </a>
                                     @endif
                                 </td>
                                 <td style="text-align: center">{{ $item->item->title }}</td>
