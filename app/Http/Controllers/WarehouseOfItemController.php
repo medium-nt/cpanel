@@ -48,11 +48,11 @@ class WarehouseOfItemController extends Controller
         ]);
     }
 
-    public function getStorageBarcodeFile(MarketplaceOrderItem $marketplace_item, WarehouseOfItemService $service)
+    public function getStorageBarcodeFile(MarketplaceOrderItem $marketplace_item, WarehouseOfItemService $service, $copiesCount = 2)
     {
         $pdf = PDF::loadView('pdf.storage_barcode_sticker', [
             'barcode' => $service->getStorageBarcode($marketplace_item),
-            'item' => $marketplace_item->item,
+            'items' => collect()->times($copiesCount, fn() => $marketplace_item),
             'seamstressName' => $marketplace_item->marketplaceOrder?->items?->first()?->seamstress?->name ?? '---',
         ]);
 

@@ -18,6 +18,15 @@
             height: 40mm; /* Высота страницы */
         }
 
+        .page {
+            width: 58mm;
+            height: 40mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
         .container {
             padding: 0 5px; /* или укажи в px, например: 20px */
             text-align: center;
@@ -60,17 +69,24 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="barcode">
-        {!! DNS1D::getBarcodeHTML($barcode, 'C128', 1.5, 85) !!}
+@foreach($items as $item)
+    <div class="page">
+        <div class="container">
+            <div class="barcode">
+                {!! DNS1D::getBarcodeHTML($barcode, 'C128', 1.5, 85) !!}
+            </div>
+
+            <div class="code-label">{{ $barcode }}</div>
+            <div class="code-text">Тюль {{ $item->title }}</div>
+            <div class="code-text">ширина {{ $item->width }}</div>
+            <div class="code-text">высота {{ $item->height }}</div>
+        </div>
+
+        <div class="code-text2">{{ $seamstressName }}</div>
     </div>
-
-    <div class="code-label">{{ $barcode }}</div>
-    <div class="code-text">Тюль {{ $item->title }}</div>
-    <div class="code-text">ширина {{ $item->width }}</div>
-    <div class="code-text">высота {{ $item->height }}</div>
-</div>
-
-<div class="code-text2">{{ $seamstressName }}</div>
+    @if (!$loop->last)
+        <div style="page-break-after: always;"></div>
+    @endif
+@endforeach
 </body>
 </html>
