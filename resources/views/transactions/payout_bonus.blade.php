@@ -62,7 +62,10 @@
                     @method('POST')
                     @csrf
                     <input type="hidden" name="user_id" value="{{ $selected_user->id ?? '' }}">
-                    <button class="btn btn-success">Выплатить все доступные бонусы</button>
+                    <button class="btn btn-success mr-1">Выплатить все доступные
+                        бонусы
+                    </button>
+                    Всего: {{ $allHoldBonus }}
                 </form>
 
                 <table class="table table-bordered table-striped">

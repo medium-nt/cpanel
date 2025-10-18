@@ -327,8 +327,8 @@ class TransactionService
                     ];
                 })
                 ->sortBy('accrual_for_date')
-                ->values()
-                ->take(10);
+                ->values()//                ->take(10)
+                ;
         } else {
             return [];
         }

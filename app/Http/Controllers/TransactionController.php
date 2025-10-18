@@ -124,12 +124,17 @@ class TransactionController extends Controller
     {
         $user = User::query()->find($request->user_id);
 
+        $hodlBonus = TransactionService::getHoldBonus($user);
+
         return view('transactions.payout_bonus', [
             'title' => 'Выплата',
             'users' => User::query()->get(),
             'selected_user' => $user,
             'payouts' => TransactionService::getLastPayouts($user, 10, true),
-            'hold_bonus' => TransactionService::getHoldBonus($user),
+            'hold_bonus' => $hodlBonus,
+            'allHoldBonus' => collect($hodlBonus)
+                ->filter(fn($item) => $item['status'] === 1)
+                ->sum('net_total'),
             'request' => $request,
         ]);
     }
