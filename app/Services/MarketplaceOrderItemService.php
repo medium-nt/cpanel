@@ -660,7 +660,7 @@ class MarketplaceOrderItemService
         ]);
 
         Log::channel('erp')
-            ->info('Заказ ' . $marketplaceOrderItem->marketplace_order_id . ' сохранен в историю с товаром '
+            ->info('Заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id . ' сохранен в историю с товаром '
                 . $marketplaceOrderItem->id . ' (значит этот заказ отмененный, раз товар на хранении)');
 
         $marketplaceOrderItem->marketplaceOrder->status = 9; // возврат
