@@ -206,7 +206,7 @@
                                 <td style="text-align: center"><span class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span></td>
                                 <td style="text-align: center">
                                     {{ $item->marketplaceOrder->order_id }}
-                                    @if($item->status == 3 && auth()->user()->role_id == 3)
+                                    @if($item->status == 3 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                                     <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $item->marketplaceOrder->order_id]) }}"
                                        class="btn btn-outline-secondary btn-sm ml-1"
                                        style="padding: 0px 5px;"
