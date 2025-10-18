@@ -76,12 +76,12 @@ class MarketplaceOrderItemController extends Controller
 
         if (!$result['success']) {
             return redirect()
-                ->route('marketplace_order_items.index', ['status' => 'new'])
+                ->back()
                 ->with('error', $result['message']);
         }
 
         return redirect()
-            ->route('marketplace_order_items.index')
+            ->back()
             ->with('success', $result['message']);
     }
 
