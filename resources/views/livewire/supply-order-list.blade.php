@@ -22,7 +22,6 @@
                                 {{ $firstItem->item->title }} {{ $firstItem->item->width }}
                                 х{{ $firstItem->item->height }}
                             @endif
-                            {{--                            {{ $order->items[0]->item->title }} {{ $order->items[0]->item->width }}х{{ $order->items[0]->item->height }}--}}
                         </div>
                         @if($status == 0)
                         <div class="btn-group" role="group">
@@ -81,7 +80,6 @@
                                         {{ $firstItem->item->title }} {{ $firstItem->item->width }}
                                         х{{ $firstItem->item->height }}
                                     @endif
-                                    {{--                                    {{ $order->items[0]->item->title }} {{ $order->items[0]->item->width }}х{{ $order->items[0]->item->height }}--}}
                                 </td>
                                 <td style="width: 100px">
                                 @if($status == 0)
