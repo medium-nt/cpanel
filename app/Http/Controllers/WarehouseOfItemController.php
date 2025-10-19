@@ -153,8 +153,25 @@ class WarehouseOfItemController extends Controller
                 ->info('Для заказа ' . $orderId . ' передан товар ' . $marketplaceOrderItem->id .
                     ' вместо ранее выбранного ' . $selectedMarketplaceOrderItem->id);
 
-            MarketplaceOrderItemService::restoreOrderFromHistory($selectedMarketplaceOrderItem);
-            MarketplaceOrderItemService::saveOrderToHistory($marketplaceOrderItem);
+            if ($marketplaceOrderItem->marketplaceOrder->status === '13' || $marketplaceOrderItem->marketplaceOrder->status === '5') {
+                $tempOrderId = $marketplaceOrderItem->marketplace_order_id;
+                $marketplaceOrderItem->marketplace_order_id = $selectedMarketplaceOrderItem->marketplace_order_id;
+                $selectedMarketplaceOrderItem->marketplace_order_id = $tempOrderId;
+
+                $marketplaceOrderItem->save();
+                $selectedMarketplaceOrderItem->save();
+
+                Log::channel('erp')
+                    ->info('Есть еще заказ с таким же товаром на сборке или стикеровке! ' .
+                        ' Поменяли местами товары в этих заказах. ' .
+                        ' В заказ: ' . $marketplaceOrderItem->marketplace_order_id .
+                        ' передали товар ' . $selectedMarketplaceOrderItem->id .
+                        ', а в заказ ' . $selectedMarketplaceOrderItem->marketplace_order_id .
+                        ' передали товар ' . $marketplaceOrderItem->id);
+            } else {
+                MarketplaceOrderItemService::restoreOrderFromHistory($selectedMarketplaceOrderItem);
+                MarketplaceOrderItemService::saveOrderToHistory($marketplaceOrderItem);
+            }
         }
 
         $marketplaceOrderItem->marketplace_order_id = $marketplaceOrder->id;
