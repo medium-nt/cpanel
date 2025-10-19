@@ -17,7 +17,12 @@
                     <div class="card-body">
                         <b>{{ $order->order_id }}</b> {!! $order->marketplace_status_label !!}
                         <div class="my-3">
-                            {{ $order->items[0]->item->title }} {{ $order->items[0]->item->width }}х{{ $order->items[0]->item->height }}
+                            @php $firstItem = $order->items->first(); @endphp
+                            @if($firstItem && $firstItem->item)
+                                {{ $firstItem->item->title }} {{ $firstItem->item->width }}
+                                х{{ $firstItem->item->height }}
+                            @endif
+                            {{--                            {{ $order->items[0]->item->title }} {{ $order->items[0]->item->width }}х{{ $order->items[0]->item->height }}--}}
                         </div>
                         @if($status == 0)
                         <div class="btn-group" role="group">
