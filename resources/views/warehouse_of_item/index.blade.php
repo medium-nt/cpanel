@@ -118,7 +118,7 @@
                             </td>
                             <td>
                                 {{ $item->storage_barcode }}
-                                <a href="{{ route('warehouse_of_item.storage_barcode', ['marketplace_item' => $item]) }}"
+                                <a href="{{ route('warehouse_of_item.storage_barcode', ['marketplace_items' => $item]) }}"
                                    class="btn btn-outline-secondary btn-sm ml-1"
                                    style="padding: 0px 5px;"
                                    target="_blank">

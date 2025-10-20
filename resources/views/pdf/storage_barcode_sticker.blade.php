@@ -69,20 +69,21 @@
     </style>
 </head>
 <body>
+
 @foreach($items as $item)
     <div class="page">
         <div class="container">
             <div class="barcode">
-                {!! DNS1D::getBarcodeHTML($barcode, 'C128', 1.5, 85) !!}
+                {!! DNS1D::getBarcodeHTML($item->storage_barcode, 'C128', 1.5, 85) !!}
             </div>
 
-            <div class="code-label">{{ $barcode }}</div>
-            <div class="code-text">Тюль {{ $item->title }}</div>
-            <div class="code-text">ширина {{ $item->width }}</div>
-            <div class="code-text">высота {{ $item->height }}</div>
+            <div class="code-label">{{ $item->storage_barcode }}</div>
+            <div class="code-text">Тюль {{ $item->item->title }}</div>
+            <div class="code-text">ширина {{ $item->item->width }}</div>
+            <div class="code-text">высота {{ $item->item->height }}</div>
         </div>
 
-        <div class="code-text2">{{ $seamstressName }}</div>
+        <div class="code-text2">{{ $item->seamstress->name }}</div>
     </div>
     @if (!$loop->last)
         <div style="page-break-after: always;"></div>

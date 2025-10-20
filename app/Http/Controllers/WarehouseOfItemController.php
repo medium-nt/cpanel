@@ -48,13 +48,22 @@ class WarehouseOfItemController extends Controller
         ]);
     }
 
-    public function getStorageBarcodeFile(MarketplaceOrderItem $marketplace_item, WarehouseOfItemService $service, $copiesCount = 1)
+    public function getStorageBarcodeFile(Request $request, WarehouseOfItemService $service)
     {
-        $pdf = PDF::loadView('pdf.storage_barcode_sticker', [
-            'barcode' => $service->getStorageBarcode($marketplace_item),
-            'items' => collect()->times($copiesCount, fn() => $marketplace_item),
-            'seamstressName' => $marketplace_item->marketplaceOrder?->items?->first()?->seamstress?->name ?? '---',
-        ]);
+        $ids = explode(',', $request->input('marketplace_items'));
+        $items = MarketplaceOrderItem::whereIn('id', $ids)
+            ->with('item')
+            ->get();
+
+        if ($items->isEmpty()) {
+            return response('Печать стикеров невозможна. Указанные товары не найдены', 404);
+        }
+
+        foreach ($items as $item) {
+            $service->getStorageBarcode($item);
+        }
+
+        $pdf = PDF::loadView('pdf.storage_barcode_sticker', compact('items'));
 
         $pdf->setPaper('A4');
         return $pdf->stream('barcode.pdf');

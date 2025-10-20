@@ -82,7 +82,7 @@
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body">
-                            <a href="{{ route('warehouse_of_item.storage_barcode', ['marketplace_item' => $marketplace_item]) }}"
+                            <a href="{{ route('warehouse_of_item.storage_barcode', ['marketplace_items' => $marketplace_item]) }}"
                                class="btn btn-outline-primary mb-3"
                                target="_blank">печать штрих-кода
                                 хранения</a><br>
