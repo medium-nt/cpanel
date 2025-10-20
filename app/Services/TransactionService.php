@@ -105,16 +105,33 @@ class TransactionService
 
     public static function activateHoldBonus(): void
     {
-        Transaction::query()
-            ->where('created_at', '<', now()->subDays(14))
+        $transactions = Transaction::query()
+            ->whereDate('accrual_for_date', '<', now()->subDays(14))
             ->where('is_bonus', true)
             ->where('status', 0)
-            ->update([
-                'status' => 1]
-            );
+            ->get();
 
-        Log::channel('erp')
-            ->info('Активировали бонусы, по которым прошло более 14 дней');
+        if ($transactions->isEmpty()) {
+            Log::channel('salary')->info('Сегодня нет бонусов для активации');
+            return;
+        }
+
+        $logData = $transactions->map(function ($transaction) {
+            return [
+                'id' => $transaction->id,
+                'user_id' => $transaction->user_id,
+                'amount' => $transaction->amount,
+                'accrual_for_date' => $transaction->accrual_for_date,
+            ];
+        })->toArray();
+
+        Log::channel('salary')->info('Активируются бонусы:', [
+            'transactions' => $logData,
+        ]);
+
+        Transaction::query()
+            ->whereIn('id', $transactions->pluck('id'))
+            ->update(['status' => 1]);
     }
 
     public static function getSeamstressBalance(string $type, $isHoldBonus = false): int
