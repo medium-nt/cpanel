@@ -42,7 +42,10 @@ class MarketplaceOrderItemService
             if (mb_strlen(trim($request->search)) == 15) {
                 $request->search = MarketplaceApiService::getOzonPostingNumberByBarcode($request->search);
             }
-            $items = $items->where('marketplace_orders.order_id', 'like', '%' . $request->search . '%');
+            $items = $items
+                ->where('marketplace_orders.order_id', 'like', '%' . $request->search . '%')
+                ->orWhere('part_b', $request->search)
+                ->orWhere('barcode', $request->search);
         } else {
             $items = match ($status) {
                 'new' => $items->where('marketplace_order_items.status', 0),

@@ -131,7 +131,7 @@
                                name="search"
                                id="search"
                                class="form-control"
-                               placeholder="Поиск по номеру заказа"
+                               placeholder="Поиск по номеру заказа или ШК"
                                value="{{ request('search') }}"
                                onchange="updatePageWithQueryParam(this)">
                     </div>
