@@ -20,7 +20,7 @@
                             @php $firstItem = $order->items->first(); @endphp
                             @if($firstItem && $firstItem->item)
                                 {{ $firstItem->item->title }} {{ $firstItem->item->width }}
-                                х{{ $firstItem->item->height }}
+                                х {{ $firstItem->item->height }}
                             @endif
                         </div>
                         @if($status == 0)
