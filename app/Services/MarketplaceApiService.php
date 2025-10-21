@@ -1509,27 +1509,34 @@ class MarketplaceApiService
             "posting_number" => $orderId,
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v4/fbs/posting/product/exemplar/status', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v4/fbs/posting/product/exemplar/status', $body);
 
-        if (!$response->ok()) {
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('Не удалось получить статус экземпляров заказа ' . $orderId);
+                return false;
+            }
+
+            if ($response->object()->status == 'ship_available') {
+                return true;
+            }
+
+            $text = 'Статус экземпляров заказа ' . $orderId . ' не соответствует "ship_available"!' .
+                ' Статус: ' . $response->object()->status .
+                ' Пробуем передать что ГТД не обязательна...';
+
             Log::channel('marketplace_api')
-                ->error('Не удалось получить статус экземпляров заказа '. $orderId);
+                ->error($text);
+
+            return self::markExemplarAsGtdAbsent($response);
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при запросе статуса экземпляров заказа ' . $orderId . ': ' . $e->getMessage()
+            );
             return false;
         }
-
-        if ($response->object()->status == 'ship_available') {
-            return true;
-        }
-
-        $text = 'Статус экземпляров заказа '. $orderId . ' не соответствует "ship_available"!' .
-            ' Статус: '. $response->object()->status .
-            ' Пробуем передать что ГТД не обязательна...';
-
-        Log::channel('marketplace_api')
-            ->error($text);
-
-        return self::markExemplarAsGtdAbsent($response);
     }
 
     private static function markExemplarAsGtdAbsent($resp): bool
