@@ -86,14 +86,21 @@ class MarketplaceApiService
 
     public static function getItemsOzon($body = 0): object|false|null
     {
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v4/product/info/attributes', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v4/product/info/attributes', $body);
 
-        if(!$response->ok()) {
+            if (!$response->ok()) {
+                return false;
+            }
+
+            return $response->object();
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'ВНИМАНИЕ! Ошибка получения всех товаров и sku из Ozon: ' . $e->getMessage()
+            );
             return false;
         }
-
-        return $response->object();
     }
 
     public static function getAllItemsOzon(): array
@@ -205,36 +212,43 @@ class MarketplaceApiService
             ],
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v3/posting/fbs/unfulfilled/list', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v3/posting/fbs/unfulfilled/list', $body);
 
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения новых заказов из Ozon');
-            return [];
-        }
-
-        $orders = $response->object()->result->postings;
-
-        $unifiedOrders = [];
-        foreach ($orders as $order) {
-            $array = [
-                'id' => $order->posting_number,
-                'skus' => [],
-                'marketplace_id' => '1',
-                'order_created' => $order->in_process_at,
-            ];
-
-            foreach ($order->products as $item) {
-                $array['skus'][] = [
-                    'sku' => $item->sku,
-                    'quantity' => $item->quantity
-                ];
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения новых заказов из Ozon');
+                return [];
             }
 
-            $unifiedOrders[] = $array;
-        }
+            $orders = $response->object()->result->postings;
 
-        return json_decode(json_encode($unifiedOrders));
+            $unifiedOrders = [];
+            foreach ($orders as $order) {
+                $array = [
+                    'id' => $order->posting_number,
+                    'skus' => [],
+                    'marketplace_id' => '1',
+                    'order_created' => $order->in_process_at,
+                ];
+
+                foreach ($order->products as $item) {
+                    $array['skus'][] = [
+                        'sku' => $item->sku,
+                        'quantity' => $item->quantity
+                    ];
+                }
+
+                $unifiedOrders[] = $array;
+            }
+
+            return json_decode(json_encode($unifiedOrders));
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'ВНИМАНИЕ! Ошибка получения новых заказов из Ozon: ' . $e->getMessage()
+            );
+            return [];
+        }
     }
 
     public static function uploadingCancelledProducts(): array
@@ -356,37 +370,43 @@ class MarketplaceApiService
         $since = Carbon::now()->subDays(7)->format('Y-m-d\TH:i:s\Z'); // 7 дней назад
         $to = Carbon::now()->format('Y-m-d\TH:i:s\Z'); // сегодня
 
-        $body = [
-            "dir" => "ASC",
-            "limit" => 1000,
-            "offset" => 0,
-            "filter" => [
-                "since" => $since,
-                "to" => $to,
-                "status" => "cancelled",
-            ],
-        ];
+        try {
+            $body = [
+                "dir" => "ASC",
+                "limit" => 1000,
+                "offset" => 0,
+                "filter" => [
+                    "since" => $since,
+                    "to" => $to,
+                    "status" => "cancelled",
+                ],
+            ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v3/posting/fbs/list', $body);
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v3/posting/fbs/list', $body);
 
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Ozon');
+                return [];
+            }
 
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Ozon');
+            $orders = $response->object()->result->postings;
+
+            $unifiedOrders = [];
+            foreach ($orders as $order) {
+                $unifiedOrders[] = [
+                    'id' => $order->posting_number,
+                    'marketplace_id' => '1',
+                ];
+            }
+
+            return json_decode(json_encode($unifiedOrders));
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'ВНИМАНИЕ! Ошибка получения отмененных заказов из Ozon: ' . $e->getMessage()
+            );
             return [];
         }
-
-        $orders = $response->object()->result->postings;
-
-        $unifiedOrders = [];
-        foreach ($orders as $order) {
-            $unifiedOrders[] = [
-                'id' => $order->posting_number,
-                'marketplace_id' => '1',
-            ];
-        }
-
-        return json_decode(json_encode($unifiedOrders));
     }
 
     public static function uploadingNewProducts(): array
@@ -560,19 +580,26 @@ class MarketplaceApiService
             }
         }
 
-        $body = [
-            "posting_number" => $order->id,
-            "postings" => $postings,
-        ];
+        try {
+            $body = [
+                "posting_number" => $order->id,
+                "postings" => $postings,
+            ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v1/posting/fbs/split', $body);
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/posting/fbs/split', $body);
 
-        if(!$response->ok()) {
+            if (!$response->ok()) {
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при разделении по товарам заказа ' . $order . ': ' . $e->getMessage()
+            );
             return false;
         }
-
-        return true;
     }
 
     public static function collectOrderOzon($orderId, $product): bool
@@ -595,22 +622,29 @@ class MarketplaceApiService
             "posting_number" => $orderId,
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v4/posting/fbs/ship', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v4/posting/fbs/ship', $body);
 
-        if(!$response->ok()) {
-            if ($response->object()->message === 'POSTING_ALREADY_SHIPPED') {
-                Log::channel('marketplace_api')->error('    Заказа №'.$orderId .' уже ранее был отправлен в сборку.');
-                return true;
+            if (!$response->ok()) {
+                if ($response->object()->message === 'POSTING_ALREADY_SHIPPED') {
+                    Log::channel('marketplace_api')->error('    Заказа №' . $orderId . ' уже ранее был отправлен в сборку.');
+                    return true;
+                }
+
+                Log::channel('marketplace_api')->error('    Ошибка при отправке заказа №' . $orderId);
+                Log::channel('marketplace_api')->error('    Запрос:' . json_encode($body));
+                Log::channel('marketplace_api')->error('    Ответ' . $response->body());
+                return false;
             }
 
-            Log::channel('marketplace_api')->error('    Ошибка при отправке заказа №'.$orderId);
-            Log::channel('marketplace_api')->error('    Запрос:'.json_encode($body));
-            Log::channel('marketplace_api')->error('    Ответ'.$response->body());
+            return true;
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при отправке в сборку заказа ' . $orderId . ': ' . $e->getMessage()
+            );
             return false;
         }
-
-        return true;
     }
 
     public static function collectOrderWb($orderId): bool
@@ -733,27 +767,36 @@ class MarketplaceApiService
             ]
         ];
 
-        $response = Http::accept('application/pdf')
-            ->withOptions(['verify' => false])
-            ->withHeaders([
-                'Client-Id' => self::getOzonSellerId(),
-                'Api-Key' => self::getOzonApiKey(),
-            ])
-            ->post('https://api-seller.ozon.ru/v2/posting/fbs/package-label', $body);
+        try {
+            $response = Http::accept('application/pdf')
+                ->withOptions(['verify' => false])
+                ->withHeaders([
+                    'Client-Id' => self::getOzonSellerId(),
+                    'Api-Key' => self::getOzonApiKey(),
+                ])
+                ->post('https://api-seller.ozon.ru/v2/posting/fbs/package-label', $body);
 
-        if (!$response->successful()) {
+            if (!$response->successful()) {
+                echo "Ошибка получения стикера";
+                exit;
+            }
+
+            if ($response->header('Content-Type') !== 'application/pdf') {
+                echo "Получен стикер неверного формата";
+                exit;
+            }
+
+            return response($response->body(), Response::HTTP_OK)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="barcode.pdf"');
+
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка получения стикера OZON ' . $orderId . ': ' . $e->getMessage()
+            );
             echo "Ошибка получения стикера";
             exit;
         }
-
-        if ($response->header('Content-Type') !== 'application/pdf') {
-            echo "Получен стикер неверного формата";
-            exit;
-        }
-
-        return response($response->body(), Response::HTTP_OK)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="barcode.pdf"');
     }
 
     public static function getBarcodeWb(int $orderId): object|false|null
@@ -1037,18 +1080,25 @@ class MarketplaceApiService
             "barcode" => $barcode,
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v2/posting/fbs/get-by-barcode', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/posting/fbs/get-by-barcode', $body);
 
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')
-                ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара');
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара');
+                return '-';
+            }
+
+            $posting_number = $response->object()->result->posting_number;
+
+            return json_decode(json_encode($posting_number));
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара ' . $barcode . ': ' . $e->getMessage()
+            );
             return '-';
         }
-
-        $posting_number = $response->object()->result->posting_number;
-
-        return json_decode(json_encode($posting_number));
     }
 
     public static function getOzonPostingNumberByReturnBarcode($barcode): array|string
@@ -1060,18 +1110,25 @@ class MarketplaceApiService
             "limit" => 1,
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
 
-        if (!$response->ok() || empty($response->object()->returns)) {
-            Log::channel('marketplace_api')
-                ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
+            if (!$response->ok() || empty($response->object()->returns)) {
+                Log::channel('marketplace_api')
+                    ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
+                return '-';
+            }
+
+            $posting_number = $response->object()->returns[0]->posting_number;
+
+            return json_decode(json_encode($posting_number));
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата ' . $barcode . ': ' . $e->getMessage()
+            );
             return '-';
         }
-
-        $posting_number = $response->object()->returns[0]->posting_number;
-
-        return json_decode(json_encode($posting_number));
     }
 
     public static function ozonSupply(MarketplaceSupply $marketplace_supply): bool
@@ -1182,22 +1239,29 @@ class MarketplaceApiService
             "departure_date" => now()->toIso8601String(),
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v1/carriage/create', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/carriage/create', $body);
 
-        if(!$response->ok()) {
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('Не удалось создать новую поставку Ozon: ', [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
+                return false;
+            }
+
             Log::channel('marketplace_api')
-                ->error('Не удалось создать новую поставку Ozon: ', [
-                    'code' => $response->object()->code,
-                    'message' => $response->object()->message,
-                ]);
+                ->info('Новая поставка Ozon создалась успешно с номером: ' . $response->object()->carriage_id);
+
+            return json_decode(json_encode($response->object()->carriage_id));
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Не удалось создать новую поставку Ozon: ' . $e->getMessage()
+            );
             return false;
         }
-
-        Log::channel('marketplace_api')
-            ->info('Новая поставка Ozon создалась успешно с номером: ' . $response->object()->carriage_id);
-
-        return json_decode(json_encode($response->object()->carriage_id));
     }
 
     private static function addOrdersToSupplyOzon(MarketplaceSupply $marketplace_supply): array
@@ -1209,17 +1273,13 @@ class MarketplaceApiService
 
         $notAddedOrders = [];
 
+        try {
             $body = [
                 "carriage_id" => $marketplace_supply->supply_id,
                 "posting_numbers" => $allOrders,
             ];
 
-            $response = Http::accept('application/json')
-                ->withOptions(['verify' => false])
-                ->withHeaders([
-                    'Client-Id' => self::getOzonSellerId(),
-                    'Api-Key' => self::getOzonApiKey(),
-                ])
+            $response = self::ozonRequest()
                 ->post('https://api-seller.ozon.ru/v1/carriage/set-postings', $body);
 
             if(!$response->ok()) {
@@ -1230,6 +1290,12 @@ class MarketplaceApiService
                     ]);
                 $notAddedOrders = $allOrders;
             }
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при добавлении заказов в поставку OZON ' . $marketplace_supply->id . ' : ' . $e->getMessage()
+            );
+            $notAddedOrders = $allOrders;
+        }
 
         return $notAddedOrders;
     }
@@ -1240,19 +1306,26 @@ class MarketplaceApiService
             "carriage_id" => $marketplace_supply->supply_id,
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v1/carriage/approve', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/carriage/approve', $body);
 
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')
-                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку Ozon.', [
-                    'code' => $response->object()->code,
-                    'message' => $response->object()->message,
-                ]);
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('Не удалось передать поставку ' . $marketplace_supply->id . ' в доставку Ozon.', [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Не удалось передать поставку ' . $marketplace_supply->id . ' в доставку Ozon: ' . $e->getMessage()
+            );
             return false;
         }
-
-        return true;
     }
 
     public static function checkStatusSupplyOzon(MarketplaceSupply $marketplace_supply): bool
@@ -1261,28 +1334,35 @@ class MarketplaceApiService
             "id" => $marketplace_supply->supply_id,
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/check-status', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/check-status', $body);
 
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')
-                ->error('Ошибка при скачивании документов поставки OZON '. $marketplace_supply->id, [
-                    'code' => $response->object()->code,
-                    'message' => $response->object()->message,
-                ]);
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('Ошибка при скачивании документов поставки OZON ' . $marketplace_supply->id, [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
+                return false;
+            }
+
+            if (!in_array($response->object()->status, ['FORMED', 'CONFIRMED', 'CONFIRMED_WITH_MISMATCH'])) {
+                Log::channel('marketplace_api')
+                    ->error('Документы к поставке ' . $marketplace_supply->id . ' еще не сформированы.', [
+                        'id' => $response->object()->id,
+                        'status' => $response->object()->status,
+                    ]);
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при скачивании документов поставки OZON ' . $marketplace_supply->id . ' : ' . $e->getMessage()
+            );
             return false;
         }
-
-        if (!in_array($response->object()->status, ['FORMED', 'CONFIRMED', 'CONFIRMED_WITH_MISMATCH'])) {
-            Log::channel('marketplace_api')
-                ->error('Документы к поставке '. $marketplace_supply->id . ' еще не сформированы.', [
-                    'id' => $response->object()->id,
-                    'status' => $response->object()->status,
-                ]);
-            return false;
-        }
-
-        return true;
     }
 
     public static function getDocsSupplyOzon(MarketplaceSupply $marketplace_supply)
@@ -1292,24 +1372,33 @@ class MarketplaceApiService
             "doc_type" => "act_of_acceptance",
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/get-pdf', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/posting/fbs/digital/act/get-pdf', $body);
 
-        if (!$response->ok()) {
-            Log::channel('marketplace_api')
-                ->error('Не удалось получить документы от Ozon к поставке '. $marketplace_supply->id, [
-                    'code' => $response->object()->code,
-                    'message' => $response->object()->message,
-                ]);
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('Не удалось получить документы от Ozon к поставке ' . $marketplace_supply->id, [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
 
+                return redirect()
+                    ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                    ->with('error', 'Не удалось получить документы от Ozon.');
+            }
+
+            return response($response->body(), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="act_' . $marketplace_supply->id . '.pdf"');
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Не удалось получить документы от Ozon к поставке ' . $marketplace_supply->id . ' : ' . $e->getMessage()
+            );
             return redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'Не удалось получить документы от Ozon.');
         }
-
-        return response($response->body(), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="act_'. $marketplace_supply->id .'.pdf"');
     }
 
     public static function getBarcodeSupplyOzon(MarketplaceSupply $marketplace_supply)
@@ -1325,22 +1414,31 @@ class MarketplaceApiService
             "id" => $marketplace_supply->supply_id,
         ];
 
-        $response = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-barcode', $body);
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/posting/fbs/act/get-barcode', $body);
 
-        if (!$response->ok()) {
-            Log::channel('marketplace_api')->error('Не удалось получить штрихкод поставки от Ozon', [
-                'code' => $response->object()->code,
-                'message' => $response->object()->message,
-            ]);
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error('Не удалось получить штрихкод поставки от Ozon', [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
+                return redirect()
+                    ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                    ->with('error', 'Не удалось получить штрихкод поставки от Ozon');
+            }
+
+            return response($response->body(), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="act_' . $marketplace_supply->id . '.pdf"');
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Не удалось получить штрихкод от Ozon по поставке ' . $marketplace_supply->id . ' : ' . $e->getMessage()
+            );
             return redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'Не удалось получить штрихкод поставки от Ozon');
         }
-
-        return response($response->body(), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="act_'. $marketplace_supply->id .'.pdf"');
     }
 
     public static function getBarcodeSupplyWB(MarketplaceSupply $marketplace_supply)
@@ -1426,26 +1524,33 @@ class MarketplaceApiService
                 "posting_number" => $order,
             ];
 
-            $response = Http::accept('application/json')
-                ->withOptions(['verify' => false])
-                ->withHeaders([
-                    'Client-Id' => self::getOzonSellerId(),
-                    'Api-Key' => self::getOzonApiKey(),
-                ])
-                ->post('https://api-seller.ozon.ru/v3/posting/fbs/get', $body);
+            try {
+                $response = Http::accept('application/json')
+                    ->withOptions(['verify' => false])
+                    ->withHeaders([
+                        'Client-Id' => self::getOzonSellerId(),
+                        'Api-Key' => self::getOzonApiKey(),
+                    ])
+                    ->post('https://api-seller.ozon.ru/v3/posting/fbs/get', $body);
 
-            if(!$response->ok()) {
+                if (!$response->ok()) {
+                    Log::channel('marketplace_api')
+                        ->error('Ошибка обновления статуса заказа #' . $order . ' в Ozon');
+                    $hasError = true;
+                    continue;
+                }
+
+                MarketplaceOrder::query()
+                    ->where('order_id', $order)
+                    ->update([
+                        'marketplace_status' => $response->object()->result->status,
+                    ]);
+            } catch (\Throwable $e) {
                 Log::channel('marketplace_api')
-                    ->error('Ошибка обновления статуса заказа #'. $order .' в Ozon');
+                    ->error('Ошибка обновления статуса заказа # ' . $order . ' : ' . $e->getMessage());
                 $hasError = true;
                 continue;
             }
-
-            MarketplaceOrder::query()
-                ->where('order_id', $order)
-                ->update([
-                    'marketplace_status' => $response->object()->result->status,
-                ]);
         }
 
         if($hasError){
