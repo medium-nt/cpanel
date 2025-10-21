@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Sku;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class WarehouseOfItemService
 {
@@ -171,5 +173,45 @@ class WarehouseOfItemService
             'marketplace_items' => collect(),
             'returnReason' => $returnReason,
         ];
+    }
+
+    public function getCreateItems($validatedData, MarketplaceItem $item): array
+    {
+        $marketplaceItems = [];
+
+        for ($i = 0; $i < $validatedData['quantity']; $i++) {
+
+            $marketplaceOrder = MarketplaceOrder::query()->create([
+                'order_id' => '...',
+                'marketplace_id' => 1,
+                'fulfillment_type' => 'FBO',
+                'status' => 9,
+                'completed_at' => now(),
+                'returned_at' => now(),
+                'created_at' => now(),
+            ]);
+
+            $marketplaceOrderItem = MarketplaceOrderItem::query()->create([
+                'marketplace_order_id' => $marketplaceOrder->id,
+                'marketplace_item_id' => $item->id,
+                'shelf_id' => $validatedData['shelf_id'],
+                'quantity' => 1,
+                'price' => 0,
+                'status' => 11,
+                'seamstress_id' => 3,
+                'completed_at' => now()->startOfDay()->subDays(2),
+                'created_at' => Carbon::parse($marketplaceOrder->created_at),
+            ]);
+
+            $marketplaceOrderItem->storage_barcode = $this->getStorageBarcode($marketplaceOrderItem);
+            $marketplaceOrderItem->save();
+
+            $marketplaceOrder->order_id = 'под товар ' . $marketplaceOrderItem->id;
+            $marketplaceOrder->save();
+
+            $marketplaceItems[] = $marketplaceOrderItem->id;
+        }
+
+        return $marketplaceItems;
     }
 }

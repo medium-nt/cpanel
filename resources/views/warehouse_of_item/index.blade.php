@@ -89,6 +89,10 @@
             <a href="{{ route('warehouse_of_item.new_refunds') }}"
                class="btn btn-success mr-3 mb-3">Принять новые возвраты</a>
 
+            <a href="{{ route('warehouse_of_item.add_group') }}"
+               class="btn btn-outline-success mr-3 mb-3">Добавить товары
+                группой</a>
+
             <a href="{{ route('warehouse_of_item.to_pick_list') }}"
                class="btn btn-primary mr-3 mb-3">Товары к подбору</a>
 
@@ -120,7 +124,7 @@
                                 {{ $item->storage_barcode }}
                                 <a href="{{ route('warehouse_of_item.storage_barcode', ['marketplace_items' => $item]) }}"
                                    class="btn btn-outline-secondary btn-sm ml-1"
-                                   style="padding: 0px 5px;"
+                                   style="padding: 1px 5px;"
                                    target="_blank">
                                     <i class="fas fa-barcode"></i>
                                 </a>

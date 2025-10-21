@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaveGroupWarehouseOfItemRequest;
+use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
@@ -13,6 +15,7 @@ use App\Services\MarketplaceOrderService;
 use App\Services\WarehouseOfItemService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -235,5 +238,44 @@ class WarehouseOfItemController extends Controller
 
         return redirect()->route('warehouse_of_item.to_pick_list')
             ->with('success', 'Заказ передан в цех на пошив');
+    }
+
+    public function addGroup()
+    {
+        return view('warehouse_of_item.add_group', [
+            'title' => 'Добавление товаров партией',
+            'materials' => MarketplaceItemService::getAllTitleMaterials(),
+            'widths' => MarketplaceItemService::getAllWidthMaterials(),
+            'heights' => MarketplaceItemService::getAllHeightMaterials(),
+            'shelves' => Shelf::all(),
+        ]);
+    }
+
+    public function saveGroup(SaveGroupWarehouseOfItemRequest $request, WarehouseOfItemService $service)
+    {
+        $item = MarketplaceItem::query()
+            ->where('title', $request['material_title'])
+            ->where('width', $request['width'])
+            ->where('height', $request['height'])
+            ->first();
+
+        if (!$item) {
+            return back()->withInput()
+                ->with('error', 'Такой товар в системе не найден');
+        }
+
+        $marketplaceItems = $service->getCreateItems($request, $item);
+
+        $route = route('warehouse_of_item.add_group', [
+            'is_saved' => true,
+            'marketplace_items' => implode(',', $marketplaceItems),
+        ]);
+
+        Log::channel('erp')
+            ->info('Товары id: ' . implode(', ', $marketplaceItems) .
+                ' добавлены на хранение. Ссылка для печати стикеров: ' . $route);
+
+        return redirect($route)->withInput()
+            ->with('success', 'Товары добавлены на хранение');
     }
 }
