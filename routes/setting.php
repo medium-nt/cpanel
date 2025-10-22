@@ -15,6 +15,10 @@ Route::prefix('/setting')->group(function () {
         ->can('update', Setting::class)
         ->name('setting.test');
 
+    Route::get('salary', [App\Http\Controllers\SettingController::class, 'salary'])
+        ->can('update', Setting::class)
+        ->name('setting.salary');
+
     Route::get('duplicates', [App\Http\Controllers\SettingController::class, 'duplicates'])
         ->can('update', Setting::class)
         ->name('setting.duplicates');

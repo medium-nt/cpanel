@@ -47,9 +47,6 @@ class SettingController extends Controller
 
     public function test()
     {
-//        TransactionService::accrualSeamstressesSalary(true);
-        TransactionService::accrualCuttersSalary(true);
-
         //  тестовая функция для запуска других методов только на development сервере.
         if (!app()->environment('production')) {
 
@@ -195,5 +192,10 @@ class SettingController extends Controller
         }
 
         die;
+    }
+
+    public static function salary()
+    {
+        TransactionService::accrualCuttersSalary(true);
     }
 }

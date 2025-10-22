@@ -427,7 +427,7 @@ class TransactionService
             ->get();
     }
 
-    private static function processAccrual(mixed $user, mixed $test): void
+    private static function processAccrual(User $user, bool $test): void
     {
         if ($user->isSeamstress()) {
             $roleName = 'Швея';
@@ -455,7 +455,7 @@ class TransactionService
             $result = self::processAccrualMotivationAndSalary($user, $marketplaceOrderItems, $motivations, $result, $test);
         }
 
-        $totalWidth = $user->marketplaceOrderItems
+        $totalWidth = $marketplaceOrderItem
                 ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item?->width ?? 0) / 100;
 
         echo "Всего: $totalWidth м, зп: {$result['allSalary']} руб., бонус: {$result['allBonus']} баллов.<br>";
@@ -465,10 +465,14 @@ class TransactionService
         echo "<br>";
     }
 
-    private static function processAccrualMotivationAndSalary($user, $marketplaceOrderItems, $motivations, $result, $test): array
+    private static function processAccrualMotivationAndSalary(User $user, MarketplaceOrderItem $marketplaceOrderItems, Collection $motivations, array $result, bool $test): array
     {
         $orderId = $marketplaceOrderItems->marketplaceOrder->order_id;
         $width = $marketplaceOrderItems->item->width / 100 ?? 0;
+
+        $previousAllWidth = $result['allWidth'] - $width;
+        $previousResultDetails = self::getCompensationDetails($motivations, $previousAllWidth, $user, $marketplaceOrderItems);
+        $previousMotivationBonus = $previousResultDetails['nowMotivationBonus'];
 
         $resultDetails = self::getCompensationDetails($motivations, $result['allWidth'], $user, $marketplaceOrderItems);
         $nowMotivationBonus = $resultDetails['nowMotivationBonus'];
@@ -491,7 +495,15 @@ class TransactionService
 
         $bonus = 0;
         if ($nowMotivationBonus > 0) {
-            $bonus = $width * $nowMotivationBonus;
+            if ($previousMotivationBonus != $nowMotivationBonus) {
+                //  разделить размер между ДО и ПОСЛЕ
+                $widthAfter = $result['allWidth'] - $resultDetails['from'];
+                $widthBefore = $width - $widthAfter;
+
+                $bonus = $widthBefore * $previousMotivationBonus + $widthAfter * $nowMotivationBonus;
+            } else {
+                $bonus = $width * $nowMotivationBonus;
+            }
 
             if (!$test) {
                 self::addTransaction(
@@ -531,33 +543,38 @@ class TransactionService
         ];
     }
 
-    public static function getCompensationDetails($motivations, $allWidth, $user, $marketplaceOrderItems): array
+    public static function getCompensationDetails(Collection $motivations, int $allWidth, User $user, MarketplaceOrderItem $marketplaceOrderItems): array
     {
-        $nowMotivationBonus = $motivations
+        $motivationBonus = $motivations
             ->where('from', '<=', $allWidth)
-            ->where('to', '>', $allWidth);
+            ->where('to', '>', $allWidth)
+            ->first();
 
         $salary = Rate::query()
             ->where('user_id', $user->id)
-            ->where('width', $marketplaceOrderItems->item->width);
+            ->where('width', $marketplaceOrderItems->item->width)
+            ->first();
+
+        $nowMotivationBonus = 0;
 
         if($user->isCutter()) {
-            $nowMotivationBonus = $nowMotivationBonus->value('cutter_bonus') ?? 0;
-            $salary = $salary->value('cutter_rate') ?? 0;
+            $nowMotivationBonus = $motivationBonus->cutter_bonus ?? 0;
+            $salary = $salary->cutter_rate ?? 0;
         }
 
         if($user->isSeamstress()) {
             if ($user->is_cutter) {
-                $nowMotivationBonus = $nowMotivationBonus->value('bonus') ?? 0;
+                $nowMotivationBonus = $motivationBonus->bonus ?? 0;
                 $salary = $salary->value('rate') ?? 0;
             } else {
-                $nowMotivationBonus = $nowMotivationBonus->value('not_cutter_bonus') ?? 0;
+                $nowMotivationBonus = $motivationBonus->not_cutter_bonus ?? 0;
                 $salary = $salary->value('not_cutter_rate') ?? 0;
             }
         }
 
         return [
             'nowMotivationBonus' => $nowMotivationBonus,
+            'from' => $motivationBonus->from ?? 0,
             'salary' => $salary,
         ];
     }
