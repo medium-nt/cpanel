@@ -69,7 +69,7 @@ class MovementDefectMaterialToSupplierService
             $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил возврат поставщику ' . $supplierName . ': ' . "\n"  . $list;
 
             Log::channel('erp')
-                ->notice('    Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -82,7 +82,7 @@ class MovementDefectMaterialToSupplierService
             DB::rollBack();
 
             Log::channel('erp')
-                ->error('    Ошибка при попытке создать отгрузку возврата поставщику: ' . $e->getMessage());
+                ->error('Ошибка при попытке создать отгрузку возврата поставщику: ' . $e->getMessage());
 
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }

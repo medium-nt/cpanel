@@ -107,7 +107,7 @@ class MovementMaterialToWorkshopController extends Controller
         $text = 'Швея ' . auth()->user()->name . ' приняла поставку в цехе: ' . "\n"  . $list;
 
         Log::channel('erp')
-            ->notice('    Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: ' . $text);
+            ->notice('Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: ' . $text);
 
         TgService::sendMessage(config('telegram.admin_id'), $text);
 

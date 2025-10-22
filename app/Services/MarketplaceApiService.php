@@ -253,7 +253,7 @@ class MarketplaceApiService
 
     public static function uploadingCancelledProducts(): array
     {
-        Log::channel('marketplace_api')->notice('    Загрузка отмененных заказов...');
+        Log::channel('marketplace_api')->notice('Загрузка отмененных заказов...');
 
         $cancelledProductsWbNewStatus = self::getCancelledProductsWB('new');
         $resultWb1 = self::deleteCancelledProductsWb($cancelledProductsWbNewStatus);
@@ -267,7 +267,7 @@ class MarketplaceApiService
         $cancelledProductsOzon = self::getCancelledProductsOZON();
         $resultOzon = self::checkCancelledProductsOzon($cancelledProductsOzon);
 
-        Log::channel('marketplace_api')->notice('    Загрузка отмененных заказов завершена.');
+        Log::channel('marketplace_api')->notice('Загрузка отмененных заказов завершена.');
 
         return array_merge($resultWb1, $resultWb2, $resultWb3, $resultOzon);
     }
@@ -292,7 +292,7 @@ class MarketplaceApiService
         }
 
         Log::channel('marketplace_api')
-            ->info('Получены отмененные заказы (статус в системе: ' . $statusName . '):' . json_encode($orders));
+            ->info('Получены отмененные заказы WB (статус в системе: ' . $statusName . '):' . json_encode($orders));
 
         $unifiedOrders = [];
 
@@ -505,7 +505,7 @@ class MarketplaceApiService
                 ];
 
                 Log::channel('marketplace_api')
-                    ->error('    Ошибка при загрузке заказа №' . $order->id . ': ' . $e->getMessage());
+                    ->error('Ошибка при загрузке заказа №' . $order->id . ': ' . $e->getMessage());
             }
         }
 
@@ -628,13 +628,13 @@ class MarketplaceApiService
 
             if (!$response->ok()) {
                 if ($response->object()->message === 'POSTING_ALREADY_SHIPPED') {
-                    Log::channel('marketplace_api')->error('    Заказа №' . $orderId . ' уже ранее был отправлен в сборку.');
+                    Log::channel('marketplace_api')->error('Заказа №' . $orderId . ' уже ранее был отправлен в сборку.');
                     return true;
                 }
 
-                Log::channel('marketplace_api')->error('    Ошибка при отправке заказа №' . $orderId);
-                Log::channel('marketplace_api')->error('    Запрос:' . json_encode($body));
-                Log::channel('marketplace_api')->error('    Ответ' . $response->body());
+                Log::channel('marketplace_api')->error('Ошибка при отправке заказа №' . $orderId);
+                Log::channel('marketplace_api')->error('Запрос:' . json_encode($body));
+                Log::channel('marketplace_api')->error('Ответ' . $response->body());
                 return false;
             }
 
@@ -749,7 +749,7 @@ class MarketplaceApiService
 
         if(!$response->created()) {
             Log::channel('marketplace_api')
-                ->error('    Не удалось создать новую поставку WB: ', [
+                ->error('Не удалось создать новую поставку WB: ', [
                     'code' => $response->object()->code,
                     'message' => $response->object()->message,
                 ]);
@@ -887,7 +887,7 @@ class MarketplaceApiService
         $resultArray = [];
 
         Log::channel('marketplace_api')
-            ->info('Получены отмененные заказы:' . json_encode($cancelledProductsOzon));
+            ->info('Получены отмененные заказы OZON:' . json_encode($cancelledProductsOzon));
 
         foreach ($cancelledProductsOzon as $product) {
             $order = MarketplaceOrder::query()
@@ -904,12 +904,9 @@ class MarketplaceApiService
                     continue;
                 }
 
-                Log::channel('marketplace_api')
-                    ->info('Для заказа №' . $order->order_id . ' проверяем статус его товара № ' . $item->id);
-
                 switch ($item->status) {
                     case 0:
-                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' удален.');
+                        Log::channel('marketplace_api')->info('Заказа №' . $order->order_id . ' удален.');
 
                         $resultArray[] = [
                             'order_id' => $order->order_id,
@@ -923,7 +920,7 @@ class MarketplaceApiService
                     case 5:
                     case 7:
                     case 8:
-                        Log::channel('marketplace_api')->info('    Заказа №'.$order->order_id .' изменен на FBO.');
+                    Log::channel('marketplace_api')->info('Заказа №' . $order->order_id . ' изменен на FBO.');
 
                         $resultArray[] = [
                             'order_id' => $order->order_id,
@@ -995,7 +992,7 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbNewStatus as $product) {
 
-            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' удален.');
+            Log::channel('marketplace_api')->info('Заказа №' . $product->id . ' удален.');
 
             $resultArray[] = [
                 'order_id' => $product->id,
@@ -1056,7 +1053,7 @@ class MarketplaceApiService
 
         foreach ($cancelledProductsWbInWorkStatus as $product) {
 
-            Log::channel('marketplace_api')->info('    Заказа №'.$product->id .' изменен на FBO.');
+            Log::channel('marketplace_api')->info('Заказа №' . $product->id . ' изменен на FBO.');
 
             $resultArray[] = [
                 'order_id' => $product->id,
@@ -1150,7 +1147,7 @@ class MarketplaceApiService
         }
 
         Log::channel('marketplace_api')
-            ->notice('    Поставка '.  $marketplace_supply->id.' успешно передана доставку OZON.');
+            ->notice('Поставка ' . $marketplace_supply->id . ' успешно передана доставку OZON.');
 
         return true;
     }
@@ -1160,7 +1157,7 @@ class MarketplaceApiService
         $newSupply = self::createSupplyWb();
         if (empty($newSupply)) {
             Log::channel('marketplace_api')
-                ->error('    Не удалось создать поставку WB.');
+                ->error('Не удалось создать поставку WB.');
             return false;
         }
 
@@ -1168,7 +1165,7 @@ class MarketplaceApiService
         $marketplace_supply->save();
 
         Log::channel('marketplace_api')
-            ->notice('    Поставка '.  $newSupply->id.' создана WB.');
+            ->notice('Поставка ' . $newSupply->id . ' создана WB.');
 
         sleep(1);
 
@@ -1181,7 +1178,7 @@ class MarketplaceApiService
         }
 
         Log::channel('marketplace_api')
-            ->notice('    Поставка '.  $marketplace_supply->id.' успешно передана доставку WB.');
+            ->notice('Поставка ' . $marketplace_supply->id . ' успешно передана доставку WB.');
 
         return true;
     }
@@ -1202,7 +1199,7 @@ class MarketplaceApiService
 
             if(!$response->noContent()) {
                 Log::channel('marketplace_api')
-                    ->error('    Заказа №'.$order->order_id.' не добавлен в поставку WB '. $marketplace_supply->supply_id . ' (id '. $marketplace_supply->id . ')', [
+                    ->error('Заказа №' . $order->order_id . ' не добавлен в поставку WB ' . $marketplace_supply->supply_id . ' (id ' . $marketplace_supply->id . ')', [
                         'code' => $response->object()->code,
                         'message' => $response->object()->message,
                     ]);
@@ -1222,7 +1219,7 @@ class MarketplaceApiService
 
         if(!$response->noContent()) {
             Log::channel('marketplace_api')
-                ->error('    Не удалось передать поставку '.  $marketplace_supply->id.' в доставку WB.', [
+                ->error('Не удалось передать поставку ' . $marketplace_supply->id . ' в доставку WB.', [
                     'code' => $response->object()->code,
                     'message' => $response->object()->message,
                 ]);

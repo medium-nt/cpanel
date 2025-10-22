@@ -13,7 +13,7 @@ class MarketplaceSupplyService
     public static function deleteOldVideos(): void
     {
         Log::channel('erp')
-            ->info('    Запускаем ежедневную очистку старых видео...');
+            ->info('Запускаем ежедневную очистку старых видео...');
 
         $video = MarketplaceSupply::query()
             ->where('video', '!=', null)
@@ -30,11 +30,11 @@ class MarketplaceSupplyService
             ]);
 
             Log::channel('erp')
-                ->notice('    видео для поставки #' . $item->id . ' удалено после 60 дней.');
+                ->notice('Видео для поставки #' . $item->id . ' удалено после 60 дней.');
         }
 
         Log::channel('erp')
-            ->info('    Очистка старых видео завершена.');
+            ->info('Очистка старых видео завершена.');
     }
 
     public static function chunkedUpload(Request $request): JsonResponse

@@ -74,7 +74,7 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
-        Log::channel('erp')->notice('    ' . auth()->user()->name . ' создал поставку для маркетплейса ' . $marketplaceName . ' (#' . $marketplaceSupply->id . ').');
+        Log::channel('erp')->notice(auth()->user()->name . ' создал поставку для маркетплейса ' . $marketplaceName . ' (#' . $marketplaceSupply->id . ').');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -138,7 +138,7 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
-        Log::channel('erp')->notice('    ' . auth()->user()->name . ' передал в отгрузку поставку #' . $marketplace_supply->id . ' для маркетплейса ' . $marketplaceName . '.');
+        Log::channel('erp')->notice(auth()->user()->name . ' передал в отгрузку поставку #' . $marketplace_supply->id . ' для маркетплейса ' . $marketplaceName . '.');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -154,7 +154,7 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
-        Log::channel('erp')->notice('    ' . auth()->user()->name . ' сдал поставку #' . $marketplace_supply->id . ' в маркетплейс ' . $marketplaceName . '.');
+        Log::channel('erp')->notice(auth()->user()->name . ' сдал поставку #' . $marketplace_supply->id . ' в маркетплейс ' . $marketplaceName . '.');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -208,7 +208,7 @@ class MarketplaceSupplyController extends Controller
         ]);
 
         Log::channel('erp')
-            ->notice('    ' . auth()->user()->name . ' удалил видео для поставки #' . $marketplace_supply->id . '.');
+            ->notice(auth()->user()->name . ' удалил видео для поставки #' . $marketplace_supply->id . '.');
 
         return back()->with('success', 'Видео удалено!');
     }

@@ -29,7 +29,7 @@ class SupplyOrderList extends Component
             $order->supply_id = null;
             $order->save();
 
-            Log::channel('erp')->notice('    Заказ №'.$order->order_id.' успешно удален из поставки.');
+            Log::channel('erp')->notice('Заказ №' . $order->order_id . ' успешно удален из поставки.');
         }
 
         $this->dispatch('orderRemoved');

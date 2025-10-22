@@ -27,7 +27,7 @@ class DefectMaterialService
         switch ($request->status) {
             case '-1':
                 Log::channel('erp')
-                    ->notice('    Админ отменил '.$typeName.' (#'.$order->id.'):' . "\n"  . $list);
+                    ->notice('Админ отменил ' . $typeName . ' (#' . $order->id . '):' . "\n" . $list);
 
                 $return = [
                     'status' => 'error',
@@ -36,7 +36,7 @@ class DefectMaterialService
                 break;
             case '1':
                 Log::channel('erp')
-                    ->notice('    Админ одобрил '.$typeName.' (#'.$order->id.'):' . "\n"  . $list);
+                    ->notice('Админ одобрил ' . $typeName . ' (#' . $order->id . '):' . "\n" . $list);
 
                 $return = [
                     'status' => 'success',
@@ -47,7 +47,7 @@ class DefectMaterialService
                 $text = 'Кладовщик ' . auth()->user()->name . ' забрал ' . $typeName . ' с производства:' . "\n"  . $list;
 
                 Log::channel('erp')
-                    ->notice('    Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+                    ->notice('Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
 
                 TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -121,7 +121,7 @@ class DefectMaterialService
             $text = 'Сотрудник ' . auth()->user()->name . ' указал ' . $typeName . ': ' . "\n"  . $list;
 
             Log::channel('erp')
-                ->notice('    Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
 
             SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
 

@@ -77,7 +77,7 @@ class MovementMaterialToWorkshopService
             $text = 'Швея ' . auth()->user()->name . ' запросила: ' . "\n"  . $list;
 
             Log::channel('erp')
-                ->notice('    Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -133,7 +133,7 @@ class MovementMaterialToWorkshopService
             $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил материал на производство: ' . "\n"  . $list;
 
             Log::channel('erp')
-                ->notice('    Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+                ->notice('Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 

@@ -178,7 +178,7 @@ class MarketplaceOrderItemService
             Log::error($e->getMessage());
 
             Log::channel('erp')
-                ->error('    Заказ № '.$marketplaceOrderItem->marketplaceOrder->order_id .' не удалось отменить!');
+                ->error('Заказ № ' . $marketplaceOrderItem->marketplaceOrder->order_id . ' не удалось отменить!');
 
             return [
                 'success' => false,

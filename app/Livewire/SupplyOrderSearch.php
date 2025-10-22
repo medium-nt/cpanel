@@ -119,7 +119,7 @@ class SupplyOrderSearch extends Component
         $order->marketplace_status = MarketplaceApiService::getStatusOrder($order);
         $order->save();
 
-        Log::channel('erp')->notice('    Заказ №'.$order->order_id.' успешно добавлен в поставку.');
+        Log::channel('erp')->notice('Заказ №' . $order->order_id . ' успешно добавлен в поставку.');
 
         $this->orderId = '';
         $this->selectedOrderId = null;
