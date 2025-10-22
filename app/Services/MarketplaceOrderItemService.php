@@ -328,9 +328,19 @@ class MarketplaceOrderItemService
         return $items->get();
     }
 
-    public static function getMaxQuantityOrdersToSeamstress()
+    public static function getMaxQuantityOrdersToUserRole()
     {
-        return Setting::query()->where('name', 'max_quantity_orders_to_seamstress')->first()->value;
+        $field = match (auth()->user()->role->name) {
+            'seamstress' => 'max_quantity_orders_to_seamstress',
+            'cutter' => 'max_quantity_orders_to_cutter',
+            default => false,
+        };
+
+        if (!$field) {
+            return 0;
+        }
+
+        return Setting::query()->where('name', $field)->first()->value;
     }
 
     private static function checkSchedule(): array
@@ -369,7 +379,7 @@ class MarketplaceOrderItemService
             default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
         };
 
-        $maxCountOrderItems = self::getMaxQuantityOrdersToSeamstress();
+        $maxCountOrderItems = self::getMaxQuantityOrdersToUserRole();
 
         if ($orderItemsByUser->count() >= $maxCountOrderItems) {
             return [

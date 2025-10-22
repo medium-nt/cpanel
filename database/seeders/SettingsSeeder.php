@@ -48,6 +48,11 @@ class SettingsSeeder extends Seeder
         );
 
         Setting::query()->firstOrCreate(
+            ['name' => 'max_quantity_orders_to_cutter'],
+            ['value' => '7']
+        );
+
+        Setting::query()->firstOrCreate(
             ['name' => 'orders_priority'],
             ['value' => 'by_date']
         );

@@ -134,6 +134,18 @@
                             <hr>
                             <div class="row">
                                 <div class="form-group col-md-2">
+                                    <label for="title">Макс. кол-во заказов у
+                                        закройщика</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="max_quantity_orders_to_cutter"
+                                        name="max_quantity_orders_to_cutter"
+                                        value="{{ $settings->max_quantity_orders_to_cutter }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-2">
                                     <label for="title">Макс. кол-во заказов у швеи</label>
                                     <input
                                         type="text"
@@ -145,7 +157,8 @@
                                 </div>
 
                                 <div class="form-group col-md-2">
-                                    <label for="orders_priority">Порядок заказов для швей</label>
+                                    <label for="orders_priority">Порядок
+                                        заказов</label>
                                     <select name="orders_priority" id="orders_priority" class="form-control">
                                         <option value="ozon" {{ $settings->orders_priority == 'ozon' ? 'selected' : '' }}>Сначала OZON</option>
                                         <option value="wb" {{ $settings->orders_priority == 'wb' ? 'selected' : '' }}>Сначала WB</option>
