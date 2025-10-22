@@ -164,36 +164,42 @@ class MarketplaceApiService
 
     public static function getAllNewOrdersWb(): array|object
     {
-        $response = self::wbRequest()
-            ->get('https://marketplace-api.wildberries.ru/api/v3/orders/new');
+        try {
+            $response = self::wbRequest()
+                ->get('https://marketplace-api.wildberries.ru/api/v3/orders/new');
 
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения новых заказов из Wb');
-            return [];
-        }
-
-        $orders = $response->object()->orders;
-
-        $unifiedOrders = [];
-        foreach ($orders as $order) {
-            $array = [
-                'id' => $order->id,
-                'skus' => [],
-                'marketplace_id' => '2',
-                'order_created' => $order->createdAt,
-            ];
-
-            foreach ($order->skus as $sku) {
-                $array['skus'][] = [
-                    'sku' => $sku,
-                    'quantity' => 1
-                ];
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения новых заказов из Wb');
+                return [];
             }
 
-            $unifiedOrders[] = $array;
-        }
+            $orders = $response->object()->orders;
 
-        return json_decode(json_encode($unifiedOrders));
+            $unifiedOrders = [];
+            foreach ($orders as $order) {
+                $array = [
+                    'id' => $order->id,
+                    'skus' => [],
+                    'marketplace_id' => '2',
+                    'order_created' => $order->createdAt,
+                ];
+
+                foreach ($order->skus as $sku) {
+                    $array['skus'][] = [
+                        'sku' => $sku,
+                        'quantity' => 1
+                    ];
+                }
+
+                $unifiedOrders[] = $array;
+            }
+
+            return json_decode(json_encode($unifiedOrders));
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')
+                ->error('ВНИМАНИЕ! Ошибка получения новых заказов из WB: ' . $e->getMessage());
+            return [];
+        }
     }
 
     public static function getAllNewOrdersOzon(): array|object
@@ -301,28 +307,35 @@ class MarketplaceApiService
                 "orders" => $orders
             ];
 
-            $response = Http::accept('application/json')
-                ->withOptions(['verify' => false])
-                ->withHeaders(['Authorization' => self::getWbApiKey()])
-                ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+            try {
+                $response = Http::accept('application/json')
+                    ->withOptions(['verify' => false])
+                    ->withHeaders(['Authorization' => self::getWbApiKey()])
+                    ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
-            if(!$response->ok()) {
-                Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
-                Log::channel('marketplace_api')->error($body);
-                Log::channel('marketplace_api')->error(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-                return [];
-            }
-
-            $orders = $response->object()->orders;
-
-            foreach ($orders as $order) {
-                if ($order->wbStatus == "declined_by_client"){
-                    $unifiedOrders[] = [
-                        'id' => $order->id,
-                        'marketplace_id' => '2',
-                        'status' => $order->wbStatus
-                    ];
+                if (!$response->ok()) {
+                    Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
+                    Log::channel('marketplace_api')->error($body);
+                    Log::channel('marketplace_api')->error(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                    return [];
                 }
+
+                $orders = $response->object()->orders;
+
+                foreach ($orders as $order) {
+                    if ($order->wbStatus == "declined_by_client") {
+                        $unifiedOrders[] = [
+                            'id' => $order->id,
+                            'marketplace_id' => '2',
+                            'status' => $order->wbStatus
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb: ' . $e->getMessage()
+                );
+                return [];
             }
         }
 
@@ -652,13 +665,19 @@ class MarketplaceApiService
         // Получаем открытую поставку для WB (если ее нет, то сначала создаем новую).
         $supplyId = self::getWbSupplyId();
 
-        // Добавляем сборочное задание для WB в эту поставку.
-        $response = Http::withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => self::getWbApiKey()])
-            ->patch('https://marketplace-api.wildberries.ru/api/v3/supplies/'.$supplyId.'/orders/'.$orderId);
+        try {
+            // Добавляем сборочное задание для WB в эту поставку.
+            $response = Http::withOptions(['verify' => false])
+                ->withHeaders(['Authorization' => self::getWbApiKey()])
+                ->patch('https://marketplace-api.wildberries.ru/api/v3/supplies/' . $supplyId . '/orders/' . $orderId);
 
-        if($response->noContent()) {
-            return true;
+            if ($response->noContent()) {
+                return true;
+            }
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка добавления в открытую поставку WB заказа ' . $orderId . ': ' . $e->getMessage()
+            );
         }
 
         return false;
@@ -722,20 +741,24 @@ class MarketplaceApiService
 
     private static function getSuppliesWb($next = 0): object|false|null
     {
-        $response = self::wbRequest()
-            ->withQueryParameters(
-                [
+        try {
+            $response = self::wbRequest()
+                ->withQueryParameters([
                     'limit' => 1000,
                     'next' => $next,
-                ]
-            )
-            ->get('https://marketplace-api.wildberries.ru/api/v3/supplies');
+                ])->get('https://marketplace-api.wildberries.ru/api/v3/supplies');
 
-        if(!$response->ok()) {
+            if (!$response->ok()) {
+                return false;
+            }
+
+            return $response->object();
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении списка поставок WB: ' . $e->getMessage()
+            );
             return false;
         }
-
-        return $response->object();
     }
 
     private static function createSupplyWb(): object|false|null
@@ -744,19 +767,26 @@ class MarketplaceApiService
             "name" => "Поставка от " . date('d.m.Y H:i'),
         ];
 
-        $response = self::wbRequest()
-            ->post('https://marketplace-api.wildberries.ru/api/v3/supplies', $body);
+        try {
+            $response = self::wbRequest()
+                ->post('https://marketplace-api.wildberries.ru/api/v3/supplies', $body);
 
-        if(!$response->created()) {
-            Log::channel('marketplace_api')
-                ->error('Не удалось создать новую поставку WB: ', [
-                    'code' => $response->object()->code,
-                    'message' => $response->object()->message,
-                ]);
+            if (!$response->created()) {
+                Log::channel('marketplace_api')
+                    ->error('Не удалось создать новую поставку WB: ', [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
+                return false;
+            }
+
+            return $response->object();
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Не удалось создать новую поставку WB: ' . $e->getMessage()
+            );
             return false;
         }
-
-        return $response->object();
     }
 
     public static function getBarcodeOzon(mixed $orderId): object|false|null
@@ -807,40 +837,48 @@ class MarketplaceApiService
             ],
         ];
 
-        $response = self::wbRequest()
-            ->withQueryParameters( [
-                'type' => 'png',
-                'width' => 58,
-                'height' => 40,
-            ])
-            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/stickers', $body);
+        try {
+            $response = self::wbRequest()
+                ->withQueryParameters([
+                    'type' => 'png',
+                    'width' => 58,
+                    'height' => 40,
+                ])
+                ->post('https://marketplace-api.wildberries.ru/api/v3/orders/stickers', $body);
 
-        if(!$response->ok()) {
-            return false;
-        }
+            if (!$response->ok()) {
+                return false;
+            }
 
-        if (empty($response->object()->stickers)) {
-            echo "Ошибка получения стикера";
+            if (empty($response->object()->stickers)) {
+                echo "Ошибка получения стикера";
+                exit;
+            }
+
+            $marketplaceOrder = MarketplaceOrder::query()
+                ->where('order_id', $orderId)
+                ->first();
+
+            $marketplaceOrder->barcode = $response->object()->stickers[0]->barcode;
+            $marketplaceOrder->part_b = $response->object()->stickers[0]->partB;
+            $marketplaceOrder->save();
+
+            $decodedData = base64_decode($response->object()->stickers[0]->file);
+
+            $tempImagePath = sys_get_temp_dir() . '/image.png';
+            file_put_contents($tempImagePath, $decodedData);
+
+            $pdf = PDF::loadView('pdf.wb_sticker', ['imagePath' => $tempImagePath]);
+            $pdf->setPaper('A4', 'portrait');
+
+            return $pdf->stream('barcode.pdf');
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка получения стикера WB ' . $orderId . ': ' . $e->getMessage()
+            );
+            echo "Ошибка получения стикера. Попробуйте повторить позже.";
             exit;
         }
-
-        $marketplaceOrder = MarketplaceOrder::query()
-            ->where('order_id', $orderId)
-            ->first();
-
-        $marketplaceOrder->barcode = $response->object()->stickers[0]->barcode;
-        $marketplaceOrder->part_b = $response->object()->stickers[0]->partB;
-        $marketplaceOrder->save();
-
-        $decodedData = base64_decode($response->object()->stickers[0]->file);
-
-        $tempImagePath = sys_get_temp_dir() . '/image.png';
-        file_put_contents($tempImagePath, $decodedData);
-
-        $pdf = PDF::loadView('pdf.wb_sticker', ['imagePath' => $tempImagePath]);
-        $pdf->setPaper('A4', 'portrait');
-
-        return $pdf->stream('barcode.pdf');
     }
 
     public static function getBarcodeOzonFBO(MarketplaceOrder $order): \Illuminate\Http\Response
@@ -1191,19 +1229,26 @@ class MarketplaceApiService
 
         $notAddedOrders = [];
         foreach ($allOrders as $order) {
-            $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/orders/'.$order->order_id;
-            $response = Http::accept('application/json')
-                ->withOptions(['verify' => false])
-                ->withHeaders(['Authorization' => self::getWbApiKey()])
-                ->patch($url);
+            try {
+                $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/' . $marketplace_supply->supply_id . '/orders/' . $order->order_id;
+                $response = Http::accept('application/json')
+                    ->withOptions(['verify' => false])
+                    ->withHeaders(['Authorization' => self::getWbApiKey()])
+                    ->patch($url);
 
-            if(!$response->noContent()) {
-                Log::channel('marketplace_api')
-                    ->error('Заказа №' . $order->order_id . ' не добавлен в поставку WB ' . $marketplace_supply->supply_id . ' (id ' . $marketplace_supply->id . ')', [
-                        'code' => $response->object()->code,
-                        'message' => $response->object()->message,
-                    ]);
-               $notAddedOrders[] = $order->order_id;
+                if (!$response->noContent()) {
+                    Log::channel('marketplace_api')
+                        ->error('Заказа №' . $order->order_id . ' не добавлен в поставку WB ' . $marketplace_supply->supply_id . ' (id ' . $marketplace_supply->id . ')', [
+                            'code' => $response->object()->code,
+                            'message' => $response->object()->message,
+                        ]);
+                    $notAddedOrders[] = $order->order_id;
+                }
+            } catch (\Throwable $e) {
+                Log::channel('marketplace_api')->error(
+                    'Заказа №' . $order->order_id . ' не добавлен в поставку WB ' . $marketplace_supply->supply_id . ' (id ' . $marketplace_supply->id . '): ' . $e->getMessage()
+                );
+                $notAddedOrders[] = $order->order_id;
             }
         }
 
@@ -1214,19 +1259,26 @@ class MarketplaceApiService
     {
         $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/deliver';
 
-        $response = self::wbRequest()
-            ->patch($url);
+        try {
+            $response = self::wbRequest()
+                ->patch($url);
 
-        if(!$response->noContent()) {
-            Log::channel('marketplace_api')
-                ->error('Не удалось передать поставку ' . $marketplace_supply->id . ' в доставку WB.', [
-                    'code' => $response->object()->code,
-                    'message' => $response->object()->message,
-                ]);
+            if (!$response->noContent()) {
+                Log::channel('marketplace_api')
+                    ->error('Не удалось передать поставку ' . $marketplace_supply->id . ' в доставку WB.', [
+                        'code' => $response->object()->code,
+                        'message' => $response->object()->message,
+                    ]);
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Не удалось передать поставку ' . $marketplace_supply->id . ' в доставку WB: ' . $e->getMessage()
+            );
             return false;
         }
-
-        return true;
     }
 
     private static function createSupplyOzon()
@@ -1441,29 +1493,39 @@ class MarketplaceApiService
     public static function getBarcodeSupplyWB(MarketplaceSupply $marketplace_supply)
     {
         $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/barcode?type=png';
-        $response = self::wbRequest()
-            ->get($url);
 
-        if (!$response->ok()) {
-            Log::channel('marketplace_api')->error('Ответ WB ', [
-                'code' => $response->object()->code,
-                'message' => $response->object()->message,
-            ]);
+        try {
+            $response = self::wbRequest()
+                ->get($url);
 
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error('Не удалось получить штрихкод поставки от WB: ', [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
+
+                return redirect()
+                    ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                    ->with('error', 'Не удалось получить штрихкод поставки от WB');
+            }
+
+            $decodedData = base64_decode($response->object()->file);
+
+            $tempImagePath = sys_get_temp_dir() . '/image.png';
+            file_put_contents($tempImagePath, $decodedData);
+
+            $pdf = PDF::loadView('pdf.wb_sticker', ['imagePath' => $tempImagePath]);
+            $pdf->setPaper('A4', 'portrait');
+
+            return $pdf->stream('barcode.pdf');
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Не удалось получить штрихкод поставки от WB ' . $marketplace_supply->id . ' : ' . $e->getMessage()
+            );
             return redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'Не удалось получить штрихкод поставки от WB');
         }
-
-        $decodedData = base64_decode($response->object()->file);
-
-        $tempImagePath = sys_get_temp_dir() . '/image.png';
-        file_put_contents($tempImagePath, $decodedData);
-
-        $pdf = PDF::loadView('pdf.wb_sticker', ['imagePath' => $tempImagePath]);
-        $pdf->setPaper('A4', 'portrait');
-
-        return $pdf->stream('barcode.pdf');
     }
 
     public static function updateStatusOrderBySupplyWB(MarketplaceSupply $marketplace_supply): RedirectResponse
@@ -1478,33 +1540,41 @@ class MarketplaceApiService
             "orders" => $orders
         ];
 
-        $response = self::wbRequest()
-            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+        try {
+            $response = self::wbRequest()
+                ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
-        if(!$response->ok()) {
-            Log::channel('marketplace_api')->error('Не удалось получить новые статусы заказов по WB', [
-                'code' => $response->object()->code,
-                'message' => $response->object()->message,
-            ]);
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error('Не удалось получить новые статусы заказов по WB', [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message,
+                ]);
 
+                return redirect()
+                    ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                    ->with('error', 'Не удалось получить новые статусы заказов по WB');
+            }
+
+            $orders = $response->object()->orders;
+
+            foreach ($orders as $order) {
+                MarketplaceOrder::query()
+                    ->where('order_id', (string)$order->id)
+                    ->update([
+                        'marketplace_status' => $order->supplierStatus,
+                    ]);
+            }
+
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('success', 'Статусы заказов по WB обновлены');
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')
+                ->error('Не удалось получить новые статусы заказов по поставке WB ' . $marketplace_supply->id . ' : ' . $e->getMessage());
             return redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'Не удалось получить новые статусы заказов по WB');
         }
-
-        $orders = $response->object()->orders;
-
-        foreach ($orders as $order) {
-            MarketplaceOrder::query()
-                ->where('order_id', (string) $order->id)
-                ->update([
-                    'marketplace_status' => $order->supplierStatus,
-                ]);
-        }
-
-        return redirect()
-            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
-            ->with('success', 'Статусы заказов по WB обновлены');
     }
 
     public static function updateStatusOrderBySupplyOzon(MarketplaceSupply $marketplace_supply): RedirectResponse
@@ -1595,14 +1665,21 @@ class MarketplaceApiService
             ]
         ];
 
-        $response = self::wbRequest()
-            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+        try {
+            $response = self::wbRequest()
+                ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
-        if(!$response->ok()) {
+            if (!$response->ok()) {
+                return null;
+            }
+
+            return $response->object()->orders[0]->supplierStatus;
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении статуса заказа WB ' . $order->order_id . ': ' . $e->getMessage()
+            );
             return null;
         }
-
-        return $response->object()->orders[0]->supplierStatus;
     }
 
     private static function verifyOrFixExemplarStatus($orderId): bool
@@ -1750,26 +1827,34 @@ class MarketplaceApiService
             ],
         ];
 
-        $response = self::wbRequest()
-            ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
+        try {
+            $response = self::wbRequest()
+                ->post('https://marketplace-api.wildberries.ru/api/v3/orders/status', $body);
 
-        if (!$response->ok()) {
-            Log::channel('marketplace_api')
-                ->error('ВНИМАНИЕ! Ошибка получения причины возврата из WB по заказу '
-                    . $marketplace_item->marketplaceOrder->order_id);
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')
+                    ->error('ВНИМАНИЕ! Ошибка получения причины возврата из WB по заказу '
+                        . $marketplace_item->marketplaceOrder->order_id);
 
+                return '---';
+            }
+
+            return match ($response->object()->orders[0]->wbStatus) {
+                'waiting', 'sorted' => 'Задание в работе',
+                'ready_for_pickup' => 'Прибыло на (ПВЗ)',
+                'sold' => 'Заказ получен покупателем',
+                'canceled_by_client' => 'Покупатель отменил заказ при получении',
+                'declined_by_client' => 'Покупатель отменил заказ сразу после заказа',
+                'canceled ' => 'Отмена сборочного задания',
+                'defect' => 'Отмена заказа по причине брака',
+                default => '---',
+            };
+        } catch (\Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'ВНИМАНИЕ! Ошибка получения причины возврата из WB по заказу ' .
+                $marketplace_item->marketplaceOrder->order_id . ': ' . $e->getMessage()
+            );
             return '---';
         }
-
-        return match ($response->object()->orders[0]->wbStatus) {
-            'waiting', 'sorted' => 'Задание в работе',
-            'ready_for_pickup' => 'Прибыло на (ПВЗ)',
-            'sold' => 'Заказ получен покупателем',
-            'canceled_by_client' => 'Покупатель отменил заказ при получении',
-            'declined_by_client' => 'Покупатель отменил заказ сразу после заказа',
-            'canceled ' => 'Отмена сборочного задания',
-            'defect' => 'Отмена заказа по причине брака',
-            default => '---',
-        };
     }
 }
