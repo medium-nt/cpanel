@@ -565,10 +565,10 @@ class TransactionService
         if($user->isSeamstress()) {
             if ($user->is_cutter) {
                 $nowMotivationBonus = $motivationBonus->bonus ?? 0;
-                $salary = $salary->value('rate') ?? 0;
+                $salary = $salary->rate ?? 0;
             } else {
                 $nowMotivationBonus = $motivationBonus->not_cutter_bonus ?? 0;
-                $salary = $salary->value('not_cutter_rate') ?? 0;
+                $salary = $salary->not_cutter_rate ?? 0;
             }
         }
 
