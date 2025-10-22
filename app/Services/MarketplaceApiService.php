@@ -72,7 +72,6 @@ class MarketplaceApiService
                 $productsArray[] = $array;
             }
 
-
             if (isset($items->cursor->total) && $items->cursor->total >= $limit) {
                 $cursor["settings"]["cursor"]["updatedAt"] = $items->cursor->updatedAt;
                 $cursor["settings"]["cursor"]["nmID"] = $items->cursor->nmID;
