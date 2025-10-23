@@ -746,4 +746,18 @@ class MarketplaceOrderItemService
         Log::channel('erp')
             ->warning('Восстановлен резервированный товара ' . $marketplaceOrderItem->id);
     }
+
+    public function getOrdersGroupedByMaterial(): \Illuminate\Support\Collection
+    {
+        $items = MarketplaceOrderItem::query()
+            ->with('marketplaceOrder')
+            ->with('item')
+            ->where('marketplace_order_items.status', 7)
+            ->where('marketplace_order_items.cutter_id', auth()->user()->id)
+            ->get();
+
+        return collect($items)->groupBy(function ($item) {
+            return $item->item->title ?? '-----';
+        });
+    }
 }

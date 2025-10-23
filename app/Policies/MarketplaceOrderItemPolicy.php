@@ -27,4 +27,9 @@ class MarketplaceOrderItemPolicy
     {
         return $user->isAdmin() || $user->isSeamstress() || $user->isCutter();
     }
+
+    public function printCutting(User $user): bool
+    {
+        return $user->isCutter();
+    }
 }

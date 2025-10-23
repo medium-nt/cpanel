@@ -172,6 +172,13 @@
                     заказ</a>
                 @endif
 
+                    @if(auth()->user()->isCutter())
+                        <a href="{{ route('marketplace_order_items.printCutting') }}"
+                           target="_blank"
+                           class="btn btn-outline-secondary ml-3 mb-3"><i
+                                class="fas fa-print mr-1"></i>Распечатать заказы</a>
+                    @endif
+
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">

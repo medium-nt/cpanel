@@ -6,10 +6,10 @@ use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
 use App\Models\User;
-use App\Services\InventoryService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\TransactionService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -156,5 +156,15 @@ class MarketplaceOrderItemController extends Controller
         Log::channel('erp')->notice($text);
 
         return back()->with('success', 'Заказ успешно выполнен');
+    }
+
+    public function printCutting(MarketplaceOrderItemService $service)
+    {
+        $pdf = PDF::loadView('pdf.print_cutting', [
+            'orders' => $service->getOrdersGroupedByMaterial()
+        ]);
+
+        return $pdf->setPaper('A4')
+            ->stream('cutting.pdf');
     }
 }

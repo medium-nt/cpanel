@@ -37,6 +37,15 @@ class MarketplaceOrder extends Model
         return Marketplace::NAME[$this->marketplace_id];
     }
 
+    public function getMarketplaceTitleAttribute(): string
+    {
+        return match ($this->marketplace_id) {
+            1 => 'OZON',
+            2 => 'WB',
+            default => '---',
+        };
+    }
+
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status];

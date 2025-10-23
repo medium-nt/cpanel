@@ -22,5 +22,9 @@ Route::prefix('/marketplace_order_items')->group(function () {
     Route::put('/cancel/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'cancel'])
         ->can('update', 'marketplace_order_item')
         ->name('marketplace_order_items.cancel');
+
+    Route::get('/print_cutting', [App\Http\Controllers\MarketplaceOrderItemController::class, 'printCutting'])
+        ->can('printCutting', MarketplaceOrderItem::class)
+        ->name('marketplace_order_items.printCutting');
 });
 
