@@ -25,18 +25,18 @@
 
         th, td {
             border: 1px solid #000;
-            padding: 5px;
+            padding: 1px;
             text-align: center;
         }
 
         .dimensions {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 10px;
         }
 
         .label {
             font-weight: bold;
-            font-size: 34px;
+            font-size: 20px;
         }
 
         .page-break {
@@ -90,15 +90,14 @@
         @foreach($items as $item)
             <tr>
                 <td class="dimensions">
-                    {{ $item->item->width }} × {{ $item->item->height }}
-                    <br><br>
-                    {{ $item->marketplaceOrder->MarketplaceTitle }}<br>
-                    ({{ $item->marketplaceOrder->order_id }})
+                    {{ $item->item->width }} × {{ $item->item->height }}<br>
+                    {{ $item->marketplaceOrder->MarketplaceTitle }}
+                    {{ $item->marketplaceOrder->order_id }}
                 </td>
                 <td></td>
                 <td class="label">
-                    {{ $item->item->title }}<br>
-                    {{ $item->item->width }} × {{ $item->item->height }} <br>
+                    {{ $item->item->title }} {{ $item->item->width }}
+                    × {{ $item->item->height }}
                 </td>
             </tr>
         @endforeach
