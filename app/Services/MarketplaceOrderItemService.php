@@ -756,8 +756,12 @@ class MarketplaceOrderItemService
             ->where('marketplace_order_items.cutter_id', auth()->user()->id)
             ->get();
 
-        return collect($items)->groupBy(function ($item) {
-            return $item->item->title ?? '-----';
-        });
+        return collect($items)
+            ->groupBy(fn($item) => $item->item->title ?? '-----')
+            ->map(function ($group) {
+                return $group->sortBy(function ($item) {
+                    return [$item->item->width, $item->item->height];
+                });
+            });
     }
 }

@@ -32,32 +32,16 @@
         .dimensions {
             font-weight: bold;
             font-size: 10px;
-        }
-
-        .label {
-            font-weight: bold;
-            font-size: 20px;
-        }
-
-        .page-break {
-            page-break-after: always;
-        }
-
-        /* Ширина колонок */
-        .col-item {
-            width: 35%;
+            width: 45%;
         }
 
         .col-cutting {
-            width: 15%;
+            width: 5%;
             border-right: 1px solid #000 !important;
         }
 
-        .col-label {
-            width: 50%;
-        }
-
         .col-hidden {
+            width: 50%;
             border: none !important;
             background: transparent !important;
         }
@@ -65,48 +49,48 @@
 </head>
 <body>
 
+<table>
+    <thead>
+    <tr>
+        <th class="dimensions">{{ auth()->user()->name }}</th>
+        <th class="col-cutting">{{ now()->format('d/m/Y') }}</th>
+        <th class="col-hidden"></th>
+    </tr>
+    </thead>
+</table>
+
 @foreach($orders as $material => $items)
-    <h2>{{ $material }}: {{ $items->count() }} шт.</h2>
-
     <table>
         <thead>
-        <tr>
-            <th class="col-item">{{ auth()->user()->name }}</th>
-            <th class="col-cutting">{{ now()->format('d/m/Y') }}</th>
-            <th class="col-label col-hidden"></th>
-        </tr>
-        </thead>
-    </table>
-
-    <table>
-        <thead>
-        <tr>
-            <th сlass="col-item">Заказ</th>
-            <th class="col-cutting">Накроено</th>
-            <th class="col-label">На товар</th>
-        </tr>
+        {{--        <tr>--}}
+        {{--            <th сlass="col-item">Заказ</th>--}}
+        {{--            <th class="col-cutting">Накроено</th>--}}
+        {{--            <th сlass="col-item">Заказ</th>--}}
+        {{--            <th class="col-cutting">Накроено</th>--}}
+        {{--        </tr>--}}
         </thead>
         <tbody>
-        @foreach($items as $item)
+        @foreach($items->chunk(2) as $pair)
             <tr>
-                <td class="dimensions">
-                    {{ $item->item->width }} × {{ $item->item->height }}<br>
-                    {{ $item->marketplaceOrder->MarketplaceTitle }}
-                    {{ $item->marketplaceOrder->order_id }}
-                </td>
-                <td></td>
-                <td class="label">
-                    {{ $item->item->title }} {{ $item->item->width }}
-                    × {{ $item->item->height }}
-                </td>
+                @foreach($pair as $item)
+                    <td class="dimensions">
+                        {{ $material }}
+                        {{ $item->item->width }} × {{ $item->item->height }}<br>
+                        {{ $item->marketplaceOrder->MarketplaceTitle }}
+                        {{ $item->marketplaceOrder->order_id }}
+                    </td>
+                    <td class="col-cutting"></td>
+                @endforeach
+
+                @if($pair->count() < 2)
+                    {{-- Если только один элемент в строке, добавим пустую ячейку --}}
+                    <td class="dimensions"></td>
+                    <td class="col-cutting"></td>
+                @endif
             </tr>
         @endforeach
         </tbody>
     </table>
-
-    @if(!$loop->last)
-        <div class="page-break"></div>
-    @endif
 @endforeach
 
 </body>
