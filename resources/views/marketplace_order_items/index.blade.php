@@ -394,6 +394,13 @@
                                class="btn btn-primary getNewOrderItem">Получить
                                 новый заказ</a>
                         @endif
+
+                            @if(auth()->user()->isCutter())
+                                <a href="{{ route('marketplace_order_items.printCutting') }}"
+                                   target="_blank"
+                                   class="btn btn-outline-secondary ml-3"><i
+                                        class="fas fa-print"></i></a>
+                            @endif
                     </div>
                 </div>
             </div>
