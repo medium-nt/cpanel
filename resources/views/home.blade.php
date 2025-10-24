@@ -313,7 +313,10 @@
         window.seamstressesData = {!! $seamstresses !!};
         window.dates = {!! $dates !!};
     </script>
+
+    @if(auth()->user()->role_id == '3')
     <script src="{{ asset('js/ratingGraph.js') }}"></script>
+    @endif
 @endpush
 
 @push('css')
