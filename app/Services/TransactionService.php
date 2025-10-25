@@ -79,12 +79,7 @@ class TransactionService
 
     private static function addTransaction(?User $user, $amount, $transaction_type, $title, $accrual_for_date, $type, bool $isBonus): void
     {
-        $status = $isBonus
-            ? match ($transaction_type) {
-                'out' => 0,
-                'in' => 1,
-            }
-            : 1;
+        $status = $isBonus ? 0 : 1;
 
         if ($type === 'company') {
             $status = 2;
