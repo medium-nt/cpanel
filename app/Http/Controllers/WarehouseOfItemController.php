@@ -137,7 +137,10 @@ class WarehouseOfItemController extends Controller
     public function labeling(Request $request, MarketplaceOrder $marketplaceOrder, MarketplaceOrderItem $marketplaceOrderItem)
     {
         $orderId = $marketplaceOrder->order_id;
-        $sku = $marketplaceOrderItem->item->sku()->first()->sku;
+
+        /** @var Sku|null $skuModel */
+        $skuModel = $marketplaceOrderItem->item->sku()->first();
+        $sku = $skuModel?->sku;
 
         $result = match ($marketplaceOrder->marketplace_id) {
             1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),

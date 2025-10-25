@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
+use App\Models\Sku;
 use App\Models\User;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
@@ -91,7 +92,10 @@ class MarketplaceOrderItemController extends Controller
 
         if ($fulfillmentType === 'FBS') {
             $orderId = $marketplaceOrderItem->marketplaceOrder->order_id;
-            $sku = $marketplaceOrderItem->item->sku()->first()->sku;
+
+            /** @var Sku|null $skuModel */
+            $skuModel = $marketplaceOrderItem->item->sku()->first();
+            $sku = $skuModel?->sku;
 
             $result = match ($marketplaceOrderItem->marketplaceOrder->marketplace_id) {
                 1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
