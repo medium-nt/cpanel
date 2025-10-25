@@ -4,8 +4,10 @@ namespace App\Livewire;
 
 use App\Services\MarketplaceApiService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Livewire\Component;
 use App\Models\MarketplaceOrder;
+use Livewire\Attributes\On;
 
 class SupplyOrderSearch extends Component
 {
@@ -72,25 +74,25 @@ class SupplyOrderSearch extends Component
     }
 
 
-    public function updatedMessage()
+    public function updatedMessage(): void
     {
         if ($this->message) {
-            $this->dispatchBrowserEvent('clear-message');
+            $this->dispatch('clear-message');
         }
     }
 
     #[On('resetMessage')]
-    public function resetMessage()
+    public function resetMessage(): void
     {
         $this->message = null;
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.supply-order-search');
     }
 
-    public function confirmSelectedOrder()
+    public function confirmSelectedOrder(): void
     {
         $order = MarketplaceOrder::find($this->selectedOrderId);
 
