@@ -71,5 +71,10 @@ class SettingsSeeder extends Seeder
             ['name' => 'is_enabled_work_shift'],
             ['value' => '0']
         );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'cutter_daily_limit'],
+            ['value' => '1']
+        );
     }
 }

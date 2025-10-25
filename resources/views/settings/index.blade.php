@@ -146,6 +146,19 @@
                                 </div>
 
                                 <div class="form-group col-md-2">
+                                    <label for="cutter_daily_limit">Метраж в
+                                        день у
+                                        закройщика</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="cutter_daily_limit"
+                                        name="cutter_daily_limit"
+                                        value="{{ $settings->cutter_daily_limit }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-2">
                                     <label for="title">Макс. кол-во заказов у швеи</label>
                                     <input
                                         type="text"
