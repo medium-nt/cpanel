@@ -367,31 +367,42 @@ class MarketplaceOrderItemService
         ];
     }
 
-    private static function checkMaxStack(): array
+    private static function checkMaxStack(User $user): array
     {
-        $query = MarketplaceOrderItem::query();
+        try {
+            $query = MarketplaceOrderItem::query();
 
-        $orderItemsByUser = match (auth()->user()->role->name) {
-            'seamstress' => $query->where('seamstress_id', auth()->user()->id)
-                ->whereIn('status', [4, 5]),
-            'cutter'     => $query->where('cutter_id', auth()->user()->id)
-                ->where('status', 7),
-            default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
-        };
+            $orderItemsByUser = match ($user->role->name) {
+                'seamstress' => $query->where('seamstress_id', $user->id)
+                    ->whereIn('status', [4, 5]),
+                'cutter' => $query->where('cutter_id', $user->id)
+                    ->where('status', 7),
+                default => throw new \Exception('Недопустимая роль: ' . $user->role->name),
+            };
 
-        $maxCountOrderItems = self::getMaxQuantityOrdersToUserRole();
+            $maxCountOrderItems = self::getMaxQuantityOrdersToUserRole();
 
-        if ($orderItemsByUser->count() >= $maxCountOrderItems) {
+            if ($orderItemsByUser->count() >= $maxCountOrderItems) {
+                return [
+                    'success' => false,
+                    'message' => 'Вы не можете взять больше ' . $maxCountOrderItems . ' заказов!'
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message' => 'OK'
+            ];
+        } catch (\Exception $e) {
+            Log::channel('erp')
+                ->error('Ошибка при проверке максимального количества заказов у пользователя ' .
+                    $user->id . ': ' . $e->getMessage());
+
             return [
                 'success' => false,
-                'message' => 'Вы не можете взять больше ' . $maxCountOrderItems . ' заказов!'
+                'message' => 'Ошибка при проверки максимального количества заказов: ' . $e->getMessage()
             ];
         }
-
-        return [
-            'success' => true,
-            'message' => 'OK'
-        ];
     }
 
     private static function hasMaterialsInWorkshop($marketplaceOrderItem): bool
@@ -508,14 +519,14 @@ class MarketplaceOrderItemService
     /**
      * @throws Exception
      */
-    public static function getNewOrderItem(): array
+    public static function getNewOrderItem_OLD(): array
     {
         $result = self::checkSchedule();
         if (!$result['success']) {
             return $result;
         }
 
-        $result = self::checkMaxStack();
+        $result = self::checkMaxStack(auth()->user());
         if (!$result['success']) {
             return $result;
         }
@@ -535,9 +546,9 @@ class MarketplaceOrderItemService
 
             if (self::isReserved($marketplaceOrderItem)) {
                 continue;
-            } else {
-                self::reserve($marketplaceOrderItem);
             }
+
+            self::reserve($marketplaceOrderItem);
 
             $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrderItem->marketplaceOrder->marketplace_id);
 
@@ -565,6 +576,116 @@ class MarketplaceOrderItemService
             'success' => false,
             'message' => 'Нет доступных заказов'
         ];
+    }
+
+    public static function getNewOrderItem(): array
+    {
+        $user = auth()->user();
+
+        if (!self::checkSchedule()['success']) {
+            return self::checkSchedule();
+        }
+
+        if (!self::checkMaxStack($user)['success']) {
+            return self::checkMaxStack($user);
+        }
+
+        if (!self::checkCutterDailyLimit($user)['success']) {
+            return self::checkCutterDailyLimit($user);
+        }
+
+        return self::processAvailableItems();
+    }
+
+    protected static function processAvailableItems(): array
+    {
+        foreach (self::getFilteredItems() as $marketplaceOrderItem) {
+            Log::channel('erp')
+                ->info(
+                    'Проверяем возможность взятия заказа №' . $marketplaceOrderItem->id .
+                    ' сотрудником ' . auth()->user()->name
+                );
+
+            $result = self::tryProcessItem($marketplaceOrderItem);
+            if ($result['success']) {
+                return $result;
+            }
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Нет доступных заказов'
+        ];
+    }
+
+    protected static function tryProcessItem($marketplaceOrderItem): array
+    {
+        $item = $marketplaceOrderItem->item()->first();
+
+        if (!self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
+            self::notifyNoMaterials($item);
+            return ['success' => false];
+        }
+
+        if (!self::canUseMaterial($marketplaceOrderItem)) {
+            return ['success' => false];
+        }
+
+        if (self::isReserved($marketplaceOrderItem)) {
+            return ['success' => false];
+        }
+
+        self::reserve($marketplaceOrderItem);
+        self::notifyAboutReservation($marketplaceOrderItem, $item);
+
+        return self::assignOrderToUser($marketplaceOrderItem);
+    }
+
+    protected static function notifyNoMaterials($item): void
+    {
+        $text = sprintf(
+            'На товар %s %sx%s недостаточно материала на складе',
+            $item->title,
+            $item->width,
+            $item->height
+        );
+
+        TgService::sendMessage(config('telegram.admin_id'), $text);
+    }
+
+    protected static function notifyAboutReservation($marketplaceOrderItem, $item): void
+    {
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName(
+            $marketplaceOrderItem->marketplaceOrder->marketplace_id
+        );
+
+        $text = sprintf(
+            'Товар %s #%d (%s %sx%s) взял в работу сотрудник: %s',
+            $marketplaceName,
+            $marketplaceOrderItem->id,
+            $item->title,
+            $item->width,
+            $item->height,
+            auth()->user()->name
+        );
+
+        SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+
+        if (auth()->user()->tg_id) {
+            SendTelegramMessageJob::dispatch(
+                auth()->user()->tg_id,
+                sprintf(
+                    'Вы взяли в работу заказ # %s (%s): %s %sx%s',
+                    $marketplaceOrderItem->marketplaceOrder->order_id,
+                    $marketplaceName,
+                    $item->title,
+                    $item->width,
+                    $item->height
+                )
+            );
+        }
+
+        Log::channel('erp')->info($text);
     }
 
     private static function getFilteredItems(): Collection
@@ -745,6 +866,42 @@ class MarketplaceOrderItemService
 
         Log::channel('erp')
             ->warning('Восстановлен резервированный товара ' . $marketplaceOrderItem->id);
+    }
+
+    private static function checkCutterDailyLimit(User $user): array
+    {
+        if ($user->isCutter()) {
+            $inCutting = self::getCutterMetersByStatus(7);
+            $inCut = self::getCutterMetersByStatus(8);
+
+            $meters = ($inCutting + $inCut) / 100;
+            $dailyLimit = Setting::getValue('cutter_daily_limit');
+
+            if ($meters >= $dailyLimit) {
+                return [
+                    'success' => false,
+                    'message' => 'Вы не можете взять больше заказов! Ваш метраж (готовый и в работе): ' .
+                        $meters . ', при лимите в ' . $dailyLimit
+                ];
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => 'OK'
+        ];
+    }
+
+    private static function getCutterMetersByStatus(int $status): float
+    {
+        return MarketplaceOrderItem::query()
+            ->where('status', $status)
+            ->where('cutter_id', auth()->id())
+            ->when($status === 8, fn($q) => $q->whereDate('cutting_completed_at', now()->toDateString()))
+            ->whereHas('item')
+            ->with('item')
+            ->get()
+            ->sum(fn($orderItem) => $orderItem->item?->width ?? 0);
     }
 
     public function getOrdersGroupedByMaterial(): \Illuminate\Support\Collection
