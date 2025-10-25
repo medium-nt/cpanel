@@ -664,6 +664,12 @@ class MarketplaceApiService
         // Получаем открытую поставку для WB (если ее нет, то сначала создаем новую).
         $supplyId = self::getWbSupplyId();
 
+        if ($supplyId === null) {
+            Log::channel('marketplace_api')
+                ->error('Не удалось получить открытую поставку WB для добавления в нее заказа.');
+            return false;
+        }
+
         try {
             // Добавляем сборочное задание для WB в эту поставку.
             $response = Http::withOptions(['verify' => false])
@@ -692,7 +698,7 @@ class MarketplaceApiService
         return Sku::query()->where('sku', $sku)->first();
     }
 
-    private static function getWbSupplyId(): string
+    private static function getWbSupplyId(): ?string
     {
         // Проверяем есть ли открытая поставка WB.
         $suppliesList = self::getAllSuppliesWb();
@@ -704,7 +710,12 @@ class MarketplaceApiService
 
         // Если нет - то создаем ее и возвращаем ее номер
         $newSupply = self::createSupplyWb();
-        return $newSupply->id;
+
+        if (empty($newSupply)) {
+            return null;
+        }
+
+        return (string)$newSupply->id;
     }
 
     private static function getAllSuppliesWb(): array
@@ -760,7 +771,7 @@ class MarketplaceApiService
         }
     }
 
-    private static function createSupplyWb(): object|false|null
+    private static function createSupplyWb(): ?object
     {
         $body = [
             "name" => "Поставка от " . date('d.m.Y H:i'),
@@ -776,7 +787,7 @@ class MarketplaceApiService
                         'code' => $response->object()->code,
                         'message' => $response->object()->message,
                     ]);
-                return false;
+                return null;
             }
 
             return $response->object();
@@ -784,7 +795,7 @@ class MarketplaceApiService
             Log::channel('marketplace_api')->error(
                 'Не удалось создать новую поставку WB: ' . $e->getMessage()
             );
-            return false;
+            return null;
         }
     }
 
