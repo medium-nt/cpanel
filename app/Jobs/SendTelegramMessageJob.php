@@ -21,12 +21,14 @@ class SendTelegramMessageJob implements ShouldQueue
     public function handle(): void
     {
         TgService::sendMessage($this->chatId, $this->text);
-        Log::channel('queue')->notice("Сообщение отправлено в ТГ: {$this->chatId}");
+        Log::channel('queue')
+            ->notice('Сообщение отправлено в ТГ: ' . $this->chatId . ' с текстом: ' . $this->text);
     }
 
     public function failed(\Throwable $exception): void
     {
-        Log::channel('queue')->error("Ошибка всех попыток отправки в ТГ ({$this->chatId}): " . $exception->getMessage());
+        Log::channel('queue')
+            ->error("Ошибка всех попыток отправки в ТГ ({$this->chatId}): " . $exception->getMessage());
     }
 
     public function backoff(): array
