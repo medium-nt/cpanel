@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @mixin IdeHelperMarketplaceOrderHistory
+ */
 class MarketplaceOrderHistory extends Model
 {
     protected $table = 'marketplace_order_history';

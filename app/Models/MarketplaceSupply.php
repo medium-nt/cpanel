@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperMarketplaceSupply
+ */
 class MarketplaceSupply extends Model
 {
     protected $table = 'marketplace_supplies';

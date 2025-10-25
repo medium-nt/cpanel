@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @mixin IdeHelperMovementMaterial
+ */
 class MovementMaterial extends Model
 {
     protected $table = 'movement_materials';

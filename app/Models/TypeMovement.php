@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $status_id
+ * @mixin IdeHelperTypeMovement
  */
 
 

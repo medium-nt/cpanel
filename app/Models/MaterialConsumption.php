@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @mixin IdeHelperMaterialConsumption
+ */
 class MaterialConsumption extends Model
 {
     protected $table = 'material_consumptions';
