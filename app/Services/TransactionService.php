@@ -232,7 +232,7 @@ class TransactionService
                         'payout_date' => (Carbon::parse($payoutDate))->format('d/m/Y'),
                         'net_total' => $group->sum(function ($tx) {
                             return $tx->transaction_type === 'out' ? $tx->amount : (
-                            $tx->transaction_type === 'in' ? -$tx->amount : 0);
+                            $tx->transaction_type === 'in' ? '-' . $tx->amount : 0);
                         }),
                         'accrual_range' => $accrualDates->isEmpty() ? null : [
                             'from' => $accrualDates->first()->format('Y-m-d'),
@@ -332,7 +332,7 @@ class TransactionService
                         'accrual_for_date' => $payoutDate,
                         'net_total' => $group->sum(function ($tx) {
                             return $tx->transaction_type === 'out' ? $tx->amount : (
-                            $tx->transaction_type === 'in' ? -$tx->amount : 0);
+                            $tx->transaction_type === 'in' ? '-' . $tx->amount : 0);
                         }),
                         'status' => $group->first()->status,
                         'date_pay' => (Carbon::parse($payoutDate)->addDays(14)->format('d/m/Y')),
