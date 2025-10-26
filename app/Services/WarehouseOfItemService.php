@@ -64,7 +64,7 @@ class WarehouseOfItemService
         $sum = 0;
 
         foreach (str_split(strrev($base)) as $i => $digit) {
-            $n = $digit * ($i % 2 === 0 ? 2 : 1);
+            $n = (int)$digit * ($i % 2 === 0 ? 2 : 1);
             $sum += $n > 9 ? $n - 9 : $n;
         }
 
