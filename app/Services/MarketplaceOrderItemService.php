@@ -296,14 +296,14 @@ class MarketplaceOrderItemService
             ->whereIn('role_id', [1, 4])
             ->where('name', 'not like', '%Тест%')
             ->get()
-            ->map(function ($user) {
+            ->map(function (User $user) {
                 $startDate = Carbon::now()->subDays(14)->toDateString();
                 $startDate2 = Carbon::now()->subMonth()->toDateString();
                 $endDate = Carbon::now()->toDateString();
 
-                $user->ratingNow = MarketplaceOrderItemService::getRatingByDate($user, $endDate, $endDate);
-                $user->rating2week = MarketplaceOrderItemService::getRatingByDate($user, $startDate, $endDate);
-                $user->rating1month = MarketplaceOrderItemService::getRatingByDate($user, $startDate2, $endDate);
+                $user->setAttribute('ratingNow', MarketplaceOrderItemService::getRatingByDate($user, $endDate, $endDate));
+                $user->setAttribute('rating2week', MarketplaceOrderItemService::getRatingByDate($user, $startDate, $endDate));
+                $user->setAttribute('rating1month', MarketplaceOrderItemService::getRatingByDate($user, $startDate2, $endDate));
                 return $user;
             });
     }
