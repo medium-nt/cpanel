@@ -98,17 +98,28 @@ class ScheduleServiceTest extends TestCase
 
     public function test_is_before_start_work_day(): void
     {
-        // Arrange & Act & Assert
-                Carbon::setTestNow(Carbon::createFromTimeString('08:00:00'));
-        $this->assertTrue(ScheduleService::isBeforeStartWorkDay());
+        $user = User::factory()->create([
+            'shift_is_open' => 0,
+            'closed_work_shift' => '00:00:00'
+        ]);
+        $this->actingAs($user);
 
-        Carbon::setTestNow(Carbon::createFromTimeString('08:59:59'));
-        $this->assertTrue(ScheduleService::isBeforeStartWorkDay());
+        // Проверяем что смена не открыта и время закрытия равно '00:00:00' (не открывалась)
+        $this->assertTrue(ScheduleService::isBeforeStartWorkDay($user));
 
-        Carbon::setTestNow(Carbon::createFromTimeString('08:59:59'));
-        $this->assertTrue(ScheduleService::isBeforeStartWorkDay());
+        // Проверяем что смена открыта и время закрытия равно '00:00:00' (не открывалась)
+        $user->shift_is_open = 1;
+        $user->save();
+        $this->assertFalse(ScheduleService::isBeforeStartWorkDay($user));
 
-        Carbon::setTestNow(Carbon::createFromTimeString('09:00:00'));
-        $this->assertFalse(ScheduleService::isBeforeStartWorkDay());
+        // Проверяем что смена открыта и время закрытия не равно '00:00:00' (открылась)
+        $user->closed_work_shift = '09:00:00';
+        $user->save();
+        $this->assertFalse(ScheduleService::isBeforeStartWorkDay($user));
+
+        // Проверяем что смена не открыта и время закрытия не равно '00:00:00' (открылась)
+        $user->shift_is_open = 0;
+        $user->save();
+        $this->assertFalse(ScheduleService::isBeforeStartWorkDay($user));
     }
 }
