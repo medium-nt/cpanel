@@ -948,7 +948,7 @@ class MarketplaceApiService
 
                 if (!$item) {
                     Log::channel('marketplace_api')
-                        ->error('Внимание! Заказ №' . $order->order_id . ' НЕ отменен. Не найдены товары для этого заказа.');
+                        ->warning('Внимание! Заказ №' . $order->order_id . ' НЕ отменен. Не найдены товары для этого заказа.');
                     continue;
                 }
 
