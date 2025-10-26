@@ -189,9 +189,13 @@
                             <th style="text-align: center" scope="col">Название</th>
                             <th style="text-align: center" scope="col">Ширина</th>
                             <th style="text-align: center" scope="col">Высота</th>
-                            <th style="text-align: center" scope="col">Кол-во</th>
                             <th style="text-align: center" scope="col">Маркетплейс</th>
                             <th style="text-align: center" scope="col">Тип</th>
+                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                <th style="text-align: center" scope="col">
+                                    Сотрудники
+                                </th>
+                            @endif
                             <th style="text-align: center" scope="col">Создан</th>
                             <th style="text-align: center" scope="col">Выполнен</th>
                             <th style="text-align: center" scope="col"></th>
@@ -230,13 +234,25 @@
                                 <td style="text-align: center">{{ $item->item->title }}</td>
                                 <td style="text-align: center">{{ $item->item->width }}</td>
                                 <td style="text-align: center">{{ $item->item->height }}</td>
-                                <td style="text-align: center">{{ $item->quantity }}</td>
                                 <td style="text-align: center">
                                     <img style="width: 80px;"
                                          src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
                                          alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                 </td>
                                 <td style="text-align: center">{{ $item->marketplaceOrder->fulfillment_type }}</td>
+
+                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                    <td style="font-size: 12px;">
+                                        @if($item->cutter_id)
+                                            <b>Закройщик:</b> {{ $item->cutter?->shortName }}
+                                            <br>
+                                        @endif
+                                        @if($item->seamstress_id)
+                                            <b>Швея:</b> {{ $item->seamstress?->shortName }}
+                                        @endif
+                                    </td>
+                                @endif
+
                                 <td style="text-align: center">
                                     <span class="mr-2">{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</span>
                                     <badge class="badge
@@ -336,22 +352,6 @@
                                                     </form>
                                                 @endif
                                                 @break
-                                            @case(3)
-{{--                                                <div class="btn-group" role="group">--}}
-{{--                                                    @if(auth()->user()->isAdmin())--}}
-{{--                                                        <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"--}}
-{{--                                                              method="POST">--}}
-{{--                                                            @csrf--}}
-{{--                                                            @method('PUT')--}}
-{{--                                                            <button type="submit" class="btn btn-danger mr-1"--}}
-{{--                                                                    title="Отменить заказ"--}}
-{{--                                                                    onclick="return confirm('Вы уверены что хотите отменить уже выполненный заказ?')">--}}
-{{--                                                                <i class="fas fa-times"></i>--}}
-{{--                                                            </button>--}}
-{{--                                                        </form>--}}
-{{--                                                    @endif--}}
-{{--                                                </div>--}}
-                                                @break
                                         @endswitch
                                     @endif
                                 </td>
@@ -361,12 +361,10 @@
                         <tfoot>
                             <tr>
                                 <td colspan="4" style="text-align: right">
-                                    Итого на странице:
+                                    Итого на странице <b>{{ $allCount }}</b>
+                                    шт.:
                                 </td>
                                 <td style="text-align: center"><b>{{ $allCalcWidth / 100 }}</b> п.м.</td>
-                                <td></td>
-                                <td style="text-align: center"><b>{{ $allCount }}</b> шт.</td>
-                                <td colspan="4"></td>
                             </tr>
                         </tfoot>
                     </table>
