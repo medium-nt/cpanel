@@ -48,12 +48,12 @@ class ScheduleService
         return Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
     }
 
-    public static function getStartWorkDay()
+    public static function getStartWorkDay(): string
     {
         return Setting::query()->where('name', 'working_day_start')->first()->value;
     }
 
-    public static function getEndWorkDay()
+    public static function getEndWorkDay(): string
     {
         return Setting::query()->where('name', 'working_day_end')->first()->value;
     }
