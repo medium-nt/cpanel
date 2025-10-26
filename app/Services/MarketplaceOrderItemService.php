@@ -278,16 +278,14 @@ class MarketplaceOrderItemService
             ->where('marketplace_order_items.status', 3)
             ->whereBetween('marketplace_order_items.completed_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->selectRaw('SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume, SUM(marketplace_order_items.quantity) as total_quantity')
-            ->first();
+            ->first()?->getAttributes() ?? [];
 
-        if ($seamstressRating && $seamstressRating->total_quantity > 0) {
-            $averageVolume = $seamstressRating->total_volume / $seamstressRating->total_quantity;
-            $result = round($averageVolume, 1);
-        } else {
-            $result = "0.0";
-        }
+        $totalQuantity = $seamstressRating['total_quantity'] ?? 0;
+        $totalVolume = $seamstressRating['total_volume'] ?? 0;
 
-        return $result;
+        return $totalQuantity > 0
+            ? round($totalVolume / $totalQuantity, 1)
+            : "0.0";
     }
 
     public static function getRating(): Collection|\Illuminate\Support\Collection
