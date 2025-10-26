@@ -21,6 +21,7 @@ class DefectMaterialService
             default => '---',
         };
 
+        /** @var MovementMaterial $movementMaterial */
         $movementMaterial = $order->movementMaterials()->first();
         $list = '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
 

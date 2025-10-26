@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @mixin IdeHelperMovementMaterial
+ * @property int $quantity
+ * @property Material $material
  */
 class MovementMaterial extends Model
 {

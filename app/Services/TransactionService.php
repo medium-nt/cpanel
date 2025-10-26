@@ -377,6 +377,7 @@ class TransactionService
             ->get()
             ->load('user') // подтягивает связь
             ->transform(function ($row) {
+                /** @var Transaction $row */
                 $row->user_name = $row->user->name ?? '—';
                 return $row;
             });

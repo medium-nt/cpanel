@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @mixin IdeHelperTransaction
+ * @property string $user_name
  */
 class Transaction extends Model
 {
