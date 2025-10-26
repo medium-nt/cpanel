@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\MarketplaceSupply;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Livewire\Component;
 use App\Models\MarketplaceOrder;
 
@@ -16,12 +17,12 @@ class SupplyOrderList extends Component
         'orderAdded' => '$refresh',
     ];
 
-    public function mount($supplyId)
+    public function mount($supplyId): void
     {
         $this->supplyId = $supplyId;
     }
 
-    public function removeOrder($orderId)
+    public function removeOrder($orderId): void
     {
         $order = MarketplaceOrder::find($orderId);
 
@@ -36,7 +37,7 @@ class SupplyOrderList extends Component
         $this->dispatch('focusOrderInput');
     }
 
-    public function render()
+    public function render(): View
     {
         $supply_orders = MarketplaceOrder::query()
             ->with('items.item')
@@ -62,6 +63,9 @@ class SupplyOrderList extends Component
 
         $status = $marketplaceSupply->status;
 
-        return view('livewire.supply-order-list', compact('supply_orders', 'totalItems', 'totalReady', 'status'));
+        return view(
+            'livewire.supply-order-list',
+            compact('supply_orders', 'totalItems', 'totalReady', 'status')
+        );
     }
 }

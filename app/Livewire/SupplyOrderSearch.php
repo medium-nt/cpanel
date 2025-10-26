@@ -23,7 +23,7 @@ class SupplyOrderSearch extends Component
         'orderId' => 'required',
     ];
 
-    public function mount($supply)
+    public function mount($supply): void
     {
         $this->supply = $supply;
     }
@@ -44,11 +44,13 @@ class SupplyOrderSearch extends Component
             $this->orderId = MarketplaceApiService::getOzonPostingNumberByBarcode($this->orderId);
         }
 
-        $matches = MarketplaceOrder::query()->where(function ($query) {
-            $query->where('order_id', 'like', '%' . $this->orderId . '%')
-                ->orWhere('part_b', $this->orderId)
-                ->orWhere('barcode', $this->orderId);
-        })->where('status', 6)
+        $matches = MarketplaceOrder::query()
+            ->where(function ($query) {
+                $query->where('order_id', 'like', '%' . $this->orderId . '%')
+                    ->orWhere('part_b', $this->orderId)
+                    ->orWhere('barcode', $this->orderId);
+            })
+            ->where('status', 6)
             ->where('fulfillment_type', 'FBS')
             ->where('marketplace_id', $this->supply->marketplace_id)
             ->get();
@@ -72,7 +74,6 @@ class SupplyOrderSearch extends Component
         $this->attachOrder($matches->first());
         $this->dispatch('focusOrderInput');
     }
-
 
     public function updatedMessage(): void
     {
@@ -107,7 +108,7 @@ class SupplyOrderSearch extends Component
         $this->attachOrder($order);
     }
 
-    protected function attachOrder(MarketplaceOrder $order)
+    protected function attachOrder(MarketplaceOrder $order): void
     {
         if ($order->supply_id === $this->supply->id) {
             $this->message = 'Уже добавлен.';
