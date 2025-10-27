@@ -1822,7 +1822,8 @@ class MarketplaceApiService
         if (!$response->ok()) {
             Log::channel('marketplace_api')
                 ->error('ВНИМАНИЕ! Ошибка получения причины возврата из Ozon по заказу '
-                    . $marketplace_item->marketplaceOrder->order_id . ' Ответ:' . $response->object());
+                    . $marketplace_item->marketplaceOrder->order_id . ' Ответ:',
+                    [$response->object()]);
             return '---';
         }
 
@@ -1844,7 +1845,8 @@ class MarketplaceApiService
             if (!$response->ok()) {
                 Log::channel('marketplace_api')
                     ->error('ВНИМАНИЕ! Ошибка получения причины возврата из WB по заказу '
-                        . $marketplace_item->marketplaceOrder->order_id);
+                        . $marketplace_item->marketplaceOrder->order_id . ' Ответ:',
+                        [$response->object()]);
 
                 return '---';
             }
