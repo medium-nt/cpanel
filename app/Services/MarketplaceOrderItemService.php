@@ -902,13 +902,19 @@ class MarketplaceOrderItemService
             ->sum(fn($orderItem) => $orderItem->item?->width ?? 0);
     }
 
-    public function getOrdersGroupedByMaterial(): \Illuminate\Support\Collection
+    public function getOrdersGroupedByMaterial(User $user): \Illuminate\Support\Collection
     {
         $items = MarketplaceOrderItem::query()
             ->with('marketplaceOrder')
             ->with('item')
-            ->where('marketplace_order_items.status', 7)
-            ->where('marketplace_order_items.cutter_id', auth()->user()->id)
+            ->when($user->isCutter(), fn($q) => $q
+                ->where('marketplace_order_items.status', 7)
+                ->where('marketplace_order_items.cutter_id', $user->id)
+            )
+            ->when($user->isSeamstress(), fn($q) => $q
+                ->where('marketplace_order_items.status', 4)
+                ->where('marketplace_order_items.seamstress_id', $user->id)
+            )
             ->get();
 
         return collect($items)

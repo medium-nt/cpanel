@@ -24,7 +24,7 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->name('marketplace_order_items.cancel');
 
     Route::get('/print_cutting', [App\Http\Controllers\MarketplaceOrderItemController::class, 'printCutting'])
-        ->can('printCutting', MarketplaceOrderItem::class)
+        ->can('printA4', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.printCutting');
 });
 

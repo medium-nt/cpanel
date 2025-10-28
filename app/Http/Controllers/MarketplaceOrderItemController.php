@@ -165,7 +165,7 @@ class MarketplaceOrderItemController extends Controller
     public function printCutting(MarketplaceOrderItemService $service)
     {
         $pdf = PDF::loadView('pdf.print_cutting', [
-            'orders' => $service->getOrdersGroupedByMaterial()
+            'orders' => $service->getOrdersGroupedByMaterial(auth()->user())
         ]);
 
         return $pdf->setPaper('A4')

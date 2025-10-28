@@ -28,8 +28,8 @@ class MarketplaceOrderItemPolicy
         return $user->isAdmin() || $user->isSeamstress() || $user->isCutter();
     }
 
-    public function printCutting(User $user): bool
+    public function printA4(User $user): bool
     {
-        return $user->isCutter();
+        return $user->isCutter() || $user->isSeamstress();
     }
 }
