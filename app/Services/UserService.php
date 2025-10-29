@@ -111,6 +111,7 @@ class UserService
             'duration_work_shift' => 'sometimes|date_format:H:i|after_or_equal:00:00|before_or_equal:15:00',
             'max_late_minutes' => 'sometimes|numeric|min:0|max:180',
             'materials' => 'nullable|array|exists:materials,id',
+            'is_show_finance' => 'boolean',
         ];
 
         $validatedData = $request->validate($rules);

@@ -45,6 +45,7 @@ class User extends Authenticatable
         'start_work_shift',
         'duration_work_shift',
         'max_late_minutes',
+        'is_show_finance',
     ];
 
     /**

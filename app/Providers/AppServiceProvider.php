@@ -48,5 +48,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewLogViewer', function (User $user) {
             return $user->isAdmin();
         });
+
+        Gate::define('is-show-finance', function (User $user) {
+            return $user->is_show_finance;
+        });
     }
 }

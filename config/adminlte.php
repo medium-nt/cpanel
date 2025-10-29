@@ -400,6 +400,7 @@ return [
         [
             'text' => 'transactions',
             'url' => 'megatulle/transactions',
+            'can' => 'is-show-finance',
             'icon' => 'fas fa-fw fa-coins',
         ],
         [

@@ -85,6 +85,19 @@
                             </div>
                         </div>
 
+                        <div class="form-group form-check">
+                            <input type="hidden" name="is_show_finance"
+                                   value="0">
+                            <input type="checkbox"
+                                   class="form-check-input @error('is_show_finance') is-invalid @enderror"
+                                   id="is_show_finance"
+                                   name="is_show_finance"
+                                   value="1"
+                                {{ $user->is_show_finance ? 'checked' : '' }}>
+                            <label class="form-check-label"
+                                   for="is_show_finance">Показ финансов</label>
+                        </div>
+
                         @if($user->isSeamstress() || $user->isCutter())
                         <div class="form-group">
                             <div class="row">

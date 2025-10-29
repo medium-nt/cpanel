@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    @if(!auth()->user()->isAdmin())
+    @if(!auth()->user()->isAdmin() && auth()->user()->is_show_finance)
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Зарплата</h3>

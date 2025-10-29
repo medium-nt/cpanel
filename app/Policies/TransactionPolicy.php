@@ -13,7 +13,7 @@ class TransactionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->is_show_finance;
     }
 
     /**
