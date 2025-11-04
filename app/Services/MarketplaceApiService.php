@@ -679,6 +679,14 @@ class MarketplaceApiService
             if ($response->noContent()) {
                 return true;
             }
+
+            Log::channel('marketplace_api')->error(
+                'Ошибка добавления в поставку WB заказа ' . $orderId,
+                [
+                    'code' => $response->object()->code,
+                    'message' => $response->object()->message
+                ]
+            );
         } catch (\Throwable $e) {
             Log::channel('marketplace_api')->error(
                 'Ошибка добавления в открытую поставку WB заказа ' . $orderId . ': ' . $e->getMessage()
