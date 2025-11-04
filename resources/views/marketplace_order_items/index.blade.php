@@ -170,7 +170,7 @@
                 <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                    class="btn btn-primary mb-3 getNewOrderItem">Получить новый
                     заказ</a>
-                    @if(auth()->user()->is_cutter)
+                    @if(auth()->user()->is_cutter || auth()->user()->isCutter())
                         <a href="{{ route('marketplace_order_items.printCutting') }}"
                            target="_blank"
                            class="btn btn-outline-secondary ml-3 mb-3"><i
