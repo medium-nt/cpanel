@@ -49,6 +49,13 @@
             <h3 class="card-title">Заказы на сборку</h3>
         </div>
         <div class="card-body">
+
+            <a href="{{ route('warehouse_of_item.to_pick_list_print') }}"
+               class="btn btn-secondary mb-3" target="_blank">
+                <i class="fas fa-print mr-1"></i>
+                Печать списка
+            </a>
+
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">
                     <thead class="thead-dark">

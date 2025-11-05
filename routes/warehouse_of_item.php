@@ -30,6 +30,10 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('viewAny', Shelf::class)
         ->name('warehouse_of_item.to_pick_list');
 
+    Route::get('/to_pick_list_print', [App\Http\Controllers\WarehouseOfItemController::class, 'toPickListPrint'])
+        ->can('viewAny', Shelf::class)
+        ->name('warehouse_of_item.to_pick_list_print');
+
     Route::get('/to_pick/{order}', [App\Http\Controllers\WarehouseOfItemController::class, 'toPick'])
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.to_pick');

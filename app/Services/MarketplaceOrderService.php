@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\StoreMarketplaceOrderRequest;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Shelf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -83,6 +84,38 @@ class MarketplaceOrderService
     {
         return MarketplaceOrder::query()
             ->where('status', 13);
+    }
+
+    public static function groupPickupOrders($orders): array
+    {
+        $grouped = [];
+        foreach ($orders as $order) {
+            /** @var MarketplaceOrder $order */
+            $itemModel = $order->items->first()->item;
+
+            $sameItems = MarketplaceOrderItem::query()
+                ->where('marketplace_item_id', $itemModel->id)
+                ->whereIn('status', [11, 13])
+                ->get();
+
+            $shelfStats = Shelf::query()
+                ->whereIn('id', $sameItems->pluck('shelf_id')->filter())
+                ->get()
+                ->map(function ($shelf) use ($sameItems) {
+                    $count = $sameItems->where('shelf_id', $shelf->id)->count();
+                    return (object)[
+                        'shelf' => $shelf,
+                        'quantity' => $count,
+                    ];
+                });
+
+            $grouped[$order->id] = [
+                'itemName' => "{$itemModel->title} {$itemModel->width}×{$itemModel->height}",
+                'shelfStats' => $shelfStats,
+            ];
+        }
+
+        return $grouped;
     }
 
     public static function assembledOrders(): Collection

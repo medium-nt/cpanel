@@ -105,6 +105,20 @@ class WarehouseOfItemController extends Controller
         ]);
     }
 
+    public function toPickListPrint(MarketplaceOrderService $service)
+    {
+        $orders = $service->pickupOrders()->get();
+        $grouped = $service->groupPickupOrders($orders);
+
+        $pdf = PDF::loadView('pdf.print_to_pick_list', [
+            'orders' => $orders,
+            'grouped' => $grouped,
+        ]);
+
+        return $pdf->setPaper('A4')
+            ->stream('to_pick_list.pdf');
+    }
+
     public function toPick(MarketplaceOrder $order, Request $request)
     {
         $itemModel = $order->items[0]->item;
