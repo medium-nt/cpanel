@@ -69,6 +69,15 @@
                             <br>
                             стикер
                             хранения: {{ $marketplace_item->storage_barcode }}
+                            <br>
+                            <br>
+                            @if($marketplace_item->seamstress)
+                                швея: {{ $marketplace_item->seamstress->name ?? '' }}
+                            @endif
+                            <br>
+                            @if($marketplace_item->cutter)
+                                закройщик: {{ $marketplace_item->cutter->name ?? '' }}
+                            @endif
                         </div>
                     </div>
                     <div class="card">
