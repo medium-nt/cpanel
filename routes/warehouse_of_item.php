@@ -12,11 +12,11 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->name('warehouse_of_item.new_refunds');
 
     Route::get('/add_group', [App\Http\Controllers\WarehouseOfItemController::class, 'addGroup'])
-        ->can('create', Shelf::class)
+        ->can('createAdmin', Shelf::class)
         ->name('warehouse_of_item.add_group');
 
     Route::get('/save_group', [App\Http\Controllers\WarehouseOfItemController::class, 'saveGroup'])
-        ->can('create', Shelf::class)
+        ->can('createAdmin', Shelf::class)
         ->name('warehouse_of_item.save_group');
 
     Route::get('/storage_barcode', [App\Http\Controllers\WarehouseOfItemController::class, 'getStorageBarcodeFile'])

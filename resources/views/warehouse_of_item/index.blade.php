@@ -89,9 +89,11 @@
             <a href="{{ route('warehouse_of_item.new_refunds') }}"
                class="btn btn-success mr-3 mb-3">Принять новые возвраты</a>
 
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('warehouse_of_item.add_group') }}"
                class="btn btn-outline-success mr-3 mb-3">Добавить товары
                 группой</a>
+            @endif
 
             <a href="{{ route('warehouse_of_item.to_pick_list') }}"
                class="btn btn-primary mr-3 mb-3">Товары к подбору</a>

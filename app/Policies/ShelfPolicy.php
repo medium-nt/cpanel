@@ -31,6 +31,11 @@ class ShelfPolicy
         return $user->isAdmin() || $user->isStorekeeper();
     }
 
+    public function createAdmin(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
     /**
      * Determine whether the user can update the model.
      */
