@@ -44,6 +44,13 @@
                 <div class="card-body">
                     <p>Товар <b>{{ $itemName }}</b></p>
 
+                    <p>
+                        Швея: <b>{{ $item->seamstress->name }}</b><br>
+                        @if($item->cutter_id)
+                            Закройщик: <b>{{ $item->cutter->name }}</b>
+                        @endif
+                    </p>
+
                     @if($order->isStickering())
                         <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $item->marketplaceOrder->order_id]) }}"
                            class="btn btn-outline-secondary btn-lg mr-3 mb-3"
