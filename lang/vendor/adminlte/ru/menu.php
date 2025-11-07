@@ -30,8 +30,8 @@ return [
     'warehouse' => 'Склад',
     'inventory' => 'Инвентаризация',
     'inventory_by_defect_warehouse' => 'Инвентаризация брака',
-    'inventory_by_warehouse' => 'Инвентаризация склада',
-    'inventory_by_workshop' => 'Инвентаризация цеха',
+    'inventory_by_warehouse' => 'Материал на складе',
+    'inventory_by_workshop' => 'Материал в цехе',
     'marketplace' => 'Маркетплейсы',
     'marketplace_items' => 'Товары на маркетплейсе',
     'marketplace_orders' => 'Заказы с маркетплейса',
@@ -45,4 +45,5 @@ return [
     'logs' => 'Просмотр логов',
     'warehouse_of_item' => 'Склад товара',
     'shelves' => 'Полки на складе',
+    'inventory_checks' => 'Инвентаризации',
 ];

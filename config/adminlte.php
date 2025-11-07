@@ -325,6 +325,12 @@ return [
                     'icon' => 'fas fa-fw fa-boxes',
                     'can' => 'is-storekeeper-or-admin',
                 ],
+                [
+                    'text' => 'inventory_checks',
+                    'url' => 'megatulle/inventory/inventory_checks',
+                    'icon' => 'fas fa-fw fa-clipboard-list',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
 //              [
 //                  'text' => 'inventory_by_defect_warehouse',
 //                  'url' => 'megatulle/inventory/defect_warehouse',
