@@ -8,7 +8,7 @@ use App\Models\MovementMaterial;
 use App\Models\User;
 use App\Services\InventoryService;
 use App\Services\WriteOffRemnantService;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Mockery;
@@ -16,9 +16,9 @@ use Tests\TestCase;
 
 class WriteOffRemnantServiceTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
 
-    protected $seed = false;
+    protected bool $seed = false;
 
     private User $storekeeper;
 

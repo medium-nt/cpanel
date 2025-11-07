@@ -44,7 +44,7 @@ class InventoryService
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
             ->where('material_id', $materialId)
             ->where('orders.type_movement', 2)
-            ->whereNotIn('orders.status', [-1])
+            ->whereNotIn('orders.status', [-1, 0])
             ->sum('quantity');
 
         $result = $inStock - $outStock - $holdOutStockNew;
