@@ -2,8 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\InventoryCheck;
+use App\Models\InventoryCheckItem;
+use App\Models\MarketplaceOrderItem;
 use App\Models\Material;
 use App\Models\MovementMaterial;
+use Illuminate\Support\Facades\DB;
+use Log;
 
 class InventoryService
 {
@@ -109,4 +114,51 @@ class InventoryService
         return $materialsQuantity;
     }
 
+    public function createInventory($request): bool
+    {
+        try {
+            DB::beginTransaction();
+
+            $inventory = InventoryCheck::create([
+                'comment' => $request->comment,
+            ]);
+
+            $marketplaceOrderItem = MarketplaceOrderItem::query()
+                ->when($request->inventory_shelf !== 'all', function ($query) use ($request) {
+                    $query->where('shelf_id', $request->inventory_shelf);
+                })
+                ->whereIn('status', [11, 13])
+                ->get();
+
+            $data = [];
+            foreach ($marketplaceOrderItem as $item) {
+                $data[] = [
+                    'inventory_check_id' => $inventory->id,
+                    'marketplace_order_item_id' => $item->id,
+                    'expected_shelf_id' => $item->shelf_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            if (!empty($data)) {
+                InventoryCheckItem::insert($data);
+            }
+
+            DB::commit();
+
+            Log::channel('erp')
+                ->info('Создана инвентаризация ID: ' . $inventory->id . '
+                по полке: ' . $request->inventory_shelf);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            Log::channel('erp')
+                ->error('Ошибка при создании инвентаризации: ' . $th->getMessage());
+
+            return false;
+        }
+
+        return true;
+    }
 }
