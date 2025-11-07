@@ -9,14 +9,13 @@ use App\Models\Role;
 use App\Models\Shelf;
 use App\Models\User;
 use App\Services\WarehouseOfItemService;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class WarehouseOfItemServiceTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
 
     private WarehouseOfItemService $warehouseOfItemService;
 
