@@ -24,7 +24,7 @@ class SettingsSeeder extends Seeder
 
         Setting::query()->firstOrCreate(
             ['name' => 'is_enabled_work_schedule'],
-            ['value' => '1']
+            ['value' => '0']
         );
 
         Setting::query()->firstOrCreate(

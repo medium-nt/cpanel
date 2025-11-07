@@ -33,6 +33,13 @@ class UserSeeder extends Seeder
             'role_id' => 1
         ]);
 
+        User::query()->create([
+            'name' => 'Тестовый Закройщик',
+            'email' => '4@4.ru',
+            'password' => bcrypt('444444'),
+            'role_id' => 4
+        ]);
+
         User::factory(10)->create();
     }
 }

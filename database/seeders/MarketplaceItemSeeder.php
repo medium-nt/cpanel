@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\MarketplaceItem;
+use App\Models\MaterialConsumption;
 use App\Models\Sku;
 use Illuminate\Database\Seeder;
 
@@ -18,10 +19,10 @@ class MarketplaceItemSeeder extends Seeder
         $heights = [220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295];
 
         // Массив с названиями тканей
-        $fabrics = ['Молния', 'Мрамор'];
+        $fabrics = ['Бамбук', 'Лен'];
 
         // Массив с id маркетплейсов
-        $marketplaceItems = [1, 2];
+        $marketplaces = [1, 2];
 
         foreach ($fabrics as $fabric) {
             foreach ($widths as $width) {
@@ -33,11 +34,17 @@ class MarketplaceItemSeeder extends Seeder
                         'height' => $height
                     ]);
 
-                    foreach ($marketplaceItems as $marketplaceItem) {
+                    MaterialConsumption::query()->create([
+                        'item_id' => $item->id,
+                        'material_id' => $fabric === 'Бамбук' ? 1 : 2,
+                        'quantity' => 1
+                    ]);
+
+                    foreach ($marketplaces as $marketplace) {
                         Sku::query()->create([
                             'item_id' => $item->id,
                             'sku' => '',
-                            'marketplace_id' => $marketplaceItem
+                            'marketplace_id' => $marketplace
                         ]);
                     }
                 }
