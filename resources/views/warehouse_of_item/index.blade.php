@@ -36,6 +36,10 @@
                                     @if(request()->get('status') == 13) selected @endif>
                                 На сборке
                             </option>
+                            <option value="14"
+                                    @if(request()->get('status') == 14) selected @endif>
+                                Утерян
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-3 mb-3">

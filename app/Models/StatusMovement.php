@@ -28,6 +28,8 @@ class StatusMovement extends Model
         11 => 'На хранении',
         12 => 'На проверке',
         13 => 'На сборке',
+
+        14 => 'Утерян',
     ];
 
     const BADGE_COLORS = [
@@ -46,5 +48,6 @@ class StatusMovement extends Model
         11 => 'badge-primary',
         12 => 'badge-danger',
         13 => 'badge-info',
+        14 => 'badge-danger',
     ];
 }
