@@ -37,6 +37,7 @@ class TransactionController extends Controller
             'salary' => 'с зарплатой',
             'bonus' => 'с бонусами',
             'company' => 'компании',
+            default => '---',
         };
 
         return view('transactions.create', [

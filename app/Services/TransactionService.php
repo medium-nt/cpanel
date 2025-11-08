@@ -26,8 +26,8 @@ class TransactionService
         }
 
         $isBonus = match ($request->type) {
-            'salary', 'company' => false,
             'bonus' => true,
+            default => false
         };
 
         $user = User::query()->find($request->user_id);
@@ -447,12 +447,12 @@ class TransactionService
 
         foreach ($marketplaceOrderItem as $marketplaceOrderItems) {
             // Проходим по каждому товару и начисляем зп и бонусы за них
-            $result['allWidth'] += $marketplaceOrderItems->item->width / 100 ?? 0;
+            $result['allWidth'] += ($marketplaceOrderItems->item->width ?? 0) / 100;
             $result = self::processAccrualMotivationAndSalary($user, $marketplaceOrderItems, $motivations, $result, $test);
         }
 
         $totalWidth = $marketplaceOrderItem
-                ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item?->width ?? 0) / 100;
+                ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item->width ?? 0) / 100;
 
         echo "Всего: $totalWidth м, зп: {$result['allSalary']} руб., бонус: {$result['allBonus']} баллов.<br>";
 
@@ -464,7 +464,7 @@ class TransactionService
     private static function processAccrualMotivationAndSalary(User $user, MarketplaceOrderItem $marketplaceOrderItems, Collection $motivations, array $result, bool $test): array
     {
         $orderId = $marketplaceOrderItems->marketplaceOrder->order_id;
-        $width = $marketplaceOrderItems->item->width / 100 ?? 0;
+        $width = ($marketplaceOrderItems->item->width ?? 0) / 100;
 
         $previousAllWidth = $result['allWidth'] - $width;
         $previousResultDetails = self::getCompensationDetails($motivations, $previousAllWidth, $user, $marketplaceOrderItems);

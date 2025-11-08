@@ -118,6 +118,7 @@ class MarketplaceSupplyController extends Controller
         $result = match ($marketplace_supply->marketplace_id) {
             1 => MarketplaceApiService::ozonSupply($marketplace_supply),
             2 => MarketplaceApiService::wbSupply($marketplace_supply),
+            default => false
         };
 
         if(!$result) {

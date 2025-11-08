@@ -39,7 +39,7 @@ class TgService
                     'chat_id' => $chatId,
                     'text' => $message
                 ]);
-            } catch (TelegramSDKException $e) {
+            } catch (\Throwable $e) {
                 Log::channel('tg_api')->error('chat_id: ' . $chatId);
                 Log::channel('tg_api')->error('Ошибка Telegram: ' . $e->getMessage());
             }

@@ -40,11 +40,12 @@ class InventoryController extends Controller
 
     public function show(InventoryCheck $inventory)
     {
-        $status = match ($inventory->status) {
+        $labels = [
             'in_progress' => 'В процессе',
             'closed' => 'Закрыта',
-            default => '',
-        };
+        ];
+
+        $status = $labels[$inventory->status];
 
         return view('inventory.show', [
             'title' => 'Инвентаризация №' . $inventory->id . ' (' . $status . ')',

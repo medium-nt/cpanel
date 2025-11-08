@@ -40,6 +40,7 @@ class MaterialForm extends Component
                 'workshop' => $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId),
                 'defect' => $this->maxQuantity = InventoryService::defectMaterialInWarehouse($this->selectedMaterialId),
                 'remnants' => $this->maxQuantity = InventoryService::remnantsMaterialInWarehouse($this->selectedMaterialId),
+                default => $this->maxQuantity = null
             };
 
             if ($this->typeMovement === '7') {

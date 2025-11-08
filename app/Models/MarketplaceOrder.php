@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
- * @property int $status
+ * @property string $status
  * @property-read Collection|MarketplaceOrderItem[] $items
  * @property MarketplaceSupply|null $supply
  * @mixin IdeHelperMarketplaceOrder

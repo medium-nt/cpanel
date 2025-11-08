@@ -469,7 +469,7 @@ class MarketplaceApiService
 
                         MarketplaceOrderItemService::reserveReadyItem($sku, $marketplaceOrder);
 
-                        $marketplaceOrder->status = 13; // в сборке
+                        $marketplaceOrder->status = '13'; // в сборке
                         $marketplaceOrder->save();
 
                         $text = 'Поступил заказ на подбор со склада товара: ' .
@@ -904,22 +904,19 @@ class MarketplaceApiService
         $fullName = $order->items[0]->seamstress->name ?? '';
 
         $parts = explode(' ', $fullName);
-        if (count($parts) >= 1) {
-            $surname = $parts[0];
-            $initials = '';
 
-            if (isset($parts[1])) {
-                $initials .= mb_substr($parts[1], 0, 1) . '.';
-            }
+        $surname = $parts[0];
+        $initials = '';
 
-            if (isset($parts[2])) {
-                $initials .= mb_substr($parts[2], 0, 1) . '.';
-            }
-
-            $seamstressName = $surname . ' ' . $initials;
-        } else {
-            $seamstressName = $fullName;
+        if (isset($parts[1])) {
+            $initials .= mb_substr($parts[1], 0, 1) . '.';
         }
+
+        if (isset($parts[2])) {
+            $initials .= mb_substr($parts[2], 0, 1) . '.';
+        }
+
+        $seamstressName = $surname . ' ' . $initials;
 
         $sku = Sku::query()
             ->where('item_id', $order->items[0]->item->id)

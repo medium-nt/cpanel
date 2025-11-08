@@ -113,7 +113,7 @@ class WarehouseOfItemService
             $sku = trim($barcode, 'OZN');
 
             $barcode = Sku::query()->where('sku', $sku)
-                ->first()?->item?->id ?? '-';
+                ->first()?->item->id ?? '-';
 
             $isFBO = true;
         }

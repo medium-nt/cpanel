@@ -207,7 +207,7 @@ class WarehouseOfItemController extends Controller
         $marketplaceOrderItem->status = 13; // в сборке
         $marketplaceOrderItem->save();
 
-        $marketplaceOrder->status = 5; // в стикеровке
+        $marketplaceOrder->status = '5'; // в стикеровке
         $marketplaceOrder->save();
 
         return redirect()->back()
@@ -221,7 +221,7 @@ class WarehouseOfItemController extends Controller
                 ->with('error', 'Стикер не распечатан!');
         }
 
-        $marketplaceOrder->status = 6; // на поставку
+        $marketplaceOrder->status = '6'; // на поставку
         $marketplaceOrder->completed_at = now();
         $marketplaceOrder->save();
 
@@ -243,7 +243,7 @@ class WarehouseOfItemController extends Controller
         $marketplaceOrderItem = $marketplaceOrder->items->first();
         MarketplaceOrderItemService::restoreOrderFromHistory($marketplaceOrderItem);
 
-        $marketplaceOrder->status = 0;
+        $marketplaceOrder->status = '0';
         $marketplaceOrder->save();
 
         $sku = Sku::query()

@@ -100,7 +100,9 @@ class MarketplaceOrderItemService
 
     public static function cancelToSeamstress(MarketplaceOrderItem $marketplaceOrderItem): array
     {
-        if (!in_array($marketplaceOrderItem->status, [4, 5, 7])) {
+        $status = $marketplaceOrderItem->status;
+
+        if (!in_array($status, [4, 5, 7])) {
             return [
                 'success' => false,
                 'message' => 'Заказ с таким статусом не может быть отменен'
@@ -113,7 +115,7 @@ class MarketplaceOrderItemService
             $logMessage = '';
 
             //  если на раскрое
-            if ($marketplaceOrderItem->status == 7) {
+            if ($status == 7) {
                 $logMessage =
                     'Отменен закрой заказа № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
                     ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на закрой - удалено.' . PHP_EOL .
@@ -137,8 +139,8 @@ class MarketplaceOrderItemService
                 $order->delete();
             }
 
-            //  если на пошиве, стикеровке или уже выполнен
-            if ($marketplaceOrderItem->status == 4 || $marketplaceOrderItem->status == 5 || $marketplaceOrderItem->status == 3) {
+            //  если на пошиве или стикеровке
+            if ($status == 4 || $status == 5) {
                 $logMessage =
                     'Отменен пошив заказа № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
                     ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено. Не выплаченная зарплата и бонусы - удалены.' . PHP_EOL .
@@ -796,7 +798,7 @@ class MarketplaceOrderItemService
             ->info('Заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id . ' сохранен в историю с товаром '
                 . $marketplaceOrderItem->id . ' (значит этот заказ отмененный, раз товар на хранении)');
 
-        $marketplaceOrderItem->marketplaceOrder->status = 9; // возврат
+        $marketplaceOrderItem->marketplaceOrder->status = '9'; // возврат
         $marketplaceOrderItem->marketplaceOrder->save();
     }
 
@@ -900,7 +902,7 @@ class MarketplaceOrderItemService
             ->whereHas('item')
             ->with('item')
             ->get()
-            ->sum(fn($orderItem) => $orderItem->item?->width ?? 0);
+            ->sum(fn($orderItem) => $orderItem->item->width ?? 0);
     }
 
     public function getOrdersGroupedByMaterial(User $user): \Illuminate\Support\Collection
