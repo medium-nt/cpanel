@@ -169,6 +169,6 @@ class MarketplaceOrderItemController extends Controller
         ]);
 
         return $pdf->setPaper('A4')
-            ->stream('cutting.pdf');
+            ->download('cutting.pdf');
     }
 }
