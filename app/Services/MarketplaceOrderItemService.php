@@ -517,64 +517,64 @@ class MarketplaceOrderItemService
     /**
      * @throws Exception
      */
-    public static function getNewOrderItem_OLD(): array
-    {
-        $result = self::checkSchedule();
-        if (!$result['success']) {
-            return $result;
-        }
-
-        $result = self::checkMaxStack(auth()->user());
-        if (!$result['success']) {
-            return $result;
-        }
-
-        foreach (self::getFilteredItems() as $marketplaceOrderItem) {
-            $item = $marketplaceOrderItem->item()->first();
-
-            if (!self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
-                $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала на складе';
-                TgService::sendMessage(config('telegram.admin_id'), $text);
-                continue;
-            }
-
-            if(!self::canUseMaterial($marketplaceOrderItem)) {
-                continue;
-            }
-
-            if (self::isReserved($marketplaceOrderItem)) {
-                continue;
-            }
-
-            self::reserve($marketplaceOrderItem);
-
-            $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrderItem->marketplaceOrder->marketplace_id);
-
-            $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
-                ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
-                ') взял в работу сотрудник: ' . auth()->user()->name;
-
-            SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
-
-            if (auth()->user()->tg_id) {
-                SendTelegramMessageJob::dispatch(
-                    auth()->user()->tg_id,
-                    'Вы взяли в работу заказ # '
-                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' (' . $marketplaceName . '): '
-                    . $item->title . ' ' . $item->width . 'x' . $item->height
-                );
-            }
-
-            Log::channel('erp')->info($text);
-
-            return self::assignOrderToUser($marketplaceOrderItem);
-        }
-
-        return [
-            'success' => false,
-            'message' => 'Нет доступных заказов'
-        ];
-    }
+//    public static function getNewOrderItem_OLD(): array
+//    {
+//        $result = self::checkSchedule();
+//        if (!$result['success']) {
+//            return $result;
+//        }
+//
+//        $result = self::checkMaxStack(auth()->user());
+//        if (!$result['success']) {
+//            return $result;
+//        }
+//
+//        foreach (self::getFilteredItems() as $marketplaceOrderItem) {
+//            $item = $marketplaceOrderItem->item()->first();
+//
+//            if (!self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
+//                $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала на складе';
+//                TgService::sendMessage(config('telegram.admin_id'), $text);
+//                continue;
+//            }
+//
+//            if(!self::canUseMaterial($marketplaceOrderItem)) {
+//                continue;
+//            }
+//
+//            if (self::isReserved($marketplaceOrderItem)) {
+//                continue;
+//            }
+//
+//            self::reserve($marketplaceOrderItem);
+//
+//            $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrderItem->marketplaceOrder->marketplace_id);
+//
+//            $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
+//                ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
+//                ') взял в работу сотрудник: ' . auth()->user()->name;
+//
+//            SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+//
+//            if (auth()->user()->tg_id) {
+//                SendTelegramMessageJob::dispatch(
+//                    auth()->user()->tg_id,
+//                    'Вы взяли в работу заказ # '
+//                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' (' . $marketplaceName . '): '
+//                    . $item->title . ' ' . $item->width . 'x' . $item->height
+//                );
+//            }
+//
+//            Log::channel('erp')->info($text);
+//
+//            return self::assignOrderToUser($marketplaceOrderItem);
+//        }
+//
+//        return [
+//            'success' => false,
+//            'message' => 'Нет доступных заказов'
+//        ];
+//    }
 
     public static function getNewOrderItem(): array
     {
@@ -597,6 +597,7 @@ class MarketplaceOrderItemService
 
     protected static function processAvailableItems(): array
     {
+        /** @var MarketplaceOrderItem $marketplaceOrderItem */
         foreach (self::getFilteredItems() as $marketplaceOrderItem) {
             Log::channel('erp')
                 ->info(

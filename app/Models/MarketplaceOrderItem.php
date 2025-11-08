@@ -67,6 +67,9 @@ class MarketplaceOrderItem extends Model
         return $this->belongsTo(Shelf::class);
     }
 
+    /**
+     * @return HasMany<MarketplaceOrderHistory, MarketplaceOrderItem>
+     */
     public function history(): HasMany
     {
         return $this->hasMany(MarketplaceOrderHistory::class);
