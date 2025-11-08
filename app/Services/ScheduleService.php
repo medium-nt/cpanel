@@ -45,7 +45,7 @@ class ScheduleService
 
     public static function isEnabledSchedule(): bool
     {
-        return Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
+        return (bool)Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
     }
 
     public static function getStartWorkDay(): string

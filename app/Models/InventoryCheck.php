@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @mixin IdeHelperOrder
+ * @property 'in_progress'|'closed' $status
  */
 class InventoryCheck extends Model
 {
@@ -22,6 +23,7 @@ class InventoryCheck extends Model
 
     protected $casts = [
         'finished_at' => 'datetime',
+        'status' => 'string',
     ];
 
     public function items(): HasMany

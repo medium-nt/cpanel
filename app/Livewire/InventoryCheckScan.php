@@ -8,6 +8,7 @@ use Livewire\Component;
 use App\Models\InventoryCheck;
 use App\Models\InventoryCheckItem;
 use App\Models\Shelf;
+use Illuminate\Database\Eloquent\Collection;
 
 class InventoryCheckScan extends Component
 {
@@ -161,6 +162,7 @@ class InventoryCheckScan extends Component
     protected function changeShelf(): void
     {
         //  Все товары не на своих полках меняем на новую полку, где нашли товар
+        /** @var Collection<int, InventoryCheckItem> $inventoryItems */
         $inventoryItems = InventoryCheckItem::query()
             ->where('inventory_check_id', $this->inventory->id)
             ->where('is_found', true)
@@ -168,25 +170,28 @@ class InventoryCheckScan extends Component
             ->where('expected_shelf_id', '!=', 'founded_shelf_id')
             ->get();
 
-        /** @var InventoryCheckItem $inventoryItems */
         foreach ($inventoryItems as $item) {
-            $item->marketplaceOrderItem->shelf_id = $item->founded_shelf_id;
-            $item->marketplaceOrderItem->save();
+            /** @var MarketplaceOrderItem $orderItem */
+            $orderItem = $item->marketplaceOrderItem;
+            $orderItem->shelf_id = $item->founded_shelf_id;
+            $orderItem->save();
         }
     }
 
     protected function setStatusLost(): void
     {
         //  Все которые не найдены - меняет статус на "утерян"
+        /** @var Collection<int, InventoryCheckItem> $notFoundItems */
         $notFoundItems = InventoryCheckItem::query()
             ->where('inventory_check_id', $this->inventory->id)
             ->where('is_found', false)
             ->get();
 
-        /** @var InventoryCheckItem $notFoundItems */
         foreach ($notFoundItems as $item) {
-            $item->marketplaceOrderItem->status = 14;
-            $item->marketplaceOrderItem->save();
+            /** @var MarketplaceOrderItem $orderItem */
+            $orderItem = $item->marketplaceOrderItem;
+            $orderItem->status = 14;
+            $orderItem->save();
         }
     }
 

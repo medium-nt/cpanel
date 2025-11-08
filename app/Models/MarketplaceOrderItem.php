@@ -68,7 +68,7 @@ class MarketplaceOrderItem extends Model
     }
 
     /**
-     * @return HasMany<MarketplaceOrderHistory, MarketplaceOrderItem>
+     * @return HasMany<MarketplaceOrderHistory, $this>
      */
     public function history(): HasMany
     {
