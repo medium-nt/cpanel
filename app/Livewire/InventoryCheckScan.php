@@ -114,8 +114,8 @@ class InventoryCheckScan extends Component
         if (!$row) {
             $this->setStatus(
                 "Товар со штрихкодом $code
-                не включён в данную инвентаризацию! Он должен храниться на полке
-                \"{$item->shelf->title}\" ",
+                не включён в данную инвентаризацию! Он должен храниться на полке \" " .
+                ($item->shelf?->title ?? 'НЕ УКАЗАНА!') . "\"",
                 'error'
             );
             return;
