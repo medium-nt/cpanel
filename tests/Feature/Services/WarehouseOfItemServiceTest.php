@@ -124,6 +124,34 @@ class WarehouseOfItemServiceTest extends TestCase
         $this->assertEquals('Товар уже находится на складе', $result['message']);
     }
 
+    public function test_generated_barcode_has_valid_luhn_checksum(): void
+    {
+        $order = MarketplaceOrder::factory()->create(['status' => 1]);
+        $seamstress = User::factory()->create();
+        $marketplaceOrderItem = MarketplaceOrderItem::factory()
+            ->for($order)
+            ->create([
+                'storage_barcode' => null,
+                'price' => 100,
+                'seamstress_id' => $seamstress->id,
+            ]);
+
+        $barcode = $this->warehouseOfItemService->getStorageBarcode($marketplaceOrderItem);
+
+        // 8 базовых + 1 контрольная
+        $this->assertSame(9, strlen($barcode));
+
+        $base = substr($barcode, 0, 8);
+        $check = (int)substr($barcode, -1);
+
+        $sum = 0;
+        foreach (str_split(strrev($base)) as $i => $d) {
+            $n = (int)$d * ($i % 2 === 0 ? 2 : 1);
+            $sum += $n > 9 ? $n - 9 : $n;
+        }
+        $this->assertSame($check, (10 - $sum % 10) % 10);
+    }
+
     public function test_find_refund_item_by_barcode_success()
     {
         $orderId = '12345';
