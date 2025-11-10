@@ -155,6 +155,7 @@ class InventoryCheckScan extends Component
 
         $this->changeShelf();
         $this->setStatusLost();
+        $this->setStatusFound();
 
         $this->inventory->status = 'closed';
         $this->inventory->finished_at = now();
@@ -184,7 +185,6 @@ class InventoryCheckScan extends Component
 
     protected function setStatusLost(): void
     {
-        //  Все которые не найдены - меняет статус на "утерян"
         /** @var Collection<int, InventoryCheckItem> $notFoundItems */
         $notFoundItems = InventoryCheckItem::query()
             ->where('inventory_check_id', $this->inventory->id)
@@ -196,6 +196,24 @@ class InventoryCheckScan extends Component
             $orderItem = $item->marketplaceOrderItem;
             $orderItem->status = 14;
             $orderItem->save();
+        }
+    }
+
+    private function setStatusFound(): void
+    {
+        /** @var Collection<int, InventoryCheckItem> $foundItems */
+        $foundItems = InventoryCheckItem::query()
+            ->where('inventory_check_id', $this->inventory->id)
+            ->where('is_found', true)
+            ->get();
+
+        foreach ($foundItems as $item) {
+            /** @var MarketplaceOrderItem $orderItem */
+            $orderItem = $item->marketplaceOrderItem;
+            if ($orderItem->status === 14) {
+                $orderItem->status = 11;
+                $orderItem->save();
+            }
         }
     }
 
@@ -257,5 +275,6 @@ class InventoryCheckScan extends Component
         ];
         $this->statusClass = $map[$type] ?? 'alert-secondary';
     }
+
 }
 
