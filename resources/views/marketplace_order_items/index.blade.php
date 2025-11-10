@@ -432,7 +432,7 @@
                                 новый заказ</a>
                         @endif
 
-                        @if(auth()->user()->isCutter())
+                            @if(auth()->user()->is_cutter || auth()->user()->isCutter())
                             <a href="{{ route('marketplace_order_items.printCutting') }}"
                                target="_blank"
                                class="btn btn-outline-secondary ml-3"><i
