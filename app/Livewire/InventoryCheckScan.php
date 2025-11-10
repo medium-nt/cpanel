@@ -29,7 +29,6 @@ class InventoryCheckScan extends Component
 
     /** справочники */
     public $shelves;
-    protected string $itemBarcodeColumn = 'storage_barcode';
 
     public function mount(InventoryCheck $inventoryCheck): void
     {
@@ -99,7 +98,7 @@ class InventoryCheckScan extends Component
             return;
         }
 
-        $item = MarketplaceOrderItem::where($this->itemBarcodeColumn, $code)->first();
+        $item = MarketplaceOrderItem::where('storage_barcode', $code)->first();
 
         if (!$item) {
             $this->setStatus("Неизвестный штрихкод: $code. Разрешено сканировать только стикеры хранения.", 'error');
@@ -107,34 +106,34 @@ class InventoryCheckScan extends Component
         }
 
         /** строка инвентаризации для этого товара */
-        $row = InventoryCheckItem::where('inventory_check_id', $this->inventory->id)
+        $inventoryItem = InventoryCheckItem::where('inventory_check_id', $this->inventory->id)
             ->where('marketplace_order_item_id', $item->id)
             ->first();
 
-        if (!$row) {
-            $this->setStatus(
-                "Товар со штрихкодом $code
-                не включён в данную инвентаризацию! Он должен храниться на полке \" " .
-                ($item->shelf?->title ?? 'НЕ УКАЗАНА!') . "\"",
-                'error'
-            );
-            return;
+        if (!$inventoryItem) {
+            /** добавляем в инвентаризацию */
+            $inventoryItem = InventoryCheckItem::create([
+                'inventory_check_id' => $this->inventory->id,
+                'marketplace_order_item_id' => $item->id,
+                'expected_shelf_id' => $item->shelf_id,
+                'is_added_later' => true,
+            ]);
         }
 
-        if ($row->is_found) {
+        if ($inventoryItem->is_found) {
             $this->setStatus("Товар со штрихкодом $code уже найден ранее", 'warn');
             return;
         }
 
-        $row->is_found = true;
-        $row->founded_shelf_id = $this->selectedShelfId;
-        $row->save();
+        $inventoryItem->is_found = true;
+        $inventoryItem->founded_shelf_id = $this->selectedShelfId;
+        $inventoryItem->save();
 
         $this->refreshCounters();
 
-        $isWrongShelf = $row->expected_shelf_id && $row->expected_shelf_id !== $row->founded_shelf_id;
-        $expectedCode = optional($row->expectedShelf)->title;
-        $currentCode = optional($row->foundedShelf)->title;
+        $isWrongShelf = $inventoryItem->expected_shelf_id && $inventoryItem->expected_shelf_id !== $inventoryItem->founded_shelf_id;
+        $expectedCode = optional($inventoryItem->expectedShelf)->title;
+        $currentCode = optional($inventoryItem->foundedShelf)->title;
 
         $msg = "Товар со штрихкодом $code найден на полке: $currentCode";
 
@@ -213,24 +212,28 @@ class InventoryCheckScan extends Component
             return;
         }
 
-        $row = InventoryCheckItem::query()
+        $inventoryItem = InventoryCheckItem::query()
             ->where('inventory_check_id', $this->inventory->id)
             ->where('id', $rowId)
             ->first();
 
-        if (!$row) {
+        if (!$inventoryItem) {
             $this->setStatus("Строка инвентаризации #$rowId не найдена", 'error');
             return;
         }
 
-        if (!$row->is_found) {
+        if (!$inventoryItem->is_found) {
             $this->setStatus('Эта позиция уже была снята с “найдено”.', 'warn');
             return;
         }
 
-        $row->is_found = false;
-        $row->founded_shelf_id = null;
-        $row->save();
+        $inventoryItem->is_found = false;
+        $inventoryItem->founded_shelf_id = null;
+        $inventoryItem->save();
+
+        if ($inventoryItem->is_added_later) {
+            $inventoryItem->delete();
+        }
 
         $this->refreshCounters();
         $this->setStatus('Товар удален из найденных.', 'ok');

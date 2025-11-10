@@ -20,6 +20,7 @@ class InventoryCheckItem extends Model
         'expected_shelf_id',
         'founded_shelf_id',
         'is_found',
+        'is_added_later',
     ];
 
     public function expectedShelf(): BelongsTo
