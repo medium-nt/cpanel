@@ -105,6 +105,11 @@ class InventoryCheckScan extends Component
             return;
         }
 
+        if (!in_array($item->status, [11, 12, 13, 14])) {
+            $this->setStatus("Товар со штрихкодом: $code невозможно добавить в инвентаризацию, так как его текущий статус: \"$item->statusName\"", 'error');
+            return;
+        }
+
         /** строка инвентаризации для этого товара */
         $inventoryItem = InventoryCheckItem::where('inventory_check_id', $this->inventory->id)
             ->where('marketplace_order_item_id', $item->id)
