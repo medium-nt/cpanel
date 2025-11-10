@@ -74,4 +74,13 @@ class InventoryController extends Controller
             ->with('success', 'Инвентаризация создана');
     }
 
+    public function destroy(InventoryCheck $inventory)
+    {
+        $inventory->delete();
+
+        return redirect()
+            ->route('inventory.inventory_checks')
+            ->with('success', 'Инвентаризация удалена');
+    }
+
 }

@@ -28,4 +28,8 @@ Route::prefix('/inventory')->group(function () {
         ->can('create', InventoryCheck::class)
         ->name('inventory.store');
 
+    Route::delete('/delete/{inventory}', [App\Http\Controllers\InventoryController::class, 'destroy'])
+        ->can('delete', InventoryCheck::class)
+        ->name('inventory.destroy');
+
 });

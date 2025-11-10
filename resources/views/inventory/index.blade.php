@@ -79,6 +79,21 @@
                                        class="btn btn-primary">
                                         Посмотреть
                                     </a>
+
+                                    @if ($inventory->status === 'in_progress')
+                                        <form
+                                            action="{{ route('inventory.destroy', $inventory->id) }}"
+                                            method="POST"
+                                            class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger mt-1"
+                                                    onclick="return confirm('Вы уверены что хотите удалить данную инвентаризацию?')">
+                                                Удалить
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
