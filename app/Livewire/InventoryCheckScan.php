@@ -194,8 +194,10 @@ class InventoryCheckScan extends Component
         foreach ($notFoundItems as $item) {
             /** @var MarketplaceOrderItem $orderItem */
             $orderItem = $item->marketplaceOrderItem;
-            $orderItem->status = 14;
-            $orderItem->save();
+            if ($orderItem->status === 11) {
+                $orderItem->status = 14;
+                $orderItem->save();
+            }
         }
     }
 
