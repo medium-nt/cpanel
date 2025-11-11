@@ -89,9 +89,22 @@
                         <label for="role_id">Роль</label>
                         <select name="role_id" id="role_id" class="form-control" required>
                             <option value="" disabled selected>---</option>
-                            <option value="1">Швея</option>
-                            <option value="2">Кладовщик</option>
-                            <option value="4">Закройщик</option>
+                            <option value="1"
+                                    @if(old('role_id') == 1) selected @endif>
+                                Швея
+                            </option>
+                            <option value="2"
+                                    @if(old('role_id') == 2) selected @endif>
+                                Кладовщик
+                            </option>
+                            <option value="4"
+                                    @if(old('role_id') == 4) selected @endif>
+                                Закройщик
+                            </option>
+                            <option value="5"
+                                    @if(old('role_id') == 5) selected @endif>
+                                Сотрудник ОТК
+                            </option>
                         </select>
                     </div>
 

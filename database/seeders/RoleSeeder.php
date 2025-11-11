@@ -27,5 +27,9 @@ class RoleSeeder extends Seeder
         Role::query()->firstOrCreate(
             ['name' => 'cutter']
         );
+
+        Role::query()->firstOrCreate(
+            ['name' => 'otk']
+        );
     }
 }

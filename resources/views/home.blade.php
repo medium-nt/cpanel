@@ -11,6 +11,24 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
+                @if(auth()->user()->isOtk())
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}"
+                           class="link-black">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success"><i
+                                        class="fas fa-toilet-paper"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Раскроено</span>
+                                    <span
+                                        class="info-box-number">{{ $cutMarketplaceOrderItem }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                @endif
+
+                @if(!auth()->user()->isOtk())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="link-black">
                         <div class="info-box">
@@ -22,8 +40,9 @@
                         </div>
                     </a>
                 </div>
+                @endif
 
-                @if(!auth()->user()->isCutter())
+                @if(!auth()->user()->isCutter() && !auth()->user()->isOtk())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
@@ -37,7 +56,7 @@
                 </div>
                 @endif
 
-                @if(!auth()->user()->isSeamstress())
+                @if(!auth()->user()->isSeamstress() && !auth()->user()->isOtk())
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
@@ -51,6 +70,7 @@
                 </div>
                 @endif
 
+                @if(!auth()->user()->isOtk())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="link-black">
                         <div class="info-box">
@@ -62,8 +82,9 @@
                         </div>
                     </a>
                 </div>
+                @endif
 
-                @if(!auth()->user()->isCutter() && !auth()->user()->isSeamstress())
+                @if(!auth()->user()->isCutter() && !auth()->user()->isSeamstress() && !auth()->user()->isOtk())
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                         <a href="{{ route('warehouse_of_item.to_pick_list') }}"
                            class="link-black">
@@ -80,6 +101,7 @@
                     </div>
                 @endif
 
+                @if(!auth()->user()->isOtk())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
@@ -91,7 +113,9 @@
                         </div>
                     </a>
                 </div>
+                @endif
 
+                @if(!auth()->user()->isOtk())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
@@ -103,6 +127,7 @@
                         </div>
                     </a>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -234,7 +259,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->role_id == '3')
+    @if(auth()->user()->isAdmin())
     <div class="card">
         <div class="card-header">
             Динамика преобладания большими размерами

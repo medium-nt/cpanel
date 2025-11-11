@@ -22,9 +22,15 @@ class MarketplaceOrderItemController extends Controller
         if(($request->status == 'new' || $request->status == 'cutting') && auth()->user()->isSeamstress()) {
             return redirect()->route('marketplace_order_items.index', ['status' => 'in_work']);
         }
+
         // запретить закройщикам смотреть новые заказы
         if($request->status == 'new' && auth()->user()->isCutter()) {
             return redirect()->route('marketplace_order_items.index', ['status' => 'cutting']);
+        }
+
+        // запретить ОТК смотреть новые заказы
+        if ($request->status == 'new' && auth()->user()->isOtk()) {
+            return redirect()->route('marketplace_order_items.index', ['status' => 'cut']);
         }
 
         $items = MarketplaceOrderItemService::getFiltered($request);

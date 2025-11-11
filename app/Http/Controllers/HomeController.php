@@ -33,6 +33,7 @@ class HomeController extends Controller
         return view('home', [
             'title' => 'Дашборд',
             'events' => ScheduleService::getScheduleByUserId($employeeId),
+            'cutMarketplaceOrderItem' => MarketplaceOrderItemService::cut(),
             'newMarketplaceOrderItem' => MarketplaceOrderItemService::new(),
             'marketplaceOrderItemInWork' => MarketplaceOrderItemService::toWork(),
             'marketplaceOrderItemInCutting' => MarketplaceOrderItemService::toCutting(),

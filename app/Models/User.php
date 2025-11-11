@@ -96,12 +96,12 @@ class User extends Authenticatable
         return UserService::translateRoleName(auth()->user()->role->name);
     }
 
-    public function getUpdatedDateAttribute()
+    public function getUpdatedDateAttribute(): string
     {
         return $this->updated_at->format('d/m/Y H:i');
     }
 
-    public function getCreatedDateAttribute()
+    public function getCreatedDateAttribute(): string
     {
         return $this->updated_at->format('d/m/Y H:i');
     }
@@ -124,6 +124,11 @@ class User extends Authenticatable
     public function isStorekeeper(): bool
     {
         return $this->role?->name === 'storekeeper';
+    }
+
+    public function isOtk(): bool
+    {
+        return $this->role?->name === 'otk';
     }
 
     public function getEndWorkShiftAttribute(): Carbon

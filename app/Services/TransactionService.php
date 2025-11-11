@@ -77,6 +77,32 @@ class TransactionService
         }
     }
 
+    public static function accrualOtkSalary(): void
+    {
+        $workers = Schedule::query()
+            ->where('date', Carbon::now()->subDay()->format('Y-m-d'))
+            ->get();
+
+        foreach ($workers as $worker) {
+            if ($worker->user && $worker->user->role && $worker->user->isOtk()) {
+
+                $accrualForDate = \Carbon\Carbon::parse($worker->date);
+
+                Transaction::query()->create([
+                    'user_id' => $worker->user->id,
+                    'title' => 'Зарплата за ' . $accrualForDate->format('d/m/Y'),
+                    'accrual_for_date' => $accrualForDate->format('Y-m-d'),
+                    'amount' => $worker->user->salary_rate,
+                    'transaction_type' => 'out',
+                    'status' => 1,
+                ]);
+
+                Log::channel('salary')
+                    ->info('Добавили зарплату в размере ' . $worker->user->salary_rate . ' рублей для сотрудника ОКТ ' . $worker->user->name);
+            }
+        }
+    }
+
     private static function addTransaction(?User $user, $amount, $transaction_type, $title, $accrual_for_date, $type, bool $isBonus): void
     {
         $status = $isBonus ? 0 : 1;

@@ -307,6 +307,7 @@ return [
         [
             'text' => 'inventory',
             'icon' => 'fas fa-fw fa-boxes',
+            'can' => 'is-admin-storekeeper-seamstress-cutter',
             'submenu' => [
                 [
                     'text' => 'inventory_by_warehouse',
@@ -331,17 +332,12 @@ return [
                     'icon' => 'fas fa-fw fa-clipboard-list',
                     'can' => 'is-storekeeper-or-admin',
                 ],
-//              [
-//                  'text' => 'inventory_by_defect_warehouse',
-//                  'url' => 'megatulle/inventory/defect_warehouse',
-//                  'icon' => 'fas fa-fw fa-boxes',
-//                  'can' => 'is-storekeeper-or-admin',
-//              ],
             ]
         ],
         [
             'text' => 'movements',
             'icon' => 'fas fa-fw fa-dolly',
+            'can' => 'is-admin-storekeeper-seamstress-cutter',
             'submenu' => [
                 [
                     'text' => 'movements_from_supplier',
@@ -402,7 +398,6 @@ return [
                 ],
             ]
         ],
-
         [
             'text' => 'transactions',
             'url' => 'megatulle/transactions',

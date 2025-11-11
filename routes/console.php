@@ -35,6 +35,10 @@ Schedule::call(function () {
 })->dailyAt('00:30');
 
 Schedule::call(function () {
+    TransactionService::accrualOtkSalary();
+})->dailyAt('00:25');
+
+Schedule::call(function () {
     TransactionService::accrualStorekeeperSalary();
 })->dailyAt('00:30');
 

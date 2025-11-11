@@ -13,7 +13,7 @@
             <div class="card-body">
 
                 <div class="row">
-                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isOtk())
                     <div class="form-group col-md-3">
                         <select name="user_id"
                                 id="user_id"
@@ -82,7 +82,9 @@
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link">На раскрое</a>
+                @endif
 
+                @if(auth()->user()->isCutter() || auth()->user()->isAdmin() || auth()->user()->isOtk())
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'cut',
                     'user_id' => request('user_id'),
@@ -93,6 +95,7 @@
                    class="btn btn-link">Раскроено</a>
                 @endif
 
+                @if(!auth()->user()->isOtk())
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'in_work',
                     'user_id' => request('user_id'),
@@ -119,6 +122,7 @@
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link">Готовые</a>
+                @endif
             </div>
         </div>
 
@@ -199,7 +203,7 @@
                                 Маркетплейс
                             </th>
                             <th style="text-align: center" scope="col">Тип</th>
-                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isOtk())
                                 <th style="text-align: center" scope="col">
                                     Сотрудники
                                 </th>
@@ -254,7 +258,7 @@
                                 </td>
                                 <td style="text-align: center">{{ $item->marketplaceOrder->fulfillment_type }}</td>
 
-                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isOtk())
                                     <td style="font-size: 12px;">
                                         @if($item->cutter_id)
                                             <b>Закройщик:</b> {{ $item->cutter?->shortName }}

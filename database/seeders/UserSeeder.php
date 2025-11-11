@@ -40,6 +40,13 @@ class UserSeeder extends Seeder
             'role_id' => 4
         ]);
 
+        User::query()->create([
+            'name' => 'Тестовый Сотрудник ОТК',
+            'email' => '5@5.ru',
+            'password' => bcrypt('555555'),
+            'role_id' => 5
+        ]);
+
         User::factory(10)->create();
     }
 }

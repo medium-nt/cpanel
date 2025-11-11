@@ -25,6 +25,7 @@ class MarketplaceOrderItemService
     public static function getFiltered($request): Builder
     {
         $status = match (auth()->user()->role->name) {
+            'otk' => $request->status ?? 'cut',
             'cutter' => $request->status ?? 'cutting',
             'seamstress' => $request->status ?? 'in_work',
             default => $request->status ?? 'new',
@@ -224,6 +225,13 @@ class MarketplaceOrderItemService
     {
         return MarketplaceOrderItem::query()
             ->where('status', 0)
+            ->sum('quantity');
+    }
+
+    public static function cut(): int
+    {
+        return MarketplaceOrderItem::query()
+            ->where('status', 8)
             ->sum('quantity');
     }
 
