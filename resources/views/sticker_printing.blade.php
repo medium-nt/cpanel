@@ -50,14 +50,6 @@
                             <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal">
                                 <i class="fas fa-barcode"></i>
                             </a>
-                            {{--                            <a class="btn btn-outline-primary btn-lg" href="#"--}}
-                            {{--                               data-toggle="modal" data-target="#barcodeModal2">--}}
-                            {{--                                <i class="fas fa-barcode"></i> 1--}}
-                            {{--                            </a>--}}
-                            {{--                            <a class="btn btn-outline-primary btn-lg" href="#"--}}
-                            {{--                               data-toggle="modal" data-target="#barcodeModal3">--}}
-                            {{--                                <i class="fas fa-barcode"></i> 2--}}
-                            {{--                            </a>--}}
                         </div>
 
                         <x-modal-scan-barcode-component/>
@@ -96,11 +88,13 @@
                                     class="form-control form-control-lg"
                                     onchange="updatePageWithQueryParam(this)"
                                     required>
-                                <option value="" selected disabled>Выберите швею</option>
-                                @foreach($seamstresses as $seamstress)
-                                    <option value="{{ $seamstress->id }}"
-                                            @if(request('user_id') == $seamstress->id) selected @endif
-                                    >{{ $seamstress->name }}</option>
+                                <option value="" selected disabled>Выберите
+                                    сотрудника
+                                </option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}"
+                                            @if(request('user_id') == $user->id) selected @endif
+                                    >{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>

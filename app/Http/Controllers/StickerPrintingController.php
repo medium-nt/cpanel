@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -45,7 +44,7 @@ class StickerPrintingController extends Controller
             $workShift = [
                 'shift_is_open' => $user->shift_is_open,
                 'start' => $user->actual_start_work_shift,
-                'end' => $user->endWorkShift,
+                'end' => $user->end_work_shift,
             ];
         }
 
@@ -53,8 +52,10 @@ class StickerPrintingController extends Controller
             'title' => 'Печать стикеров',
             'userId' => $request->user_id ?? 0,
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
-            'seamstresses' => User::query()->whereIn('role_id', [1, 4])
-                ->where('name', 'not like', '%Тест%')->get(),
+            'users' => User::query()->whereIn('role_id', [1, 2, 4, 5])
+                ->where('name', 'not like', '%Тест%')
+                ->orderBy('name')
+                ->get(),
             'dates' => json_encode($dates),
             'seamstressesJson' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
             'days_ago' => $daysAgo,
@@ -112,7 +113,7 @@ class StickerPrintingController extends Controller
 
         if ($user->shift_is_open) {
 
-            if ($user->endWorkShift->greaterThan(now())) {
+            if ($user->end_work_shift->greaterThan(now())) {
                 Log::channel('work_shift')
                     ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') ' .
                         'пытался закрыть смену до окончания рабочего времени.');
