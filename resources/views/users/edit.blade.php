@@ -98,7 +98,6 @@
                                    for="is_show_finance">Показ финансов</label>
                         </div>
 
-                        @if($user->isSeamstress() || $user->isCutter())
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-md-4">
@@ -122,6 +121,7 @@
                             </div>
                         </div>
 
+                        @if($user->isSeamstress() || $user->isCutter())
                         <div class="form-group">
                             <label for="orders_priority">Приоритет заказов швеи или закройщика</label>
                             <select name="orders_priority" id="orders_priority" class="form-control">
