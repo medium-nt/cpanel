@@ -28,7 +28,7 @@ class StoreRemnantsRequest extends FormRequest
             'material_id.*.exists:movement_materials,id' => 'Материал не найден.',
             'quantity.*.required' => 'Количество обязательно.',
             'quantity.*.min' => 'Количество должно быть больше или равно нулю.',
-            'comment' => 'string|min:3|max:255|nullable'
+            'comment' => 'string|min:3|max:255|nullable',
         ];
     }
 
@@ -44,7 +44,7 @@ class StoreRemnantsRequest extends FormRequest
             'material_id.*.exists' => 'Материал не найден.',
             'quantity.*.required' => 'Количество обязательно.',
             'quantity.*.min' => 'Количество должно быть больше нуля.',
-            'comment' => 'Комментарий должен быть не менее 3 символов.'
+            'comment' => 'Комментарий должен быть не менее 3 символов.',
         ];
     }
 }

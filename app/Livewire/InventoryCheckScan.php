@@ -2,13 +2,13 @@
 
 namespace App\Livewire;
 
-use App\Models\MarketplaceOrderItem;
-use Illuminate\View\View;
-use Livewire\Component;
 use App\Models\InventoryCheck;
 use App\Models\InventoryCheckItem;
+use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\View\View;
+use Livewire\Component;
 
 class InventoryCheckScan extends Component
 {
@@ -22,9 +22,13 @@ class InventoryCheckScan extends Component
 
     /** служебное */
     public string $statusMessage = '';
+
     public string $statusType = 'info'; // ok|error|warn|info
+
     public string $statusClass = 'alert-secondary';
+
     public int $totalItems = 0;
+
     public int $foundItems = 0;
 
     /** справочники */
@@ -85,16 +89,19 @@ class InventoryCheckScan extends Component
         $code = trim($this->scanCode);
         $this->scanCode = '';
 
-        if ($code === '')
+        if ($code === '') {
             return;
+        }
 
         if ($this->inventory->status === 'closed') {
             $this->setStatus('Инвентаризация закрыта. Сканирование запрещено.', 'error');
+
             return;
         }
 
         if (!$this->selectedShelfId) {
             $this->setStatus('Сначала выбери полку в выпадающем списке.', 'error');
+
             return;
         }
 
@@ -102,11 +109,13 @@ class InventoryCheckScan extends Component
 
         if (!$item) {
             $this->setStatus("Неизвестный штрихкод: $code. Разрешено сканировать только стикеры хранения.", 'error');
+
             return;
         }
 
         if (!in_array($item->status, [11, 12, 13, 14])) {
             $this->setStatus("Товар со штрихкодом: $code невозможно добавить в инвентаризацию, так как его текущий статус: \"$item->statusName\"", 'error');
+
             return;
         }
 
@@ -127,6 +136,7 @@ class InventoryCheckScan extends Component
 
         if ($inventoryItem->is_found) {
             $this->setStatus("Товар со штрихкодом $code уже найден ранее", 'warn');
+
             return;
         }
 
@@ -150,8 +160,9 @@ class InventoryCheckScan extends Component
 
     public function closeCheck(): void
     {
-        if ($this->inventory->status === 'closed')
+        if ($this->inventory->status === 'closed') {
             return;
+        }
 
         $this->changeShelf();
         $this->setStatusLost();
@@ -234,6 +245,7 @@ class InventoryCheckScan extends Component
     {
         if ($this->inventory->status === 'closed') {
             $this->setStatus('Инвентаризация закрыта. Правки запрещены.', 'error');
+
             return;
         }
 
@@ -244,11 +256,13 @@ class InventoryCheckScan extends Component
 
         if (!$inventoryItem) {
             $this->setStatus("Строка инвентаризации #$rowId не найдена", 'error');
+
             return;
         }
 
         if (!$inventoryItem->is_found) {
             $this->setStatus('Эта позиция уже была снята с “найдено”.', 'warn');
+
             return;
         }
 
@@ -277,6 +291,4 @@ class InventoryCheckScan extends Component
         ];
         $this->statusClass = $map[$type] ?? 'alert-secondary';
     }
-
 }
-

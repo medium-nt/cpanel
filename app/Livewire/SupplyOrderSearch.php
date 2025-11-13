@@ -2,21 +2,25 @@
 
 namespace App\Livewire;
 
+use App\Models\MarketplaceOrder;
 use App\Services\MarketplaceApiService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
-use Livewire\Component;
-use App\Models\MarketplaceOrder;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class SupplyOrderSearch extends Component
 {
     public $orderId;
+
     public $supply;
+
     public $message;
+
     public $messageType = 'success, error';
 
     public $matchingOrders = [];
+
     public $selectedOrderId = null;
 
     protected $rules = [
@@ -37,6 +41,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+
             return;
         }
 
@@ -60,6 +65,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+
             return;
         }
 
@@ -68,6 +74,7 @@ class SupplyOrderSearch extends Component
             $this->message = 'Найдено несколько заказов. Выберите нужный.';
             $this->messageType = 'info';
             $this->dispatch('orderError');
+
             return;
         }
 
@@ -102,6 +109,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+
             return;
         }
 
@@ -115,6 +123,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+
             return;
         }
 
@@ -132,5 +141,4 @@ class SupplyOrderSearch extends Component
         $this->dispatch('orderAdded');
         $this->dispatch('clearMessage');
     }
-
 }

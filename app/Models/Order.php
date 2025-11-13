@@ -24,7 +24,7 @@ class Order extends Model
         'comment',
         'marketplace_order_id',
         'is_approved',
-        'completed_at'
+        'completed_at',
     ];
 
     protected $appends = ['status_name', 'status_color', 'type_movement_name'];

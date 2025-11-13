@@ -12,17 +12,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Supplier extends Model
 {
-    use SoftDeletes;
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'title',
         'phone',
         'address',
-        'comment'
+        'comment',
     ];
 
-    public function orders() : HasMany
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class, 'supplier_id', 'id');
     }

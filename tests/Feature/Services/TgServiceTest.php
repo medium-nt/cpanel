@@ -43,14 +43,14 @@ class TgServiceTest extends TestCase
         $expectedFormParams = [
             'form_params' => [
                 'chat_id' => $chatId,
-                'text' => $message
-            ]
+                'text' => $message,
+            ],
         ];
 
         $mock = \Mockery::mock('overload:'.Client::class);
         $mock->shouldReceive('post')
-             ->once()
-             ->with($expectedUrl, $expectedFormParams);
+            ->once()
+            ->with($expectedUrl, $expectedFormParams);
 
         TgService::sendMessage($chatId, $message);
 
@@ -70,7 +70,7 @@ class TgServiceTest extends TestCase
             ->once()
             ->with([
                 'chat_id' => $chatId,
-                'text' => $message
+                'text' => $message,
             ]);
 
         // Подменяем реализацию в фасаде
@@ -94,7 +94,7 @@ class TgServiceTest extends TestCase
             ->once()
             ->with([
                 'chat_id' => $chatId,
-                'text' => $message
+                'text' => $message,
             ])
             ->andThrow(new TelegramSDKException($exceptionMessage));
 

@@ -45,7 +45,7 @@ class DefectMaterialService
                 ];
                 break;
             case '3':
-                $text = 'Кладовщик ' . auth()->user()->name . ' забрал ' . $typeName . ' с производства:' . "\n"  . $list;
+                $text = 'Кладовщик ' . auth()->user()->name . ' забрал ' . $typeName . ' с производства:' . "\n" . $list;
 
                 Log::channel('erp')
                     ->notice('Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
@@ -78,8 +78,8 @@ class DefectMaterialService
 
             $field = match (auth()->user()->role->name) {
                 'seamstress' => 'seamstress_id',
-                'cutter'     => 'cutter_id',
-                default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+                'cutter' => 'cutter_id',
+                default => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
             };
 
             $order = Order::query()->create([
@@ -87,18 +87,19 @@ class DefectMaterialService
                 'type_movement' => $request->type_movement_id,
                 'status' => 0,
                 'comment' => $request->comment,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
             $list = $typeName = '';
 
             foreach ($movementMaterialIds as $key => $material_id) {
-                if($request->type_movement_id == 7 && $quantities[$key] > 1) {
+                if ($request->type_movement_id == 7 && $quantities[$key] > 1) {
                     DB::rollBack();
+
                     return false;
                 }
 
-                if($material_id == 0) {
+                if ($material_id == 0) {
                     continue;
                 }
 
@@ -119,7 +120,7 @@ class DefectMaterialService
 
             DB::commit();
 
-            $text = 'Сотрудник ' . auth()->user()->name . ' указал ' . $typeName . ': ' . "\n"  . $list;
+            $text = 'Сотрудник ' . auth()->user()->name . ' указал ' . $typeName . ': ' . "\n" . $list;
 
             Log::channel('erp')
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
@@ -145,7 +146,7 @@ class DefectMaterialService
         if ($order->status != 1) {
             return [
                 'success' => false,
-                'message' => 'Заказ уже забран на склад!'
+                'message' => 'Заказ уже забран на склад!',
             ];
         }
 
@@ -165,13 +166,13 @@ class DefectMaterialService
 
             return [
                 'success' => false,
-                'message' => 'Внутренняя ошибка'
+                'message' => 'Внутренняя ошибка',
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Заказ на брак удален'
+            'message' => 'Заказ на брак удален',
         ];
     }
 }

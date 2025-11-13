@@ -45,7 +45,7 @@ class StoreMovementMaterialToWorkshopRequest extends FormRequest
             'material_id.*.required' => 'Материал обязателен.',
             'material_id.*.exists' => 'Материал не найден.',
             'quantity.*.required' => 'Количество обязательно.',
-            'quantity.*.min' => 'Количество должно быть больше нуля.'
+            'quantity.*.min' => 'Количество должно быть больше нуля.',
         ];
     }
 }

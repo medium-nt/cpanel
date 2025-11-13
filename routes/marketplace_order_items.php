@@ -27,4 +27,3 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->can('printA4', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.printCutting');
 });
-

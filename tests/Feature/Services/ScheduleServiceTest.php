@@ -100,7 +100,7 @@ class ScheduleServiceTest extends TestCase
     {
         $user = User::factory()->create([
             'shift_is_open' => 0,
-            'closed_work_shift' => '00:00:00'
+            'closed_work_shift' => '00:00:00',
         ]);
         $this->actingAs($user);
 

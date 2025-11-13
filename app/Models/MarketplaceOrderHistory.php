@@ -27,5 +27,4 @@ class MarketplaceOrderHistory extends Model
     {
         return $this->belongsTo(MarketplaceOrder::class);
     }
-
 }

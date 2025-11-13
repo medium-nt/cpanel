@@ -16,6 +16,7 @@ class Material extends Model
 {
     /** @use HasFactory<\Database\Factories\MaterialFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $fillable = [

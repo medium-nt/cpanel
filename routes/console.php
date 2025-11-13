@@ -57,5 +57,3 @@ Schedule::call(function () {
 Schedule::command('queue:work --stop-when-empty')
     ->everyMinute()->withoutOverlapping()
     ->sendOutputTo(storage_path('logs/queue.log'));
-
-

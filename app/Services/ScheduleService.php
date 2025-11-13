@@ -101,12 +101,11 @@ class ScheduleService
             ->first();
 
         if (!$schedule) {
-            $schedule = new Schedule();
+            $schedule = new Schedule;
             $schedule->user_id = $user->id;
             $schedule->date = $today;
         }
 
         return $schedule;
     }
-
 }

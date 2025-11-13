@@ -57,7 +57,7 @@ class InventoryServiceTest extends TestCase
         $material = Material::factory()
             ->create([
                 'title' => 'Test Material',
-                'unit' => 'шт'
+                'unit' => 'шт',
             ]);
 
         $this->createMovement($material, 1, 3, 100);
@@ -67,7 +67,7 @@ class InventoryServiceTest extends TestCase
         MovementMaterial::create([
             'material_id' => $material->id,
             'order_id' => $order->id,
-            'quantity' => 20
+            'quantity' => 20,
         ]);
 
         $result = InventoryService::materialInWarehouse($material->id);

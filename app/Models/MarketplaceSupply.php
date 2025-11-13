@@ -26,7 +26,6 @@ class MarketplaceSupply extends Model
 
     public function marketplace_orders()
     {
-        return $this->hasMany(MarketplaceOrder::class , 'supply_id');
+        return $this->hasMany(MarketplaceOrder::class, 'supply_id');
     }
-
 }

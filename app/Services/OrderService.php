@@ -44,5 +44,4 @@ class OrderService
 
         return $orders->latest();
     }
-
 }

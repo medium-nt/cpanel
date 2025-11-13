@@ -22,14 +22,14 @@ class MarketplaceOrderService
 
         if (empty($itemIds) || empty($quantities)) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список товаров и количество.'
+                'error' => 'Заполните правильно список товаров и количество.',
             ]);
         }
 
         try {
             DB::beginTransaction();
 
-            if($request->fulfillment_type == 'FBO') {
+            if ($request->fulfillment_type == 'FBO') {
                 $quantity = $request->input('quantity', [])[0];
                 for ($i = 1; $i <= $quantity; $i++) {
                     $orderIndex = '-' . $i;
@@ -103,6 +103,7 @@ class MarketplaceOrderService
                 ->get()
                 ->map(function ($shelf) use ($sameItems) {
                     $count = $sameItems->where('shelf_id', $shelf->id)->count();
+
                     return (object)[
                         'shelf' => $shelf,
                         'quantity' => $count,

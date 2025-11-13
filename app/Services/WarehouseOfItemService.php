@@ -81,7 +81,7 @@ class WarehouseOfItemService
             ->where('id', $item->marketplace_order_id)
             ->update([
                 'returned_at' => now(),
-                'status' => 9
+                'status' => 9,
             ]);
     }
 

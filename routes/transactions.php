@@ -31,7 +31,6 @@ Route::prefix('/transactions')->group(function () {
         ->can('create', Transaction::class)
         ->name('transactions.payout_bonus');
 
-
     Route::post('/store_payout_bonus', [App\Http\Controllers\TransactionController::class, 'storePayoutBonus'])
         ->can('create', Transaction::class)
         ->name('transactions.store_payout_bonus');

@@ -12,7 +12,7 @@ class Shelf extends Model
     protected $table = 'shelves';
 
     protected $fillable = [
-        'title'
+        'title',
     ];
 
     public function orderItems()

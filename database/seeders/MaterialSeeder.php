@@ -17,7 +17,7 @@ class MaterialSeeder extends Seeder
                 'title' => 'Бамбук',
                 'type_id' => 1,
                 'height' => 200,
-                'unit' => 'п.м.'
+                'unit' => 'п.м.',
             ]
         );
 
@@ -26,7 +26,7 @@ class MaterialSeeder extends Seeder
                 'title' => 'Лен',
                 'type_id' => 1,
                 'height' => 225,
-                'unit' => 'п.м.'
+                'unit' => 'п.м.',
             ]
         );
 
@@ -35,7 +35,7 @@ class MaterialSeeder extends Seeder
                 'title' => 'Коробка 200х20х20',
                 'type_id' => 3,
                 'height' => 0,
-                'unit' => 'шт.'
+                'unit' => 'шт.',
             ]
         );
     }

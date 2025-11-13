@@ -22,7 +22,7 @@ class MovementMaterialFromSupplierService
             empty($materialIds) || empty($quantities)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.'
+                'error' => 'Заполните правильно список материалов и количество.',
             ]);
         }
 
@@ -35,7 +35,7 @@ class MovementMaterialFromSupplierService
                 'type_movement' => 1,
                 'status' => 0,
                 'comment' => $request->comment,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
             $list = '';
@@ -54,7 +54,7 @@ class MovementMaterialFromSupplierService
             Log::channel('erp')
                 ->notice('   Кладовщик ' . auth()->user()->name .
                     ' добавил поступление материала на склад от поставщика '
-                    . $order->supplier->title .' :' . "\n"  . $list);
+                    . $order->supplier->title . ' :' . "\n" . $list);
 
             DB::commit();
         } catch (Throwable $e) {
@@ -75,7 +75,7 @@ class MovementMaterialFromSupplierService
             empty($materialIds) || empty($prices)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно материалы и цены.'
+                'error' => 'Заполните правильно материалы и цены.',
             ]);
         }
 
@@ -106,7 +106,7 @@ class MovementMaterialFromSupplierService
             Log::channel('erp')
                 ->notice('   Админ ' . auth()->user()->name .
                     ' одобрил поступление материала на склад от поставщика '
-                    . $order->supplier->title .' :' . "\n"  . $list);
+                    . $order->supplier->title . ' :' . "\n" . $list);
 
             DB::commit();
         } catch (Throwable $e) {

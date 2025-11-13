@@ -15,9 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $status
  * @property-read Collection|MarketplaceOrderItem[] $items
  * @property MarketplaceSupply|null $supply
+ *
  * @mixin IdeHelperMarketplaceOrder
  */
-
 class MarketplaceOrder extends Model
 {
     use HasFactory;
@@ -31,7 +31,7 @@ class MarketplaceOrder extends Model
         'fulfillment_type',
         'completed_at',
         'created_at',
-        'returned_at'
+        'returned_at',
     ];
 
     protected $appends = ['marketplace_name', 'status_name', 'status_color'];
@@ -101,5 +101,4 @@ class MarketplaceOrder extends Model
     {
         return $this->status == 5;
     }
-
 }

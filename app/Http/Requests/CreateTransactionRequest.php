@@ -18,8 +18,6 @@ class CreateTransactionRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -34,8 +32,6 @@ class CreateTransactionRequest extends FormRequest
 
     /**
      * Customize the error messages used by the validator.
-     *
-     * @return array
      */
     public function messages(): array
     {

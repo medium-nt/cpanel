@@ -44,10 +44,10 @@ class WriteOffRemnantServiceTest extends TestCase
         $inventoryMock = Mockery::mock('alias:' . InventoryService::class);
         $inventoryMock->shouldReceive('remnantsMaterialInWarehouse')->with($material->id)->andReturn($quantity + 5);
 
-//        $inventoryMock = Mockery::mock(InventoryService::class);
+        //        $inventoryMock = Mockery::mock(InventoryService::class);
         $inventoryMock->shouldReceive('remnantsMaterialInWarehouse')->with($material->id)->andReturn($quantity + 5);
 
-//        $this->app->bind(InventoryService::class, fn () => $inventoryMock);
+        //        $this->app->bind(InventoryService::class, fn () => $inventoryMock);
 
         Log::shouldReceive('channel')->with('erp')->andReturnSelf();
         Log::shouldReceive('notice');

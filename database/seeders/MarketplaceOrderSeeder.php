@@ -17,7 +17,7 @@ class MarketplaceOrderSeeder extends Seeder
                 'status' => 0,
                 'order_id' => 'A-12345',
                 'marketplace_id' => 1,
-                'fulfillment_type' => 'FBO'
+                'fulfillment_type' => 'FBO',
             ]
         );
 
@@ -26,7 +26,7 @@ class MarketplaceOrderSeeder extends Seeder
                 'status' => 1,
                 'order_id' => 'WB-12-ZZ-123',
                 'marketplace_id' => 2,
-                'fulfillment_type' => 'FBS'
+                'fulfillment_type' => 'FBS',
             ]
         );
     }

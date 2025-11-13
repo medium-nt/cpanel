@@ -6,7 +6,6 @@ use App\Http\Requests\SaveMarketplaceItemRequest;
 use App\Models\MarketplaceItem;
 use App\Models\MaterialConsumption;
 use App\Models\Sku;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
@@ -93,5 +92,4 @@ class MarketplaceItemService
             ->orderBy('height')
             ->get();
     }
-
 }

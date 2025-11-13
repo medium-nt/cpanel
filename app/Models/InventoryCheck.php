@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @mixin IdeHelperOrder
+ *
  * @property 'in_progress'|'closed' $status
  */
 class InventoryCheck extends Model
 {
-//    use HasFactory;
+    //    use HasFactory;
 
     protected $table = 'inventory_checks';
 
@@ -40,6 +41,4 @@ class InventoryCheck extends Model
     {
         return $this->finished_at?->format('d/m/Y H:i:s');
     }
-
-
 }

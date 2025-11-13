@@ -44,7 +44,7 @@ class MotivationUpdateUsersRequest extends FormRequest
             for ($i = 1; $i < count($to); $i++) {
                 if ($to[$i] !== null && $to[$i - 1] !== null && $to[$i] <= $to[$i - 1]) {
                     $validator->errors()
-                        ->add("to.$i", "значение \"До\" в строке " . ($i + 1) . " должно быть больше значения в строке " . $i);
+                        ->add("to.$i", 'значение "До" в строке ' . ($i + 1) . ' должно быть больше значения в строке ' . $i);
                 }
             }
         });

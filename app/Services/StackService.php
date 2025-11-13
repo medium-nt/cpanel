@@ -30,11 +30,11 @@ class StackService
         $stack->stack = $stack->stack - 1;
         $stack->save();
 
-        if($stack->stack == 0) {
+        if ($stack->stack == 0) {
             $maxStack = self::getMaxStackByUser($seamstressId)->max;
             $maxCountOrderItems = MarketplaceOrderItemService::getMaxQuantityOrdersToUserRole();
 
-            if($maxStack >= $maxCountOrderItems) {
+            if ($maxStack >= $maxCountOrderItems) {
                 self::resetMaxStackToZero($seamstressId);
             }
         }

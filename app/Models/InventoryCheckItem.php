@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class InventoryCheckItem extends Model
 {
-//    use HasFactory;
+    //    use HasFactory;
 
     protected $table = 'inventory_check_items';
 
@@ -37,5 +37,4 @@ class InventoryCheckItem extends Model
     {
         return $this->belongsTo(MarketplaceOrderItem::class, 'marketplace_order_item_id');
     }
-
 }

@@ -68,7 +68,7 @@ class UserService
         $list = '';
         foreach ($schedules as $schedule) {
             if ($schedule->user && $schedule->user->role) {
-                $list .= '• ' . $schedule->user->name . ' ('.UserService::translateRoleName($schedule->user->role->name).')' . "\n";
+                $list .= '• ' . $schedule->user->name . ' (' . UserService::translateRoleName($schedule->user->role->name) . ')' . "\n";
             }
         }
 
@@ -135,7 +135,7 @@ class UserService
                 ->storeAs('avatars', $fileName, 'public');
         }
 
-        if(auth()->user()->isAdmin()) {
+        if (auth()->user()->isAdmin()) {
             $user->materials()->sync($validatedData['materials'] ?? []);
         }
 
@@ -144,13 +144,13 @@ class UserService
 
     public static function getUserByBarcode($barcode): ?User
     {
-            $parts = explode('-', $barcode);
-            $id = $parts[1] ?? null;
+        $parts = explode('-', $barcode);
+        $id = $parts[1] ?? null;
 
-            $user = User::query()->find($id);
-            if ($user) {
-                return $user;
-            }
+        $user = User::query()->find($id);
+        if ($user) {
+            return $user;
+        }
 
         return null;
     }

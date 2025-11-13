@@ -41,5 +41,4 @@ class MarketplaceSupplyPolicy
     {
         return $user->isAdmin() || $user->isStorekeeper();
     }
-
 }

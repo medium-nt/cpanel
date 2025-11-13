@@ -4,10 +4,8 @@ namespace Tests\Feature\Services;
 
 use App\Models\Stack;
 use App\Models\User;
-use App\Services\MarketplaceOrderItemService;
 use App\Services\StackService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery\MockInterface;
 use Tests\TestCase;
 
 class StackServiceTest extends TestCase

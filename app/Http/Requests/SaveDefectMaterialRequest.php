@@ -29,7 +29,7 @@ class SaveDefectMaterialRequest extends FormRequest
             'material_id.*.exists' => 'Материал не найден.',
             'quantity.*.required' => 'Количество обязательно.',
             'quantity.*.min' => 'Количество должно быть больше или равно нулю.',
-            'type_movement_id' => 'required|in:4,7'
+            'type_movement_id' => 'required|in:4,7',
         ];
     }
 
@@ -48,7 +48,7 @@ class SaveDefectMaterialRequest extends FormRequest
             'quantity.*.required' => 'Количество обязательно.',
             'quantity.*.min' => 'Количество должно быть больше нуля.',
             'type_movement_id.required' => 'Тип перемещения не верен. Выберете "брак" или "остаток"',
-            'type_movement_id.in' => 'Тип перемещения не верен. Выберете "брак" или "остаток"'
+            'type_movement_id.in' => 'Тип перемещения не верен. Выберете "брак" или "остаток"',
         ];
     }
 }

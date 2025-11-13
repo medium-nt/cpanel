@@ -332,7 +332,7 @@ return [
                     'icon' => 'fas fa-fw fa-clipboard-list',
                     'can' => 'is-storekeeper-or-admin',
                 ],
-            ]
+            ],
         ],
         [
             'text' => 'movements',
@@ -379,7 +379,7 @@ return [
                     'icon' => 'fas fa-fw fa-warehouse',
                     'can' => 'is-storekeeper-or-admin',
                 ],
-            ]
+            ],
         ],
         [
             'text' => 'marketplace',
@@ -396,7 +396,7 @@ return [
                     'url' => 'megatulle/marketplace_order_items',
                     'icon' => 'fas fa-fw fa-stream',
                 ],
-            ]
+            ],
         ],
         [
             'text' => 'transactions',
@@ -445,7 +445,7 @@ return [
                     'icon' => 'fas fa-fw fa-pallet',
                     'can' => 'is-storekeeper-or-admin',
                 ],
-            ]
+            ],
         ],
         [
             'text' => 'logs',
@@ -453,7 +453,7 @@ return [
             'icon' => 'fas fa-fw fa-history',
             'target' => '_blank',
             'can' => 'is-admin',
-        ]
+        ],
     ],
 
     /*

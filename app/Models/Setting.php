@@ -23,5 +23,4 @@ class Setting extends Model
             ->where('name', $name)
             ->value('value');
     }
-
 }

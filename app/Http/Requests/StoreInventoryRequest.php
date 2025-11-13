@@ -20,8 +20,6 @@ class StoreInventoryRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -30,14 +28,12 @@ class StoreInventoryRequest extends FormRequest
             'inventory_shelf' => [
                 'required',
                 Rule::in(array_merge(['all'], Shelf::pluck('id')->toArray())),
-            ]
+            ],
         ];
     }
 
     /**
      * Customize the error messages used by the validator.
-     *
-     * @return array
      */
     public function messages(): array
     {

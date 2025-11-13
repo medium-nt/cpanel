@@ -18,8 +18,7 @@ class MovementMaterialToWorkshopService
     {
         $status = [0, 2];
 
-        match ($requestStatus)
-        {
+        match ($requestStatus) {
             'all' => $status = [-1, 0, 1, 2, 3],
             default => $status,
         };
@@ -38,7 +37,7 @@ class MovementMaterialToWorkshopService
             empty($materialIds) || empty($quantities)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.'
+                'error' => 'Заполните правильно список материалов и количество.',
             ]);
         }
 
@@ -47,21 +46,21 @@ class MovementMaterialToWorkshopService
 
             $field = match (auth()->user()->role->name) {
                 'seamstress' => 'seamstress_id',
-                'cutter'     => 'cutter_id',
-                default      => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+                'cutter' => 'cutter_id',
+                default => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
             };
 
             $order = Order::query()->create([
                 $field => auth()->user()->id,
                 'type_movement' => 2,
                 'status' => 0,
-                'comment' => $request->comment
+                'comment' => $request->comment,
             ]);
 
             $list = '';
 
             foreach ($materialIds as $key => $material_id) {
-                if($material_id == 0) {
+                if ($material_id == 0) {
                     continue;
                 }
 
@@ -74,7 +73,7 @@ class MovementMaterialToWorkshopService
                 $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->ordered_quantity . ' ' . $movementMaterial->material->unit . "\n";
             }
 
-            $text = 'Швея ' . auth()->user()->name . ' запросила: ' . "\n"  . $list;
+            $text = 'Швея ' . auth()->user()->name . ' запросила: ' . "\n" . $list;
 
             Log::channel('erp')
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
@@ -104,7 +103,7 @@ class MovementMaterialToWorkshopService
             empty($movementMaterialIds) || empty($quantities)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.'
+                'error' => 'Заполните правильно список материалов и количество.',
             ]);
         }
 
@@ -113,7 +112,7 @@ class MovementMaterialToWorkshopService
 
             $order->update([
                 'status' => 2,
-                'storekeeper_id' => auth()->user()->id
+                'storekeeper_id' => auth()->user()->id,
             ]);
 
             $list = '';
@@ -130,7 +129,7 @@ class MovementMaterialToWorkshopService
                 $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
             }
 
-            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил материал на производство: ' . "\n"  . $list;
+            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил материал на производство: ' . "\n" . $list;
 
             Log::channel('erp')
                 ->notice('Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
@@ -160,7 +159,7 @@ class MovementMaterialToWorkshopService
             empty($movementMaterialIds) || empty($quantities)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.'
+                'error' => 'Заполните правильно список материалов и количество.',
             ]);
         }
 
@@ -172,12 +171,12 @@ class MovementMaterialToWorkshopService
                 'status' => 3,
                 'is_approved' => 1,
                 'comment' => $request->comment,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
             foreach ($movementMaterialIds as $key => $material_id) {
 
-                if($material_id == 0) {
+                if ($material_id == 0) {
                     continue;
                 }
 

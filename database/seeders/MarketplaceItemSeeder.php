@@ -31,20 +31,20 @@ class MarketplaceItemSeeder extends Seeder
                     $item = MarketplaceItem::query()->create([
                         'title' => $fabric,
                         'width' => $width,
-                        'height' => $height
+                        'height' => $height,
                     ]);
 
                     MaterialConsumption::query()->create([
                         'item_id' => $item->id,
                         'material_id' => $fabric === 'Бамбук' ? 1 : 2,
-                        'quantity' => 1
+                        'quantity' => 1,
                     ]);
 
                     foreach ($marketplaces as $marketplace) {
                         Sku::query()->create([
                             'item_id' => $item->id,
                             'sku' => '',
-                            'marketplace_id' => $marketplace
+                            'marketplace_id' => $marketplace,
                         ]);
                     }
                 }

@@ -18,7 +18,7 @@ class MarketplaceOrderItemSeeder extends Seeder
                 'marketplace_item_id' => 1,
                 'quantity' => 1,
                 'price' => 10.99,
-                'status' => 0
+                'status' => 0,
             ]
         );
 
@@ -28,7 +28,7 @@ class MarketplaceOrderItemSeeder extends Seeder
                 'marketplace_item_id' => 2,
                 'quantity' => 1,
                 'price' => 12.00,
-                'status' => 0
+                'status' => 0,
             ]
         );
 
@@ -38,7 +38,7 @@ class MarketplaceOrderItemSeeder extends Seeder
                 'marketplace_item_id' => 3,
                 'quantity' => 3,
                 'price' => 10.99,
-                'status' => 0
+                'status' => 0,
             ]
         );
     }

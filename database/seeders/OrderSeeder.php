@@ -18,7 +18,7 @@ class OrderSeeder extends Seeder
             'supplier_id' => 1,
             'storekeeper_id' => 2,
             'comment' => 'тестовая поставка',
-            'completed_at' => now()
+            'completed_at' => now(),
         ]);
 
         Order::query()->create([

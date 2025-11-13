@@ -63,6 +63,7 @@ class InventoryService
         $outStockNew = self::countMaterial($materialId, 5, 3);
 
         $result = $inStock - $outStockNew;
+
         return round($result, 2);
     }
 
@@ -72,6 +73,7 @@ class InventoryService
         $outStockNew = self::countMaterial($materialId, 8, 3);
 
         $result = $inStock - $outStockNew;
+
         return round($result, 2);
     }
 
@@ -100,7 +102,7 @@ class InventoryService
             };
 
             $remnantsQuantity = 0;
-            if($type == 'defect_warehouse') {
+            if ($type == 'defect_warehouse') {
                 $remnantsQuantity = self::remnantsMaterialInWarehouse($material->id);
             }
 

@@ -50,7 +50,7 @@ class WarehouseOfItemServiceTest extends TestCase
 
         $this->assertDatabaseHas('marketplace_order_items', [
             'id' => $marketplaceOrderItem->id,
-            'storage_barcode' => $barcode
+            'storage_barcode' => $barcode,
         ]);
     }
 
@@ -87,12 +87,12 @@ class WarehouseOfItemServiceTest extends TestCase
         $this->assertDatabaseHas('marketplace_order_items', [
             'id' => $marketplaceOrderItem->id,
             'status' => 11,
-            'shelf_id' => $shelf->id
+            'shelf_id' => $shelf->id,
         ]);
 
         $this->assertDatabaseHas('marketplace_orders', [
             'id' => $order->id,
-            'status' => 9
+            'status' => 9,
         ]);
     }
 
@@ -158,7 +158,7 @@ class WarehouseOfItemServiceTest extends TestCase
         $order = MarketplaceOrder::factory()->create([
             'status' => 1,
             'marketplace_id' => 2,
-            'order_id' => $orderId
+            'order_id' => $orderId,
         ]);
         $item = MarketplaceItem::factory()->create();
         $seamstress = User::factory()->create();
@@ -230,7 +230,7 @@ class WarehouseOfItemServiceTest extends TestCase
         $filtered = $this->warehouseOfItemService->getFiltered($request);
         $this->assertEquals(3, $filtered->count());
 
-        $requestWithoutStatus = new Request();
+        $requestWithoutStatus = new Request;
         $filteredWithoutStatus = $this->warehouseOfItemService->getFiltered($requestWithoutStatus);
         $this->assertEquals(8, $filteredWithoutStatus->count());
     }

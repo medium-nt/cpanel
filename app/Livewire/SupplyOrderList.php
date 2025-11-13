@@ -2,11 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
-use App\Models\MarketplaceOrder;
 
 class SupplyOrderList extends Component
 {

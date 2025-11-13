@@ -10,11 +10,17 @@ use Livewire\Component;
 class MaterialForm extends Component
 {
     public $selectedMaterialId = '';
+
     public $materials;
+
     public $orderedQuantity;
+
     public $maxQuantity;
+
     public $sourceType;
+
     public $typeMovement;
+
     public $isFirst;
 
     protected $rules = [
@@ -34,8 +40,7 @@ class MaterialForm extends Component
     public function updatedSelectedMaterialId(): void
     {
         if ($this->selectedMaterialId) {
-            match ($this->sourceType)
-            {
+            match ($this->sourceType) {
                 'warehouse' => $this->maxQuantity = InventoryService::materialInWarehouse($this->selectedMaterialId),
                 'workshop' => $this->maxQuantity = InventoryService::materialInWorkshop($this->selectedMaterialId),
                 'defect' => $this->maxQuantity = InventoryService::defectMaterialInWarehouse($this->selectedMaterialId),

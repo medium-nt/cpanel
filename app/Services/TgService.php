@@ -3,9 +3,8 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
-use Telegram\Bot\Exceptions\TelegramSDKException;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use Illuminate\Support\Facades\Log;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TgService
 {
@@ -24,20 +23,20 @@ class TgService
                 'curl' => [
                     CURLOPT_SSL_VERIFYPEER => false,
                     CURLOPT_SSL_VERIFYHOST => false,
-                ]
+                ],
             ]);
 
             $client->post('https://api.telegram.org/bot' . config('telegram.bots.mybot.token') . '/sendMessage', [
                 'form_params' => [
                     'chat_id' => $chatId,
-                    'text' => $message
-                ]
+                    'text' => $message,
+                ],
             ]);
         } else {
             try {
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
-                    'text' => $message
+                    'text' => $message,
                 ]);
             } catch (\Throwable $e) {
                 Log::channel('tg_api')->error('chat_id: ' . $chatId);

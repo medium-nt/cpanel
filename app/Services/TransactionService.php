@@ -9,9 +9,9 @@ use App\Models\Rate;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -120,7 +120,7 @@ class TransactionService
             'transaction_type' => $transaction_type,
             'status' => $status,
             'is_bonus' => $isBonus,
-            'paid_at' => $paid_at ?? null
+            'paid_at' => $paid_at ?? null,
         ]);
     }
 
@@ -134,6 +134,7 @@ class TransactionService
 
         if ($transactions->isEmpty()) {
             Log::channel('salary')->info('Сегодня нет бонусов для активации');
+
             return;
         }
 
@@ -254,6 +255,7 @@ class TransactionService
                         ->filter()
                         ->map(fn($d) => Carbon::parse($d))
                         ->sort();
+
                     return [
                         'payout_date' => (Carbon::parse($payoutDate))->format('d/m/Y'),
                         'net_total' => $group->sum(function ($tx) {
@@ -262,7 +264,7 @@ class TransactionService
                         }),
                         'accrual_range' => $accrualDates->isEmpty() ? null : [
                             'from' => $accrualDates->first()->format('Y-m-d'),
-                            'to'   => $accrualDates->last()->format('Y-m-d'),
+                            'to' => $accrualDates->last()->format('Y-m-d'),
                         ],
                     ];
                 })
@@ -312,7 +314,7 @@ class TransactionService
         $query = Transaction::query()
             ->where('is_bonus', $isBonus);
 
-        if(!auth()->user()->isAdmin()) {
+        if (!auth()->user()->isAdmin()) {
             $query = $query->where('user_id', auth()->id());
         }
 
@@ -365,8 +367,7 @@ class TransactionService
                     ];
                 })
                 ->sortBy('accrual_for_date')
-                ->values()//                ->take(10)
-                ;
+                ->values(); //                ->take(10)
         } else {
             return [];
         }
@@ -397,7 +398,7 @@ class TransactionService
             $summary = $summary->where('paid_at', '<=', $request->date_end . ' 23:59:59');
         }
 
-        return $summary->groupBy('user_id', DB::raw("DATE(paid_at)"))
+        return $summary->groupBy('user_id', DB::raw('DATE(paid_at)'))
             ->orderBy('paid_date', 'desc')
             ->orderBy('user_id')
             ->get()
@@ -405,6 +406,7 @@ class TransactionService
             ->transform(function ($row) {
                 /** @var Transaction $row */
                 $row->user_name = $row->user->name ?? '—';
+
                 return $row;
             });
     }
@@ -468,7 +470,7 @@ class TransactionService
         $result = [
             'allSalary' => 0,
             'allBonus' => 0,
-            'allWidth' => 0
+            'allWidth' => 0,
         ];
 
         foreach ($marketplaceOrderItem as $marketplaceOrderItems) {
@@ -482,9 +484,9 @@ class TransactionService
 
         echo "Всего: $totalWidth м, зп: {$result['allSalary']} руб., бонус: {$result['allBonus']} баллов.<br>";
 
-        echo "<br>";
-        echo "-----------------------------------------------------------------<br>";
-        echo "<br>";
+        echo '<br>';
+        echo '-----------------------------------------------------------------<br>';
+        echo '<br>';
     }
 
     private static function processAccrualMotivationAndSalary(User $user, MarketplaceOrderItem $marketplaceOrderItems, Collection $motivations, array $result, bool $test): array
@@ -561,7 +563,7 @@ class TransactionService
         return [
             'allSalary' => $result['allSalary'] + $salary,
             'allBonus' => $result['allBonus'] + $bonus,
-            'allWidth' => $result['allWidth']
+            'allWidth' => $result['allWidth'],
         ];
     }
 
@@ -579,12 +581,12 @@ class TransactionService
 
         $nowMotivationBonus = 0;
 
-        if($user->isCutter()) {
+        if ($user->isCutter()) {
             $nowMotivationBonus = $motivationBonus->cutter_bonus ?? 0;
             $salary = $salary->cutter_rate ?? 0;
         }
 
-        if($user->isSeamstress()) {
+        if ($user->isSeamstress()) {
             if ($user->is_cutter) {
                 $nowMotivationBonus = $motivationBonus->bonus ?? 0;
                 $salary = $salary->rate ?? 0;
@@ -600,5 +602,4 @@ class TransactionService
             'salary' => $salary,
         ];
     }
-
 }

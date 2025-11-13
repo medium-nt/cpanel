@@ -6,7 +6,6 @@ use App\Models\MaterialConsumption;
 
 class MaterialConsumptionController extends Controller
 {
-
     public function destroy(MaterialConsumption $materialConsumption)
     {
         $materialConsumption->delete();

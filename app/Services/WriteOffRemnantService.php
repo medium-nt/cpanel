@@ -21,7 +21,7 @@ class WriteOffRemnantService
             empty($materialIds) || empty($quantities)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.'
+                'error' => 'Заполните правильно список материалов и количество.',
             ]);
         }
 
@@ -33,13 +33,13 @@ class WriteOffRemnantService
                 'type_movement' => 8,
                 'status' => 3,
                 'comment' => $request->comment,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
             $list = '';
             foreach ($materialIds as $key => $material_id) {
 
-                if($material_id == 0) {
+                if ($material_id == 0) {
                     continue;
                 }
 
@@ -47,8 +47,9 @@ class WriteOffRemnantService
 
                 if ((float)$quantities[$key] > $maxQuantity) {
                     DB::rollBack();
+
                     return back()->withErrors([
-                        'error' => 'Невозможно списать больше материала, чем есть в наличии.'
+                        'error' => 'Невозможно списать больше материала, чем есть в наличии.',
                     ]);
                 }
 
@@ -66,7 +67,7 @@ class WriteOffRemnantService
 
             Log::channel('erp')
                 ->notice('   Кладовщик ' . auth()->user()->name .
-                    ' создал новое списание остатков:' . "\n"  . $list);
+                    ' создал новое списание остатков:' . "\n" . $list);
 
             DB::commit();
         } catch (Throwable $e) {

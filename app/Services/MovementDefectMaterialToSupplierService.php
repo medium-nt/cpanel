@@ -23,7 +23,7 @@ class MovementDefectMaterialToSupplierService
             empty($materialIds) || empty($quantities)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.'
+                'error' => 'Заполните правильно список материалов и количество.',
             ]);
         }
 
@@ -36,13 +36,13 @@ class MovementDefectMaterialToSupplierService
                 'type_movement' => 5,
                 'status' => 3,
                 'comment' => $request->comment,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
             $list = '';
 
             foreach ($materialIds as $key => $material_id) {
-                if($material_id == 0) {
+                if ($material_id == 0) {
                     continue;
                 }
 
@@ -50,8 +50,9 @@ class MovementDefectMaterialToSupplierService
 
                 if ((float)$quantities[$key] > $maxQuantity) {
                     DB::rollBack();
+
                     return back()->withErrors([
-                        'error' => 'Невозможно списать больше материала, чем есть в наличии.'
+                        'error' => 'Невозможно списать больше материала, чем есть в наличии.',
                     ]);
                 }
 
@@ -66,7 +67,7 @@ class MovementDefectMaterialToSupplierService
 
             $supplierName = Supplier::query()->find($request->supplier_id)->title;
 
-            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил возврат поставщику ' . $supplierName . ': ' . "\n"  . $list;
+            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил возврат поставщику ' . $supplierName . ': ' . "\n" . $list;
 
             Log::channel('erp')
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
@@ -101,7 +102,7 @@ class MovementDefectMaterialToSupplierService
             empty($materialIds) || empty($prices)
         ) {
             return back()->withErrors([
-                'error' => 'Заполните правильно материалы и цены.'
+                'error' => 'Заполните правильно материалы и цены.',
             ]);
         }
 

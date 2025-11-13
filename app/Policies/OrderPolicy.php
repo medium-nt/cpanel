@@ -24,7 +24,7 @@ class OrderPolicy
 
     public function update(User $user, Order $order): bool
     {
-        if ($user->isAdmin()){
+        if ($user->isAdmin()) {
             return true;
         }
         $return = false;

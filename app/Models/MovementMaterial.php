@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @mixin IdeHelperMovementMaterial
+ *
  * @property int $quantity
  * @property Material $material
  */
@@ -19,12 +20,11 @@ class MovementMaterial extends Model
         'quantity',
         'ordered_quantity',
         'price',
-        'order_id'
+        'order_id',
     ];
 
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
     }
-
 }

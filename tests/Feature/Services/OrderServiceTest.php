@@ -15,8 +15,6 @@ class OrderServiceTest extends TestCase
 
     /**
      * Test getFiltered method with default parameters.
-     *
-     * @return void
      */
     public function test_get_filtered_with_default_parameters(): void
     {
@@ -27,7 +25,7 @@ class OrderServiceTest extends TestCase
         Order::factory()->count(1)->create(['status' => 3, 'type_movement' => 7]);
         Order::factory()->count(1)->create(['status' => 0, 'type_movement' => 1]);
 
-        $request = new Request();
+        $request = new Request;
 
         // Act
         $filteredOrders = OrderService::getFiltered($request)->get();
@@ -38,8 +36,6 @@ class OrderServiceTest extends TestCase
 
     /**
      * Test filtering by status.
-     *
-     * @return void
      */
     public function test_get_filtered_by_status(): void
     {
@@ -61,8 +57,6 @@ class OrderServiceTest extends TestCase
 
     /**
      * Test filtering by type_movement.
-     *
-     * @return void
      */
     public function test_get_filtered_by_type_movement(): void
     {
@@ -84,8 +78,6 @@ class OrderServiceTest extends TestCase
 
     /**
      * Test filtering by user ID.
-     *
-     * @return void
      */
     public function test_get_filtered_by_user_id(): void
     {
@@ -96,18 +88,18 @@ class OrderServiceTest extends TestCase
         Order::factory()->create([
             'seamstress_id' => $user1->id,
             'type_movement' => 4,
-            'status' => 0
+            'status' => 0,
         ]);
         Order::factory()->create([
             'cutter_id' => $user1->id,
             'type_movement' => 7,
-            'status' => 1
+            'status' => 1,
         ]);
         Order::factory()->create([
             'seamstress_id' => $user2->id,
             'cutter_id' => $user2->id,
             'type_movement' => 4,
-            'status' => 0
+            'status' => 0,
         ]);
 
         $request = new Request([
@@ -123,8 +115,6 @@ class OrderServiceTest extends TestCase
 
     /**
      * Test filtering by date range.
-     *
-     * @return void
      */
     public function test_get_filtered_by_date_range(): void
     {

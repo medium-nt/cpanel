@@ -26,7 +26,7 @@ class MarketplaceSupplyService
             }
 
             $item->update([
-                'video' => null
+                'video' => null,
             ]);
 
             Log::channel('erp')
@@ -58,7 +58,7 @@ class MarketplaceSupplyService
         $savedChunks = Storage::files($chunkPath);
 
         if (count($savedChunks) == $totalChunks) {
-            Log::info("Все чанки получены. Начинаем сборку...");
+            Log::info('Все чанки получены. Начинаем сборку...');
 
             $finalPath = "videos/{$fileName}";
             $stream = fopen('php://temp', 'w+b');
@@ -81,7 +81,7 @@ class MarketplaceSupplyService
             Log::info("Видео собрано и сохранено: {$finalPath}");
 
             $marketplaceSupply->update([
-                'video' => $fileName
+                'video' => $fileName,
             ]);
 
             if (Storage::exists($chunkPath)) {
@@ -91,13 +91,12 @@ class MarketplaceSupplyService
 
             return response()->json([
                 'status' => 'Видео загружено и собрано',
-                'filename' => $fileName
+                'filename' => $fileName,
             ]);
         }
 
         return response()->json([
-            'status' => "Чанк {$index} сохранён"
+            'status' => "Чанк {$index} сохранён",
         ]);
     }
-
 }

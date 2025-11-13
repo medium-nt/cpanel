@@ -15,7 +15,7 @@ class Sku extends Model
     protected $fillable = [
         'item_id',
         'sku',
-        'marketplace_id'
+        'marketplace_id',
     ];
 
     public function item(): BelongsTo
