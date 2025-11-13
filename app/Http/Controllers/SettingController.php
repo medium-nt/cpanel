@@ -20,7 +20,7 @@ class SettingController extends Controller
     {
         return view('settings.index', [
             'title' => 'Настройки системы',
-            'settings' => (object)Setting::query()->pluck('value', 'name')->toArray()
+            'settings' => (object)Setting::query()->pluck('value', 'name')->toArray(),
         ]);
     }
 
@@ -39,7 +39,7 @@ class SettingController extends Controller
         }
 
         Log::channel('erp')->info('Настройки сохранены', [
-            'data' => print_r($data, true)
+            'data' => print_r($data, true),
         ]);
 
         return redirect()->route('setting.index')->with('success', 'Изменения сохранены');
@@ -54,22 +54,22 @@ class SettingController extends Controller
 
             TgService::sendMessage($chatId, 'Привет! Я работаю!');
 
-//            $client = new Client([
-//                'verify' => false,
-//                'timeout' => 30,
-//                'connect_timeout' => 30,
-//                'curl' => [
-//                    CURLOPT_SSL_VERIFYPEER => false,
-//                    CURLOPT_SSL_VERIFYHOST => false,
-//                ]
-//            ]);
-//
-//            $client->post('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
-//                'form_params' => [
-//                    'chat_id' => $chatId,
-//                    'text' => 'Привет! Я работаю!'
-//                ]
-//            ]);
+            //            $client = new Client([
+            //                'verify' => false,
+            //                'timeout' => 30,
+            //                'connect_timeout' => 30,
+            //                'curl' => [
+            //                    CURLOPT_SSL_VERIFYPEER => false,
+            //                    CURLOPT_SSL_VERIFYHOST => false,
+            //                ]
+            //            ]);
+            //
+            //            $client->post('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
+            //                'form_params' => [
+            //                    'chat_id' => $chatId,
+            //                    'text' => 'Привет! Я работаю!'
+            //                ]
+            //            ]);
 
             dd('Is test server');
         }
@@ -96,33 +96,33 @@ class SettingController extends Controller
         // Группируем заказы по marketplace_order_id
         $groupedOrders = $fullOrders->groupBy('marketplace_order_id');
 
-        echo "<h2>Всего заказов: " . $groupedOrders->count() . "</h2>";
-        echo "<hr>";
+        echo '<h2>Всего заказов: ' . $groupedOrders->count() . '</h2>';
+        echo '<hr>';
 
         foreach ($groupedOrders as $marketplaceId => $orders) {
             $count = count($orders);
 
             // Проверяем только случаи с двумя записями
-//            if ($count == 2) {
-//                // Получаем первую и вторую запись
-//                $first = $orders[0];
-//                $second = $orders[1];
-//
-//                // Проверяем условия для пропуска:
-//                // 1. У одной есть seamstress_id и нет cutter_id
-//                // 2. У другой есть cutter_id и нет seamstress_id
-//                if (
-//                    // Первая запись: seamstress есть, cutter отсутствует
-//                    ($first->seamstress_id && is_null($first->cutter_id) &&
-//                        $second->cutter_id && is_null($second->seamstress_id)) ||
-//
-//                    // Или наоборот: вторая запись seamstress, первая cutter
-//                    ($first->cutter_id && is_null($first->seamstress_id) &&
-//                        $second->seamstress_id && is_null($second->cutter_id))
-//                ) {
-//                    continue;
-//                }
-//            }
+            //            if ($count == 2) {
+            //                // Получаем первую и вторую запись
+            //                $first = $orders[0];
+            //                $second = $orders[1];
+            //
+            //                // Проверяем условия для пропуска:
+            //                // 1. У одной есть seamstress_id и нет cutter_id
+            //                // 2. У другой есть cutter_id и нет seamstress_id
+            //                if (
+            //                    // Первая запись: seamstress есть, cutter отсутствует
+            //                    ($first->seamstress_id && is_null($first->cutter_id) &&
+            //                        $second->cutter_id && is_null($second->seamstress_id)) ||
+            //
+            //                    // Или наоборот: вторая запись seamstress, первая cutter
+            //                    ($first->cutter_id && is_null($first->seamstress_id) &&
+            //                        $second->seamstress_id && is_null($second->cutter_id))
+            //                ) {
+            //                    continue;
+            //                }
+            //            }
 
             echo <<<HTML
                 <!-- Подключите Bootstrap CSS в head вашего документа -->
@@ -158,19 +158,19 @@ class SettingController extends Controller
                     <tbody>
             HTML;
 
-//            $countDeleted = 0;
+            //            $countDeleted = 0;
             foreach ($orders as $order) {
-//                if ($order->cutter_id) {
-//                    echo '<span style="color:red;">Удаляем расход материала: ' . $order->id . '</span><br>';
-//
-//                    MovementMaterial::query()
-//                        ->where('order_id', $order->id)
-//                        ->delete();
-//
-//                    $order->delete();
-//
-//                    $countDeleted++;
-//                }
+                //                if ($order->cutter_id) {
+                //                    echo '<span style="color:red;">Удаляем расход материала: ' . $order->id . '</span><br>';
+                //
+                //                    MovementMaterial::query()
+                //                        ->where('order_id', $order->id)
+                //                        ->delete();
+                //
+                //                    $order->delete();
+                //
+                //                    $countDeleted++;
+                //                }
 
                 $count = $order->movementMaterials->count();
 
@@ -187,11 +187,11 @@ class SettingController extends Controller
 
             echo '</tbody></table><hr>';
 
-//            echo "<h3>Всего удалено: {$countDeleted}</h3>";
-            echo "<hr>";
+            //            echo "<h3>Всего удалено: {$countDeleted}</h3>";
+            echo '<hr>';
         }
 
-        die;
+        exit;
     }
 
     public static function salary()

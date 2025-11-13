@@ -18,7 +18,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
 {
@@ -26,7 +25,7 @@ class UsersController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $data = array();
+        $data = [];
         $data['users'] = User::query()->paginate(10);
         $data['title'] = 'Пользователи';
 
@@ -102,7 +101,7 @@ class UsersController extends Controller
 
         return view('users.profile', [
             'title' => 'Профиль',
-            'user' => auth()->user()
+            'user' => auth()->user(),
         ]);
     }
 
@@ -141,6 +140,7 @@ class UsersController extends Controller
         }
 
         Auth::login($user);
+
         return redirect('/home');
     }
 
@@ -149,7 +149,7 @@ class UsersController extends Controller
         Motivation::query()->where('user_id', $user->id)->delete();
 
         foreach ($request->from as $key => $value) {
-            if($request->to[$key]) {
+            if ($request->to[$key]) {
                 Motivation::query()->create(
                     [
                         'user_id' => $user->id,
@@ -157,7 +157,7 @@ class UsersController extends Controller
                         'to' => $request->to[$key],
                         'bonus' => $request->bonus[$key] ?? 0,
                         'not_cutter_bonus' => $request->not_cutter_bonus[$key] ?? 0,
-                        'cutter_bonus' => $request->cutter_bonus[$key] ?? 0
+                        'cutter_bonus' => $request->cutter_bonus[$key] ?? 0,
                     ]
                 );
             }
@@ -179,7 +179,7 @@ class UsersController extends Controller
                     'width' => $width,
                     'rate' => $request->rate[$key] ?? 0,
                     'not_cutter_rate' => $request->not_cutter_rate[$key] ?? 0,
-                    'cutter_rate' => $request->cutter_rate[$key] ?? 0
+                    'cutter_rate' => $request->cutter_rate[$key] ?? 0,
                 ]
             );
         }
@@ -192,7 +192,7 @@ class UsersController extends Controller
     public function getBarcode(User $user)
     {
         return view('pdf.user_barcode', [
-            'user' => $user
+            'user' => $user,
         ]);
     }
 }

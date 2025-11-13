@@ -19,7 +19,7 @@ class MovementMaterialFromSupplierController extends Controller
             'orders' => Order::query()
                 ->where('type_movement', 1)
                 ->latest()
-                ->paginate(10)
+                ->paginate(10),
         ]);
     }
 
@@ -34,7 +34,7 @@ class MovementMaterialFromSupplierController extends Controller
 
     public function store(StoreMovementMaterialFromSupplierRequest $request)
     {
-        if(!MovementMaterialFromSupplierService::store($request)) {
+        if (!MovementMaterialFromSupplierService::store($request)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
@@ -59,7 +59,7 @@ class MovementMaterialFromSupplierController extends Controller
 
     public function update(UpdateMovementMaterialFromSupplierRequest $request, Order $order)
     {
-        if(!MovementMaterialFromSupplierService::update($request, $order)) {
+        if (!MovementMaterialFromSupplierService::update($request, $order)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 

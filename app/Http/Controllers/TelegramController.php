@@ -14,7 +14,6 @@ class TelegramController extends Controller
 
     public function __construct()
     {
-
     }
 
     public function webhook(Request $request)

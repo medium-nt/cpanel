@@ -19,12 +19,12 @@ class MarketplaceOrderItemController extends Controller
     public function index(Request $request)
     {
         //  запретить швеям смотреть новые заказы и заказы в закрое.
-        if(($request->status == 'new' || $request->status == 'cutting') && auth()->user()->isSeamstress()) {
+        if (($request->status == 'new' || $request->status == 'cutting') && auth()->user()->isSeamstress()) {
             return redirect()->route('marketplace_order_items.index', ['status' => 'in_work']);
         }
 
         // запретить закройщикам смотреть новые заказы
-        if($request->status == 'new' && auth()->user()->isCutter()) {
+        if ($request->status == 'new' && auth()->user()->isCutter()) {
             return redirect()->route('marketplace_order_items.index', ['status' => 'cutting']);
         }
 
@@ -41,10 +41,10 @@ class MarketplaceOrderItemController extends Controller
         return view('marketplace_order_items.index', [
             'title' => 'Товары для пошива',
             'items' => $paginatedItems->appends($queryParams),
-//            'materials' => InventoryService::materialsQuantityBy('workhouse'),
+            //            'materials' => InventoryService::materialsQuantityBy('workhouse'),
             'bonus' => TransactionService::getBonusForTodayOrdersByUsers(),
             'users' => User::query()->whereIn('role_id', [1, 4])
-                ->where('name', 'not like', '%Тест%')->get()
+                ->where('name', 'not like', '%Тест%')->get(),
         ]);
     }
 
@@ -54,19 +54,19 @@ class MarketplaceOrderItemController extends Controller
             ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
             ->update([
                 'status' => 3,
-                'completed_at' => now()
-        ]);
+                'completed_at' => now(),
+            ]);
 
         MarketplaceOrder::query()
             ->where('id', $marketplaceOrderItem->marketplaceOrder->id)
             ->update([
                 'status' => 6,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
         $marketplaceOrderItem->update([
             'status' => 3,
-            'completed_at' => now()
+            'completed_at' => now(),
         ]);
 
         $text = 'Швея ' . $marketplaceOrderItem->seamstress->name .
@@ -112,6 +112,7 @@ class MarketplaceOrderItemController extends Controller
             if (!$result) {
                 Log::channel('marketplace_api')
                     ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+
                 return redirect()->route('marketplace_order_items.index')
                     ->with('error', 'Не удалось передать заказ на стикеровку');
             }
@@ -125,7 +126,7 @@ class MarketplaceOrderItemController extends Controller
 
         $marketplaceOrderItem->update([
             'status' => 5,
-            'completed_at' => now()
+            'completed_at' => now(),
         ]);
 
         return redirect()->route('marketplace_order_items.index')
@@ -152,12 +153,12 @@ class MarketplaceOrderItemController extends Controller
             ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
             ->update([
                 'status' => 3,
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
         $marketplaceOrderItem->update([
             'status' => 8,
-            'cutting_completed_at' => now()
+            'cutting_completed_at' => now(),
         ]);
 
         $text = 'Закройщик ' . $marketplaceOrderItem->cutter->name .
@@ -171,7 +172,7 @@ class MarketplaceOrderItemController extends Controller
     public function printCutting(MarketplaceOrderItemService $service)
     {
         $pdf = PDF::loadView('pdf.print_cutting', [
-            'orders' => $service->getOrdersGroupedByMaterial(auth()->user())
+            'orders' => $service->getOrdersGroupedByMaterial(auth()->user()),
         ]);
 
         return $pdf->setPaper('A4')

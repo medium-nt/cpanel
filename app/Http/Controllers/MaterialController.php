@@ -12,7 +12,7 @@ class MaterialController extends Controller
     {
         return view('materials.index', [
             'title' => 'Материалы',
-            'materials' => Material::query()->paginate(10)
+            'materials' => Material::query()->paginate(10),
         ]);
     }
 
@@ -20,7 +20,7 @@ class MaterialController extends Controller
     {
         return view('materials.create', [
             'title' => 'Добавить материал',
-            'typesMaterial' => TypeMaterial::query()->get()
+            'typesMaterial' => TypeMaterial::query()->get(),
         ]);
     }
 
@@ -48,7 +48,7 @@ class MaterialController extends Controller
         return view('materials.edit', [
             'title' => 'Изменить материал',
             'material' => $material,
-            'typesMaterial' => TypeMaterial::query()->get()
+            'typesMaterial' => TypeMaterial::query()->get(),
         ]);
     }
 

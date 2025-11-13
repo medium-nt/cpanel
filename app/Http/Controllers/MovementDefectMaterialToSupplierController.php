@@ -17,7 +17,7 @@ class MovementDefectMaterialToSupplierController extends Controller
             'orders' => Order::query()
                 ->where('type_movement', 5)
                 ->latest()
-                ->paginate(10)
+                ->paginate(10),
         ]);
     }
 
@@ -35,28 +35,28 @@ class MovementDefectMaterialToSupplierController extends Controller
         return MovementDefectMaterialToSupplierService::store($request);
     }
 
-//    public function edit(Order $order)
-//    {
-//        return view('movements_from_supplier.edit', [
-//            'title' => 'Изменить поставку',
-//            'order' => $order,
-//            'materials' => Material::query()->get(),
-//        ]);
-//    }
-//
-//    public function update(UpdateMovementMaterialFromSupplierRequest $request, Order $order)
-//    {
-//        if(!MovementMaterialFromSupplierService::update($request, $order)) {
-//            return back()->withErrors(['error' => 'Внутренняя ошибка']);
-//        }
-//
-//        return redirect()
-//            ->route('movements_from_supplier.index')
-//            ->with('success', 'Поступление добавлено');
-//    }
-//
-//    public function destroy(MovementMaterial $movementMaterial)
-//    {
-//        //
-//    }
+    //    public function edit(Order $order)
+    //    {
+    //        return view('movements_from_supplier.edit', [
+    //            'title' => 'Изменить поставку',
+    //            'order' => $order,
+    //            'materials' => Material::query()->get(),
+    //        ]);
+    //    }
+    //
+    //    public function update(UpdateMovementMaterialFromSupplierRequest $request, Order $order)
+    //    {
+    //        if(!MovementMaterialFromSupplierService::update($request, $order)) {
+    //            return back()->withErrors(['error' => 'Внутренняя ошибка']);
+    //        }
+    //
+    //        return redirect()
+    //            ->route('movements_from_supplier.index')
+    //            ->with('success', 'Поступление добавлено');
+    //    }
+    //
+    //    public function destroy(MovementMaterial $movementMaterial)
+    //    {
+    //        //
+    //    }
 }

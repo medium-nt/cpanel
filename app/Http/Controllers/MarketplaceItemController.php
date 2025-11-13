@@ -22,7 +22,7 @@ class MarketplaceItemController extends Controller
             'title' => 'Товары маркетплейса',
             'items' => $items->appends($queryParams),
             'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
-            'widthMaterials' => MarketplaceItemService::getAllWidthMaterials()
+            'widthMaterials' => MarketplaceItemService::getAllWidthMaterials(),
         ]);
     }
 
@@ -31,7 +31,7 @@ class MarketplaceItemController extends Controller
         return view('marketplace_items.create', [
             'title' => 'Добавить товар',
             'items' => MarketplaceItem::query()->get(),
-            'materials' => Material::query()->get()
+            'materials' => Material::query()->get(),
         ]);
     }
 
@@ -53,7 +53,7 @@ class MarketplaceItemController extends Controller
             'title' => 'Изменить товар',
             'item' => $marketplaceItem,
             'materials' => Material::query()->get(),
-            'materialsConsumption' => MaterialConsumption::query()->where('item_id', $marketplaceItem->id)->get()
+            'materialsConsumption' => MaterialConsumption::query()->where('item_id', $marketplaceItem->id)->get(),
         ]);
     }
 

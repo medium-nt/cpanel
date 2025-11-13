@@ -18,7 +18,7 @@ class MarketplaceSupplyController extends Controller
         $supplies = MarketplaceSupply::query()
             ->orderBy('created_at', 'desc');
 
-        if($request->status == 3) {
+        if ($request->status == 3) {
             $supplies = $supplies->where('status', 3);
         } else {
             $supplies = $supplies->where('status', '!=', 3);
@@ -38,7 +38,7 @@ class MarketplaceSupplyController extends Controller
 
         return view('marketplace_supply.index', [
             'title' => 'Поставки маркетплейса',
-            'marketplace_supplies' => $supplies->paginate(10)->appends($queryParams)
+            'marketplace_supplies' => $supplies->paginate(10)->appends($queryParams),
         ]);
     }
 
@@ -55,13 +55,13 @@ class MarketplaceSupplyController extends Controller
 
     public function create(string $marketplace_id)
     {
-        if($marketplace_id == 1){
+        if ($marketplace_id == 1) {
             $openSupplyOzon = MarketplaceSupply::query()
                 ->where('marketplace_id', 1)
                 ->where('status', 0)
                 ->count();
 
-            if($openSupplyOzon > 0) {
+            if ($openSupplyOzon > 0) {
                 return redirect()
                     ->route('marketplace_supplies.index')
                     ->with('error', 'Уже есть открытая поставка OZON.');
@@ -83,7 +83,7 @@ class MarketplaceSupplyController extends Controller
 
     public function destroy(MarketplaceSupply $marketplace_supply)
     {
-        if($marketplace_supply->marketplace_orders->count() > 0) {
+        if ($marketplace_supply->marketplace_orders->count() > 0) {
             return redirect()
                 ->route('marketplace_supplies.index')
                 ->with('error', 'Нельзя удалить поставку, которая содержит заказы.');
@@ -121,7 +121,7 @@ class MarketplaceSupplyController extends Controller
             default => false
         };
 
-        if(!$result) {
+        if (!$result) {
             return redirect()
                 ->route('marketplace_supplies.index')
                 ->with('error', 'Ошибка! Не удалось выполнить сборку поставки.');
@@ -165,7 +165,7 @@ class MarketplaceSupplyController extends Controller
     public function getDocs(MarketplaceSupply $marketplace_supply)
     {
         $isFormed = MarketplaceApiService::checkStatusSupplyOzon($marketplace_supply);
-        if (!$isFormed){
+        if (!$isFormed) {
             return redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'Документы еще не сформированы.');
@@ -187,7 +187,7 @@ class MarketplaceSupplyController extends Controller
 
     public function updateStatusOrders(MarketplaceSupply $marketplace_supply)
     {
-        return match ($marketplace_supply->marketplace_id){
+        return match ($marketplace_supply->marketplace_id) {
             1 => MarketplaceApiService::updateStatusOrderBySupplyOzon($marketplace_supply),
             2 => MarketplaceApiService::updateStatusOrderBySupplyWB($marketplace_supply),
             default => redirect()
@@ -205,7 +205,7 @@ class MarketplaceSupplyController extends Controller
         }
 
         $marketplace_supply->update([
-            'video' => null
+            'video' => null,
         ]);
 
         Log::channel('erp')

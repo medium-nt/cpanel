@@ -13,7 +13,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $title = 'Финансы';
-        if(auth()->user()->isAdmin()) {
+        if (auth()->user()->isAdmin()) {
             $title .= ' компании';
         }
 
@@ -27,7 +27,7 @@ class TransactionController extends Controller
             'cashflow' => TransactionService::getCashflowFiltered($request),
             'transactions' => TransactionService::getFiltered($request)
                 ->paginate(10)
-                ->withQueryString()
+                ->withQueryString(),
         ]);
     }
 
@@ -43,7 +43,7 @@ class TransactionController extends Controller
         return view('transactions.create', [
             'type' => $type,
             'title' => 'Добавить операцию ' . $typeName,
-            'users' => User::query()->get()
+            'users' => User::query()->get(),
         ]);
     }
 
@@ -64,7 +64,7 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
-        if($transaction->paid_at != null) {
+        if ($transaction->paid_at != null) {
             return back()
                 ->with('error', 'Нельзя удалить выплаченную транзакцию');
         }
@@ -87,7 +87,7 @@ class TransactionController extends Controller
             'request' => $request,
             'net_payout' => TransactionService::getSumOfPayout($request),
             'oldestUnpaidSalaryDate' => TransactionService::getOldestUnpaidSalaryEntry($user),
-            'moneyInCompany' => TransactionService::getTotalByType($request, false, true)
+            'moneyInCompany' => TransactionService::getTotalByType($request, false, true),
         ]);
     }
 
@@ -114,7 +114,7 @@ class TransactionController extends Controller
         (clone $query)
             ->update([
                 'paid_at' => now(),
-                'status' => 2
+                'status' => 2,
             ]);
 
         return back()
@@ -149,7 +149,7 @@ class TransactionController extends Controller
             ->whereNull('paid_at')
             ->update([
                 'paid_at' => now(),
-                'status' => 2
+                'status' => 2,
             ]);
 
         if ($updateCount == 0) {

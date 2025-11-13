@@ -28,7 +28,7 @@ class DefectMaterialController extends Controller
             'materials' => InventoryService::materialsQuantityBy('defect_warehouse'),
             'orders' => $paginatedItems->appends($queryParams),
             'users' => User::query()->whereIn('role_id', [1, 4])
-                ->where('name', 'not like', '%Тест%')->get()
+                ->where('name', 'not like', '%Тест%')->get(),
         ]);
     }
 

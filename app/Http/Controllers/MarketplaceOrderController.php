@@ -17,9 +17,9 @@ class MarketplaceOrderController extends Controller
         $orders = MarketplaceOrder::query()
             ->orderBy('marketplace_orders.created_at');
 
-        $orders = match ($request->status){
-            "3" => $orders->where('marketplace_orders.status', 3),
-            "6" => $orders->where('marketplace_orders.status', 6),
+        $orders = match ($request->status) {
+            '3' => $orders->where('marketplace_orders.status', 3),
+            '6' => $orders->where('marketplace_orders.status', 6),
             default => $orders->where('marketplace_orders.status', 0)
         };
 
@@ -39,13 +39,13 @@ class MarketplaceOrderController extends Controller
     {
         return view('marketplace_orders.create', [
             'title' => 'Добавить заказ',
-            'items' => MarketplaceItem::query()->get()
+            'items' => MarketplaceItem::query()->get(),
         ]);
     }
 
     public function store(StoreMarketplaceOrderRequest $request)
     {
-        if(!MarketplaceOrderService::store($request)) {
+        if (!MarketplaceOrderService::store($request)) {
             return back()->with(['error' => 'Внутренняя ошибка']);
         }
 
@@ -59,7 +59,7 @@ class MarketplaceOrderController extends Controller
         return view('marketplace_orders.edit', [
             'title' => 'Изменить заказ',
             'items' => MarketplaceItem::query()->get(),
-            'order' => $marketplaceOrder
+            'order' => $marketplaceOrder,
         ]);
     }
 
@@ -134,7 +134,7 @@ class MarketplaceOrderController extends Controller
     {
         if ($marketplaceOrder->items->some(function ($item) {
             return $item->status != 0;
-        })){
+        })) {
             return redirect()
                 ->route('marketplace_orders.index')
                 ->with('error', 'Товары заказа уже переданы в работу. Заказ не может быть удален.');

@@ -15,7 +15,6 @@ use App\Services\MarketplaceOrderService;
 use App\Services\WarehouseOfItemService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -69,6 +68,7 @@ class WarehouseOfItemController extends Controller
         $pdf = PDF::loadView('pdf.storage_barcode_sticker', compact('items'));
 
         $pdf->setPaper('A4');
+
         return $pdf->stream('barcode.pdf');
     }
 
@@ -165,6 +165,7 @@ class WarehouseOfItemController extends Controller
         if (!$result) {
             Log::channel('marketplace_api')
                 ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+
             return redirect()->back()
                 ->with('error', 'Не удалось передать заказ на стикеровку');
         }

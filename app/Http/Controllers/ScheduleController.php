@@ -13,7 +13,7 @@ class ScheduleController extends Controller
         if ($request->ajax()) {
             Validator::make($request->all(), [
                 'user_id' => ['required', 'exists:users,id'],
-                'date' => ['required', 'date']
+                'date' => ['required', 'date'],
             ])->validate();
 
             try {
@@ -21,7 +21,7 @@ class ScheduleController extends Controller
 
                 $scheduleDate = Schedule::query()->firstOrCreate([
                     'user_id' => $request->user_id,
-                    'date' => $request->date
+                    'date' => $request->date,
                 ]);
 
                 if (!$scheduleDate->wasRecentlyCreated) {
@@ -38,7 +38,7 @@ class ScheduleController extends Controller
             return response()->json([
                 'message' => 'Расписание успешно обновлено',
                 'deleted' => $deleted,
-                'id' => $scheduleDate->id
+                'id' => $scheduleDate->id,
             ]);
         } else {
             abort(404);

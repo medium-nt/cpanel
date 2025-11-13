@@ -14,7 +14,7 @@ class ShelfController extends Controller
     {
         return view('shelves.index', [
             'title' => 'Полки на складе',
-            'shelves' => Shelf::query()->paginate(20)
+            'shelves' => Shelf::query()->paginate(20),
         ]);
     }
 
@@ -24,7 +24,7 @@ class ShelfController extends Controller
     public function create()
     {
         return view('shelves.create', [
-            'title' => 'Добавить полку'
+            'title' => 'Добавить полку',
         ]);
     }
 
@@ -34,15 +34,15 @@ class ShelfController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|min:2|max:255'
+            'title' => 'required|string|min:2|max:255',
         ], [
             'title.required' => 'Поле обязательно для заполнения',
             'title.string' => 'Поле должно быть строкой',
             'title.min' => 'Поле должно быть не менее :min символов',
-            'title.max' => 'Поле должно быть не более :max символов'
+            'title.max' => 'Поле должно быть не более :max символов',
         ]);
 
-        $shelf = new Shelf();
+        $shelf = new Shelf;
         $shelf->title = $request->title;
         $shelf->save();
 
@@ -58,7 +58,7 @@ class ShelfController extends Controller
     {
         return view('shelves.edit', [
             'title' => 'Редактирование полки',
-            'shelf' => $shelf
+            'shelf' => $shelf,
         ]);
     }
 
@@ -68,12 +68,12 @@ class ShelfController extends Controller
     public function update(Request $request, Shelf $shelf)
     {
         $request->validate([
-            'title' => 'required|string|min:2|max:255'
+            'title' => 'required|string|min:2|max:255',
         ], [
             'title.required' => 'Поле обязательно для заполнения',
             'title.string' => 'Поле должно быть строкой',
             'title.min' => 'Поле должно быть не менее :min символов',
-            'title.max' => 'Поле должно быть не более :max символов'
+            'title.max' => 'Поле должно быть не более :max символов',
         ]);
 
         $shelf->title = $request->title;

@@ -82,5 +82,4 @@ class InventoryController extends Controller
             ->route('inventory.inventory_checks')
             ->with('success', 'Инвентаризация удалена');
     }
-
 }
