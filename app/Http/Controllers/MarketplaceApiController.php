@@ -55,7 +55,7 @@ class MarketplaceApiController extends Controller
         ]);
     }
 
-    public function getBarcodeFile()
+    public function getBarcodeFile(MarketplaceApiService $service)
     {
         $orderId = request()->marketplaceOrderId;
 
@@ -63,9 +63,17 @@ class MarketplaceApiController extends Controller
             ->where('order_id', $orderId)
             ->first();
 
+        if (! $order) {
+            ob_start();
+            echo 'Нет заказа с таким номером!';
+            $output = ob_get_clean();
+
+            return response($output);
+        }
+
         $result = match ($order->marketplace_id) {
-            1 => MarketplaceApiService::getBarcodeOzon($orderId),
-            2 => MarketplaceApiService::getBarcodeWb($orderId),
+            1 => $service->getBarcodeOzon($orderId),
+            2 => $service->getBarcodeWb($orderId),
             default => null,
         };
 
@@ -75,7 +83,7 @@ class MarketplaceApiController extends Controller
         return $result;
     }
 
-    public function getFBOBarcodeFile()
+    public function getFBOBarcodeFile(MarketplaceApiService $service)
     {
         $orderId = request()->marketplaceOrderId;
 
@@ -83,9 +91,14 @@ class MarketplaceApiController extends Controller
             ->where('order_id', $orderId)
             ->first();
 
+        if (! $order) {
+            echo 'Нет заказа с таким номером!';
+            exit;
+        }
+
         $order->is_printed = true;
         $order->save();
 
-        return MarketplaceApiService::getBarcodeOzonFBO($order);
+        return $service->getBarcodeOzonFBO($order);
     }
 }

@@ -825,7 +825,7 @@ class MarketplaceApiService
         }
     }
 
-    public static function getBarcodeOzon(mixed $orderId): object|false|null
+    public function getBarcodeOzon(mixed $orderId): object|false|null
     {
         $body = [
             'posting_number' => [
@@ -865,7 +865,7 @@ class MarketplaceApiService
         }
     }
 
-    public static function getBarcodeWb(int $orderId): object|false|null
+    public function getBarcodeWb(int $orderId): object|false|null
     {
         $body = [
             'orders' => [
@@ -917,7 +917,7 @@ class MarketplaceApiService
         }
     }
 
-    public static function getBarcodeOzonFBO(MarketplaceOrder $order): \Illuminate\Http\Response
+    public function getBarcodeOzonFBO(MarketplaceOrder $order): \Illuminate\Http\Response
     {
         $fullName = $order->items[0]->seamstress->name ?? '';
 

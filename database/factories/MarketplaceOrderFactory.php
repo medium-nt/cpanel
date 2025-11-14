@@ -29,6 +29,7 @@ class MarketplaceOrderFactory extends Factory
             'marketplace_id' => $this->faker->randomElement([1, 2]), // 1 for OZON, 2 for WB
             'fulfillment_type' => $this->faker->randomElement(['FBS', 'FBO']),
             'created_at' => $this->faker->dateTimeThisMonth(),
+            'status' => 0,
         ];
     }
 }
