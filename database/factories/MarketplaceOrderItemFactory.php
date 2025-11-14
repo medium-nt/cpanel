@@ -30,8 +30,9 @@ class MarketplaceOrderItemFactory extends Factory
             'marketplace_order_id' => MarketplaceOrder::factory(),
             'marketplace_item_id' => MarketplaceItem::factory(),
             'quantity' => $this->faker->numberBetween(1, 5),
+            'price' => $this->faker->numberBetween(100, 1000),
             'status' => 0, // new
-            'seamstress_id' => null,
+            'seamstress_id' => 0, // Default value as in migration
             'cutter_id' => null,
             'completed_at' => null,
             'cutting_completed_at' => null,
