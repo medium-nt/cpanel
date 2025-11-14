@@ -31,7 +31,14 @@ class UserControllerTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        User::factory()->count(5)->create();
+        // Create users with roles to avoid null role errors in view
+        $seamstressRole = Role::firstOrCreate(['name' => 'seamstress']);
+        $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+        $storekeeperRole = Role::firstOrCreate(['name' => 'storekeeper']);
+
+        User::factory()->count(2)->create(['role_id' => $seamstressRole->id]);
+        User::factory()->count(2)->create(['role_id' => $cutterRole->id]);
+        User::factory()->count(1)->create(['role_id' => $storekeeperRole->id]);
 
         $response = $this->get(route('users.index'));
 
