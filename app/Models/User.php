@@ -68,6 +68,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'salary_rate' => 'float',
         ];
     }
 
@@ -93,7 +94,13 @@ class User extends Authenticatable
 
     public function adminlte_desc(): string
     {
-        return UserService::translateRoleName(auth()->user()->role->name);
+        $user = auth()->user();
+
+        if (! $user || ! $user->role) {
+            return 'Пользователь';
+        }
+
+        return UserService::translateRoleName($user->role->name);
     }
 
     public function getUpdatedDateAttribute(): string
@@ -103,7 +110,7 @@ class User extends Authenticatable
 
     public function getCreatedDateAttribute(): string
     {
-        return $this->updated_at->format('d/m/Y H:i');
+        return $this->created_at->format('d/m/Y H:i');
     }
 
     public function isAdmin(): bool
@@ -155,6 +162,6 @@ class User extends Authenticatable
         $firstInitial = mb_substr($parts[1], 0, 1);
         $middleInitial = isset($parts[2]) ? mb_substr($parts[2], 0, 1) : '';
 
-        return $lastName . ' ' . $firstInitial . '.' . ($middleInitial ? $middleInitial . '.' : '');
+        return $lastName.' '.$firstInitial.'.'.($middleInitial ? $middleInitial.'.' : '');
     }
 }
