@@ -27,7 +27,7 @@ class MaterialController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'title' => 'required|string|min:2|max:255',
+            'title' => 'required|string|unique:materials,title|min:2|max:255',
             'type_id' => 'required|integer|exists:type_materials,id',
             'unit' => 'required|string|min:1|max:10',
         ];
