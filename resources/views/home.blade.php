@@ -195,7 +195,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($rating as $user)
+                @foreach($employees as $user)
                     <tr>
                         <td>
                             <img src="{{ asset('storage/' . $user->avatar) }}"

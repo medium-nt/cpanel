@@ -40,7 +40,9 @@ class HomeController extends Controller
             'urgentMarketplaceOrderItem' => MarketplaceOrderItemService::urgent(),
             'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements(),
             'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(),
-            'employees' => User::query()->where('name', 'not like', '%Тест%')->get(),
+            'employees' => User::query()
+                ->where('name', 'not like', '%Тест%')
+                ->get(),
             'currentUserId' => auth()->id(),
             'dates' => json_encode($dates),
             'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
