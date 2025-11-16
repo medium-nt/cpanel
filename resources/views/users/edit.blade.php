@@ -57,9 +57,9 @@
                                    name="password_confirmation" placeholder="Подтверждение пароля">
                         </div>
 
-                        @if($user->isStorekeeper())
+                        @if($user->isStorekeeper() || $user->isOtk())
                         <div class="form-group">
-                            <label for="salary_rate">Ставка кладовщика (за день)</label>
+                            <label for="salary_rate">Ставка (за день)</label>
                             <input type="number" step="1" min="0"
                                    class="form-control @error('salary_rate') is-invalid @enderror"
                                    id="salary_rate"
