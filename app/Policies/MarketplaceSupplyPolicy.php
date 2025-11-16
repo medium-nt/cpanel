@@ -32,6 +32,11 @@ class MarketplaceSupplyPolicy
         return $user->isAdmin() || $user->isStorekeeper();
     }
 
+    public function close(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin();
+    }
+
     public function download_video(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
         return $user->isAdmin() || $user->isStorekeeper();

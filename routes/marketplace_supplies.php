@@ -39,6 +39,10 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('complete', 'marketplace_supply')
         ->name('marketplace_supplies.done');
 
+    Route::get('/{marketplace_supply}/close', [App\Http\Controllers\MarketplaceSupplyController::class, 'close'])
+        ->can('close', 'marketplace_supply')
+        ->name('marketplace_supplies.close');
+
     Route::get('/{marketplace_supply}/delete_video', [App\Http\Controllers\MarketplaceSupplyController::class, 'delete_video'])
         ->can('delete_video', 'marketplace_supply')
         ->name('marketplace_supplies.delete_video');

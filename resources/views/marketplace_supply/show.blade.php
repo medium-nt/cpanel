@@ -23,7 +23,7 @@
         <div class="card">
             <div class="card-body">
                 <a href="{{ route('marketplace_supplies.complete', ['marketplace_supply' => $supply]) }}"
-                   class="btn btn-primary"
+                   class="btn btn-primary mr-3"
                    id="complete-supply-btn"
                    data-video-present="{{ $supply->video ? '1' : '0' }}">
                     Закрыть поставку и передать в доставку
@@ -33,6 +33,15 @@
                     <i class="fas fa-spinner fa-spin fa-lg" style="color: #0d6efd;"></i>
                     <span>Передаем товары в доставку...</span>
                 </div>
+
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('marketplace_supplies.close', ['marketplace_supply' => $supply]) }}"
+                       class="btn btn-danger"
+                       id="complete-supply-btn"
+                       onclick="return confirm('Вы уже сдали товары в маркетплейс до закрытия поставки в ERP и теперь хотите закрыть поставку принудительно?')">
+                        Закрыть поставку принудительно
+                    </a>
+                @endif
             </div>
         </div>
         @endif

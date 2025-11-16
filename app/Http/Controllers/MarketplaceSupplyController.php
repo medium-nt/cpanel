@@ -30,7 +30,7 @@ class MarketplaceSupplyController extends Controller
 
         if (isset($request->search)) {
             $supplies = $supplies->where(function ($query) use ($request) {
-                $query->where('supply_id', 'like', '%' . $request->search . '%');
+                $query->where('supply_id', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -47,7 +47,7 @@ class MarketplaceSupplyController extends Controller
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         return view('marketplace_supply.show', [
-            'title' => 'Поставка для маркетплейса ' . $marketplaceName,
+            'title' => 'Поставка для маркетплейса '.$marketplaceName,
             'supply' => $marketplaceSupply,
             'supply_orders' => $marketplaceSupply->marketplace_orders()->get(),
         ]);
@@ -74,7 +74,7 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
-        Log::channel('erp')->notice(auth()->user()->name . ' создал поставку для маркетплейса ' . $marketplaceName . ' (#' . $marketplaceSupply->id . ').');
+        Log::channel('erp')->notice(auth()->user()->name.' создал поставку для маркетплейса '.$marketplaceName.' (#'.$marketplaceSupply->id.').');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -105,12 +105,12 @@ class MarketplaceSupplyController extends Controller
         }
 
         if ($marketplace_supply->video == null) {
-            $text = 'Внимание! Кладовщик ' . auth()->user()->name .
-                ' не загрузил видео к поставке № ' . $marketplace_supply->id .
+            $text = 'Внимание! Кладовщик '.auth()->user()->name.
+                ' не загрузил видео к поставке № '.$marketplace_supply->id.
                 '. Запросите видео у кладовщика и загрузите его самостоятельно.';
 
             Log::channel('erp')
-                ->error('Отправили сообщение в ТГ админу: ' . $text);
+                ->error('Отправили сообщение в ТГ админу: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
         }
@@ -121,7 +121,7 @@ class MarketplaceSupplyController extends Controller
             default => false
         };
 
-        if (!$result) {
+        if (! $result) {
             return redirect()
                 ->route('marketplace_supplies.index')
                 ->with('error', 'Ошибка! Не удалось выполнить сборку поставки.');
@@ -139,7 +139,7 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
-        Log::channel('erp')->notice(auth()->user()->name . ' передал в отгрузку поставку #' . $marketplace_supply->id . ' для маркетплейса ' . $marketplaceName . '.');
+        Log::channel('erp')->notice(auth()->user()->name.' передал в отгрузку поставку #'.$marketplace_supply->id.' для маркетплейса '.$marketplaceName.'.');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -155,7 +155,8 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
-        Log::channel('erp')->notice(auth()->user()->name . ' сдал поставку #' . $marketplace_supply->id . ' в маркетплейс ' . $marketplaceName . '.');
+        Log::channel('erp')
+            ->notice(auth()->user()->name.' сдал поставку #'.$marketplace_supply->id.' в маркетплейс '.$marketplaceName.'.');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -165,7 +166,7 @@ class MarketplaceSupplyController extends Controller
     public function getDocs(MarketplaceSupply $marketplace_supply)
     {
         $isFormed = MarketplaceApiService::checkStatusSupplyOzon($marketplace_supply);
-        if (!$isFormed) {
+        if (! $isFormed) {
             return redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'Документы еще не сформированы.');
@@ -200,8 +201,8 @@ class MarketplaceSupplyController extends Controller
     {
         $video = $marketplace_supply->video;
 
-        if (Storage::disk('public')->exists('videos/' . $video)) {
-            Storage::disk('public')->delete('videos/' . $video);
+        if (Storage::disk('public')->exists('videos/'.$video)) {
+            Storage::disk('public')->delete('videos/'.$video);
         }
 
         $marketplace_supply->update([
@@ -209,7 +210,7 @@ class MarketplaceSupplyController extends Controller
         ]);
 
         Log::channel('erp')
-            ->notice(auth()->user()->name . ' удалил видео для поставки #' . $marketplace_supply->id . '.');
+            ->notice(auth()->user()->name.' удалил видео для поставки #'.$marketplace_supply->id.'.');
 
         return back()->with('success', 'Видео удалено!');
     }
@@ -217,5 +218,26 @@ class MarketplaceSupplyController extends Controller
     public function chunkedUpload(Request $request)
     {
         return MarketplaceSupplyService::chunkedUpload($request);
+    }
+
+    public function close(MarketplaceSupply $marketplace_supply)
+    {
+        $marketplace_supply->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
+        $marketplace_supply->marketplace_orders()->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
+        Log::channel('erp')
+            ->notice(auth()->user()->name.' Вручную закрыл поставку #'.$marketplace_supply->id.' в маркетплейс '.$marketplaceName.'.');
+
+        return redirect()
+            ->route('marketplace_supplies.index')
+            ->with('success', 'Поставка закрыта вручную.');
     }
 }
