@@ -127,6 +127,17 @@ class MarketplaceSupplyController extends Controller
                 ->with('error', 'Ошибка! Не удалось выполнить сборку поставки.');
         }
 
+        if ($marketplace_supply->video == null) {
+            $text = 'Внимание! Кладовщик '.auth()->user()->name.
+                ' не загрузил видео к поставке № '.$marketplace_supply->id.
+                '. Запросите видео у кладовщика и загрузите его самостоятельно.';
+
+            Log::channel('erp')
+                ->error('Отправили сообщение в ТГ админу: '.$text);
+
+            TgService::sendMessage(config('telegram.admin_id'), $text);
+        }
+
         $marketplace_supply->update([
             'status' => 4,
             'completed_at' => now(),
@@ -188,13 +199,31 @@ class MarketplaceSupplyController extends Controller
 
     public function updateStatusOrders(MarketplaceSupply $marketplace_supply)
     {
-        return match ($marketplace_supply->marketplace_id) {
-            1 => MarketplaceApiService::updateStatusOrderBySupplyOzon($marketplace_supply),
-            2 => MarketplaceApiService::updateStatusOrderBySupplyWB($marketplace_supply),
-            default => redirect()
+        switch ($marketplace_supply->marketplace_id) {
+            case 1:
+                $isUpdated = MarketplaceApiService::updateStatusOrderBySupplyOzon($marketplace_supply);
+                break;
+            case 2:
+                $isUpdated = MarketplaceApiService::updateStatusOrderBySupplyWB($marketplace_supply);
+                break;
+            default:
+                return redirect()
+                    ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                    ->with('error', 'В поставке указан некорректный маркетплейс!');
+        }
+
+        if (! $isUpdated) {
+            return redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
-                ->with('error', 'В поставке указан некорректный маркетплейс!'),
-        };
+                ->with('error', 'Не удалось обновить статусы заказов!');
+        }
+
+        Log::channel('erp')
+            ->notice(auth()->user()->name.' обновил статусы заказов для поставки #'.$marketplace_supply->id.'.');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+            ->with('success', 'Статусы заказов обновлены.');
     }
 
     public function delete_video(MarketplaceSupply $marketplace_supply)
