@@ -46,7 +46,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $user->name }}</td>
-                                <td>{{ UserService::translateRoleName($user->role->name) }}</td>
+                                <td>{{ $user->role ? UserService::translateRoleName($user->role->name) : 'Не указана' }}</td>
                                 <td>{{ $user->email }} <br> {{ $user->phone }}
                                 </td>
                                 <td>{{ $user->salary_rate }}</td>
