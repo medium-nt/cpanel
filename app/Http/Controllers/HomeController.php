@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Transaction;
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\MarketplaceOrderService;
@@ -52,6 +53,12 @@ class HomeController extends Controller
             'seamstressesCurrentBonus' => TransactionService::getSeamstressBalance('bonus'),
             'seamstressesCurrentHoldBonus' => TransactionService::getSeamstressBalance('bonus', true),
             'pickupOrders' => MarketplaceOrderService::pickupOrders()->count(),
+            'transactions' => Transaction::query()
+                ->orderBy('created_at', 'desc')
+                ->whereNotNull('user_id')
+                ->where('transaction_type', 'in')
+                ->whereIn('status', [1])
+                ->get(),
         ]);
     }
 }

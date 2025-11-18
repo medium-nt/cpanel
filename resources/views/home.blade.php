@@ -132,6 +132,75 @@
         </div>
     </div>
 
+    @if(auth()->user()->isAdmin())
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Начисленные штрафы сотрудникам</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Начислено за</th>
+                            <th scope="col" colspan="2"
+                                style="text-align: center">Сумма
+                            </th>
+                            <th scope="col">Название</th>
+                            <th scope="col">Дата создания</th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($transactions as $transaction)
+                            <tr>
+                                <td style="width: 50px">{{ $loop->iteration }}</td>
+                                <td>{{ now()->parse($transaction->accrual_for_date)->format('d/m/Y') }}</td>
+                                @if($transaction->is_bonus)
+                                    <td></td>
+                                    <td>{{ $transaction->amount }} <i
+                                            class="fas fa-star text-warning"></i>
+                                    </td>
+                                @else
+                                    <td>{{ $transaction->amount }} <i
+                                            class="fas fa-ruble-sign"></i></td>
+                                    <td></td>
+                                @endif
+                                <td>{{ $transaction->title }}
+                                    @if($transaction->user_id)
+                                        ({{ $transaction->user->name ?? '---' }}
+                                        )
+                                    @endif
+                                </td>
+                                <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
+
+                                <td style="width: 100px">
+                                    @if(auth()->user()->isAdmin())
+                                        <div class="btn-group" role="group">
+                                            <form
+                                                action="{{ route('transactions.destroy', ['transaction' => $transaction->id]) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="btn btn-danger"
+                                                        onclick="return confirm('Вы уверены что хотите удалить данную транзакцию из системы?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if(!auth()->user()->isAdmin() && auth()->user()->is_show_finance)
     <div class="card">
         <div class="card-header">
