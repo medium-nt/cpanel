@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\StoreMarketplaceOrderRequest;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\MarketplaceSupply;
 use App\Models\Shelf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,7 +33,7 @@ class MarketplaceOrderService
             if ($request->fulfillment_type == 'FBO') {
                 $quantity = $request->input('quantity', [])[0];
                 for ($i = 1; $i <= $quantity; $i++) {
-                    $orderIndex = '-' . $i;
+                    $orderIndex = '-'.$i;
                     self::addMarketplaceOrder($request, $orderIndex);
                 }
             } else {
@@ -52,7 +53,7 @@ class MarketplaceOrderService
     private static function addMarketplaceOrder(StoreMarketplaceOrderRequest $request, $orderIndex): void
     {
         $marketplaceOrder = MarketplaceOrder::query()->create([
-            'order_id' => $request->order_id . $orderIndex,
+            'order_id' => $request->order_id.$orderIndex,
             'marketplace_id' => $request->marketplace_id,
             'fulfillment_type' => $request->fulfillment_type,
             'status' => 0,
@@ -68,7 +69,7 @@ class MarketplaceOrderService
         $marketplaceName = self::getMarketplaceName($request->marketplace_id);
 
         Log::channel('erp')
-            ->notice('Вручную добавлен новый заказ: ' . $request->order_id . $orderIndex . ' (' . $marketplaceName . ')');
+            ->notice('Вручную добавлен новый заказ: '.$request->order_id.$orderIndex.' ('.$marketplaceName.')');
     }
 
     public static function getMarketplaceName(string $marketplace_id): string
@@ -104,7 +105,7 @@ class MarketplaceOrderService
                 ->map(function ($shelf) use ($sameItems) {
                     $count = $sameItems->where('shelf_id', $shelf->id)->count();
 
-                    return (object)[
+                    return (object) [
                         'shelf' => $shelf,
                         'quantity' => $count,
                     ];
@@ -127,5 +128,38 @@ class MarketplaceOrderService
                 $query->where('status', 13);
             })
             ->get();
+    }
+
+    public static function hasShippedOrdersBySupply(MarketplaceSupply $marketplace_supply): bool
+    {
+        $query = MarketplaceOrder::query()
+            ->where('supply_id', $marketplace_supply->id);
+
+        $status = match ($marketplace_supply->marketplace_id) {
+            1 => 'awaiting_deliver',
+            2 => 'confirm',
+            default => '---',
+        };
+
+        $orders = $query
+            //  ->where('marketplace_status', '!=', $status)
+            ->where(function ($q) use ($status) {
+                $q->where('marketplace_status', '!=', $status)
+                    ->orWhereNull('marketplace_status');
+            })
+            //  могут попасться заказы со статусом "отменено"!
+            //  ->whereNotIn('marketplace_status', ['cancelled', 'cancel'])
+            ->get();
+
+        if ($orders->isNotEmpty()) {
+            Log::channel('erp')
+                ->error('При проверке статусов поставки найдены заказы со статусом отличным от '.$status, [
+                    'orders' => $orders->pluck('marketplace_status', 'order_id')->toArray(),
+                ]);
+
+            return true;
+        }
+
+        return false;
     }
 }

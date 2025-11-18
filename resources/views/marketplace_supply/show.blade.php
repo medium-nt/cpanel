@@ -22,12 +22,17 @@
         @if($supply->status == 0)
         <div class="card">
             <div class="card-body">
-                <a href="{{ route('marketplace_supplies.complete', ['marketplace_supply' => $supply]) }}"
-                   class="btn btn-primary mr-3 mb-2"
-                   id="complete-supply-btn"
-                   data-video-present="{{ $supply->video ? '1' : '0' }}">
-                    Закрыть поставку и передать в доставку
-                </a>
+                @if(!$hasShippedOrders)
+                    <a href="{{ route('marketplace_supplies.complete', ['marketplace_supply' => $supply]) }}"
+                       class="btn btn-primary mr-3 mb-2"
+                       id="complete-supply-btn"
+                       data-video-present="{{ $supply->video ? '1' : '0' }}">
+                        Закрыть поставку и передать в доставку
+                    </a>
+                @else
+                    <p class="text-danger">Отгрузка невозможна! В заказе есть
+                        товары, которые нельзя отгружать!</p>
+                @endif
 
                 <div id="spinner-wrapper" style="display: none;">
                     <i class="fas fa-spinner fa-spin fa-lg" style="color: #0d6efd;"></i>
@@ -37,7 +42,7 @@
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('marketplace_supplies.close', ['marketplace_supply' => $supply]) }}"
                        class="btn btn-danger mb-2"
-                       onclick="return confirm('Вы уже сдали товары в маркетплейс до закрытия поставки в ERP и теперь хотите закрыть поставку принудительно?')">
+                       onclick="return confirm('Закрыть поставку в ERP принудительно без передачи информации об отгрузке в маркетплейс?')">
                         Закрыть поставку принудительно
                     </a>
                 @endif
@@ -93,14 +98,14 @@
             </div>
         </div>
 
-        @if($supply->status == 3)
+            {{--        @if($supply->status == 3)--}}
             <div class="card">
                 <div class="card-body">
                     <a href="{{ route('marketplace_supplies.update_status_orders', ['marketplace_supply' => $supply]) }}"
                        class="btn btn-outline-primary mb-2">Обновить статусы заказов</a>
                 </div>
             </div>
-        @endif
+            {{--        @endif--}}
 
         @if($supply->status == 4)
             <div class="card">

@@ -49,6 +49,7 @@ class MarketplaceSupplyController extends Controller
         return view('marketplace_supply.show', [
             'title' => 'Поставка для маркетплейса '.$marketplaceName,
             'supply' => $marketplaceSupply,
+            'hasShippedOrders' => MarketplaceOrderService::hasShippedOrdersBySupply($marketplaceSupply),
             'supply_orders' => $marketplaceSupply->marketplace_orders()->get(),
         ]);
     }
@@ -104,15 +105,25 @@ class MarketplaceSupplyController extends Controller
                 ->with('error', 'Поставка не содержит заказов.');
         }
 
-        if ($marketplace_supply->video == null) {
-            $text = 'Внимание! Кладовщик '.auth()->user()->name.
-                ' не загрузил видео к поставке № '.$marketplace_supply->id.
-                '. Запросите видео у кладовщика и загрузите его самостоятельно.';
+        //  обновить статусы заказов в поставке
+        $isUpdated = match ($marketplace_supply->marketplace_id) {
+            1 => MarketplaceApiService::updateStatusOrderBySupplyOzon($marketplace_supply),
+            2 => MarketplaceApiService::updateStatusOrderBySupplyWB($marketplace_supply),
+            default => false
+        };
 
-            Log::channel('erp')
-                ->error('Отправили сообщение в ТГ админу: '.$text);
+        if (! $isUpdated) {
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Не удалось обновить статусы заказов перед формированием поставки! Попробуйте повторить позже.');
+        }
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
+        //  Проверить статусы всех заказов в поставке и если есть уже отгруженные - не давать сборку
+        $checkStatusOrders = MarketplaceOrderService::hasShippedOrdersBySupply($marketplace_supply);
+        if ($checkStatusOrders) {
+            return redirect()
+                ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                ->with('error', 'Невозможно сформировать поставку! В поставке есть заказы с неподходящим статусом.');
         }
 
         $result = match ($marketplace_supply->marketplace_id) {
