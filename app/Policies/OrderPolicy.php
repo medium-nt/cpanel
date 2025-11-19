@@ -50,7 +50,7 @@ class OrderPolicy
 
     public function collect(User $user, Order $order): bool
     {
-        return $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper();
     }
 
     public function write_off(User $user): bool

@@ -57,7 +57,7 @@
                                         </div>
                                     @endif
 
-                                    @if( $order->status == '0' &&  auth()->user()->isStorekeeper())
+                                        @if( $order->status == '0' && (auth()->user()->isStorekeeper() || auth()->user()->isAdmin()))
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.collect', ['order' => $order->id]) }}"
                                                class="btn btn-warning mr-1"
@@ -78,6 +78,7 @@
                                     @if(auth()->user()->isAdmin() && $order->status == '0')
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.destroy', ['order' => $order->id]) }}"
+                                               onclick="return confirm('Вы уверены, что хотите удалить заказ?')"
                                                class="btn btn-danger" title="Удалить">
                                                 <i class="fas fa-trash-alt"></i> Удалить
                                             </a>
@@ -130,12 +131,12 @@
                                     @if($order->status == '3' && $order->completed_at)
                                         {{ now()->parse($order->completed_at)->format('d/m/Y H:i') }}
                                     @endif
-
-                                <td style="width: 100px">
-                                    @if( $order->status == '0' &&  auth()->user()->isStorekeeper())
+                                </td>
+                                <td style="width: 120px">
+                                    @if( $order->status == '0' && (auth()->user()->isStorekeeper() || auth()->user()->isAdmin()))
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.collect', ['order' => $order->id]) }}"
-                                           class="btn btn-warning mr-1"
+                                           class="btn btn-warning mr-1 mb-1"
                                            title="Сформировать">
                                             <i class="fas fa-box-open"></i>
                                         </a>
@@ -153,6 +154,7 @@
                                     @if(auth()->user()->isAdmin() && $order->status == '0')
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.destroy', ['order' => $order->id]) }}"
+                                               onclick="return confirm('Вы уверены что хотите удалить?')"
                                                 class="btn btn-danger" title="Удалить">
                                                     <i class="fas fa-trash-alt"></i>
                                             </a>
