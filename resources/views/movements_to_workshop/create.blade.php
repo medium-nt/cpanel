@@ -8,7 +8,7 @@
 {{-- Content body: main page content --}}
 
 @section('content_body')
-    <div class="col-md-6">
+    <div class="col-12">
         <div class="card">
 
             @if(session('success'))
