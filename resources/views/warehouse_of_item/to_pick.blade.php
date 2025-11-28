@@ -45,9 +45,10 @@
                     <p>Товар <b>{{ $itemName }}</b></p>
 
                     <p>
-                        Швея: <b>{{ $item->seamstress->name }}</b><br>
+                        Швея: <b>{{ $item->seamstress?->name ?? '---' }}</b><br>
                         @if($item->cutter_id)
-                            Закройщик: <b>{{ $item->cutter->name }}</b>
+                            Закройщик:
+                            <b>{{ $item->cutter?->name ?? '---' }}</b>
                         @endif
                     </p>
 
