@@ -54,7 +54,7 @@ class MarketplaceOrderItem extends Model
 
     public function cutter(): HasOne
     {
-        return $this->hasOne(User::class, 'id', 'cutter_id');
+        return $this->hasOne(User::class, 'id', 'cutter_id')->withTrashed();
     }
 
     public function getStatusNameAttribute(): string
