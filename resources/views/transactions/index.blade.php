@@ -223,6 +223,10 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- Pagination --}}
+                <x-pagination-component :collection="$cashflow"/>
+
             </div>
         </div>
 

@@ -64,7 +64,7 @@ class TransactionService
 
                 Transaction::query()->create([
                     'user_id' => $worker->user->id,
-                    'title' => 'Зарплата за ' . $accrualForDate->format('d/m/Y'),
+                    'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
                     'accrual_for_date' => $accrualForDate->format('Y-m-d'),
                     'amount' => $worker->user->salary_rate,
                     'transaction_type' => 'out',
@@ -72,7 +72,7 @@ class TransactionService
                 ]);
 
                 Log::channel('salary')
-                    ->info('Добавили зарплату в размере ' . $worker->user->salary_rate . ' рублей для кладовщика ' . $worker->user->name);
+                    ->info('Добавили зарплату в размере '.$worker->user->salary_rate.' рублей для кладовщика '.$worker->user->name);
             }
         }
     }
@@ -90,7 +90,7 @@ class TransactionService
 
                 Transaction::query()->create([
                     'user_id' => $worker->user->id,
-                    'title' => 'Зарплата за ' . $accrualForDate->format('d/m/Y'),
+                    'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
                     'accrual_for_date' => $accrualForDate->format('Y-m-d'),
                     'amount' => $worker->user->salary_rate,
                     'transaction_type' => 'out',
@@ -98,7 +98,7 @@ class TransactionService
                 ]);
 
                 Log::channel('salary')
-                    ->info('Добавили зарплату в размере ' . $worker->user->salary_rate . ' рублей для сотрудника ОКТ ' . $worker->user->name);
+                    ->info('Добавили зарплату в размере '.$worker->user->salary_rate.' рублей для сотрудника ОКТ '.$worker->user->name);
             }
         }
     }
@@ -170,7 +170,7 @@ class TransactionService
             default => null,
         };
 
-        if (!isset($isBonus) || !isset($status)) {
+        if (! isset($isBonus) || ! isset($status)) {
             return 0;
         }
 
@@ -190,7 +190,7 @@ class TransactionService
         $transactions = Transaction::query()
             ->orderBy('created_at', 'desc');
 
-        if (!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             $transactions->where('user_id', auth()->user()->id);
         } else {
             if ($request->user_id) {
@@ -253,14 +253,14 @@ class TransactionService
                 ->map(function ($group, $payoutDate) {
                     $accrualDates = $group->pluck('accrual_for_date')
                         ->filter()
-                        ->map(fn($d) => Carbon::parse($d))
+                        ->map(fn ($d) => Carbon::parse($d))
                         ->sort();
 
                     return [
                         'payout_date' => (Carbon::parse($payoutDate))->format('d/m/Y'),
                         'net_total' => $group->sum(function ($tx) {
                             return $tx->transaction_type === 'out' ? $tx->amount : (
-                            $tx->transaction_type === 'in' ? '-' . $tx->amount : 0);
+                                $tx->transaction_type === 'in' ? '-'.$tx->amount : 0);
                         }),
                         'accrual_range' => $accrualDates->isEmpty() ? null : [
                             'from' => $accrualDates->first()->format('Y-m-d'),
@@ -314,7 +314,7 @@ class TransactionService
         $query = Transaction::query()
             ->where('is_bonus', $isBonus);
 
-        if (!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             $query = $query->where('user_id', auth()->id());
         }
 
@@ -329,7 +329,7 @@ class TransactionService
             }
         }
 
-        if ($request->date_start && $request->date_end && !$company) {
+        if ($request->date_start && $request->date_end && ! $company) {
             $query = $query->whereBetween('accrual_for_date', [$request->date_start, $request->date_end]);
         }
 
@@ -360,7 +360,7 @@ class TransactionService
                         'accrual_for_date' => $payoutDate,
                         'net_total' => $group->sum(function ($tx) {
                             return $tx->transaction_type === 'out' ? $tx->amount : (
-                            $tx->transaction_type === 'in' ? '-' . $tx->amount : 0);
+                                $tx->transaction_type === 'in' ? '-'.$tx->amount : 0);
                         }),
                         'status' => $group->first()->status,
                         'date_pay' => (Carbon::parse($payoutDate)->addDays(14)->format('d/m/Y')),
@@ -373,52 +373,47 @@ class TransactionService
         }
     }
 
-    public static function getCashflowFiltered(Request $request): Collection|\Illuminate\Support\Collection
+    public static function getCashflowFiltered(Request $request)
     {
         $summary = Transaction::query()
             ->selectRaw("
                 user_id,
                 DATE(paid_at) AS paid_date,
                 SUM(CASE WHEN transaction_type = 'out' THEN amount ELSE 0 END) -
-                SUM(CASE WHEN transaction_type = 'in' THEN amount ELSE 0 END) AS net_balance
+                SUM(CASE WHEN transaction_type = 'in' THEN amount ELSE 0 END) AS net_balance,
+                users.name AS user_name
             ")
+            ->join('users', 'users.id', '=', 'transactions.user_id')
             ->whereNotNull('paid_at')
             ->where('is_bonus', 0)
             ->whereNotNull('user_id');
 
-        if (!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             $summary = $summary->where('user_id', auth()->id());
         }
 
         if ($request->date_start) {
-            $summary = $summary->where('paid_at', '>=', $request->date_start . ' 00:00:00');
+            $summary = $summary->where('paid_at', '>=', $request->date_start.' 00:00:00');
         }
 
         if ($request->date_end) {
-            $summary = $summary->where('paid_at', '<=', $request->date_end . ' 23:59:59');
+            $summary = $summary->where('paid_at', '<=', $request->date_end.' 23:59:59');
         }
 
-        return $summary->groupBy('user_id', DB::raw('DATE(paid_at)'))
+        return $summary
+            ->groupBy('transactions.user_id', DB::raw('DATE(transactions.paid_at)'), 'users.name')
             ->orderBy('paid_date', 'desc')
-            ->orderBy('user_id')
-            ->get()
-            ->load('user') // подтягивает связь
-            ->transform(function ($row) {
-                /** @var Transaction $row */
-                $row->user_name = $row->user->name ?? '—';
-
-                return $row;
-            });
+            ->orderBy('transactions.user_id');
     }
 
     public static function getBonusForTodayOrdersByUsers()
     {
         $allWidth = MarketplaceOrderItem::query()
-                ->where('seamstress_id', auth()->id())
-                ->whereDate('completed_at', today())
-                ->with('item')
-                ->get()
-                ->sum(fn($item) => $item->item->width ?? 0) / 100;
+            ->where('seamstress_id', auth()->id())
+            ->whereDate('completed_at', today())
+            ->with('item')
+            ->get()
+            ->sum(fn ($item) => $item->item->width ?? 0) / 100;
 
         return Motivation::query()
             ->where('user_id', auth()->user()->id)
@@ -430,9 +425,9 @@ class TransactionService
     private static function getSeamstressesWithOrders(): Collection
     {
         return User::query()
-            ->whereHas('role', fn($q) => $q->where('name', 'seamstress'))
+            ->whereHas('role', fn ($q) => $q->where('name', 'seamstress'))
             ->with([
-                'marketplaceOrderItems' => fn($q) => $q
+                'marketplaceOrderItems' => fn ($q) => $q
                     ->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))
                     ->orderBy('completed_at')
                     ->with('item')])
@@ -442,9 +437,9 @@ class TransactionService
     private static function getCuttersWithOrders(): Collection
     {
         return User::query()
-            ->whereHas('role', fn($q) => $q->where('name', 'cutter'))
+            ->whereHas('role', fn ($q) => $q->where('name', 'cutter'))
             ->with([
-                'marketplaceOrderItemsByCutter' => fn($q) => $q
+                'marketplaceOrderItemsByCutter' => fn ($q) => $q
                     ->whereDate('cutting_completed_at', Carbon::yesterday()->format('Y-m-d'))
                     ->orderBy('cutting_completed_at')
                     ->with('item')])
@@ -480,7 +475,7 @@ class TransactionService
         }
 
         $totalWidth = $marketplaceOrderItem
-                ->sum(fn($marketplaceOrderItems) => $marketplaceOrderItems->item->width ?? 0) / 100;
+            ->sum(fn ($marketplaceOrderItems) => $marketplaceOrderItems->item->width ?? 0) / 100;
 
         echo "Всего: $totalWidth м, зп: {$result['allSalary']} руб., бонус: {$result['allBonus']} баллов.<br>";
 
@@ -529,7 +524,7 @@ class TransactionService
                 $bonus = $width * $nowMotivationBonus;
             }
 
-            if (!$test) {
+            if (! $test) {
                 self::addTransaction(
                     $user,
                     $bonus,
@@ -542,7 +537,7 @@ class TransactionService
             }
         }
 
-        if (!$test) {
+        if (! $test) {
             self::addTransaction(
                 $user,
                 $salary,

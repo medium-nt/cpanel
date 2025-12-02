@@ -24,9 +24,11 @@ class TransactionController extends Controller
             'totalInCompany' => TransactionService::getTotalByType($request, false, true),
             'total' => TransactionService::getTotalByType($request, false),
             'total_bonus' => TransactionService::getTotalByType($request, true),
-            'cashflow' => TransactionService::getCashflowFiltered($request),
+            'cashflow' => TransactionService::getCashflowFiltered($request)
+                ->paginate(5, ['*'], 'cashflow')
+                ->withQueryString(),
             'transactions' => TransactionService::getFiltered($request)
-                ->paginate(10)
+                ->paginate(5, ['*'], 'transactions')
                 ->withQueryString(),
         ]);
     }
@@ -42,7 +44,7 @@ class TransactionController extends Controller
 
         return view('transactions.create', [
             'type' => $type,
-            'title' => 'Добавить операцию ' . $typeName,
+            'title' => 'Добавить операцию '.$typeName,
             'users' => User::query()->get(),
         ]);
     }
@@ -51,7 +53,7 @@ class TransactionController extends Controller
     {
         $result = TransactionService::store($request);
 
-        if (!$result) {
+        if (! $result) {
             return back()
                 ->with('error', 'Недостаточно денег в кассе')
                 ->withInput();
@@ -134,7 +136,7 @@ class TransactionController extends Controller
             'payouts' => TransactionService::getLastPayouts($user, 10, true),
             'hold_bonus' => $hodlBonus,
             'allHoldBonus' => collect($hodlBonus)
-                ->filter(fn($item) => $item['status'] === 1)
+                ->filter(fn ($item) => $item['status'] === 1)
                 ->sum('net_total'),
             'request' => $request,
         ]);
