@@ -58,7 +58,7 @@ class HomeController extends Controller
                 ->whereNotNull('user_id')
                 ->where('transaction_type', 'in')
                 ->whereIn('status', [1])
-                ->paginate(1)->withQueryString(),
+                ->paginate(5)->withQueryString(),
         ]);
     }
 }
