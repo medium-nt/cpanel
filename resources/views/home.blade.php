@@ -197,6 +197,8 @@
                         </tbody>
                     </table>
                 </div>
+
+                <x-pagination-component :collection="$transactions"/>
             </div>
         </div>
     @endif
