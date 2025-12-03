@@ -408,8 +408,19 @@ class TransactionService
 
     public static function getBonusForTodayOrdersByUsers()
     {
-        $allWidth = MarketplaceOrderItem::query()
-            ->where('seamstress_id', auth()->id())
+        $user = auth()->user();
+        $query = MarketplaceOrderItem::query();
+        $value = 'bonus';
+
+        if ($user->isCutter()) {
+            $query->where('cutter_id', $user->id);
+            $value = 'cutter_bonus';
+        } elseif ($user->isSeamstress()) {
+            $query->where('seamstress_id', $user->id);
+            $value = $user->canSeamstressCut() ? 'bonus' : 'not_cutter_bonus';
+        }
+
+        $allWidth = $query
             ->whereDate('completed_at', today())
             ->with('item')
             ->get()
@@ -419,7 +430,7 @@ class TransactionService
             ->where('user_id', auth()->user()->id)
             ->where('from', '<=', $allWidth)
             ->where('to', '>', $allWidth)
-            ->value('bonus') ?? 0;
+            ->value($value) ?? 0;
     }
 
     private static function getSeamstressesWithOrders(): Collection
