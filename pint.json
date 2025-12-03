@@ -1,0 +1,7 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "no_whitespace_in_blank_line": false,
+        "no_extra_blank_lines": false
+    }
+}
