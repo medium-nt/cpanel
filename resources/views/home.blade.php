@@ -218,41 +218,7 @@
     </div>
     @endif
 
-    @if(!auth()->user()->isAdmin())
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Рейтинг</h3>
-        </div>
-        <div class="card-body table-responsive p-0">
-            <table class="table table-valign-middle">
-                <thead>
-                <tr>
-                    <th>Швея</th>
-                    <th>Рейтинг</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($rating as $user)
-                    <tr>
-                        <td style="max-width: 200px">
-                            <img src="{{ asset('storage/' . $user->avatar) }}"
-                                 style="width:50px; height:50px;" alt="">
-                            {{ $user->name }}
-                        </td>
-                        <td style="max-width: 200px">
-                            за сегодня: <b>{{ $user->ratingNow }}</b>
-                            <br>
-                            за 2 недели: <b>{{ $user->rating2week }}</b>
-                            <br>
-                            за месяц: <b>{{ $user->rating1month }}</b>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @else
+    @if(auth()->user()->isAdmin())
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Смены сотрудников</h3>
@@ -304,6 +270,8 @@
                 </tbody>
             </table>
         </div>
+
+        <x-pagination-component :collection="$employees"/>
     </div>
     @endif
 

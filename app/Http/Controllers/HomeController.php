@@ -43,7 +43,7 @@ class HomeController extends Controller
             'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(),
             'employees' => User::query()
                 ->where('name', 'not like', '%Тест%')
-                ->get(),
+                ->paginate(5, ['*'], 'employees')->withQueryString(),
             'currentUserId' => auth()->id(),
             'dates' => json_encode($dates),
             'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
@@ -58,7 +58,7 @@ class HomeController extends Controller
                 ->whereNotNull('user_id')
                 ->where('transaction_type', 'in')
                 ->whereIn('status', [1])
-                ->paginate(5)->withQueryString(),
+                ->paginate(5, ['*'], 'transactions')->withQueryString(),
         ]);
     }
 }
