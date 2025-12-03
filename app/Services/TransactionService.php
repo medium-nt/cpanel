@@ -7,6 +7,7 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\Motivation;
 use App\Models\Rate;
 use App\Models\Schedule;
+use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -607,5 +608,26 @@ class TransactionService
             'from' => $motivationBonus->from ?? 0,
             'salary' => $salary,
         ];
+    }
+
+    public static function penalizeUserForOrderCancellation(MarketplaceOrderItem $marketplaceOrderItem): void
+    {
+        $user = auth()->user();
+        $amount = Setting::getValue('cancel_order_penalty');
+
+        TransactionService::addTransaction(
+            $user,
+            $amount,
+            'in',
+            'Штраф за отмену заказа № '.$marketplaceOrderItem->marketplaceOrder->order_id,
+            Carbon::now()->format('Y-m-d'),
+            'salary',
+            false
+        );
+
+        Log::channel('salary')
+            ->warning('Начислен штраф в размере '.$amount.' рублей за отмену заказа № '
+                .$marketplaceOrderItem->marketplaceOrder->order_id.
+                ' сотруднику '.$user->name.' ( id - '.$user->id.')');
     }
 }

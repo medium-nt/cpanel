@@ -44,7 +44,7 @@ class MarketplaceOrderItemService
                 $request->search = MarketplaceApiService::getOzonPostingNumberByBarcode($request->search);
             }
             $items = $items
-                ->where('marketplace_orders.order_id', 'like', '%' . $request->search . '%')
+                ->where('marketplace_orders.order_id', 'like', '%'.$request->search.'%')
                 ->orWhere('part_b', $request->search)
                 ->orWhere('barcode', $request->search);
         } else {
@@ -103,7 +103,7 @@ class MarketplaceOrderItemService
     {
         $status = $marketplaceOrderItem->status;
 
-        if (!in_array($status, [4, 5, 7])) {
+        if (! in_array($status, [4, 5, 7])) {
             return [
                 'success' => false,
                 'message' => 'Заказ с таким статусом не может быть отменен',
@@ -118,11 +118,11 @@ class MarketplaceOrderItemService
             //  если на раскрое
             if ($status == 7) {
                 $logMessage =
-                    'Отменен закрой заказа № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
-                    ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на закрой - удалено.' . PHP_EOL .
-                    'Закройщик: ' . $marketplaceOrderItem->cutter->name .
-                    ' (' . $marketplaceOrderItem->cutter->id . ')' . PHP_EOL .
-                    'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
+                    'Отменен закрой заказа № '.$marketplaceOrderItem->marketplaceOrder->order_id.
+                    ' (товар #'.$marketplaceOrderItem->id.'). Холдирование материалов на закрой - удалено.'.PHP_EOL.
+                    'Закройщик: '.$marketplaceOrderItem->cutter->name.
+                    ' ('.$marketplaceOrderItem->cutter->id.')'.PHP_EOL.
+                    'Инициатор: '.auth()->user()->name.' ('.auth()->user()->id.')'.PHP_EOL;
 
                 $marketplaceOrderItem->status = 0;
                 $marketplaceOrderItem->cutter_id = null;
@@ -143,11 +143,11 @@ class MarketplaceOrderItemService
             //  если на пошиве или стикеровке
             if ($status == 4 || $status == 5) {
                 $logMessage =
-                    'Отменен пошив заказа № ' . $marketplaceOrderItem->marketplaceOrder->order_id .
-                    ' (товар #' . $marketplaceOrderItem->id . '). Холдирование материалов на пошив - удалено. Не выплаченная зарплата и бонусы - удалены.' . PHP_EOL .
-                    'Швея: ' . $marketplaceOrderItem->seamstress->name .
-                    ' (' . $marketplaceOrderItem->seamstress->id . ')' . PHP_EOL .
-                    'Инициатор: ' . auth()->user()->name . ' (' . auth()->user()->id . ')' . PHP_EOL;
+                    'Отменен пошив заказа № '.$marketplaceOrderItem->marketplaceOrder->order_id.
+                    ' (товар #'.$marketplaceOrderItem->id.'). Холдирование материалов на пошив - удалено. Не выплаченная зарплата и бонусы - удалены.'.PHP_EOL.
+                    'Швея: '.$marketplaceOrderItem->seamstress->name.
+                    ' ('.$marketplaceOrderItem->seamstress->id.')'.PHP_EOL.
+                    'Инициатор: '.auth()->user()->name.' ('.auth()->user()->id.')'.PHP_EOL;
 
                 $marketplaceOrderItem->status = ($marketplaceOrderItem->cutter_id) ? 8 : 0;
                 $marketplaceOrderItem->seamstress_id = 0;
@@ -170,6 +170,11 @@ class MarketplaceOrderItemService
                 $order->delete();
             }
 
+            //  если отменяет заказ не админ, то начислить штраф.
+            if (! auth()->user()->isAdmin()) {
+                TransactionService::penalizeUserForOrderCancellation($marketplaceOrderItem);
+            }
+
             Log::channel('erp')
                 ->notice($logMessage);
 
@@ -181,7 +186,7 @@ class MarketplaceOrderItemService
             Log::error($e->getMessage());
 
             Log::channel('erp')
-                ->error('Заказ № ' . $marketplaceOrderItem->marketplaceOrder->order_id . ' не удалось отменить!');
+                ->error('Заказ № '.$marketplaceOrderItem->marketplaceOrder->order_id.' не удалось отменить!');
 
             return [
                 'success' => false,
@@ -286,7 +291,7 @@ class MarketplaceOrderItemService
             ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
             ->where('marketplace_order_items.seamstress_id', $seamstress->id)
             ->where('marketplace_order_items.status', 3)
-            ->whereBetween('marketplace_order_items.completed_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->whereBetween('marketplace_order_items.completed_at', [$startDate.' 00:00:00', $endDate.' 23:59:59'])
             ->selectRaw('SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume, SUM(marketplace_order_items.quantity) as total_quantity')
             ->first()?->getAttributes() ?? [];
 
@@ -345,7 +350,7 @@ class MarketplaceOrderItemService
             default => false,
         };
 
-        if (!$field) {
+        if (! $field) {
             return 0;
         }
 
@@ -355,14 +360,14 @@ class MarketplaceOrderItemService
     private static function checkSchedule(): array
     {
         if (ScheduleService::isEnabledSchedule()) {
-            if (!ScheduleService::isWorkDay()) {
+            if (! ScheduleService::isWorkDay()) {
                 return [
                     'success' => false,
                     'message' => 'Вы не можете взять заказ в нерабочий день!',
                 ];
             }
 
-            if (!ScheduleService::hasWorkDayStarted()) {
+            if (! ScheduleService::hasWorkDayStarted()) {
                 return [
                     'success' => false,
                     'message' => 'Вы не можете взять заказ в нерабочее время!',
@@ -386,7 +391,7 @@ class MarketplaceOrderItemService
                     ->whereIn('status', [4, 5]),
                 'cutter' => $query->where('cutter_id', $user->id)
                     ->where('status', 7),
-                default => throw new \Exception('Недопустимая роль: ' . $user->role->name),
+                default => throw new \Exception('Недопустимая роль: '.$user->role->name),
             };
 
             $maxCountOrderItems = self::getMaxQuantityOrdersToUserRole();
@@ -394,7 +399,7 @@ class MarketplaceOrderItemService
             if ($orderItemsByUser->count() >= $maxCountOrderItems) {
                 return [
                     'success' => false,
-                    'message' => 'Вы не можете взять больше ' . $maxCountOrderItems . ' заказов!',
+                    'message' => 'Вы не можете взять больше '.$maxCountOrderItems.' заказов!',
                 ];
             }
 
@@ -404,12 +409,12 @@ class MarketplaceOrderItemService
             ];
         } catch (\Exception $e) {
             Log::channel('erp')
-                ->error('Ошибка при проверке максимального количества заказов у пользователя ' .
-                    $user->id . ': ' . $e->getMessage());
+                ->error('Ошибка при проверке максимального количества заказов у пользователя '.
+                    $user->id.': '.$e->getMessage());
 
             return [
                 'success' => false,
-                'message' => 'Ошибка при проверки максимального количества заказов: ' . $e->getMessage(),
+                'message' => 'Ошибка при проверки максимального количества заказов: '.$e->getMessage(),
             ];
         }
     }
@@ -420,7 +425,7 @@ class MarketplaceOrderItemService
         $materialConsumptions = $marketplaceItem->consumption;
 
         if ($materialConsumptions->isEmpty()) {
-            $text = 'Для заказа #' . $marketplaceOrderItem->id . ' не указаны материалы!';
+            $text = 'Для заказа #'.$marketplaceOrderItem->id.' не указаны материалы!';
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
             return false;
@@ -452,13 +457,13 @@ class MarketplaceOrderItemService
             $field = match (auth()->user()->role->name) {
                 'seamstress' => 'seamstress_id',
                 'cutter' => 'cutter_id',
-                default => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+                default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 
             $status = match (auth()->user()->role->name) {
                 'seamstress' => 4,
                 'cutter' => 7,
-                default => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+                default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 
             DB::beginTransaction();
@@ -472,7 +477,7 @@ class MarketplaceOrderItemService
                 'type_movement' => 3,
                 'status' => 4,
                 $field => auth()->user()->id,
-                'comment' => 'По заказу No: ' . $marketplaceOrderItem->marketplaceOrder->order_id,
+                'comment' => 'По заказу No: '.$marketplaceOrderItem->marketplaceOrder->order_id,
                 'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id,
             ]);
 
@@ -591,15 +596,15 @@ class MarketplaceOrderItemService
     {
         $user = auth()->user();
 
-        if (!self::checkSchedule()['success']) {
+        if (! self::checkSchedule()['success']) {
             return self::checkSchedule();
         }
 
-        if (!self::checkMaxStack($user)['success']) {
+        if (! self::checkMaxStack($user)['success']) {
             return self::checkMaxStack($user);
         }
 
-        if (!self::checkCutterDailyLimit($user)['success']) {
+        if (! self::checkCutterDailyLimit($user)['success']) {
             return self::checkCutterDailyLimit($user);
         }
 
@@ -612,8 +617,8 @@ class MarketplaceOrderItemService
         foreach (self::getFilteredItems() as $marketplaceOrderItem) {
             Log::channel('erp')
                 ->info(
-                    'Проверяем возможность взятия заказа №' . $marketplaceOrderItem->id .
-                    ' сотрудником ' . auth()->user()->name
+                    'Проверяем возможность взятия заказа №'.$marketplaceOrderItem->id.
+                    ' сотрудником '.auth()->user()->name
                 );
 
             $result = self::tryProcessItem($marketplaceOrderItem);
@@ -632,13 +637,13 @@ class MarketplaceOrderItemService
     {
         $item = $marketplaceOrderItem->item()->first();
 
-        if (!self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
+        if (! self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
             self::notifyNoMaterials($item);
 
             return ['success' => false];
         }
 
-        if (!self::canUseMaterial($marketplaceOrderItem)) {
+        if (! self::canUseMaterial($marketplaceOrderItem)) {
             return ['success' => false];
         }
 
@@ -706,7 +711,7 @@ class MarketplaceOrderItemService
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
 
         //        если швея (без кроя), то заказы со статусом "раскроено"
-        if ((auth()->user()->isSeamstress() && !auth()->user()->is_cutter)) {
+        if ((auth()->user()->isSeamstress() && ! auth()->user()->is_cutter)) {
             $items = $items->where('marketplace_order_items.status', 8);
         }
 
@@ -747,7 +752,7 @@ class MarketplaceOrderItemService
     private static function canUseMaterial(MarketplaceOrderItem $marketplaceOrderItem): bool
     {
         $clothConsumptions = $marketplaceOrderItem->item->consumption
-            ->filter(fn($consumption) => $consumption->material->type_id === 1);
+            ->filter(fn ($consumption) => $consumption->material->type_id === 1);
 
         $allowedMaterialIds = auth()->user()->materials->pluck('id');
 
@@ -756,7 +761,7 @@ class MarketplaceOrderItemService
         }
 
         return $clothConsumptions->every(
-            fn($consumption) => $allowedMaterialIds->contains($consumption->material_id)
+            fn ($consumption) => $allowedMaterialIds->contains($consumption->material_id)
         );
     }
 
@@ -793,7 +798,7 @@ class MarketplaceOrderItemService
         $marketplaceOrderItem->save();
 
         Log::channel('erp')
-            ->info('Зарезервировали заказ ' . $marketplaceOrder->id . ' с товаром ' . $marketplaceOrderItem->id);
+            ->info('Зарезервировали заказ '.$marketplaceOrder->id.' с товаром '.$marketplaceOrderItem->id);
     }
 
     public static function saveOrderToHistory(MarketplaceOrderItem $marketplaceOrderItem): void
@@ -805,8 +810,8 @@ class MarketplaceOrderItemService
         ]);
 
         Log::channel('erp')
-            ->info('Заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id . ' сохранен в историю с товаром '
-                . $marketplaceOrderItem->id . ' (значит этот заказ отмененный, раз товар на хранении)');
+            ->info('Заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.' сохранен в историю с товаром '
+                .$marketplaceOrderItem->id.' (значит этот заказ отмененный, раз товар на хранении)');
 
         $marketplaceOrderItem->marketplaceOrder->status = '9'; // возврат
         $marketplaceOrderItem->marketplaceOrder->save();
@@ -821,17 +826,17 @@ class MarketplaceOrderItemService
                 ->orderByDesc('created_at')
                 ->first();
 
-            if (!$marketplaceOrderHistory) {
+            if (! $marketplaceOrderHistory) {
                 Log::channel('erp')
-                    ->error('В Истории нет заказа ' . $selectedItem->marketplace_order_id . ' по товару ' . $selectedItem->id);
+                    ->error('В Истории нет заказа '.$selectedItem->marketplace_order_id.' по товару '.$selectedItem->id);
                 DB::rollBack();
 
                 return;
             }
 
             Log::channel('erp')
-                ->info('Для товара id ' . $selectedItem->id . 'Восстановлен заказ #' . $marketplaceOrderHistory->marketplace_order_id .
-                    ' вместо текущего заказа #' . $selectedItem->marketplace_order_id);
+                ->info('Для товара id '.$selectedItem->id.'Восстановлен заказ #'.$marketplaceOrderHistory->marketplace_order_id.
+                    ' вместо текущего заказа #'.$selectedItem->marketplace_order_id);
 
             $selectedItem->marketplace_order_id = $marketplaceOrderHistory->marketplace_order_id;
             $selectedItem->status = 11; // на хранении
@@ -843,7 +848,7 @@ class MarketplaceOrderItemService
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::channel('erp')->error('Ошибка при восстановлении заказа из истории: ' . $e->getMessage(), [
+            Log::channel('erp')->error('Ошибка при восстановлении заказа из истории: '.$e->getMessage(), [
                 'marketplace_order_item_id' => $selectedItem->id,
                 'marketplace_order_id' => $selectedItem->marketplace_order_id,
                 'trace' => $e->getTraceAsString(),
@@ -855,7 +860,7 @@ class MarketplaceOrderItemService
     {
         if ($marketplaceOrderItem->status == 99) {
             Log::channel('erp')
-                ->warning('Конкурентный доступ! Заказ ' . $marketplaceOrderItem->id . ' находится в резерве');
+                ->warning('Конкурентный доступ! Заказ '.$marketplaceOrderItem->id.' находится в резерве');
 
             return true;
         }
@@ -869,7 +874,7 @@ class MarketplaceOrderItemService
         $marketplaceOrderItem->save();
 
         Log::channel('erp')
-            ->warning('Зарезервирован товар ' . $marketplaceOrderItem->id);
+            ->warning('Зарезервирован товар '.$marketplaceOrderItem->id);
     }
 
     private static function restoreReserve($marketplaceOrderItem): void
@@ -878,7 +883,7 @@ class MarketplaceOrderItemService
         $marketplaceOrderItem->save();
 
         Log::channel('erp')
-            ->warning('Восстановлен резервированный товара ' . $marketplaceOrderItem->id);
+            ->warning('Восстановлен резервированный товара '.$marketplaceOrderItem->id);
     }
 
     private static function checkCutterDailyLimit(User $user): array
@@ -893,8 +898,8 @@ class MarketplaceOrderItemService
             if ($meters >= $dailyLimit) {
                 return [
                     'success' => false,
-                    'message' => 'Вы не можете взять больше заказов! Ваш метраж (готовый и в работе): ' .
-                        $meters . ', при лимите в ' . $dailyLimit,
+                    'message' => 'Вы не можете взять больше заказов! Ваш метраж (готовый и в работе): '.
+                        $meters.', при лимите в '.$dailyLimit,
                 ];
             }
         }
@@ -910,11 +915,11 @@ class MarketplaceOrderItemService
         return MarketplaceOrderItem::query()
             ->where('status', $status)
             ->where('cutter_id', auth()->id())
-            ->when($status === 8, fn($q) => $q->whereDate('cutting_completed_at', now()->toDateString()))
+            ->when($status === 8, fn ($q) => $q->whereDate('cutting_completed_at', now()->toDateString()))
             ->whereHas('item')
             ->with('item')
             ->get()
-            ->sum(fn($orderItem) => $orderItem->item->width ?? 0);
+            ->sum(fn ($orderItem) => $orderItem->item->width ?? 0);
     }
 
     public function getOrdersGroupedByMaterial(User $user): \Illuminate\Support\Collection
@@ -922,18 +927,18 @@ class MarketplaceOrderItemService
         $items = MarketplaceOrderItem::query()
             ->with('marketplaceOrder')
             ->with('item')
-            ->when($user->isCutter(), fn($q) => $q
+            ->when($user->isCutter(), fn ($q) => $q
                 ->where('marketplace_order_items.status', 7)
                 ->where('marketplace_order_items.cutter_id', $user->id)
             )
-            ->when($user->isSeamstress(), fn($q) => $q
+            ->when($user->isSeamstress(), fn ($q) => $q
                 ->where('marketplace_order_items.status', 4)
                 ->where('marketplace_order_items.seamstress_id', $user->id)
             )
             ->get();
 
         return collect($items)
-            ->groupBy(fn($item) => $item->item->title ?? '-----')
+            ->groupBy(fn ($item) => $item->item->title ?? '-----')
             ->map(function ($group) {
                 return $group->sortBy(function ($item) {
                     return [$item->item->width, $item->item->height];
