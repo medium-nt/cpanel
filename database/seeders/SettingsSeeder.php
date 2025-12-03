@@ -68,6 +68,11 @@ class SettingsSeeder extends Seeder
         );
 
         Setting::query()->firstOrCreate(
+            ['name' => 'cancel_order_penalty'],
+            ['value' => '0']
+        );
+
+        Setting::query()->firstOrCreate(
             ['name' => 'is_enabled_work_shift'],
             ['value' => '0']
         );
