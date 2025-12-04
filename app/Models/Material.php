@@ -40,4 +40,9 @@ class Material extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function rates(): HasMany
+    {
+        return $this->hasMany(Rate::class, 'material_id', 'id');
+    }
 }

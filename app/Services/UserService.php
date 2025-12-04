@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Material;
 use App\Models\Motivation;
 use App\Models\Rate;
 use App\Models\Schedule;
@@ -68,11 +69,11 @@ class UserService
         $list = '';
         foreach ($schedules as $schedule) {
             if ($schedule->user && $schedule->user->role) {
-                $list .= '• ' . $schedule->user->name . ' (' . UserService::translateRoleName($schedule->user->role->name) . ')' . "\n";
+                $list .= '• '.$schedule->user->name.' ('.UserService::translateRoleName($schedule->user->role->name).')'."\n";
             }
         }
 
-        $text = "Сегодня работают: \n" . $list;
+        $text = "Сегодня работают: \n".$list;
 
         foreach ($schedules as $schedule) {
             if ($schedule->user?->tg_id) {
@@ -80,7 +81,7 @@ class UserService
             }
         }
 
-        Log::channel('erp')->notice('В ТГ отправлено сообщение сотрудникам: ' . $text);
+        Log::channel('erp')->notice('В ТГ отправлено сообщение сотрудникам: '.$text);
     }
 
     public static function getMotivationByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
@@ -92,8 +93,11 @@ class UserService
 
     public static function getRateByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
     {
-        return Rate::query()
-            ->where('user_id', $id)
+        return Material::query()
+            ->where('type_id', 1)
+            ->with(['rates' => function ($query) use ($id) {
+                $query->where('user_id', $id);
+            }])
             ->get();
     }
 
@@ -124,12 +128,12 @@ class UserService
         }
 
         if ($request->hasFile('avatar')) {
-            if (!Storage::disk('public')->exists('avatars')) {
+            if (! Storage::disk('public')->exists('avatars')) {
                 Storage::disk('public')->makeDirectory('avatars');
             }
 
-            $fileName = $user->id . '.' . $request->file('avatar')
-                    ->getClientOriginalExtension();
+            $fileName = $user->id.'.'.$request->file('avatar')
+                ->getClientOriginalExtension();
 
             $validatedData['avatar'] = $request->file('avatar')
                 ->storeAs('avatars', $fileName, 'public');
@@ -164,7 +168,7 @@ class UserService
             ->orderByDesc('closed_work_shift')
             ->first();
 
-        if (!$previousUserWhoClosedShift) {
+        if (! $previousUserWhoClosedShift) {
             return;
         }
 
@@ -174,8 +178,8 @@ class UserService
         $minutes = 2;
 
         if ($closedTime->diffInMinutes(now()) < $minutes) {
-            $text = 'Внимание! Сотрудник ' . $user->name . ' (' . $user->id . ') ' .
-                'пытался закрыть смену, сразу после ' . $previousUserWhoClosedShift->name . ' (' . $previousUserWhoClosedShift->id . ').';
+            $text = 'Внимание! Сотрудник '.$user->name.' ('.$user->id.') '.
+                'пытался закрыть смену, сразу после '.$previousUserWhoClosedShift->name.' ('.$previousUserWhoClosedShift->id.').';
 
             Log::channel('work_shift')->error($text);
 
@@ -195,7 +199,7 @@ class UserService
         foreach ($users as $user) {
             Transaction::query()->create([
                 'user_id' => $user->id,
-                'title' => 'Штраф за незакрытую смену ' . $actualDate->format('d/m/Y'),
+                'title' => 'Штраф за незакрытую смену '.$actualDate->format('d/m/Y'),
                 'accrual_for_date' => $actualDate->format('Y-m-d'),
                 'amount' => $amount,
                 'transaction_type' => 'in',
@@ -204,7 +208,7 @@ class UserService
 
             Log::channel('salary')->info(
                 "Сотруднику $user->name (id $user->id) начислен штраф за незакрытую смену "
-                . $actualDate->format('d/m/Y') . " в размере $amount бонусов."
+                .$actualDate->format('d/m/Y')." в размере $amount бонусов."
             );
 
             $user->shift_is_open = false;
@@ -224,7 +228,7 @@ class UserService
 
             Transaction::query()->create([
                 'user_id' => $user->id,
-                'title' => 'Штраф за опоздание на смену ' . $actualDate->format('d/m/Y'),
+                'title' => 'Штраф за опоздание на смену '.$actualDate->format('d/m/Y'),
                 'accrual_for_date' => $actualDate->format('Y-m-d'),
                 'amount' => $amount,
                 'transaction_type' => 'in',
@@ -233,7 +237,7 @@ class UserService
 
             Log::channel('salary')->info(
                 "Сотруднику $user->name (id $user->id) начислен штраф за опоздание за смену "
-                . $actualDate->format('d/m/Y') . " в размере $amount бонусов."
+                .$actualDate->format('d/m/Y')." в размере $amount бонусов."
             );
         }
     }
@@ -255,5 +259,25 @@ class UserService
             ->whereDate('date', now()->toDateString())
             ->where('shift_opened_time', '!=', '00:00:00')
             ->exists();
+    }
+
+    public function updateUserMaterialRates(User $user, Request $request): void
+    {
+        $materialIds = UserService::getRateByUserId($user->id)
+            ->pluck('id');
+
+        foreach ($materialIds as $materialId) {
+            Rate::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'material_id' => $materialId,
+                ],
+                [
+                    'rate' => $request->rate[$materialId] ?? 0,
+                    'not_cutter_rate' => $request->not_cutter_rate[$materialId] ?? 0,
+                    'cutter_rate' => $request->cutter_rate[$materialId] ?? 0,
+                ]
+            );
+        }
     }
 }

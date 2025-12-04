@@ -7,7 +7,6 @@ use App\Http\Requests\RateUpdateUsersRequest;
 use App\Http\Requests\StoreUsersRequest;
 use App\Models\Material;
 use App\Models\Motivation;
-use App\Models\Rate;
 use App\Models\User;
 use App\Services\ScheduleService;
 use App\Services\TgService;
@@ -88,14 +87,14 @@ class UsersController extends Controller
 
             TgService::sendMessage(
                 $tgId,
-                'Поздравляю, ' . auth()->user()->name . '! Вы авторизовались в системе как '
-                . UserService::translateRoleName(auth()->user()->role->name) .
+                'Поздравляю, '.auth()->user()->name.'! Вы авторизовались в системе как '
+                .UserService::translateRoleName(auth()->user()->role->name).
                 ' и теперь будете получать все уведомления системы через меня.'
             );
 
             Log::channel('tg_api')
                 ->info(
-                    'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') подключился к боту с tg_id: ' . $tgId
+                    'Сотрудник '.auth()->user()->name.' ('.auth()->user()->id.') подключился к боту с tg_id: '.$tgId
                 );
         }
 
@@ -122,7 +121,7 @@ class UsersController extends Controller
 
         Log::channel('tg_api')
             ->info(
-                'Сотрудник ' . auth()->user()->name . ' (' . auth()->user()->id . ') отключился от бота.'
+                'Сотрудник '.auth()->user()->name.' ('.auth()->user()->id.') отключился от бота.'
             );
 
         return redirect()->route('profile');
@@ -130,12 +129,12 @@ class UsersController extends Controller
 
     public function autologin(string $email)
     {
-        if (!App::environment(['local'])) {
+        if (! App::environment(['local'])) {
             abort(403, 'Доступ запрещён');
         }
 
         $user = User::query()->where('email', $email)->first();
-        if (!$user) {
+        if (! $user) {
             abort(404, 'Пользователь не найден');
         }
 
@@ -168,21 +167,9 @@ class UsersController extends Controller
             ->with('success', 'Изменения в таблице мотивации сохранены.');
     }
 
-    public function rateUpdate(RateUpdateUsersRequest $request, User $user)
+    public function rateUpdate(RateUpdateUsersRequest $request, User $user, UserService $userService)
     {
-        Rate::query()->where('user_id', $user->id)->delete();
-
-        foreach ($request->width as $key => $width) {
-            Rate::query()->create(
-                [
-                    'user_id' => $user->id,
-                    'width' => $width,
-                    'rate' => $request->rate[$key] ?? 0,
-                    'not_cutter_rate' => $request->not_cutter_rate[$key] ?? 0,
-                    'cutter_rate' => $request->cutter_rate[$key] ?? 0,
-                ]
-            );
-        }
+        $userService->updateUserMaterialRates($user, $request);
 
         return redirect()
             ->route('users.edit', ['user' => $user->id])

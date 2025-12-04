@@ -22,8 +22,6 @@ class RateUpdateUsersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'width' => 'array',
-            'width.*' => 'required|numeric|min:200|max:800',
             'rate' => 'array',
             'rate.*' => 'nullable|numeric|min:1|max:1000',
             'not_cutter_rate' => 'array',
@@ -37,11 +35,6 @@ class RateUpdateUsersRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'width.*.required' => 'Поле обязательно для заполнения',
-            'width.*.numeric' => 'Поле должно быть числом',
-            'width.*.min' => 'Ширина должна быть не меньше 200',
-            'width.*.max' => 'Ширина должна быть не больше 800',
-
             'rate.*.numeric' => 'Поле должно быть числом',
             'rate.*.min' => 'Оплата с закроем не должна быть меньше 1',
             'rate.*.max' => 'Оплата с закроем не должна быть больше 1000',

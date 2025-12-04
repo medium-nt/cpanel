@@ -289,11 +289,11 @@
                         <table class="table table-bordered">
                             <thead>
                             <tr>
-                                <th class="text-center">Ширина</th>
+                                <th class="text-center"></th>
                                 <th colspan="2" class="text-center">Оплата</th>
                             </tr>
                             <tr>
-                                <th class="text-center">метраж</th>
+                                <th class="text-center">Материал</th>
                                 @if($user->isSeamstress())
                                 <th class="text-center">с закроем</th>
                                 <th class="text-center">без кроя</th>
@@ -304,40 +304,37 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @for($i = 0; $i < 7; $i++)
-                                @php
-                                    $rate = $rates[$i] ?? null;
-                                    $width = ($i + 2) * 100;
-                                @endphp
-
+                            @foreach($rates as $rate)
                                 <tr>
-                                    <td>
-                                        <input type="number" class="form-control"
-                                               id="width_{{$i}}" name="width[]"
-                                               value="{{ old('width')[$i] ?? $rate?->width ?? $width }}"
-                                               readonly>
+                                    <td class="text-center align-middle">
+                                        {{ $rate->title }}
                                     </td>
                                     @if($user->isSeamstress())
-                                    <td>
-                                        <input type="number" class="form-control"
-                                               id="rate_{{$i}}" name="rate[]"
-                                               value="{{ old('rate')[$i] ?? $rate?->rate ?? '' }}">
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control"
-                                               id="not_cutter_rate_{{$i}}" name="not_cutter_rate[]"
-                                               value="{{ old('not_cutter_rate')[$i] ?? $rate?->not_cutter_rate ?? '' }}">
-                                    </td>
+                                        <td>
+                                            <input type="number"
+                                                   class="form-control"
+                                                   id="rate_{{$rate->id}}"
+                                                   name="rate[{{$rate->id}}]"
+                                                   value="{{ old('rate')[$i] ?? $rate->rates->first()->rate ?? '' }}">
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                   class="form-control"
+                                                   id="not_cutter_rate_{{$rate->id}}"
+                                                   name="not_cutter_rate[{{$rate->id}}]"
+                                                   value="{{ old('not_cutter_rate')[$i] ?? $rate->rates->first()->not_cutter_rate ?? '' }}">
+                                        </td>
                                     @endif
                                     @if($user->isCutter())
                                         <td>
                                             <input type="number" class="form-control"
-                                                   id="cutter_rate_{{$i}}" name="cutter_rate[]"
-                                                   value="{{ old('cutter_rate')[$i] ?? $rate?->cutter_rate ?? '' }}">
+                                                   id="cutter_rate_{{$rate->id}}"
+                                                   name="cutter_rate[{{$rate->id}}]"
+                                                   value="{{ old('cutter_rate')[$i] ?? $rate->rates->first()->cutter_rate ?? '' }}">
                                         </td>
                                     @endif
                                 </tr>
-                            @endfor
+                            @endforeach
                             </tbody>
                         </table>
 
