@@ -581,32 +581,35 @@ class TransactionService
             ->where('to', '>', $allWidth)
             ->first();
 
-        $salary = Rate::query()
-            ->where('user_id', $user->id)
-            ->where('width', $marketplaceOrderItems->item->width)
+        $consumption = $marketplaceOrderItems->item->consumption()
+            ->whereHas('material', fn ($q) => $q->where('type_id', 1))
             ->first();
 
-        $nowMotivationBonus = 0;
+        $salaryRate = Rate::query()
+            ->where('user_id', $user->id)
+            ->where('material_id', $consumption?->material->id)
+            ->first();
 
         if ($user->isCutter()) {
             $nowMotivationBonus = $motivationBonus->cutter_bonus ?? 0;
-            $salary = $salary->cutter_rate ?? 0;
-        }
-
-        if ($user->isSeamstress()) {
+            $salary = $salaryRate->cutter_rate ?? 0;
+        } elseif ($user->isSeamstress()) {
             if ($user->is_cutter) {
                 $nowMotivationBonus = $motivationBonus->bonus ?? 0;
-                $salary = $salary->rate ?? 0;
+                $salary = $salaryRate->rate ?? 0;
             } else {
                 $nowMotivationBonus = $motivationBonus->not_cutter_bonus ?? 0;
-                $salary = $salary->not_cutter_rate ?? 0;
+                $salary = $salaryRate->not_cutter_rate ?? 0;
             }
+        } else {
+            $nowMotivationBonus = 0;
+            $salary = 0;
         }
 
         return [
             'nowMotivationBonus' => $nowMotivationBonus,
             'from' => $motivationBonus->from ?? 0,
-            'salary' => $salary,
+            'salary' => $salary * $marketplaceOrderItems->item->width / 100,
         ];
     }
 
