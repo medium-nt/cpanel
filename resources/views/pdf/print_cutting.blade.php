@@ -30,9 +30,13 @@
         }
 
         .dimensions {
-            font-weight: bold;
             font-size: 10px;
             width: 45%;
+        }
+
+        .dimensions-span {
+            font-weight: bold;
+            font-size: 16px;
         }
 
         .col-cutting {
@@ -74,8 +78,10 @@
             <tr>
                 @foreach($pair as $item)
                     <td class="dimensions">
+                        <span class="dimensions-span">
                         {{ $material }}
                         {{ $item->item->width }} × {{ $item->item->height }}<br>
+                        </span>
                         {{ $item->marketplaceOrder->MarketplaceTitle }}
                         {{ $item->marketplaceOrder->order_id }}
                     </td>
