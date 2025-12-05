@@ -1,0 +1,402 @@
+{
+    "models": {
+        "App\\Models\\User": {
+            "type": "auth",
+            "file": "app/Models/User.php",
+            "description": "Модель пользователя системы с поддержкой аутентификации",
+            "table": "users",
+            "relationships": {
+                "role": "belongsTo(Role)",
+                "marketplaceOrderItems": "hasMany(MarketplaceOrderItem)",
+                "marketplaceOrderItemsByCutter": "hasMany(MarketplaceOrderItem)",
+                "schedules": "hasMany(Schedule)",
+                "transactions": "hasMany(Transaction)",
+                "rates": "hasMany(Rate)",
+                "motivation": "hasMany(Motivation)",
+                "materials": "belongsToMany(Material)"
+            },
+            "key_features": [
+                "SoftDeletes",
+                "Аутентификация Laravel",
+                "Управление сменами",
+                "Интеграция с AdminLTE",
+                "Ролевая модель"
+            ],
+            "documentation": "docs/Models/User.md"
+        },
+        "App\\Models\\Role": {
+            "type": "auth",
+            "file": "app/Models/Role.php",
+            "description": "Роли пользователей в системе",
+            "table": "roles",
+            "relationships": {
+                "users": "hasMany(User)"
+            },
+            "key_features": [
+                "Простая структура",
+                "Ролевая система доступа"
+            ],
+            "documentation": "docs/Models/Role.md"
+        },
+        "App\\Models\\Schedule": {
+            "type": "auth",
+            "file": "app/Models/Schedule.php",
+            "description": "Рабочие смены пользователей",
+            "table": "schedules",
+            "relationships": {
+                "user": "belongsTo(User)"
+            },
+            "key_features": [
+                "Отслеживание времени работы",
+                "Расчет зарплаты",
+                "Статусы смен"
+            ],
+            "documentation": "docs/Models/Schedule.md"
+        },
+        "App\\Models\\Rate": {
+            "type": "finance",
+            "file": "app/Models/Rate.php",
+            "description": "Ставки заработной платы",
+            "table": "rates",
+            "relationships": {
+                "user": "belongsTo(User)",
+                "material": "belongsTo(Material)"
+            },
+            "key_features": [
+                "Привязка к материалам",
+                "История изменений"
+            ],
+            "documentation": "docs/Models/Rate.md"
+        },
+        "App\\Models\\Setting": {
+            "type": "reference",
+            "file": "app/Models/Setting.php",
+            "description": "Системные настройки приложения",
+            "table": "settings",
+            "key_features": [
+                "Ключ-значение",
+                "Глобальные настройки"
+            ],
+            "documentation": "docs/Models/Setting.md"
+        },
+        "App\\Models\\Marketplace": {
+            "type": "marketplace",
+            "file": "app/Models/Marketplace.php",
+            "description": "Справочник маркетплейсов (Ozon, Wildberries)",
+            "table": "marketplaces",
+            "relationships": {
+                "marketplaceOrders": "hasMany(MarketplaceOrder)",
+                "marketplaceSupplies": "hasMany(MarketplaceSupply)"
+            },
+            "key_features": [
+                "Константы NAME",
+                "Иконки маркетплейсов",
+                "Интеграция с заказами"
+            ],
+            "documentation": "docs/Models/Marketplace.md"
+        },
+        "App\\Models\\Supplier": {
+            "type": "reference",
+            "file": "app/Models/Supplier.php",
+            "description": "Поставщики материалов",
+            "table": "suppliers",
+            "key_features": [
+                "SoftDeletes",
+                "Контактная информация"
+            ],
+            "documentation": "docs/Models/Supplier.md"
+        },
+        "App\\Models\\Shelf": {
+            "type": "warehouse",
+            "file": "app/Models/Shelf.php",
+            "description": "Складские полки",
+            "table": "shelfs",
+            "relationships": {
+                "marketplaceOrderItems": "hasMany(MarketplaceOrderItem)",
+                "warehouseOfItems": "hasMany(WarehouseOfItem)"
+            },
+            "key_features": [
+                "Кодирование полок",
+                "Учет расположения"
+            ],
+            "documentation": "docs/Models/Shelf.md"
+        },
+        "App\\Models\\StatusMovement": {
+            "type": "reference",
+            "file": "app/Models/StatusMovement.php",
+            "description": "Статусы движения материалов",
+            "table": "status_movements",
+            "key_features": [
+                "Константы статусов",
+                "Справочник"
+            ],
+            "documentation": "docs/Models/StatusMovement.md"
+        },
+        "App\\Models\\TypeMovement": {
+            "type": "reference",
+            "file": "app/Models/TypeMovement.php",
+            "description": "Типы движения материалов",
+            "table": "type_movements",
+            "relationships": {
+                "movementMaterials": "hasMany(MovementMaterial)"
+            },
+            "key_features": [
+                "Классификация движений",
+                "Константы типов"
+            ],
+            "documentation": "docs/Models/TypeMovement.md"
+        },
+        "App\\Models\\TypeMaterial": {
+            "type": "reference",
+            "file": "app/Models/TypeMaterial.php",
+            "description": "Классификатор типов материалов",
+            "table": "type_materials",
+            "relationships": {
+                "materials": "hasMany(Material)"
+            },
+            "key_features": [
+                "Простой классификатор",
+                "Группировка материалов"
+            ],
+            "documentation": "docs/Models/TypeMaterial.md"
+        },
+        "App\\Models\\Stack": {
+            "type": "warehouse",
+            "file": "app/Models/Stack.php",
+            "description": "Стеки/стеллажи склада",
+            "table": "stacks",
+            "key_features": [
+                "Организация склада"
+            ],
+            "documentation": "docs/Models/Stack.md"
+        },
+        "App\\Models\\Sku": {
+            "type": "marketplace",
+            "file": "app/Models/Sku.php",
+            "description": "SKU товаров",
+            "table": "skus",
+            "key_features": [
+                "Идентификация товаров"
+            ],
+            "documentation": "docs/Models/Sku.md"
+        },
+        "App\\Models\\Material": {
+            "type": "warehouse",
+            "file": "app/Models/Material.php",
+            "description": "Материалы, используемые в производстве",
+            "table": "materials",
+            "relationships": {
+                "type": "belongsTo(TypeMaterial)",
+                "movementMaterials": "hasMany(MovementMaterial)",
+                "rates": "hasMany(Rate)",
+                "materialConsumptions": "hasMany(MaterialConsumption)",
+                "users": "belongsToMany(User)"
+            },
+            "key_features": [
+                "SoftDeletes",
+                "Классификация по типам",
+                "Отслеживание движений",
+                "Расчет ставок"
+            ],
+            "documentation": "docs/Models/Material.md"
+        },
+        "App\\Models\\MovementMaterial": {
+            "type": "warehouse",
+            "file": "app/Models/MovementMaterial.php",
+            "description": "Движение материалов на складе",
+            "table": "movement_materials",
+            "relationships": {
+                "material": "belongsTo(Material)",
+                "typeMovement": "belongsTo(TypeMovement)",
+                "statusMovement": "belongsTo(StatusMovement)"
+            },
+            "key_features": [
+                "Учет движения",
+                "Количественный учет",
+                "Ценовой учет",
+                "Привязка к заказам",
+                "Инвентаризация"
+            ],
+            "documentation": "docs/Models/MovementMaterial.md"
+        },
+        "App\\Models\\MaterialConsumption": {
+            "type": "warehouse",
+            "file": "app/Models/MaterialConsumption.php",
+            "description": "Расход материалов",
+            "table": "material_consumptions",
+            "relationships": {
+                "material": "belongsTo(Material)"
+            },
+            "key_features": [
+                "Учет расхода",
+                "Расчет себестоимости"
+            ],
+            "documentation": "docs/Models/MaterialConsumption.md"
+        },
+        "App\\Models\\InventoryCheck": {
+            "type": "warehouse",
+            "file": "app/Models/InventoryCheck.php",
+            "description": "Инвентаризация склада",
+            "table": "inventory_checks",
+            "relationships": {
+                "inventoryCheckItems": "hasMany(InventoryCheckItem)"
+            },
+            "key_features": [
+                "Контроль остатков",
+                "Выявление расхождений"
+            ],
+            "documentation": "docs/Models/InventoryCheck.md"
+        },
+        "App\\Models\\InventoryCheckItem": {
+            "type": "warehouse",
+            "file": "app/Models/InventoryCheckItem.php",
+            "description": "Позиции инвентаризации",
+            "table": "inventory_check_items",
+            "relationships": {
+                "inventoryCheck": "belongsTo(InventoryCheck)"
+            },
+            "key_features": [
+                "Детализация инвентаризации"
+            ],
+            "documentation": "docs/Models/InventoryCheckItem.md"
+        },
+        "App\\Models\\MarketplaceOrder": {
+            "type": "marketplace",
+            "file": "app/Models/MarketplaceOrder.php",
+            "description": "Заказы из маркетплейсов",
+            "table": "marketplace_orders",
+            "relationships": {
+                "items": "hasMany(MarketplaceOrderItem)",
+                "supply": "belongsTo(MarketplaceSupply)",
+                "marketplace": "belongsTo(Marketplace)",
+                "history": "hasMany(MarketplaceOrderHistory)"
+            },
+            "key_features": [
+                "Appends для вычисляемых полей",
+                "HTML-представление статусов",
+                "Привязка к поставкам",
+                "Форматирование дат"
+            ],
+            "documentation": "docs/Models/MarketplaceOrder.md"
+        },
+        "App\\Models\\MarketplaceOrderItem": {
+            "type": "marketplace",
+            "file": "app/Models/MarketplaceOrderItem.php",
+            "description": "Позиции в заказах из маркетплейсов",
+            "table": "marketplace_order_items",
+            "relationships": {
+                "marketplaceOrder": "belongsTo(MarketplaceOrder)",
+                "shelf": "belongsTo(Shelf)",
+                "item": "hasOne(MarketplaceItem)",
+                "seamstress": "hasOne(User)",
+                "cutter": "hasOne(User)",
+                "history": "hasMany(MarketplaceOrderHistory)"
+            },
+            "key_features": [
+                "Назначение исполнителей",
+                "Отслеживание этапов",
+                "withTrashed для пользователей",
+                "Штрихкоды"
+            ],
+            "documentation": "docs/Models/MarketplaceOrderItem.md"
+        },
+        "App\\Models\\MarketplaceOrderHistory": {
+            "type": "marketplace",
+            "file": "app/Models/MarketplaceOrderHistory.php",
+            "description": "История изменений заказов",
+            "table": "marketplace_order_history",
+            "relationships": {
+                "marketplaceOrder": "belongsTo(MarketplaceOrder)",
+                "marketplaceOrderItem": "belongsTo(MarketplaceOrderItem),
+                "user": "belongsTo(User)"
+            },
+            "key_features": [
+                "Аудит изменений",
+                "Отслеживание статусов"
+            ],
+            "documentation": "docs/Models/MarketplaceOrderHistory.md"
+        },
+        "App\\Models\\MarketplaceSupply": {
+            "type": "marketplace",
+            "file": "app/Models/MarketplaceSupply.php",
+            "description": "Поставки на маркетплейсы",
+            "table": "marketplace_supplies",
+            "relationships": {
+                "marketplaceOrders": "hasMany(MarketplaceOrder)",
+                "marketplace": "belongsTo(Marketplace)"
+            },
+            "key_features": [
+                "Группировка заказов",
+                "Видеофиксация",
+                "Статусы поставок"
+            ],
+            "documentation": "docs/Models/MarketplaceSupply.md"
+        },
+        "App\\Models\\MarketplaceItem": {
+            "type": "marketplace",
+            "file": "app/Models/MarketplaceItem.php",
+            "description": "Товары маркетплейсов",
+            "table": "marketplace_items",
+            "key_features": [
+                "Каталог товаров",
+                "Интеграция с заказами"
+            ],
+            "documentation": "docs/Models/MarketplaceItem.md"
+        },
+        "App\\Models\\Order": {
+            "type": "marketplace",
+            "file": "app/Models/Order.php",
+            "description": "Общие заказы",
+            "table": "orders",
+            "key_features": [
+                "Унификация заказов"
+            ],
+            "documentation": "docs/Models/Order.md"
+        },
+        "App\\Models\\Transaction": {
+            "type": "finance",
+            "file": "app/Models/Transaction.php",
+            "description": "Финансовые транзакции и начисления сотрудникам",
+            "table": "transactions",
+            "relationships": {
+                "user": "belongsTo(User)"
+            },
+            "key_features": [
+                "Финансовый учет",
+                "Привязка к заказам",
+                "Типы транзакций",
+                "Бонусы",
+                "Статусы выплат"
+            ],
+            "documentation": "docs/Models/Transaction.md"
+        },
+        "App\\Models\\Motivation": {
+            "type": "finance",
+            "file": "app/Models/Motivation.php",
+            "description": "Система мотивации сотрудников",
+            "table": "motivations",
+            "relationships": {
+                "user": "belongsTo(User)"
+            },
+            "key_features": [
+                "Расчет бонусов",
+                "KPI сотрудников"
+            ],
+            "documentation": "docs/Models/Motivation.md"
+        }
+    },
+    "statistics": {
+        "total_models": 26,
+        "auth_models": 4,
+        "warehouse_models": 8,
+        "marketplace_models": 7,
+        "finance_models": 3,
+        "reference_models": 4
+    },
+    "relationships_count": {
+        "one_to_one": 21,
+        "one_to_many": 39,
+        "many_to_many": 2
+    },
+    "last_updated": "2025-12-05T19:30:00+00:00"
+}

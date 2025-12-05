@@ -1,0 +1,316 @@
+{
+    "services": {
+        "App\\Services\\OrderService": {
+            "file": "app/Services/OrderService.php",
+            "description": "Базовый сервис для управления заказами",
+            "dependencies": [],
+            "methods": {
+                "getOrdersByUser": "Получение заказов пользователя",
+                "getOrdersByStatus": "Получение заказов по статусу",
+                "getOrderById": "Получение заказа по ID"
+            },
+            "type": "order",
+            "documentation": "docs/Services/OrderService.md"
+        },
+        "App\\Services\\StackService": {
+            "file": "app/Services/StackService.php",
+            "description": "Управление стеком заказов швей",
+            "dependencies": [
+                "MarketplaceOrderItem"
+            ],
+            "methods": {
+                "addToStack": "Добавление заказа в стек",
+                "getStackByUser": "Получение стека пользователя",
+                "removeFromStack": "Удаление из стека"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/StackService.md"
+        },
+        "App\\Services\\MarketplaceOrderService": {
+            "file": "app/Services/MarketplaceOrderService.php",
+            "description": "Управление заказами с маркетплейсов",
+            "dependencies": [
+                "MarketplaceOrder",
+                "MarketplaceOrderItem",
+                "User"
+            ],
+            "methods": {
+                "update": "Обновление заказа",
+                "setStatus": "Установка статуса заказа",
+                "takeOrder": "Взятие заказа в работу",
+                "getOrdersByDate": "Получение заказов за период"
+            },
+            "type": "marketplace",
+            "documentation": "docs/Services/MarketplaceOrderService.md"
+        },
+        "App\\Services\\MarketplaceApiService": {
+            "file": "app/Services/MarketplaceApiService.php",
+            "description": "API интеграция с маркетплейсами (Ozon, Wildberries)",
+            "dependencies": [
+                "GuzzleHttp",
+                "Laravel Cache"
+            ],
+            "methods": {
+                "getOzonOrders": "Получение заказов Ozon",
+                "getWBOrders": "Получение заказов Wildberries",
+                "updateOrderStatus": "Обновление статуса заказа"
+            },
+            "type": "integration",
+            "documentation": "docs/Services/MarketplaceApiService.md"
+        },
+        "App\\Services\\TgService": {
+            "file": "app/Services/TgService.php",
+            "description": "Отправка уведомлений в Telegram",
+            "dependencies": [
+                "Telegram Bot SDK"
+            ],
+            "methods": {
+                "sendMessage": "Отправка сообщения",
+                "sendPhoto": "Отправка фото",
+                "notifyUser": "Уведомление пользователя"
+            },
+            "type": "notification",
+            "documentation": "docs/Services/TgService.md"
+        },
+        "App\\Services\\MovementMaterialToWorkshopService": {
+            "file": "app/Services/MovementMaterialToWorkshopService.php",
+            "description": "Перемещение материалов со склада в цех",
+            "dependencies": [
+                "MovementMaterial",
+                "Material",
+                "TgService"
+            ],
+            "methods": {
+                "store": "Создание перемещения",
+                "update": "Обновление перемещения",
+                "delete": "Удаление перемещения",
+                "notifyUsers": "Уведомление о перемещении"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/MovementMaterialToWorkshopService.md"
+        },
+        "App\\Services\\WriteOffRemnantService": {
+            "file": "app/Services/WriteOffRemnantService.php",
+            "description": "Списание остатков материалов",
+            "dependencies": [
+                "MovementMaterial",
+                "Material"
+            ],
+            "methods": {
+                "store": "Создание списания",
+                "update": "Обновление списания",
+                "delete": "Удаление списания"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/WriteOffRemnantService.md"
+        },
+        "App\\Services\\MarketplaceSupplyService": {
+            "file": "app/Services/MarketplaceSupplyService.php",
+            "description": "Управление поставками на маркетплейсы",
+            "dependencies": [
+                "MarketplaceSupply",
+                "Storage"
+            ],
+            "methods": {
+                "store": "Создание поставки",
+                "addVideo": "Добавление видео к поставке",
+                "getSuppliesByDate": "Получение поставок за период"
+            },
+            "type": "marketplace",
+            "documentation": "docs/Services/MarketplaceSupplyService.md"
+        },
+        "App\\Services\\WarehouseOfItemService": {
+            "file": "app/Services/WarehouseOfItemService.php",
+            "description": "Управление товарами на складе",
+            "dependencies": [
+                "WarehouseOfItem",
+                "MarketplaceOrderItem"
+            ],
+            "methods": {
+                "store": "Размещение товара на складе",
+                "getItemsByShelf": "Получение товаров по полке",
+                "moveToShelf": "Перемещение на полку"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/WarehouseOfItemService.md"
+        },
+        "App\\Services\\MarketplaceItemService": {
+            "file": "app/Services/MarketplaceItemService.php",
+            "description": "Управление товарами маркетплейсов и SKU",
+            "dependencies": [
+                "MarketplaceItem",
+                "Sku"
+            ],
+            "methods": {
+                "store": "Создание товара",
+                "update": "Обновление товара",
+                "delete": "Удаление товара",
+                "getBySku": "Поиск по SKU"
+            },
+            "type": "marketplace",
+            "documentation": "docs/Services/MarketplaceItemService.md"
+        },
+        "App\\Services\\InventoryService": {
+            "file": "app/Services/InventoryService.php",
+            "description": "Инвентаризация склада и расчет остатков",
+            "dependencies": [
+                "InventoryCheck",
+                "MovementMaterial",
+                "Material"
+            ],
+            "methods": {
+                "startInventory": "Начало инвентаризации",
+                "calculateRemains": "Расчет остатков",
+                "closeInventory": "Завершение инвентаризации"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/InventoryService.md"
+        },
+        "App\\Services\\MovementDefectMaterialToSupplierService": {
+            "file": "app/Services/MovementDefectMaterialToSupplierService.php",
+            "description": "Возврат бракованных материалов поставщикам",
+            "dependencies": [
+                "MovementMaterial",
+                "Material",
+                "Supplier"
+            ],
+            "methods": {
+                "store": "Создание возврата",
+                "update": "Обновление возврата",
+                "delete": "Удаление возврата"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/MovementDefectMaterialToSupplierService.md"
+        },
+        "App\\Services\\ScheduleService": {
+            "file": "app/Services/ScheduleService.php",
+            "description": "Управление рабочим графиком и сменами",
+            "dependencies": [
+                "Schedule",
+                "User"
+            ],
+            "methods": {
+                "openShift": "Открытие смены",
+                "closeShift": "Закрытие смены",
+                "getActiveShifts": "Активные смены",
+                "calculateWorkHours": "Расчет рабочих часов"
+            },
+            "type": "user",
+            "documentation": "docs/Services/ScheduleService.md"
+        },
+        "App\\Services\\DefectMaterialService": {
+            "file": "app/Services/DefectMaterialService.php",
+            "description": "Управление бракованными и излишними материалами",
+            "dependencies": [
+                "DefectMaterial",
+                "MovementMaterial"
+            ],
+            "methods": {
+                "store": "Создание записи о браке",
+                "update": "Обновление записи",
+                "approve": "Утверждение брака",
+                "moveToWarehouse": "Перемещение на склад"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/DefectMaterialService.md"
+        },
+        "App\\Services\\MovementMaterialFromSupplierService": {
+            "file": "app/Services/MovementMaterialFromSupplierService.php",
+            "description": "Поступление материалов от поставщиков",
+            "dependencies": [
+                "MovementMaterial",
+                "Material",
+                "Supplier"
+            ],
+            "methods": {
+                "store": "Создание поступления",
+                "update": "Обновление поступления",
+                "delete": "Удаление поступления"
+            },
+            "type": "warehouse",
+            "documentation": "docs/Services/MovementMaterialFromSupplierService.md"
+        },
+        "App\\Services\\MarketplaceOrderItemService": {
+            "file": "app/Services/MarketplaceOrderItemService.php",
+            "description": "Управление позициями заказов маркетплейсов",
+            "dependencies": [
+                "MarketplaceOrderItem",
+                "TransactionService"
+            ],
+            "methods": {
+                "store": "Создание позиции",
+                "update": "Обновление позиции",
+                "assignToUser": "Назначение исполнителя",
+                "calculatePrice": "Расчет стоимости"
+            },
+            "type": "marketplace",
+            "documentation": "docs/Services/MarketplaceOrderItemService.md"
+        },
+        "App\\Services\\UserService": {
+            "file": "app/Services/UserService.php",
+            "description": "Управление пользователями и их данными",
+            "dependencies": [
+                "User",
+                "Role",
+                "Schedule"
+            ],
+            "methods": {
+                "store": "Создание пользователя",
+                "update": "Обновление пользователя",
+                "delete": "Удаление пользователя",
+                "getActiveUsers": "Активные пользователи",
+                "updateRate": "Обновление ставки"
+            },
+            "type": "user",
+            "documentation": "docs/Services/UserService.md"
+        },
+        "App\\Services\\TransactionService": {
+            "file": "app/Services/TransactionService.php",
+            "description": "Финансовые транзакции и расчет зарплаты",
+            "dependencies": [
+                "Transaction",
+                "User",
+                "Schedule"
+            ],
+            "methods": {
+                "store": "Создание транзакции",
+                "balance": "Расчет баланса",
+                "settlement": "Расчет с сотрудником",
+                "calculateSalary": "Расчет зарплаты",
+                "payBonus": "Начисление бонуса"
+            },
+            "type": "finance",
+            "documentation": "docs/Services/TransactionService.md"
+        }
+    },
+    "statistics": {
+        "total_services": 18,
+        "marketplace_services": 6,
+        "warehouse_services": 7,
+        "user_services": 2,
+        "finance_services": 1,
+        "integration_services": 1,
+        "order_services": 1
+    },
+    "dependencies_graph": {
+        "core_services": [
+            "UserService",
+            "TransactionService"
+        ],
+        "frequently_used": [
+            "MarketplaceOrderService",
+            "MovementMaterialToWorkshopService"
+        ],
+        "integrations": [
+            "MarketplaceApiService",
+            "TgService"
+        ]
+    },
+    "patterns_used": [
+        "Service Layer",
+        "Dependency Injection",
+        "Repository Pattern (implied)",
+        "Factory Pattern (in some services)"
+    ],
+    "last_updated": "2025-12-05T20:00:00+00:00"
+}

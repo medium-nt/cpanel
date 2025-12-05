@@ -1,0 +1,43 @@
+{
+    "jobs": {
+        "App\\Jobs\\SendTelegramMessageJob": {
+            "file": "app/Jobs/SendTelegramMessageJob.php",
+            "description": "Отправка сообщений в Telegram через очередь",
+            "parameters": {
+                "chatId": {
+                    "type": "string",
+                    "description": "ID чата Telegram"
+                },
+                "text": {
+                    "type": "string",
+                    "description": "Текст сообщения"
+                }
+            },
+            "tries": 3,
+            "backoff": [
+                10,
+                30,
+                60
+            ],
+            "queue": "default",
+            "dependencies": [
+                "App\\Services\\TgService",
+                "Telegram\\Bot\\Laravel\\Facades\\Telegram",
+                "GuzzleHttp\\Client"
+            ],
+            "documentation": "docs/Jobs/SendTelegramMessageJob.md",
+            "features": [
+                "retry_with_backoff",
+                "failed_logging",
+                "environment_based_implementation"
+            ]
+        }
+    },
+    "statistics": {
+        "total_jobs": 1,
+        "jobs_with_retry": 1,
+        "jobs_with_logging": 1,
+        "jobs_using_external_apis": 1
+    },
+    "last_updated": "2025-12-05T09:00:00+00:00"
+}

@@ -1,0 +1,224 @@
+{
+    "controllers": {
+        "App\\Http\\Controllers\\HomeController": {
+            "file": "app/Http/Controllers/HomeController.php",
+            "description": "Контроллер для отображения дашборда приложения",
+            "methods": {
+                "index": {
+                    "description": "Отображение дашборда со сводной информацией о системе",
+                    "route": "GET /home",
+                    "parameters": [
+                        "Request $request"
+                    ],
+                    "view": "home",
+                    "dependencies": [
+                        "App\\Models\\Transaction",
+                        "App\\Models\\User",
+                        "App\\Services\\MarketplaceOrderItemService",
+                        "App\\Services\\MarketplaceOrderService",
+                        "App\\Services\\MovementMaterialToWorkshopService",
+                        "App\\Services\\ScheduleService",
+                        "App\\Services\\TransactionService"
+                    ]
+                }
+            },
+            "middleware": [
+                "auth"
+            ],
+            "documentation": "docs/Controllers/HomeController.md"
+        },
+        "App\\Http\\Controllers\\Controller": {
+            "file": "app/Http/Controllers/Controller.php",
+            "description": "Базовый контроллер приложения",
+            "documentation": "docs/Controllers/Controller.md"
+        },
+        "App\\Http\\Controllers\\PageController": {
+            "file": "app/Http/Controllers/PageController.php",
+            "description": "Контроллер статических страниц",
+            "documentation": "docs/Controllers/PageController.md"
+        },
+        "App\\Http\\Controllers\\Auth\\ConfirmPasswordController": {
+            "file": "app/Http/Controllers/Auth/ConfirmPasswordController.php",
+            "description": "Подтверждение пароля пользователя",
+            "documentation": "docs/Controllers/Auth/ConfirmPasswordController.md"
+        },
+        "App\\Http\\Controllers\\Auth\\ForgotPasswordController": {
+            "file": "app/Http/Controllers/Auth/ForgotPasswordController.php",
+            "description": "Восстановление забытого пароля",
+            "documentation": "docs/Controllers/Auth/ForgotPasswordController.md"
+        },
+        "App\\Http\\Controllers\\Auth\\LoginController": {
+            "file": "app/Http/Controllers/Auth/LoginController.php",
+            "description": "Аутентификация пользователей",
+            "documentation": "docs/Controllers/Auth/LoginController.md"
+        },
+        "App\\Http\\Controllers\\Auth\\RegisterController": {
+            "file": "app/Http/Controllers/Auth/RegisterController.php",
+            "description": "Регистрация новых пользователей",
+            "documentation": "docs/Controllers/Auth/RegisterController.md"
+        },
+        "App\\Http\\Controllers\\Auth\\ResetPasswordController": {
+            "file": "app/Http/Controllers/Auth/ResetPasswordController.php",
+            "description": "Сброс пароля пользователя",
+            "documentation": "docs/Controllers/Auth/ResetPasswordController.md"
+        },
+        "App\\Http\\Controllers\\Auth\\VerificationController": {
+            "file": "app/Http/Controllers/Auth/VerificationController.php",
+            "description": "Верификация email адреса",
+            "documentation": "docs/Controllers/Auth/VerificationController.md"
+        },
+        "App\\Http\\Controllers\\UsersController": {
+            "file": "app/Http/Controllers/UsersController.php",
+            "description": "Управление пользователями системы",
+            "documentation": "docs/Controllers/UsersController.md"
+        },
+        "App\\Http\\Controllers\\ScheduleController": {
+            "file": "app/Http/Controllers/ScheduleController.php",
+            "description": "Управление рабочим расписанием",
+            "documentation": "docs/Controllers/ScheduleController.md"
+        },
+        "App\\Http\\Controllers\\SettingController": {
+            "file": "app/Http/Controllers/SettingController.php",
+            "description": "Системные настройки и утилиты",
+            "documentation": "docs/Controllers/SettingController.md"
+        },
+        "App\\Http\\Controllers\\MarketplaceApiController": {
+            "file": "app/Http/Controllers/MarketplaceApiController.php",
+            "description": "API интеграция с маркетплейсами",
+            "documentation": "docs/Controllers/MarketplaceApiController.md"
+        },
+        "App\\Http\\Controllers\\MarketplaceItemController": {
+            "file": "app/Http/Controllers/MarketplaceItemController.php",
+            "description": "Управление товарами маркетплейсов",
+            "documentation": "docs/Controllers/MarketplaceItemController.md"
+        },
+        "App\\Http\\Controllers\\MarketplaceOrderController": {
+            "file": "app/Http/Controllers/MarketplaceOrderController.php",
+            "description": "Управление заказами маркетплейсов",
+            "documentation": "docs/Controllers/MarketplaceOrderController.md"
+        },
+        "App\\Http\\Controllers\\MarketplaceOrderItemController": {
+            "file": "app/Http/Controllers/MarketplaceOrderItemController.php",
+            "description": "Управление позициями в заказах",
+            "documentation": "docs/Controllers/MarketplaceOrderItemController.md"
+        },
+        "App\\Http\\Controllers\\MarketplaceSupplyController": {
+            "file": "app/Http/Controllers/MarketplaceSupplyController.php",
+            "description": "Управление поставками на маркетплейсы",
+            "documentation": "docs/Controllers/MarketplaceSupplyController.md"
+        },
+        "App\\Http\\Controllers\\MaterialController": {
+            "file": "app/Http/Controllers/MaterialController.php",
+            "description": "Управление материалами",
+            "documentation": "docs/Controllers/MaterialController.md"
+        },
+        "App\\Http\\Controllers\\MaterialConsumptionController": {
+            "file": "app/Http/Controllers/MaterialConsumptionController.php",
+            "description": "Управление расходом материалов",
+            "documentation": "docs/Controllers/MaterialConsumptionController.md"
+        },
+        "App\\Http\\Controllers\\DefectMaterialController": {
+            "file": "app/Http/Controllers/DefectMaterialController.php",
+            "description": "Управление бракованными материалами",
+            "documentation": "docs/Controllers/DefectMaterialController.md"
+        },
+        "App\\Http\\Controllers\\InventoryController": {
+            "file": "app/Http/Controllers/InventoryController.php",
+            "description": "Инвентаризация склада",
+            "documentation": "docs/Controllers/InventoryController.md"
+        },
+        "App\\Http\\Controllers\\MovementDefectMaterialToSupplierController": {
+            "file": "app/Http/Controllers/MovementDefectMaterialToSupplierController.php",
+            "description": "Возврат брака поставщикам",
+            "documentation": "docs/Controllers/MovementDefectMaterialToSupplierController.md"
+        },
+        "App\\Http\\Controllers\\MovementMaterialByMarketplaceOrderController": {
+            "file": "app/Http/Controllers/MovementMaterialByMarketplaceOrderController.php",
+            "description": "Расход материалов на заказы",
+            "documentation": "docs/Controllers/MovementMaterialByMarketplaceOrderController.md"
+        },
+        "App\\Http\\Controllers\\MovementMaterialFromSupplierController": {
+            "file": "app/Http/Controllers/MovementMaterialFromSupplierController.php",
+            "description": "Поступление материалов от поставщиков",
+            "documentation": "docs/Controllers/MovementMaterialFromSupplierController.md"
+        },
+        "App\\Http\\Controllers\\MovementMaterialToWorkshopController": {
+            "file": "app/Http/Controllers/MovementMaterialToWorkshopController.php",
+            "description": "Перемещение материалов в цех",
+            "documentation": "docs/Controllers/MovementMaterialToWorkshopController.md"
+        },
+        "App\\Http\\Controllers\\ShelfController": {
+            "file": "app/Http/Controllers/ShelfController.php",
+            "description": "Управление полками склада",
+            "documentation": "docs/Controllers/ShelfController.md"
+        },
+        "App\\Http\\Controllers\\SupplierController": {
+            "file": "app/Http/Controllers/SupplierController.php",
+            "description": "Управление поставщиками",
+            "documentation": "docs/Controllers/SupplierController.md"
+        },
+        "App\\Http\\Controllers\\WarehouseOfItemController": {
+            "file": "app/Http/Controllers/WarehouseOfItemController.php",
+            "description": "Складские операции",
+            "documentation": "docs/Controllers/WarehouseOfItemController.md"
+        },
+        "App\\Http\\Controllers\\WriteOffRemnantsController": {
+            "file": "app/Http/Controllers/WriteOffRemnantsController.php",
+            "description": "Списание остатков материалов",
+            "documentation": "docs/Controllers/WriteOffRemnantsController.md"
+        },
+        "App\\Http\\Controllers\\TransactionController": {
+            "file": "app/Http/Controllers/TransactionController.php",
+            "description": "Финансовые транзакции",
+            "documentation": "docs/Controllers/TransactionController.md"
+        },
+        "App\\Http\\Controllers\\StickerPrintingController": {
+            "file": "app/Http/Controllers/StickerPrintingController.php",
+            "description": "Печать стикеров",
+            "documentation": "docs/Controllers/StickerPrintingController.md"
+        },
+        "App\\Http\\Controllers\\TelegramController": {
+            "file": "app/Http/Controllers/TelegramController.php",
+            "description": "Обработка webhook Telegram бота",
+            "documentation": "docs/Controllers/TelegramController.md"
+        }
+    },
+    "jobs": {
+        "App\\Jobs\\SendTelegramMessageJob": {
+            "file": "app/Jobs/SendTelegramMessageJob.php",
+            "description": "Отправка сообщений в Telegram через очередь",
+            "parameters": {
+                "chatId": {
+                    "type": "string",
+                    "description": "ID чата Telegram"
+                },
+                "text": {
+                    "type": "string",
+                    "description": "Текст сообщения"
+                }
+            },
+            "tries": 3,
+            "backoff": [
+                10,
+                30,
+                60
+            ],
+            "queue": "default",
+            "dependencies": [
+                "App\\Services\\TgService",
+                "Telegram\\Bot\\Laravel\\Facades\\Telegram",
+                "GuzzleHttp\\Client"
+            ],
+            "documentation": "docs/Jobs/SendTelegramMessageJob.md"
+        }
+    },
+    "statistics": {
+        "total_controllers": 29,
+        "auth_controllers": 6,
+        "marketplace_controllers": 5,
+        "material_controllers": 8,
+        "other_controllers": 10,
+        "total_jobs": 1
+    },
+    "last_updated": "2025-12-05T09:00:00+00:00"
+}

@@ -1,0 +1,333 @@
+{
+    "requests": {
+        "App\\Http\\Requests\\UpdateMovementMaterialFromSupplierRequest": {
+            "file": "app/Http/Requests/UpdateMovementMaterialFromSupplierRequest.php",
+            "description": "Валидация запросов на обновление цен материалов от поставщиков",
+            "documentation": "docs/Requests/UpdateMovementMaterialFromSupplierRequest.md",
+            "rules": {
+                "id.*": "required|exists:movement_materials,id",
+                "price.*": "required|numeric|min:0.01"
+            },
+            "features": [
+                "Массивная валидация",
+                "Проверка существования материалов",
+                "Ограничение на минимальную цену"
+            ]
+        },
+        "App\\Http\\Requests\\SaveSettingRequest": {
+            "file": "app/Http/Requests/SaveSettingRequest.php",
+            "description": "Валидация запросов на сохранение настроек системы",
+            "documentation": "docs/Requests/SaveSettingRequest.md",
+            "rules": {
+                "working_day_start": "required|date_format:H:i",
+                "working_day_end": "required|date_format:H:i",
+                "is_enabled_work_schedule": "required|in:0,1",
+                "api_key_wb": "sometimes|nullable|string",
+                "api_key_ozon": "sometimes|nullable|string",
+                "seller_id_ozon": "sometimes|nullable|string"
+            },
+            "features": [
+                "Формат времени ЧЧ:ММ",
+                "Опциональные поля API",
+                "Булев флаг в числовом формате"
+            ]
+        },
+        "App\\Http\\Requests\\StoreMarketplaceOrderRequest": {
+            "file": "app/Http/Requests/StoreMarketplaceOrderRequest.php",
+            "description": "Валидация запросов на создание заказов с маркетплейсов",
+            "documentation": "docs/Requests/StoreMarketplaceOrderRequest.md",
+            "rules": {
+                "order_id": "required|unique:marketplace_orders,order_id",
+                "marketplace_id": "required",
+                "item_id": "required|exists:marketplace_items,id",
+                "quantity.*": "integer|min:1",
+                "fulfillment_type": "required|in:FBO,FBS"
+            },
+            "features": [
+                "Уникальность номера заказа",
+                "Типы фулфилмента FBO/FBS",
+                "Проверка существования товара"
+            ]
+        },
+        "App\\Http\\Requests\\StoreUsersRequest": {
+            "file": "app/Http/Requests/StoreUsersRequest.php",
+            "description": "Валидация запросов на создание новых пользователей",
+            "documentation": "docs/Requests/StoreUsersRequest.md",
+            "rules": {
+                "name": "required|max:255",
+                "email": "required|unique:users|max:255|email",
+                "phone": "sometimes|string|min:8|max:50",
+                "password": "required|confirmed|min:6|string",
+                "role_id": "required|integer|exists:roles,id",
+                "salary_rate": "required|numeric|min:0"
+            },
+            "features": [
+                "Подтверждение пароля",
+                "Уникальность email",
+                "Опциональный телефон",
+                "Существование роли"
+            ]
+        },
+        "App\\Http\\Requests\\SaveWriteOffMovementMaterialToWorkshopRequest": {
+            "file": "app/Http/Requests/SaveWriteOffMovementMaterialToWorkshopRequest.php",
+            "description": "Валидация запросов на списание материалов в цехе",
+            "documentation": "docs/Requests/SaveWriteOffMovementMaterialToWorkshopRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации"
+            ],
+            "rules": {
+                "comment": "string|min:2|max:255|nullable",
+                "material_id.*": "required|exists:movement_materials,id",
+                "quantity.*": "required|numeric|min:0"
+            },
+            "features": [
+                "Массивная валидация",
+                "Опциональный комментарий",
+                "Допустимость нулевого количества"
+            ]
+        },
+        "App\\Http\\Requests\\StoreDefectMaterialToSupplierRequest": {
+            "file": "app/Http/Requests/StoreDefectMaterialToSupplierRequest.php",
+            "description": "Валидация запросов на возврат бракованных материалов поставщику",
+            "documentation": "docs/Requests/StoreDefectMaterialToSupplierRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации"
+            ],
+            "rules": {
+                "supplier_id": "required|exists:suppliers,id",
+                "material_id.*": "required|exists:movement_materials,id",
+                "quantity.*": "required|numeric|min:0",
+                "comment": "string|min:3|max:255|nullable"
+            },
+            "features": [
+                "Массивная валидация",
+                "Проверка существования поставщика",
+                "Обязательный комментарий"
+            ]
+        },
+        "App\\Http\\Requests\\StoreInventoryRequest": {
+            "file": "app/Http/Requests/StoreInventoryRequest.php",
+            "description": "Валидация запросов на создание инвентаризации",
+            "documentation": "docs/Requests/StoreInventoryRequest.md",
+            "rules": {
+                "comment": "nullable|string|min:5|max:255",
+                "inventory_shelf": "required|in:all,shelf_ids"
+            },
+            "features": [
+                "Динамическая валидация полок",
+                "Полная/частичная инвентаризация",
+                "Использование модели Shelf"
+            ]
+        },
+        "App\\Http\\Requests\\StoreMovementMaterialFromSupplierRequest": {
+            "file": "app/Http/Requests/StoreMovementMaterialFromSupplierRequest.php",
+            "description": "Валидация запросов на поступление материалов от поставщиков",
+            "documentation": "docs/Requests/StoreMovementMaterialFromSupplierRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации"
+            ],
+            "rules": {
+                "supplier_id": "required|exists:suppliers,id",
+                "material_id.*": "required|exists:movement_materials,id",
+                "quantity.*": "required|numeric|min:0",
+                "comment": "string|min:3|max:255|nullable"
+            },
+            "features": [
+                "Массивная валидация",
+                "Проверка существования поставщика",
+                "Обязательный комментарий"
+            ]
+        },
+        "App\\Http\\Requests\\StoreMovementMaterialToWorkshopRequest": {
+            "file": "app/Http/Requests/StoreMovementMaterialToWorkshopRequest.php",
+            "description": "Валидация запросов на перемещение материалов в цех",
+            "documentation": "docs/Requests/StoreMovementMaterialToWorkshopRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации",
+                "Несоответствие имен полей"
+            ],
+            "rules": {
+                "comment": "string|min:2|max:255|nullable",
+                "material_id.*": "required|exists:movement_materials,id",
+                "ordered_quantity.*": "required|numeric|min:0"
+            },
+            "features": [
+                "Массивная валидация",
+                "Поле ordered_quantity вместо quantity"
+            ]
+        },
+        "App\\Http\\Requests\\CreateTransactionRequest": {
+            "file": "app/Http/Requests/CreateTransactionRequest.php",
+            "description": "Валидация запросов на создание финансовых транзакций",
+            "documentation": "docs/Requests/CreateTransactionRequest.md",
+            "rules": {
+                "title": "required|string|min:2|max:255",
+                "accrual_for_date": "required|date|before_or_equal:today",
+                "amount": "required|numeric|gte:0.01",
+                "transaction_type": "required|in:in,out",
+                "user_id": "nullable|integer|exists:users,id"
+            },
+            "features": [
+                "Ограничение по дате",
+                "Минимальная сумма 0.01",
+                "Типы транзакций in/out",
+                "Опциональная привязка к пользователю"
+            ]
+        },
+        "App\\Http\\Requests\\SaveCollectMovementMaterialToWorkshopRequest": {
+            "file": "app/Http/Requests/SaveCollectMovementMaterialToWorkshopRequest.php",
+            "description": "Валидация запросов на сборку материалов в цехе",
+            "documentation": "docs/Requests/SaveCollectMovementMaterialToWorkshopRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации"
+            ],
+            "rules": {
+                "material_id.*": "required|exists:movement_materials,id",
+                "quantity.*": "required|numeric|min:0"
+            },
+            "features": [
+                "Массивная валидация",
+                "Отсутствие поля комментария",
+                "Операции сбора готовой продукции"
+            ]
+        },
+        "App\\Http\\Requests\\SaveDefectMaterialRequest": {
+            "file": "app/Http/Requests/SaveDefectMaterialRequest.php",
+            "description": "Валидация запросов на создание записей о бракованных материалах или остатках",
+            "documentation": "docs/Requests/SaveDefectMaterialRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации"
+            ],
+            "rules": {
+                "comment": "nullable|string|min:2|max:255",
+                "material_id.*": "required|exists:movement_materials,id",
+                "quantity.*": "required|numeric|min:0",
+                "type_movement_id": "required|in:4,7"
+            },
+            "features": [
+                "Типы перемещений (4-брак, 7-остатки)",
+                "Массивная валидация",
+                "Обязательный тип перемещения"
+            ]
+        },
+        "App\\Http\\Requests\\SaveGroupWarehouseOfItemRequest": {
+            "file": "app/Http/Requests/SaveGroupWarehouseOfItemRequest.php",
+            "description": "Валидация запросов на создание групповой записи о хранении товаров на складе",
+            "documentation": "docs/Requests/SaveGroupWarehouseOfItemRequest.md",
+            "rules": {
+                "material_title": "required|string",
+                "width": "required|numeric|min:1",
+                "height": "required|numeric|min:1",
+                "shelf_id": "required|integer|exists:shelves,id",
+                "quantity": "required|numeric|min:1"
+            },
+            "features": [
+                "material_title вместо material_id",
+                "Обязательные размеры width/height",
+                "Привязка к полке",
+                "Нет массивной валидации"
+            ]
+        },
+        "App\\Http\\Requests\\SaveMarketplaceItemRequest": {
+            "file": "app/Http/Requests/SaveMarketplaceItemRequest.php",
+            "description": "Валидация запросов на создание товаров для маркетплейсов",
+            "documentation": "docs/Requests/SaveMarketplaceItemRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации"
+            ],
+            "rules": {
+                "title": "required|string|min:2|max:255",
+                "width": "required|integer",
+                "height": "required|integer",
+                "ozon_sku": "nullable|string|min:3",
+                "wb_sku": "nullable|string|min:3",
+                "material_id.*": "required|exists:materials,id",
+                "quantity.*": "required|integer|min:0"
+            },
+            "features": [
+                "SKU для Ozon и Wildberries",
+                "Обязательные размеры",
+                "Массивная валидация материалов"
+            ]
+        },
+        "App\\Http\\Requests\\StoreRemnantsRequest": {
+            "file": "app/Http/Requests/StoreRemnantsRequest.php",
+            "description": "Валидация запросов на создание записей об остатках материалов",
+            "documentation": "docs/Requests/StoreRemnantsRequest.md",
+            "issues": [
+                "Некорректная структура правил валидации"
+            ],
+            "rules": {
+                "material_id.*": "required|exists:movement_materials,id",
+                "quantity.*": "required|numeric|min:0",
+                "comment": "string|min:3|max:255|nullable"
+            },
+            "features": [
+                "Массивная валидация",
+                "Обязательный комментарий",
+                "Фокус на остатках"
+            ]
+        },
+        "App\\Http\\Requests\\MotivationUpdateUsersRequest": {
+            "file": "app/Http/Requests/MotivationUpdateUsersRequest.php",
+            "description": "Валидация запросов на обновление системы мотивации пользователей",
+            "documentation": "docs/Requests/MotivationUpdateUsersRequest.md",
+            "rules": {
+                "from": "array",
+                "from.*": "nullable|numeric|min:0|max:1000",
+                "to": "array",
+                "to.*": "nullable|numeric|min:1|max:1000",
+                "bonus": "array",
+                "bonus.*": "nullable|numeric|min:0|max:1000",
+                "not_cutter_bonus": "array",
+                "not_cutter_bonus.*": "nullable|numeric|min:0|max:1000",
+                "cutter_bonus": "array",
+                "cutter_bonus.*": "nullable|numeric|min:0|max:1000"
+            },
+            "features": [
+                "Диапазонная система мотивации",
+                "Три типа бонусов",
+                "Дополнительная валидация последовательности",
+                "Ограничение 0-1000"
+            ]
+        },
+        "App\\Http\\Requests\\RateUpdateUsersRequest": {
+            "file": "app/Http/Requests/RateUpdateUsersRequest.php",
+            "description": "Валидация запросов на обновление ставок оплаты для пользователей",
+            "documentation": "docs/Requests/RateUpdateUsersRequest.md",
+            "rules": {
+                "rate": "array",
+                "rate.*": "nullable|numeric|min:1|max:1000",
+                "not_cutter_rate": "array",
+                "not_cutter_rate.*": "nullable|numeric|min:1|max:1000",
+                "cutter_rate": "array",
+                "cutter_rate.*": "nullable|numeric|min:1|max:1000"
+            },
+            "features": [
+                "Три типа ставок оплаты",
+                "Простая валидация",
+                "Ограничение 1-1000",
+                "Nullable значения"
+            ]
+        }
+    },
+    "statistics": {
+        "total_requests": 18,
+        "critical_issues": 8,
+        "categories": {
+            "materials": 9,
+            "marketplace": 2,
+            "users": 3,
+            "finance": 2,
+            "inventory": 2
+        },
+        "validation_features": {
+            "array_validation": 10,
+            "exists_validation": 8,
+            "nullable_fields": 12,
+            "unique_validation": 2,
+            "custom_validation": 2
+        }
+    },
+    "last_updated": "2025-12-05T12:00:00+00:00"
+}
