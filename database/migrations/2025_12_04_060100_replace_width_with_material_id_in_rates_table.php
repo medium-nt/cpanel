@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('rates', function (Blueprint $table) {
             // удаляем колонку width
-            $table->dropColumn('width');
+            //            $table->dropColumn('width');
 
             // добавляем колонку material_id
-            $table->unsignedBigInteger('material_id')->after('user_id');
+            //            $table->unsignedBigInteger('material_id')->after('user_id');
             $table->foreign('material_id')
                 ->references('id')
                 ->on('materials')
