@@ -509,6 +509,12 @@ class TransactionService
         $nowMotivationBonus = $resultDetails['nowMotivationBonus'];
         $salary = $resultDetails['salary'];
 
+        if ($salary == 0) {
+            Log::channel('salary')
+                ->error('Внимание! В системе нет данных о ЗП для сотрудника '.$user->name.' ( id - '.$user->id.')'.
+                    ' по товару '.$marketplaceOrderItems->item->title);
+        }
+
         switch ($user->role->name) {
             case 'seamstress':
                 $accrualForDate = $marketplaceOrderItems->completed_at;
