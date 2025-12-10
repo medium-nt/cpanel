@@ -269,7 +269,7 @@ class TransactionService
                         ],
                     ];
                 })
-                ->sortByDesc('payout_date')
+                ->sortByDesc(fn ($item) => Carbon::createFromFormat('d/m/Y', $item['payout_date']))
                 ->values()
                 ->take($count);
         } else {
