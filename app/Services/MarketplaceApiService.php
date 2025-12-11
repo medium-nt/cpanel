@@ -1739,7 +1739,12 @@ class MarketplaceApiService
 
             if (! $response->ok()) {
                 Log::channel('marketplace_api')
-                    ->error('Не удалось получить статус экземпляров заказа '.$orderId);
+                    ->error('Не удалось получить статус экземпляров заказа '.$orderId,
+                        [
+                            'status' => $response->status(),
+                            'body' => $response->body(),
+                        ]
+                    );
 
                 return false;
             }
