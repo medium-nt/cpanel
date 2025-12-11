@@ -1729,6 +1729,8 @@ class MarketplaceApiService
 
     private static function verifyOrFixExemplarStatus($orderId): bool
     {
+        return true;
+
         $body = [
             'posting_number' => $orderId,
         ];
