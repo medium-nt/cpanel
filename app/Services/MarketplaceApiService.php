@@ -1729,15 +1729,13 @@ class MarketplaceApiService
 
     private static function verifyOrFixExemplarStatus($orderId): bool
     {
-        return true;
-
         $body = [
             'posting_number' => $orderId,
         ];
 
         try {
             $response = self::ozonRequest()
-                ->post('https://api-seller.ozon.ru/v4/fbs/posting/product/exemplar/status', $body);
+                ->post('https://api-seller.ozon.ru/v5/fbs/posting/product/exemplar/status', $body);
 
             if (! $response->ok()) {
                 Log::channel('marketplace_api')
