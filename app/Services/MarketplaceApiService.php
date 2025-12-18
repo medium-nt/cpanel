@@ -684,15 +684,12 @@ class MarketplaceApiService
             return false;
         }
 
-        $body = [
-            'orders' => [(int) $orderId],
-        ];
-
-        Log::channel('marketplace_api')
-            ->warning('Отправляем вот такой массив:'.json_encode($body));
-
         try {
             // Добавляем сборочное задание для WB в эту поставку.
+            $body = [
+                'orders' => [(int) $orderId],
+            ];
+
             $response = Http::withOptions(['verify' => false])
                 ->withHeaders(['Authorization' => self::getWbApiKey()])
                 ->patch('https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/'.$supplyId.'/orders', $body);
@@ -707,10 +704,6 @@ class MarketplaceApiService
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]
-                //                [
-                //                    'code' => $response->object()->code,
-                //                    'message' => $response->object()->message,
-                //                ]
             );
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
@@ -1281,11 +1274,17 @@ class MarketplaceApiService
         $notAddedOrders = [];
         foreach ($allOrders as $order) {
             try {
-                $url = 'https://marketplace-api.wildberries.ru/api/v3/supplies/'.$marketplace_supply->supply_id.'/orders/'.$order->order_id;
+                $url = 'https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/'
+                    .$marketplace_supply->supply_id.'/orders';
+
+                $body = [
+                    'orders' => [(int) $order->order_id],
+                ];
+
                 $response = Http::accept('application/json')
                     ->withOptions(['verify' => false])
                     ->withHeaders(['Authorization' => self::getWbApiKey()])
-                    ->patch($url);
+                    ->patch($url, $body);
 
                 if (! $response->noContent()) {
                     Log::channel('marketplace_api')
