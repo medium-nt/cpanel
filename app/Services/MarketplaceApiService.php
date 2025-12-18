@@ -685,8 +685,11 @@ class MarketplaceApiService
         }
 
         $body = [
-            'orders' => [$orderId],
+            'orders' => [(int) $orderId],
         ];
+
+        Log::channel('marketplace_api')
+            ->warning('Отправляем вот такой массив:'.json_encode($body));
 
         try {
             // Добавляем сборочное задание для WB в эту поставку.
