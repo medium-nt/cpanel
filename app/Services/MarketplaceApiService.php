@@ -1289,10 +1289,11 @@ class MarketplaceApiService
 
                 if (! $response->noContent()) {
                     Log::channel('marketplace_api')
-                        ->error('Заказа №'.$order->order_id.' не добавлен в поставку WB '.$marketplace_supply->supply_id.' (id '.$marketplace_supply->id.')', [
-                            'code' => $response->object()->code,
-                            'message' => $response->object()->message,
-                        ]);
+                        ->error('Заказа №'.$order->order_id.' не добавлен в поставку WB '.$marketplace_supply->supply_id.' (id '.$marketplace_supply->id.')',
+                            [
+                                'status' => $response->status(),
+                                'body' => $response->body(),
+                            ]);
                     $notAddedOrders[] = $order->order_id;
                 }
             } catch (Throwable $e) {
