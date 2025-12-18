@@ -697,9 +697,13 @@ class MarketplaceApiService
             Log::channel('marketplace_api')->error(
                 'Ошибка добавления в поставку WB заказа '.$orderId,
                 [
-                    'code' => $response->object()->code,
-                    'message' => $response->object()->message,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
                 ]
+                //                [
+                //                    'code' => $response->object()->code,
+                //                    'message' => $response->object()->message,
+                //                ]
             );
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
