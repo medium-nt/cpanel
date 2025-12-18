@@ -684,11 +684,15 @@ class MarketplaceApiService
             return false;
         }
 
+        $body = [
+            'orders' => [$orderId],
+        ];
+
         try {
             // Добавляем сборочное задание для WB в эту поставку.
             $response = Http::withOptions(['verify' => false])
                 ->withHeaders(['Authorization' => self::getWbApiKey()])
-                ->patch('https://marketplace-api.wildberries.ru/api/v3/supplies/'.$supplyId.'/orders/'.$orderId);
+                ->patch('https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/'.$supplyId.'/orders', $body);
 
             if ($response->noContent()) {
                 return true;
