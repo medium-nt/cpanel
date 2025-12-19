@@ -2,47 +2,70 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Roll;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class SaveCollectMovementMaterialToWorkshopRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'material_id.*.required' => 'Материал обязателен.',      // Всегда требуется
-            'material_id.*.exists:movement_materials,id' => 'Материал не найден.',         // Проверяем существование
-            'quantity.*.required' => 'Количество обязательно.',      // Всегда требуется
-            'quantity.*.min' => 'Количество должно быть больше или равно нулю.',  // Разрешаем ноль
+            'material_id.*' => 'required|exists:movement_materials,id',
+            'quantity.*' => 'required|numeric|min:0',
+            'roll_code.*' => 'required|string',
         ];
     }
 
     /**
      * Customize the error messages used by the validator.
-     *
-     * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'material_id.*.required' => 'Материал обязателен.',
             'material_id.*.exists' => 'Материал не найден.',
             'quantity.*.required' => 'Количество обязательно.',
             'quantity.*.min' => 'Количество должно быть больше нуля.',
+            'roll_code.*.required' => 'ШК-рулона обязательно.',
+            'roll_code.*.exists' => 'ШК-рулона не найден.',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($validator) {
+
+            $materialIds = $this->input('material_id');
+            $rollCodes = $this->input('roll_code');
+
+            foreach ($rollCodes as $index => $code) {
+
+                $materialId = $materialIds[$index];
+
+                $roll = Roll::where('roll_code', $code)
+                    ->where('material_id', $materialId)
+                    ->where('status', 'in_storage')
+                    ->first();
+
+                if (! $roll) {
+                    $validator->errors()->add(
+                        "roll_code.$index",
+                        'Рулон "'.$code.'" не принадлежит данному материалу или не находится на складе'
+                    );
+                }
+            }
+        });
     }
 }

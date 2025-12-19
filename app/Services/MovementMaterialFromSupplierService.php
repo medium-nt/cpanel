@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Http\Requests\StoreMovementMaterialFromSupplierRequest;
 use App\Http\Requests\UpdateMovementMaterialFromSupplierRequest;
+use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\Roll;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,14 +17,13 @@ class MovementMaterialFromSupplierService
 {
     public static function store(StoreMovementMaterialFromSupplierRequest $request): bool|RedirectResponse
     {
-        $materialIds = $request->input('material_id', []);
         $quantities = $request->input('quantity', []);
+        $numberRolls = $request->input('number_rolls', []);
+        $materialId = $request->input('material_id');
 
-        if (
-            empty($materialIds) || empty($quantities)
-        ) {
+        if (empty($quantities)) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.',
+                'error' => 'Заполните правильно количество.',
             ]);
         }
 
@@ -39,26 +40,54 @@ class MovementMaterialFromSupplierService
             ]);
 
             $list = '';
-            foreach ($materialIds as $key => $material_id) {
-                $movementMaterial = MovementMaterial::query()->create([
-                    'order_id' => $order->id,
-                    'material_id' => $material_id,
-                    'quantity' => $quantities[$key],
-                ]);
+            $movementMaterial = null;
+            $material = Material::find($materialId);
 
-                $list .= '• ' . $movementMaterial->material->title . ' '
-                    . $movementMaterial->quantity . ' '
-                    . $movementMaterial->material->unit . "\n";
+            foreach ($quantities as $key => $quantity) {
+                $numberRoll = $numberRolls[$key] ?? 1;
+
+                if ($quantity == 0) {
+                    continue;
+                }
+
+                for ($i = 0; $i < $numberRoll; $i++) {
+                    $roll = Roll::query()->create([
+                        'material_id' => $materialId,
+                        'status' => Roll::STATUS_IN_STORAGE,
+                        'initial_quantity' => $quantity,
+                    ]);
+
+                    $roll->roll_code = $material->type_id.'-'.str_pad($roll->id, 6, '0', STR_PAD_LEFT);
+                    $roll->save();
+
+                    $movementMaterial = MovementMaterial::query()->create([
+                        'order_id' => $order->id,
+                        'material_id' => $materialId,
+                        'quantity' => $quantity,
+                        'roll_id' => $roll->id,
+                    ]);
+                }
+
+                if ($movementMaterial !== null) {
+                    $list .= '• '.$movementMaterial->material->title.' '
+                        .$movementMaterial->quantity.' '
+                        .$movementMaterial->material->unit."\n";
+                }
             }
 
             Log::channel('erp')
-                ->notice('   Кладовщик ' . auth()->user()->name .
+                ->notice('   Кладовщик '.auth()->user()->name.
                     ' добавил поступление материала на склад от поставщика '
-                    . $order->supplier->title . ' :' . "\n" . $list);
+                    .$order->supplier->title.' :'."\n".$list);
 
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
+
+            Log::channel('erp')
+                ->error('   Кладовщик '.auth()->user()->name.
+                    ' не добавил поступление материала на склад от поставщика : '
+                    .$e->getMessage());
 
             return false;
         }
@@ -96,17 +125,17 @@ class MovementMaterialFromSupplierService
 
                 $movementMaterial = MovementMaterial::query()->find($material_id);
 
-                $list .= '• ' . $movementMaterial->material->title . ' '
-                    . $movementMaterial->quantity . ' '
-                    . $movementMaterial->material->unit . ' цена: '
-                    . $movementMaterial->price . ' '
-                    . "\n";
+                $list .= '• '.$movementMaterial->material->title.' '
+                    .$movementMaterial->quantity.' '
+                    .$movementMaterial->material->unit.' цена: '
+                    .$movementMaterial->price.' '
+                    ."\n";
             }
 
             Log::channel('erp')
-                ->notice('   Админ ' . auth()->user()->name .
+                ->notice('   Админ '.auth()->user()->name.
                     ' одобрил поступление материала на склад от поставщика '
-                    . $order->supplier->title . ' :' . "\n" . $list);
+                    .$order->supplier->title.' :'."\n".$list);
 
             DB::commit();
         } catch (Throwable $e) {

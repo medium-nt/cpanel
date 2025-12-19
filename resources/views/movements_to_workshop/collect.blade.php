@@ -37,52 +37,39 @@
                                 <label for="material_id">Материал</label>
                                 <input type="text"
                                        class="form-control"
-                                       id="material_id"
-                                       name="material_id[]"
+                                       id="material"
+                                       name="material[]"
                                        value="{{ $item->material->title }}"
                                        readonly>
                             </div>
 
                             <div class="col-md-2 form-group">
-                                <label for="ordered_quantity">Заказано</label>
-                                <input type="number"
-                                       class="form-control"
-                                       id="ordered_quantity"
-                                       value="{{ $item->ordered_quantity }}"
-                                       readonly>
-                            </div>
-
-                            @php
-                                $materialInWarehouse = App\Services\InventoryService::materialInWarehouse($item->material_id);
-                            @endphp
-                            <div class="col-md-2 form-group">
-                                <label for="quantity">Отгружено</label>
-                                <input type="number"
-                                       class="form-control"
-                                       id="quantity"
-                                       name="quantity[]"
-                                       step="0.01"
-                                       min="0.01"
-                                       max="{{ $materialInWarehouse }}"
-                                       required>
-                                <span class="invalid-feedback d-block mt-0" id="max">max = {{ $materialInWarehouse }}</span>
+                                <label for="roll_id">ШК-рулона</label>
+                                <input type="text"
+                                       class="form-control @error('roll_code.' . $loop->index) is-invalid @enderror"
+                                       value="{{ old('roll_code.' . $loop->index, $item->roll_code) }}"
+                                       name="roll_code[]"
+                                       id="roll_code">
                             </div>
 
                             <input type="hidden" name="id[]" value="{{ $item->id }}">
+                            <input type="hidden" name="material_id[]"
+                                   value="{{ $item->material->id }}">
                         </div>
                     @endforeach
 
-                        <div class="row">
-                            <div class="col-md-12 form-group">
-                                <label for="comment">Комментарий</label>
-                                <textarea rows="3"
-                                          class="form-control"
-                                readonly>{{ $order->comment }}</textarea>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label for="comment">Комментарий</label>
+                            <textarea rows="3"
+                                      class="form-control"
+                                      readonly>{{ $order->comment }}</textarea>
                         </div>
+                    </div>
 
                     <div class="form-group">
-                        <button class="btn btn-success">Подтвердить отгрузку</button>
+                        <button class="btn btn-success">Подтвердить отгрузку
+                        </button>
                     </div>
                 </div>
             </form>

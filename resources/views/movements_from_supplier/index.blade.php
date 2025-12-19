@@ -37,7 +37,17 @@
                                 <td>{{ $order->id }}</td>
                                 <td>
                                     @foreach($order->movementMaterials as $material)
-                                        <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }} <br>
+                                        <b>{{ $material->material->title }}</b>
+                                        - {{ $material->quantity }} {{ $material->material->unit }}
+                                        @if($material->roll_id)
+                                            <a href="{{ route('rolls.printRoll', ['roll' => $material->roll_id]) }}"
+                                               class="btn
+                                           @if($material->roll->is_printed) btn-outline-secondary @else btn-danger @endif
+                                           btn-xs mr-1 py-0" target="_blank">
+                                                <i class="fas fa-barcode"></i>
+                                            </a>
+                                        @endif
+                                        <br>
                                     @endforeach
                                 </td>
                                 <td>
@@ -47,14 +57,19 @@
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->isAdmin())
                                     <div class="btn-group" role="group">
+                                        <a href="{{ route('rolls.printOrder', ['order' => $order->id]) }}"
+                                           class="btn btn-outline-secondary mr-1"
+                                           target="_blank">
+                                            <i class="fas fa-barcode"></i>
+                                        </a>
+                                    @if(auth()->user()->isAdmin())
                                         <a href="{{ route('movements_from_supplier.edit', ['order' => $order->id]) }}"
                                            class="btn btn-primary mr-1">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                    </div>
                                     @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -79,7 +94,16 @@
                                 <div class="my-3">
                                     @foreach($order->movementMaterials as $material)
                                     <li>
-                                        <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }}
+                                        <b>{{ $material->material->title }}</b>
+                                        - {{ $material->quantity }} {{ $material->material->unit }}
+                                        @if($material->roll_id)
+                                            <a href="{{ route('rolls.printRoll', ['roll' => $material->roll_id]) }}"
+                                               class="btn
+                                           @if($material->roll->is_printed) btn-outline-secondary @else btn-danger @endif
+                                           btn-xs mr-1 py-0" target="_blank">
+                                                <i class="fas fa-barcode"></i>
+                                            </a>
+                                        @endif
                                     </li>
                                     @endforeach
 
@@ -92,7 +116,13 @@
                                     </small>
                                 </div>
 
-                                @if(auth()->user()->isAdmin())
+                                <a href="{{ route('rolls.printOrder', ['order' => $order->id]) }}"
+                                   class="btn btn-outline-secondary mr-1"
+                                   target="_blank">
+                                    <i class="fas fa-barcode"></i>
+                                </a>
+
+                            @if(auth()->user()->isAdmin())
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_from_supplier.edit', ['order' => $order->id]) }}"
                                            class="btn btn-primary mr-1">
@@ -100,7 +130,6 @@
                                         </a>
                                     </div>
                                 @endif
-
                             </div>
                         </div>
                     </div>

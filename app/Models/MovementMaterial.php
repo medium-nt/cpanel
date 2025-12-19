@@ -24,10 +24,21 @@ class MovementMaterial extends Model
         'ordered_quantity',
         'price',
         'order_id',
+        'roll_id',
     ];
 
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
+    }
+
+    public function roll(): BelongsTo
+    {
+        return $this->belongsTo(Roll::class);
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
     }
 }

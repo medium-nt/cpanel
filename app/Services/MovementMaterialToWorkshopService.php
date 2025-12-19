@@ -7,6 +7,7 @@ use App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest;
 use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\Roll;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -31,10 +32,11 @@ class MovementMaterialToWorkshopService
     public static function store(StoreMovementMaterialToWorkshopRequest $request): bool|RedirectResponse
     {
         $materialIds = $request->input('material_id', []);
-        $quantities = $request->input('ordered_quantity', []);
+        //        $quantities = $request->input('ordered_quantity', []);
 
         if (
-            empty($materialIds) || empty($quantities)
+            empty($materialIds)
+            //            || empty($quantities)
         ) {
             return back()->withErrors([
                 'error' => 'Заполните правильно список материалов и количество.',
@@ -47,7 +49,7 @@ class MovementMaterialToWorkshopService
             $field = match (auth()->user()->role->name) {
                 'seamstress' => 'seamstress_id',
                 'cutter' => 'cutter_id',
-                default => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+                default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 
             $order = Order::query()->create([
@@ -66,17 +68,18 @@ class MovementMaterialToWorkshopService
 
                 $movementData['order_id'] = $order->id;
                 $movementData['material_id'] = $material_id;
-                $movementData['ordered_quantity'] = $quantities[$key];
+                //                $movementData['ordered_quantity'] = $quantities[$key];
+                $movementData['ordered_quantity'] = 0;
 
                 $movementMaterial = MovementMaterial::query()->create($movementData);
 
-                $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->ordered_quantity . ' ' . $movementMaterial->material->unit . "\n";
+                $list .= '• '.$movementMaterial->material->title.' '.$movementMaterial->ordered_quantity.' '.$movementMaterial->material->unit."\n";
             }
 
-            $text = 'Швея ' . auth()->user()->name . ' запросила: ' . "\n" . $list;
+            $text = 'Швея '.auth()->user()->name.' запросила: '."\n".$list;
 
             Log::channel('erp')
-                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -97,10 +100,14 @@ class MovementMaterialToWorkshopService
     public static function save_collect(SaveCollectMovementMaterialToWorkshopRequest $request, Order $order): bool|RedirectResponse
     {
         $movementMaterialIds = $request->input('id', []);
-        $quantities = $request->input('quantity', []);
+        //        $quantities = $request->input('quantity', []);
+        $rollCodes = $request->input('roll_code', []);
+
+        //        dd($request->all());
 
         if (
-            empty($movementMaterialIds) || empty($quantities)
+            empty($movementMaterialIds)
+            //            || empty($quantities)
         ) {
             return back()->withErrors([
                 'error' => 'Заполните правильно список материалов и количество.',
@@ -117,22 +124,28 @@ class MovementMaterialToWorkshopService
 
             $list = '';
             foreach ($movementMaterialIds as $key => $movementMaterialId) {
+                $roll = Roll::where('roll_code', $rollCodes[$key])->first();
                 MovementMaterial::query()
                     ->where('id', $movementMaterialId)
                     ->update([
-                        'quantity' => $quantities[$key],
+                        'quantity' => $roll->initial_quantity,
+                        'roll_id' => $roll->id,
                     ]);
+
+                $roll->update([
+                    'status' => Roll::STATUS_IN_WORKSHOP,
+                ]);
 
                 $movementMaterial = MovementMaterial::query()
                     ->find($movementMaterialId);
 
-                $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+                $list .= '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
             }
 
-            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил материал на производство: ' . "\n" . $list;
+            $text = 'Кладовщик '.auth()->user()->name.' отгрузил материал на производство: '."\n".$list;
 
             Log::channel('erp')
-                ->notice('Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+                ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -143,6 +156,9 @@ class MovementMaterialToWorkshopService
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
+
+            Log::channel('erp')
+                ->error('Ошибка при сохранении отгрузки материала: '.$e->getMessage());
 
             return false;
         }

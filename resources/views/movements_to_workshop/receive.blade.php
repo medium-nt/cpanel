@@ -43,14 +43,14 @@
                                    readonly>
                         </div>
 
-                        <div class="col-md-2 form-group">
-                            <label for="ordered_quantity">Заказано</label>
-                            <input type="number"
-                                   class="form-control"
-                                   id="ordered_quantity"
-                                   value="{{ $item->ordered_quantity }}"
-                                   readonly>
-                        </div>
+                        {{--                        <div class="col-md-2 form-group">--}}
+                        {{--                            <label for="ordered_quantity">Заказано</label>--}}
+                        {{--                            <input type="number"--}}
+                        {{--                                   class="form-control"--}}
+                        {{--                                   id="ordered_quantity"--}}
+                        {{--                                   value="{{ $item->ordered_quantity }}"--}}
+                        {{--                                   readonly>--}}
+                        {{--                        </div>--}}
 
                         <div class="col-md-2 form-group">
                             <label for="quantity">Отгружено</label>
@@ -61,6 +61,15 @@
                                    step="1"
                                    min="0"
                                    value="{{ $item->quantity }}"
+                                   readonly>
+                        </div>
+
+                        <div class="col-md-2 form-group">
+                            <label for="roll_id">Рулон</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="roll_id"
+                                   value="{{ $item->roll->roll_code ?? '' }}"
                                    readonly>
                         </div>
 

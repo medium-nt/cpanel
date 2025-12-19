@@ -120,6 +120,11 @@
                                         {{ $material->ordered_quantity }} {{ $material->material->unit }}
                                         / <span style="@if($order->status == '2' && $material->quantity < $material->ordered_quantity) color: red; @endif">
                                             {{ $material->quantity }} {{ $material->material->unit }}
+                                            @if($material->roll)
+                                                (рулон:
+                                                <b>{{ $material->roll->roll_code ?? '' }} </b>
+                                                )
+                                            @endif
                                         </span>
                                         <br>
                                     @endforeach
