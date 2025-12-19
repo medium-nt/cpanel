@@ -332,6 +332,12 @@ return [
                     'icon' => 'fas fa-fw fa-clipboard-list',
                     'can' => 'is-storekeeper-or-admin',
                 ],
+                [
+                    'text' => 'rolls',
+                    'url' => 'megatulle/rolls',
+                    'icon' => 'fas fa-fw fa-toilet-paper',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
             ],
         ],
         [

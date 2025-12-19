@@ -46,4 +46,5 @@ return [
     'warehouse_of_item' => 'Склад товара',
     'shelves' => 'Полки на складе',
     'inventory_checks' => 'Инвентаризации',
+    'rolls' => 'Рулоны',
 ];
