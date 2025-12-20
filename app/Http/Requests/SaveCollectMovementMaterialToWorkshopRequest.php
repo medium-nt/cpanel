@@ -22,7 +22,7 @@ class SaveCollectMovementMaterialToWorkshopRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'material_id.*' => 'required|exists:movement_materials,id',
+            'material_id.*' => 'required|exists:materials,id',
             'quantity.*' => 'required|numeric|min:0',
             'roll_code.*' => 'required|string',
         ];

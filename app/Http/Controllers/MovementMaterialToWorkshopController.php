@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaveCollectMovementMaterialToWorkshopRequest;
 use App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest;
 use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\Material;
@@ -74,12 +75,8 @@ class MovementMaterialToWorkshopController extends Controller
             ->with('success', 'Материал списан');
     }
 
-    public function save_collect(Request $request, Order $order)
+    public function save_collect(SaveCollectMovementMaterialToWorkshopRequest $request, Order $order)
     {
-        Log::channel('erp')
-            ->notice('Кладовщик формирует отгрузку: '.$order->id.
-                ' в ней следующий request: '.json_encode($request->all()));
-
         if (! MovementMaterialToWorkshopService::save_collect($request, $order)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
