@@ -72,7 +72,7 @@ class Roll extends Model
         return $map[$this->status] ?? 'badge-danger';
     }
 
-    public function getCurrentQuantityAttribute(): int
+    public function getCurrentQuantityAttribute(): float
     {
         $used = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
