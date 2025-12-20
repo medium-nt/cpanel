@@ -66,7 +66,7 @@
                             <th scope="col">Статус</th>
                             <th scope="col">Штрихкод</th>
                             <th scope="col">Материал</th>
-                            <th scope="col">Кол-во</th>
+                            <th scope="col">шт./п.м.</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>

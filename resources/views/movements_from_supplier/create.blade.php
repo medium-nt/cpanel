@@ -67,7 +67,7 @@
                                 </div>
 
                                 <div class="col-md-2 form-group">
-                                    <label for="quantity">Кол-во</label>
+                                    <label for="quantity">шт./п.м.</label>
                                     <input type="number"
                                            class="form-control @error('quantity') is-invalid @enderror"
                                            name="quantity[0]"

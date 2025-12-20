@@ -17,7 +17,9 @@
                 <br>
                 Рулон: {{ $roll->roll_code }} <br>
                 Материал: {{ $roll->material->title }}<br>
-                Начальное количество: {{ $roll->initial_quantity }}<br>
+                Начальное
+                количество: {{ $roll->initial_quantity }} {{ $roll->material->unit }}
+                <br>
             </div>
         </div>
 
@@ -32,7 +34,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Название</th>
-                            <th scope="col">Количество</th>
+                            <th scope="col">шт./п.м.</th>
                         </tr>
                         </thead>
                         <tbody>
