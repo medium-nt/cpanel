@@ -30,17 +30,13 @@ class MaterialController extends Controller
             'title' => 'required|string|unique:materials,title|min:2|max:255',
             'type_id' => 'required|integer|exists:type_materials,id',
             'unit' => 'required|string|min:1|max:10',
+            'purchase_price' => 'required|numeric|min:0.01',
         ];
 
         $validatedData = $request->validate($rules);
         Material::query()->create($validatedData);
 
         return redirect()->route('materials.index')->with('success', 'Материал добавлен');
-    }
-
-    public function show(Material $material)
-    {
-        //
     }
 
     public function edit(Material $material)
@@ -58,6 +54,7 @@ class MaterialController extends Controller
             'title' => 'required|string|min:2|max:255',
             'type_id' => 'required|integer|exists:type_materials,id',
             'unit' => 'required|string|min:1|max:10',
+            'purchase_price' => 'required|numeric|min:0.01',
         ];
 
         $validatedData = $request->validate($rules);

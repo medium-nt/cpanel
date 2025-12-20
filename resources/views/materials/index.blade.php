@@ -22,6 +22,7 @@
                             <th scope="col">Тип</th>
                             <th scope="col">Название</th>
                             <th scope="col">Ед.измерения</th>
+                            <th scope="col">Себестоимость</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -32,6 +33,7 @@
                                 <td>{{ $material->type->title }}</td>
                                 <td>{{ $material->title }}</td>
                                 <td>{{ $material->unit }}</td>
+                                <td>{{ $material->purchase_price }} руб.</td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">

@@ -78,6 +78,22 @@
                                        required>
                             </div>
                         </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="purchase_price">Ед.
+                                    измерения</label>
+                                <input type="number"
+                                       class="form-control @error('purchase_price') is-invalid @enderror"
+                                       id="purchase_price"
+                                       name="purchase_price"
+                                       placeholder="за единицу"
+                                       min="0.01"
+                                       step="0.01"
+                                       value="{{ $material->purchase_price }}"
+                                       required>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">

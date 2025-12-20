@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\MaterialFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Material extends Model
 {
-    /** @use HasFactory<\Database\Factories\MaterialFactory> */
+    /** @use HasFactory<MaterialFactory> */
     use HasFactory;
 
     use SoftDeletes;
@@ -24,6 +25,7 @@ class Material extends Model
         'type_id',
         'height',
         'unit',
+        'purchase_price',
     ];
 
     public function type(): BelongsTo

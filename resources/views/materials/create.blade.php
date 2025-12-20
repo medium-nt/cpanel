@@ -68,6 +68,22 @@
                                        required>
                             </div>
                         </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label
+                                    for="purchase_price">Себестоимость</label>
+                                <input type="number"
+                                       class="form-control @error('purchase_price') is-invalid @enderror"
+                                       id="purchase_price"
+                                       name="purchase_price"
+                                       min="0.01"
+                                       step="0.01"
+                                       placeholder="за единицу"
+                                       value="{{ old('purchase_price') }}"
+                                       required>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
