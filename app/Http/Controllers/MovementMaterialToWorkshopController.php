@@ -39,7 +39,7 @@ class MovementMaterialToWorkshopController extends Controller
 
     public function store(StoreMovementMaterialToWorkshopRequest $request)
     {
-        if (!MovementMaterialToWorkshopService::store($request)) {
+        if (! MovementMaterialToWorkshopService::store($request)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
@@ -65,7 +65,7 @@ class MovementMaterialToWorkshopController extends Controller
 
     public function save_write_off(SaveWriteOffMovementMaterialToWorkshopRequest $request)
     {
-        if (!MovementMaterialToWorkshopService::save_write_off($request)) {
+        if (! MovementMaterialToWorkshopService::save_write_off($request)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
@@ -77,7 +77,11 @@ class MovementMaterialToWorkshopController extends Controller
 
     public function save_collect(SaveCollectMovementMaterialToWorkshopRequest $request, Order $order)
     {
-        if (!MovementMaterialToWorkshopService::save_collect($request, $order)) {
+        Log::channel('erp')
+            ->notice('Кладовщик формирует отгрузку: '.$order->id.
+                ' в ней следующий request: '.json_encode($request->all()));
+
+        if (! MovementMaterialToWorkshopService::save_collect($request, $order)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
@@ -101,13 +105,13 @@ class MovementMaterialToWorkshopController extends Controller
 
         $list = '';
         foreach ($order->movementMaterials as $movementMaterial) {
-            $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+            $list .= '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
         }
 
-        $text = 'Швея ' . auth()->user()->name . ' приняла поставку в цехе: ' . "\n" . $list;
+        $text = 'Швея '.auth()->user()->name.' приняла поставку в цехе: '."\n".$list;
 
         Log::channel('erp')
-            ->notice('Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: ' . $text);
+            ->notice('Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: '.$text);
 
         TgService::sendMessage(config('telegram.admin_id'), $text);
 
