@@ -81,8 +81,8 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="purchase_price">Ед.
-                                    измерения</label>
+                                <label
+                                    for="purchase_price">Себестоимость</label>
                                 <input type="number"
                                        class="form-control @error('purchase_price') is-invalid @enderror"
                                        id="purchase_price"
