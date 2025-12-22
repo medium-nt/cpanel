@@ -70,7 +70,7 @@
                                        id="price"
                                        name="price[]"
                                        step="0.01"
-                                       value="{{ $item->price }}"
+                                       value="{{ (float) $item->price ?: $item->material->purchase_price * $item->quantity }}"
                                        required>
                             </div>
 
