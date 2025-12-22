@@ -23,18 +23,21 @@ class MaterialForm extends Component
 
     public $isFirst;
 
+    public $isMovementToWorkshop;
+
     protected $rules = [
         'selectedMaterialId' => 'required|exists:materials,id',
         'orderedQuantity' => 'nullable|numeric|min:0|max:maxQuantity',
     ];
 
-    public function mount(string $typeMovement = '', string $sourceType = 'warehouse', $isFirst = false): void
+    public function mount(string $typeMovement = '', string $sourceType = 'warehouse', $isFirst = false, $isMovementToWorkshop = false): void
     {
         $this->materials = Material::all();
         $this->resetErrorBag();
         $this->sourceType = $sourceType;
         $this->typeMovement = $typeMovement;
         $this->isFirst = $isFirst;
+        $this->isMovementToWorkshop = $isMovementToWorkshop;
     }
 
     public function updatedSelectedMaterialId(): void

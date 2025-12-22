@@ -31,11 +31,11 @@
                 @method('POST')
                 @csrf
                 <div class="card-body">
-                    @livewire('material-form', ['isFirst' => true])
-                    @livewire('material-form')
-                    @livewire('material-form')
-                    @livewire('material-form')
-                    @livewire('material-form')
+                    @livewire('material-form', ['isFirst' => true, 'isMovementToWorkshop' => true])
+                    @livewire('material-form', ['isMovementToWorkshop' => true])
+                    @livewire('material-form', ['isMovementToWorkshop' => true])
+                    @livewire('material-form', ['isMovementToWorkshop' => true])
+                    @livewire('material-form', ['isMovementToWorkshop' => true])
 
                     <div class="row">
                         <div class="col-md-12 form-group">

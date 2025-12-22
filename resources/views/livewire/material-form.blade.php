@@ -14,6 +14,7 @@
             </select>
         </div>
 
+        @if(!$isMovementToWorkshop)
         <div class="col-md-2 form-group">
             <label for="ordered_quantity" class="@if(!$isFirst) d-block d-md-none @endif">Кол-во</label>
             <input wire:model="orderedQuantity" type="number"
@@ -29,5 +30,6 @@
                 <span class="invalid-feedback d-block mt-0">{{ $message }}</span>
             @enderror
         </div>
+        @endif
     </div>
 </div>
