@@ -35,7 +35,7 @@
                                 <i class="fas fa-arrow-left mr-2"></i>
                             </a>
                         </div>
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-4 mb-3">
                             <select name="material_title" id="material_title"
                                     class="form-control"
                                     @if($isSaved == 1) disabled @endif required>
@@ -50,7 +50,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-3 mb-3">
                             <select name="width" id="width" class="form-control"
                                     @if($isSaved == 1) disabled @endif required>
                                 <option value="" disabled selected>Выберите
@@ -64,7 +64,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-3 mb-3">
                             <select name="height" id="height"
                                     class="form-control"
                                     @if($isSaved == 1) disabled @endif required>
@@ -79,7 +79,9 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2 mb-3">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
                             <select name="shelf_id" id="shelf_id"
                                     class="form-control"
                                     @if($isSaved == 1) disabled @endif required>
@@ -100,6 +102,40 @@
                                    min="1" placeholder="Количество"
                                    value="{{ old('quantity', request('quantity')) }}"
                                    @if($isSaved == 1) disabled @endif required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <select name="seamstress_id" id="seamstress_id"
+                                    class="form-control"
+                                    @if($isSaved == 1) disabled @endif required>
+                                <option value="" disabled selected>Выберите
+                                    швею
+                                </option>
+                                @foreach($seamstresses as $seamstress)
+                                    <option value="{{ $seamstress->id }}"
+                                            @if($seamstress->id == old('seamstress_id', request('seamstress'))) selected @endif>
+                                        {{ $seamstress->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <select name="cutter_id" id="cutter_id"
+                                    class="form-control"
+                                    @if($isSaved == 1) disabled @endif required>
+                                <option value="" disabled selected>Выберите
+                                    закройщика
+                                </option>
+                                <option value="">Без закройщика</option>
+                                @foreach($cutters as $cutter)
+                                    <option value="{{ $cutter->id }}"
+                                            @if($cutter->id == old('cutter_id', request('cutter'))) selected @endif>
+                                        {{ $cutter->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 

@@ -27,6 +27,8 @@ class SaveGroupWarehouseOfItemRequest extends FormRequest
             'height' => 'required|numeric|min:1',
             'shelf_id' => 'required|integer|exists:shelves,id',
             'quantity' => 'required|numeric|min:1',
+            'seamstress_id' => 'required|integer|exists:users,id',
+            'cutter_id' => 'nullable|integer|exists:users,id',
         ];
     }
 
@@ -42,6 +44,9 @@ class SaveGroupWarehouseOfItemRequest extends FormRequest
             'shelf_id.required' => 'Выберите полку',
             'quantity.required' => 'Укажите количество',
             'quantity.min' => 'Количество должно быть больше нуля',
+            'seamstress_id.required' => 'Вы не указали швею',
+            'seamstress_id.exists' => 'Швея не найдена',
+            'cutter_id.exists' => 'Закройщик не найден',
         ];
     }
 }

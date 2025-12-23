@@ -8,6 +8,7 @@ use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
 use App\Models\Sku;
+use App\Models\User;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
@@ -74,14 +75,14 @@ class WarehouseOfItemController extends Controller
 
     public function saveStorage(Request $request, MarketplaceOrderItem $marketplace_item, WarehouseOfItemService $service)
     {
-        if (!$marketplace_item->storage_barcode) {
+        if (! $marketplace_item->storage_barcode) {
             return redirect()
                 ->route('warehouse_of_item.new_refunds',
                     ['barcode' => $marketplace_item->marketplaceOrder->order_id])
                 ->with('error', 'Не распечатан штрихкод хранения!');
         }
 
-        if (!$request->shelf_id) {
+        if (! $request->shelf_id) {
             return redirect()
                 ->route('warehouse_of_item.new_refunds',
                     ['barcode' => $marketplace_item->marketplaceOrder->order_id])
@@ -162,17 +163,17 @@ class WarehouseOfItemController extends Controller
             default => false,
         };
 
-        if (!$result) {
+        if (! $result) {
             Log::channel('marketplace_api')
-                ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+                ->error('Не удалось передать заказ '.$orderId.' c sku: '.$sku.' на стикеровку');
 
             return redirect()->back()
                 ->with('error', 'Не удалось передать заказ на стикеровку');
         }
 
-        $text = 'Кладовщик ' . auth()->user()->name .
-            ' передал товар #' . $marketplaceOrderItem->id .
-            ' (заказ ' . $marketplaceOrder->order_id . ') на стикеровку';
+        $text = 'Кладовщик '.auth()->user()->name.
+            ' передал товар #'.$marketplaceOrderItem->id.
+            ' (заказ '.$marketplaceOrder->order_id.') на стикеровку';
 
         Log::channel('erp')->info($text);
 
@@ -180,8 +181,8 @@ class WarehouseOfItemController extends Controller
 
         if ($marketplaceOrderItem->id !== $selectedMarketplaceOrderItem->id) {
             Log::channel('erp')
-                ->info('Для заказа ' . $orderId . ' передан товар ' . $marketplaceOrderItem->id .
-                    ' вместо ранее выбранного ' . $selectedMarketplaceOrderItem->id);
+                ->info('Для заказа '.$orderId.' передан товар '.$marketplaceOrderItem->id.
+                    ' вместо ранее выбранного '.$selectedMarketplaceOrderItem->id);
 
             if ($marketplaceOrderItem->marketplaceOrder->status === '13' || $marketplaceOrderItem->marketplaceOrder->status === '5') {
                 $tempOrderId = $marketplaceOrderItem->marketplace_order_id;
@@ -192,12 +193,12 @@ class WarehouseOfItemController extends Controller
                 $selectedMarketplaceOrderItem->save();
 
                 Log::channel('erp')
-                    ->info('Есть еще заказ с таким же товаром на сборке или стикеровке! ' .
-                        ' Поменяли местами товары в этих заказах. ' .
-                        ' В заказ: ' . $marketplaceOrderItem->marketplace_order_id .
-                        ' передали товар ' . $selectedMarketplaceOrderItem->id .
-                        ', а в заказ ' . $selectedMarketplaceOrderItem->marketplace_order_id .
-                        ' передали товар ' . $marketplaceOrderItem->id);
+                    ->info('Есть еще заказ с таким же товаром на сборке или стикеровке! '.
+                        ' Поменяли местами товары в этих заказах. '.
+                        ' В заказ: '.$marketplaceOrderItem->marketplace_order_id.
+                        ' передали товар '.$selectedMarketplaceOrderItem->id.
+                        ', а в заказ '.$selectedMarketplaceOrderItem->marketplace_order_id.
+                        ' передали товар '.$marketplaceOrderItem->id);
             } else {
                 MarketplaceOrderItemService::restoreOrderFromHistory($selectedMarketplaceOrderItem);
                 MarketplaceOrderItemService::saveOrderToHistory($marketplaceOrderItem);
@@ -217,7 +218,7 @@ class WarehouseOfItemController extends Controller
 
     public function done(MarketplaceOrder $marketplaceOrder)
     {
-        if (!$marketplaceOrder->is_printed) {
+        if (! $marketplaceOrder->is_printed) {
             return redirect()->back()
                 ->with('error', 'Стикер не распечатан!');
         }
@@ -266,6 +267,8 @@ class WarehouseOfItemController extends Controller
             'widths' => MarketplaceItemService::getAllWidthMaterials(),
             'heights' => MarketplaceItemService::getAllHeightMaterials(),
             'shelves' => Shelf::all(),
+            'seamstresses' => User::whereHas('role', fn ($q) => $q->where('name', 'seamstress'))->get(),
+            'cutters' => User::whereHas('role', fn ($q) => $q->where('name', 'cutter'))->get(),
         ]);
     }
 
@@ -277,7 +280,7 @@ class WarehouseOfItemController extends Controller
             ->where('height', $request['height'])
             ->first();
 
-        if (!$item) {
+        if (! $item) {
             return back()->withInput()
                 ->with('error', 'Такой товар в системе не найден');
         }
@@ -290,8 +293,8 @@ class WarehouseOfItemController extends Controller
         ]);
 
         Log::channel('erp')
-            ->info('Товары id: ' . implode(', ', $marketplaceItems) .
-                ' добавлены на хранение. Ссылка для печати стикеров: ' . $route);
+            ->info('Товары id: '.implode(', ', $marketplaceItems).
+                ' добавлены на хранение. Ссылка для печати стикеров: '.$route);
 
         return redirect($route)->withInput()
             ->with('success', 'Товары добавлены на хранение');

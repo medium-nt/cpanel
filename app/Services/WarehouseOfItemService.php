@@ -24,7 +24,7 @@ class WarehouseOfItemService
         }
 
         if ($request->has('material')) {
-            $items = $items->where('marketplace_items.title', 'like', '%' . $request->material . '%');
+            $items = $items->where('marketplace_items.title', 'like', '%'.$request->material.'%');
         }
 
         if ($request->has('width')) {
@@ -47,7 +47,7 @@ class WarehouseOfItemService
     {
         $barcode = $marketplace_item->storage_barcode;
 
-        if (!$barcode) {
+        if (! $barcode) {
             $barcode = $this->generateBarcode($marketplace_item->id);
 
             $marketplace_item->storage_barcode = $barcode;
@@ -64,11 +64,11 @@ class WarehouseOfItemService
         $sum = 0;
 
         foreach (str_split(strrev($base)) as $i => $digit) {
-            $n = (int)$digit * ($i % 2 === 0 ? 2 : 1);
+            $n = (int) $digit * ($i % 2 === 0 ? 2 : 1);
             $sum += $n > 9 ? $n - 9 : $n;
         }
 
-        return $base . ((10 - $sum % 10) % 10);
+        return $base.((10 - $sum % 10) % 10);
     }
 
     public function saveItemToStorage(MarketplaceOrderItem $item, int $shelfId): void
@@ -87,7 +87,7 @@ class WarehouseOfItemService
 
     public function findRefundItemByBarcode($barcode): array
     {
-        if (!$barcode) {
+        if (! $barcode) {
             return [
                 'message' => 'Введите штрихкод',
                 'marketplace_item' => null,
@@ -97,19 +97,19 @@ class WarehouseOfItemService
         }
 
         // если это стикер OZON FBS
-        if (!is_array($barcode) && mb_strlen(trim($barcode)) == 15) {
+        if (! is_array($barcode) && mb_strlen(trim($barcode)) == 15) {
             $barcode = MarketplaceApiService::getOzonPostingNumberByBarcode($barcode);
         }
 
         // если это стикер OZON возврат
-        if (!is_array($barcode) && str_starts_with(trim($barcode), 'ii')) {
+        if (! is_array($barcode) && str_starts_with(trim($barcode), 'ii')) {
             $barcode = MarketplaceApiService::getOzonPostingNumberByReturnBarcode($barcode);
         }
 
         $isFBO = false;
 
         // если это стикер OZON FBO
-        if (!is_array($barcode) && str_starts_with(trim($barcode), 'OZN')) {
+        if (! is_array($barcode) && str_starts_with(trim($barcode), 'OZN')) {
             $sku = trim($barcode, 'OZN');
 
             $barcode = Sku::query()->where('sku', $sku)
@@ -198,7 +198,8 @@ class WarehouseOfItemService
                 'quantity' => 1,
                 'price' => 0,
                 'status' => 11,
-                'seamstress_id' => 3,
+                'seamstress_id' => $validatedData['seamstress_id'],
+                'cutter_id' => $validatedData['cutter_id'],
                 'completed_at' => now()->startOfDay()->subDays(2),
                 'created_at' => Carbon::parse($marketplaceOrder->created_at),
             ]);
@@ -206,7 +207,7 @@ class WarehouseOfItemService
             $marketplaceOrderItem->storage_barcode = $this->getStorageBarcode($marketplaceOrderItem);
             $marketplaceOrderItem->save();
 
-            $marketplaceOrder->order_id = 'под товар ' . $marketplaceOrderItem->id;
+            $marketplaceOrder->order_id = 'под товар '.$marketplaceOrderItem->id;
             $marketplaceOrder->save();
 
             $marketplaceItems[] = $marketplaceOrderItem->id;
