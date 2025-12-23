@@ -37,6 +37,8 @@
             <div class="container-fluid">
                 <div class="card" style="top: 10px;">
                     <div class="row mt-3 ml-1 mr-1">
+                        <a class="btn btn-link btn-xs"
+                           href="{{ route('sticker_printing_test') }}">-</a>
                         <div class="form-group col-md-1 mr-5">
                             <a class="btn btn-primary btn-lg" href="{{ route('sticker_printing') }}">Обновить</a>
                         </div>
@@ -383,9 +385,9 @@
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
     <script>
-        <?php if (session('error')): ?>
+        <?php if (session('error')) { ?>
         toastr.error("<?= session('error') ?>");
-        <?php endif; ?>
+        <?php } ?>
     </script>
     </body>
 </html>

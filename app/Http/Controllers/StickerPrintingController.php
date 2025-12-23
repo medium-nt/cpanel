@@ -16,7 +16,7 @@ class StickerPrintingController extends Controller
         if ($request->filled('barcode')) {
             $user = UserService::getUserByBarcode($request->barcode);
 
-            if (!$user) {
+            if (! $user) {
                 return redirect()
                     ->route('sticker_printing')
                     ->with('error', 'Пользователь не найден');
@@ -69,20 +69,20 @@ class StickerPrintingController extends Controller
             ? User::query()->find($request->user_id)
             : null;
 
-        if (!$selectedUser) {
+        if (! $selectedUser) {
             Log::channel('work_shift')
                 ->error('Ошибка! Id сотрудника не передан в запросе со штрих-кодом: '
-                    . ($request->barcode ?? ' --- '));
+                    .($request->barcode ?? ' --- '));
 
             return redirect()
                 ->route('sticker_printing')
                 ->with('error', 'Внутренняя ошибка!');
         }
 
-        if (!$request->filled('barcode')) {
+        if (! $request->filled('barcode')) {
             Log::channel('work_shift')
-                ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') '
-                    . 'не отсканировал штрихкод (штрихкод отсутствует).');
+                ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '
+                    .'не отсканировал штрихкод (штрихкод отсутствует).');
 
             return redirect()
                 ->route('sticker_printing')
@@ -91,10 +91,10 @@ class StickerPrintingController extends Controller
 
         $user = UserService::getUserByBarcode($request->barcode);
 
-        if (!$user) {
+        if (! $user) {
             Log::channel('work_shift')
-                ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') '
-                    . 'отсканировал неверный штрихкод: ' . $request->barcode);
+                ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '
+                    .'отсканировал неверный штрихкод: '.$request->barcode);
 
             return redirect()
                 ->route('sticker_printing', ['user_id' => $selectedUser->id])
@@ -103,8 +103,8 @@ class StickerPrintingController extends Controller
 
         if ($selectedUser->id != $user->id) {
             Log::channel('work_shift')
-                ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') ' .
-                    'пытался закрыть смену сотрудника ' . $user->name . ' (' . $user->id . ') ');
+                ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
+                    'пытался закрыть смену сотрудника '.$user->name.' ('.$user->id.') ');
 
             return redirect()
                 ->route('sticker_printing', ['user_id' => $selectedUser->id])
@@ -115,7 +115,7 @@ class StickerPrintingController extends Controller
 
             if ($user->end_work_shift->greaterThan(now())) {
                 Log::channel('work_shift')
-                    ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') ' .
+                    ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
                         'пытался закрыть смену до окончания рабочего времени.');
 
                 return redirect()
@@ -133,7 +133,7 @@ class StickerPrintingController extends Controller
         } else {
             if (UserService::isSecondShiftOpeningToday($user)) {
                 Log::channel('work_shift')
-                    ->error('Внимание! Сотрудник ' . $selectedUser->name . ' (' . $selectedUser->id . ') ' .
+                    ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
                         'пытался второй раз за день открыть смену.');
 
                 return redirect()
@@ -151,12 +151,12 @@ class StickerPrintingController extends Controller
         $user->save();
 
         Log::channel('work_shift')
-            ->info('Сотрудник ' . $user->name . ' (' . $user->id . ') '
-                . ($user->shift_is_open ? 'открыл' : 'закрыл') . ' смену.');
+            ->info('Сотрудник '.$user->name.' ('.$user->id.') '
+                .($user->shift_is_open ? 'открыл' : 'закрыл').' смену.');
 
         return redirect()
             ->route('sticker_printing', ['user_id' => $selectedUser->id])
-            ->with('success', 'Смена успешно ' . ($user->shift_is_open ? 'открыта' : 'закрыта'));
+            ->with('success', 'Смена успешно '.($user->shift_is_open ? 'открыта' : 'закрыта'));
     }
 
     public function openCloseWorkShiftAdmin(User $user)
@@ -168,16 +168,23 @@ class StickerPrintingController extends Controller
             ScheduleService::openWorkShift($user);
         }
 
-        $user->shift_is_open = !$user->shift_is_open;
+        $user->shift_is_open = ! $user->shift_is_open;
         $user->actual_start_work_shift = ($user->shift_is_open ? now()->format('H:i') : '00:00:00');
         $user->save();
 
         Log::channel('work_shift')
-            ->info('Админ ' . ($user->shift_is_open ? 'открыл' : 'закрыл') .
-                ' смену сотруднику ' . $user->name . ' (' . $user->id . ') ');
+            ->info('Админ '.($user->shift_is_open ? 'открыл' : 'закрыл').
+                ' смену сотруднику '.$user->name.' ('.$user->id.') ');
 
         return redirect()
             ->route('home')
-            ->with('success', 'Смена успешно ' . ($user->shift_is_open ? 'открыта' : 'закрыта'));
+            ->with('success', 'Смена успешно '.($user->shift_is_open ? 'открыта' : 'закрыта'));
+    }
+
+    public function test()
+    {
+        return view('sticker_printing_test', [
+            'title' => 'Тест автофокуса',
+        ]);
     }
 }
