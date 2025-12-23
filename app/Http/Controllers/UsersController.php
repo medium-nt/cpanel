@@ -71,6 +71,11 @@ class UsersController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
+        if (UserService::hasUnpaidSalary($user)) {
+            return back()
+                ->with('error', 'У сотрудника есть невыплаченная зп. Удаление невозможно.');
+        }
+
         User::query()->findOrFail($user->id)->delete();
 
         return redirect()->route('users.index')->with('success', 'Пользователь удален');

@@ -91,6 +91,14 @@ class UserService
             ->get();
     }
 
+    public static function hasUnpaidSalary(User $user): bool
+    {
+        return Transaction::query()
+            ->where('user_id', $user->id)
+            ->whereNull('paid_at')
+            ->exists();
+    }
+
     public static function getRateByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
     {
         return Material::query()
