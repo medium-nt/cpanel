@@ -52,54 +52,43 @@ class TransactionService
         return true;
     }
 
-    public static function accrualStorekeeperSalary(): void
+    public static function accrualSalary(string $roleKey): void
     {
-        $workers = Schedule::query()
-            ->where('date', Carbon::now()->subDay()->format('Y-m-d'))
-            ->get();
+        $roles = [
+            'otk' => ['method' => 'isOtk', 'label' => 'сотрудника ОКТ'],
+            'driver' => ['method' => 'isDriver', 'label' => 'водителя'],
+            'storekeeper' => ['method' => 'isStorekeeper', 'label' => 'кладовщика'],
+        ];
 
-        foreach ($workers as $worker) {
-            if ($worker->user && $worker->user->role && $worker->user->isStorekeeper()) {
-
-                $accrualForDate = \Carbon\Carbon::parse($worker->date);
-
-                Transaction::query()->create([
-                    'user_id' => $worker->user->id,
-                    'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
-                    'accrual_for_date' => $accrualForDate->format('Y-m-d'),
-                    'amount' => $worker->user->salary_rate,
-                    'transaction_type' => 'out',
-                    'status' => 1,
-                ]);
-
-                Log::channel('salary')
-                    ->info('Добавили зарплату в размере '.$worker->user->salary_rate.' рублей для кладовщика '.$worker->user->name);
-            }
+        if (! isset($roles[$roleKey])) {
+            return;
         }
-    }
 
-    public static function accrualOtkSalary(): void
-    {
+        $role = $roles[$roleKey];
+
         $workers = Schedule::query()
             ->where('date', Carbon::now()->subDay()->format('Y-m-d'))
             ->get();
 
         foreach ($workers as $worker) {
-            if ($worker->user && $worker->user->role && $worker->user->isOtk()) {
+            $user = $worker->user;
 
-                $accrualForDate = \Carbon\Carbon::parse($worker->date);
+            if ($user?->role && $user->{$role['method']}()) {
+
+                $accrualForDate = Carbon::parse($worker->date);
 
                 Transaction::query()->create([
-                    'user_id' => $worker->user->id,
+                    'user_id' => $user->id,
                     'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
                     'accrual_for_date' => $accrualForDate->format('Y-m-d'),
-                    'amount' => $worker->user->salary_rate,
+                    'amount' => $user->salary_rate,
                     'transaction_type' => 'out',
                     'status' => 1,
                 ]);
 
-                Log::channel('salary')
-                    ->info('Добавили зарплату в размере '.$worker->user->salary_rate.' рублей для сотрудника ОКТ '.$worker->user->name);
+                Log::channel('salary')->info(
+                    "Добавили зарплату в размере {$user->salary_rate} рублей для {$role['label']} {$user->name}"
+                );
             }
         }
     }

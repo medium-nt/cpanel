@@ -188,7 +188,7 @@ class TransactionServiceTest extends TestCase
             "Добавили зарплату в размере 1200 рублей для кладовщика {$this->storekeeper->name}"
         );
 
-        TransactionService::accrualStorekeeperSalary();
+        TransactionService::accrualSalary('storekeeper');
 
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->storekeeper->id,
@@ -213,7 +213,7 @@ class TransactionServiceTest extends TestCase
             "Добавили зарплату в размере 1300 рублей для сотрудника ОКТ {$this->otk->name}"
         );
 
-        TransactionService::accrualOtkSalary();
+        TransactionService::accrualSalary('otk');
 
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->otk->id,
