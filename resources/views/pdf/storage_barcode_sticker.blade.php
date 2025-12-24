@@ -79,7 +79,8 @@
 
             <div class="code-label">{{ $item->storage_barcode }}</div>
             <div class="code-text">Тюль {{ $item->item->title }}
-                <span style="float:right;">{{ $item->shelf->title }}</span>
+                <span
+                    style="float:right;">{{ $item->shelf->title ?? '' }}</span>
             </div>
             <div class="code-text">ширина {{ $item->item->width }}</div>
             <div class="code-text">высота {{ $item->item->height }}
