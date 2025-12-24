@@ -84,11 +84,12 @@
             </div>
             <div class="code-text">ширина {{ $item->item->width }}</div>
             <div class="code-text">высота {{ $item->item->height }}
-                <span style="float:right;">{{ $item->seamstress->name }}</span>
+                <span
+                    style="float:right;">{{ $item->seamstress->short_name }}</span>
             </div>
         </div>
 
-        <div class="code-text2">{{ $item->cutter->name ?? '' }}</div>
+        <div class="code-text2">{{ $item->cutter->short_name ?? '' }}</div>
     </div>
     @if (!$loop->last)
         <div style="page-break-after: always;"></div>
