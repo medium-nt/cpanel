@@ -13,6 +13,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="dropdown mb-3 mr-3">
+                        @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                         <button class="btn btn-primary dropdown-toggle" type="button" id="supplyDropdown"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Создать поставку
@@ -21,13 +22,16 @@
                             <a class="dropdown-item" href="{{ route('marketplace_supplies.create', ['marketplace_id' => 1]) }}">OZON</a>
                             <a class="dropdown-item" href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2]) }}">WB</a>
                         </div>
+                        @endif
                     </div>
 
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                     <a href="{{ route('marketplace_supplies.index', ['status' => 0, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
                        class="btn btn-link mr-3 mb-3">Открытые поставки</a>
 
                     <a href="{{ route('marketplace_supplies.index', ['status' => 3, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
                        class="btn btn-link mr-3 mb-3">Выполненные</a>
+                    @endif
 
                     <div class="form-group col-md-2">
                         <select name="marketplace_id"
@@ -104,13 +108,13 @@
                                     </div>
                                 </div>
 
-                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isDriver())
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply->id]) }}"
                                            class="btn btn-primary mr-3">
                                             <i class="fas fa-edit"></i> Редактировать
                                         </a>
-                                        @if($marketplace_supply->status == 0)
+                                        @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() ))
                                         <form action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
@@ -183,13 +187,13 @@
                                 <td>{{ is_null($marketplace_supply->completed_at) ? '' : now()->parse($marketplace_supply->completed_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isDriver())
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply->id]) }}"
                                                class="btn btn-primary mr-1">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            @if($marketplace_supply->status == 0)
+                                            @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() ))
                                             <form action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')

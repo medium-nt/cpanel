@@ -143,6 +143,11 @@ class User extends Authenticatable
         return $this->role?->name === 'otk';
     }
 
+    public function isDriver(): bool
+    {
+        return $this->role?->name === 'driver';
+    }
+
     public function getEndWorkShiftAttribute(): Carbon
     {
         $interval = CarbonInterval::createFromFormat('H:i:s', $this->duration_work_shift);

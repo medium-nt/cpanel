@@ -9,12 +9,12 @@ class MarketplaceSupplyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isDriver();
     }
 
     public function view(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isDriver();
     }
 
     public function create(User $user): bool

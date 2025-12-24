@@ -343,7 +343,7 @@ return [
         [
             'text' => 'movements',
             'icon' => 'fas fa-fw fa-dolly',
-            'can' => 'is-admin-storekeeper-seamstress-cutter',
+            'can' => 'is-admin-storekeeper-seamstress-cutter-driver',
             'submenu' => [
                 [
                     'text' => 'movements_from_supplier',
@@ -366,6 +366,7 @@ return [
                 [
                     'text' => 'movements_to_workshop',
                     'url' => 'megatulle/movements_to_workshop',
+                    'can' => 'is-admin-storekeeper-seamstress-cutter',
                     'icon' => 'fas fa-fw fa-dolly',
                 ],
                 [
@@ -377,19 +378,21 @@ return [
                 [
                     'text' => 'defect_materials',
                     'url' => 'megatulle/defect_materials',
+                    'can' => 'is-admin-storekeeper-seamstress-cutter',
                     'icon' => 'fas fa-fw fa-trash-alt',
                 ],
                 [
                     'text' => 'marketplace_supplies',
                     'url' => 'megatulle/marketplace_supplies',
                     'icon' => 'fas fa-fw fa-warehouse',
-                    'can' => 'is-storekeeper-or-admin',
+                    'can' => 'is-storekeeper-admin-driver',
                 ],
             ],
         ],
         [
             'text' => 'marketplace',
             'icon' => 'fas fa-fw fa-shopping-cart',
+            'can' => 'is-admin-storekeeper-seamstress-cutter-otk',
             'submenu' => [
                 [
                     'text' => 'marketplace_orders',

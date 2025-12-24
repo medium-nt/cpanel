@@ -105,11 +105,16 @@
                                     @if(old('role_id') == 5) selected @endif>
                                 Сотрудник ОТК
                             </option>
+                            <option value="6"
+                                    @if(old('role_id') == 6) selected @endif>
+                                Водитель
+                            </option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="salary_rate">Ставка (для швеи за метр, для кладовщиков за месяц)</label>
+                        <label for="salary_rate">Ставка (для швеи за метр, для
+                            кладовщиков, ОТК и водителей - за день)</label>
                         <input type="text"
                                class="form-control @error('salary_rate') is-invalid @enderror"
                                id="salary_rate"

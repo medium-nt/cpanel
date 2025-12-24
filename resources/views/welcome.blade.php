@@ -27,6 +27,8 @@
                     <a href="{{ route('users.autologin', ['email' => '4@4.ru']) }}" class="mr-3 bg-gray-100 text-gray-500" >Закройщик</a>
                     <a href="{{ route('users.autologin', ['email' => '5@5.ru']) }}"
                        class="mr-3 bg-gray-100 text-gray-500">ОТК</a>
+                    <a href="{{ route('users.autologin', ['email' => '6@6.ru']) }}"
+                       class="mr-3 bg-gray-100 text-gray-500">Водитель</a>
                 </div>
             @endif
         </form>

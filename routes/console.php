@@ -32,15 +32,13 @@ Schedule::call(function () {
 
 Schedule::call(function () {
     TransactionService::activateHoldBonus();
-})->dailyAt('00:30');
+})->dailyAt('00:20');
 
 Schedule::call(function () {
-    TransactionService::accrualOtkSalary();
+    TransactionService::accrualSalary('otk');
+    TransactionService::accrualSalary('driver');
+    TransactionService::accrualSalary('storekeeper');
 })->dailyAt('00:25');
-
-Schedule::call(function () {
-    TransactionService::accrualStorekeeperSalary();
-})->dailyAt('00:30');
 
 Schedule::call(function () {
     TransactionService::accrualSeamstressesSalary();

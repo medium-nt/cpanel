@@ -31,5 +31,9 @@ class RoleSeeder extends Seeder
         Role::query()->firstOrCreate(
             ['name' => 'otk']
         );
+
+        Role::query()->firstOrCreate(
+            ['name' => 'driver']
+        );
     }
 }

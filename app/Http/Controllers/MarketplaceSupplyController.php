@@ -21,7 +21,10 @@ class MarketplaceSupplyController extends Controller
         if ($request->status == 3) {
             $supplies = $supplies->where('status', 3);
         } else {
-            $supplies = $supplies->where('status', '!=', 3);
+            $supplies = match (auth()->user()->role->name) {
+                'driver' => $supplies->where('status', 4),
+                default => $supplies->where('status', '!=', 3),
+            };
         }
 
         if (isset($request->marketplace_id)) {
