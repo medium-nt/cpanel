@@ -9,6 +9,9 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Supplier;
 use App\Services\MovementMaterialFromSupplierService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class MovementMaterialFromSupplierController extends Controller
 {
@@ -34,7 +37,7 @@ class MovementMaterialFromSupplierController extends Controller
 
     public function store(StoreMovementMaterialFromSupplierRequest $request)
     {
-        if (!MovementMaterialFromSupplierService::store($request)) {
+        if (! MovementMaterialFromSupplierService::store($request)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
@@ -59,7 +62,7 @@ class MovementMaterialFromSupplierController extends Controller
 
     public function update(UpdateMovementMaterialFromSupplierRequest $request, Order $order)
     {
-        if (!MovementMaterialFromSupplierService::update($request, $order)) {
+        if (! MovementMaterialFromSupplierService::update($request, $order)) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
@@ -68,8 +71,31 @@ class MovementMaterialFromSupplierController extends Controller
             ->with('success', 'Поступление добавлено');
     }
 
-    public function destroy(MovementMaterial $movementMaterial)
+    /**
+     * @throws Throwable
+     */
+    public function destroy(Order $order)
     {
-        //
+        if ($order->status != 0) {
+            return back()
+                ->with('error', 'Невозможно удалить! Поставка уже отгружена');
+        }
+
+        $text = 'Админ удалил поставку '.$order->id.' с товарами: '."\n";
+        foreach ($order->movementMaterials as $movement) {
+            $text .= '•'.$movement->material->title.' '.$movement->quantity.' '.$movement->material->unit."\n";
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->movementMaterials()->delete();
+            $order->delete();
+        });
+
+        Log::channel('erp')
+            ->warning($text);
+
+        return redirect()
+            ->route('movements_from_supplier.index')
+            ->with('success', 'Поступление удалено');
     }
 }

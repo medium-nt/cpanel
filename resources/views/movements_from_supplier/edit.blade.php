@@ -82,9 +82,24 @@
 
                     <div class="form-group">
                         <button class="btn btn-success">Сохранить изменения</button>
+
+                        @if($order->status == 0)
+                            <button form="deleteForm"
+                                    class="btn btn-danger float-right"
+                                    onclick="return confirm('Вы действительно хотите удалить эту поставку?')">
+                                Удалить поставку
+                            </button>
+                        @endif
                     </div>
                 </div>
             </form>
+
+                <form id="deleteForm"
+                      action="{{ route('movements_from_supplier.destroy', ['order' => $order->id]) }}"
+                      method="POST">
+                    @method('DELETE')
+                    @csrf
+                </form>
         </div>
     </div>
 @stop

@@ -22,7 +22,7 @@ Route::prefix('/movements_from_supplier')->group(function () {
     Route::put('/update/{order}', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'update'])
         ->name('movements_from_supplier.update');
 
-    Route::delete('/delete/{movement}', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'destroy'])
-        ->can('delete', 'movement')
+    Route::delete('/delete/{order}', [App\Http\Controllers\MovementMaterialFromSupplierController::class, 'destroy'])
+        ->can('delete', 'order')
         ->name('movements_from_supplier.destroy');
 });
