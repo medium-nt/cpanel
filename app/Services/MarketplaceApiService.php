@@ -1783,6 +1783,8 @@ class MarketplaceApiService
 
     private static function markExemplarAsGtdAbsent($resp): bool
     {
+        return true;
+
         $response = $resp->json();
 
         if (
