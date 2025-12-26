@@ -1799,14 +1799,60 @@ class MarketplaceApiService
         $product = $response['products'][0];
         $exemplar = $product['exemplars'][0];
 
+        if (!self::setCountryIsoCode($response['posting_number'], $product['product_id'])) {
+            return false;
+        }
+
+        if (!self::setGtdAbsent($response['posting_number'], $product['product_id'], $exemplar['exemplar_id'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Пытаемся установить атрибут "Страна-изготовитель".
+     */
+    private static function setCountryIsoCode(string $postingNumber, string $productId): bool
+    {
         $body = [
-            'posting_number' => $response['posting_number'],
+            'posting_number' => $postingNumber,
+            'product_id' => $productId,
+            'country_iso_code' => 'RU',
+        ];
+
+        $apiResponse = self::ozonRequest()
+            ->post('https://api-seller.ozon.ru/v2/posting/fbs/product/country/set', $body);
+
+        if (!$apiResponse->ok()) {
+            Log::channel('marketplace_api')
+                ->error('Не удалось установить "Страна-изготовитель" для заказа ' . $postingNumber, [
+                    'body' => $body,
+                    'response' => $apiResponse->object(),
+                ]);
+
+            return false;
+        }
+
+        Log::channel('marketplace_api')
+            ->info('Установлен "Страна-изготовитель" для заказа ' . $postingNumber);
+
+        return true;
+    }
+
+    /**
+     * Пытаемся установить "ГТД отсутствует"
+     */
+    private static function setGtdAbsent(string $postingNumber, string $productId, string $exemplarId): bool
+    {
+        $body = [
+            'posting_number' => $postingNumber,
             'products' => [
                 [
-                    'product_id' => $product['product_id'],
+                    'product_id' => $productId,
                     'exemplars' => [
                         [
-                            'exemplar_id' => $exemplar['exemplar_id'],
+                            'exemplar_id' => $exemplarId,
                             'is_gtd_absent' => true,
                         ],
                     ],
@@ -1817,9 +1863,9 @@ class MarketplaceApiService
         $apiResponse = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v6/fbs/posting/product/exemplar/set', $body);
 
-        if (! $apiResponse->ok()) {
+        if (!$apiResponse->ok()) {
             Log::channel('marketplace_api')
-                ->error('Не удалось установить "ГТД отсутствует" для заказа '.$response['posting_number'], [
+                ->error('Не удалось установить "ГТД отсутствует" для заказа ' . $postingNumber, [
                     'body' => $body,
                     'response' => $apiResponse->object(),
                 ]);
@@ -1828,11 +1874,14 @@ class MarketplaceApiService
         }
 
         Log::channel('marketplace_api')
-            ->info('Установили "ГТД отсутствует" для заказа '.$response['posting_number']);
+            ->info('Установили "ГТД отсутствует" для заказа ' . $postingNumber);
 
         return true;
     }
 
+    /**
+     * Метод для отправки запросов к Ozon.
+     */
     private static function ozonRequest(): PendingRequest
     {
         return Http::accept('application/json')
