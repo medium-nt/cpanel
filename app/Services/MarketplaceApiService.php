@@ -1738,6 +1738,9 @@ class MarketplaceApiService
         }
     }
 
+    /**
+     * Проверяет статус экземпляров заказа. И если он не соответствует "ship_available", то пытаемся добавить ГТД.
+     */
     private static function verifyOrFixExemplarStatus($orderId): bool
     {
         $body = [
@@ -1781,6 +1784,9 @@ class MarketplaceApiService
         }
     }
 
+    /**
+     * Передаем что для данного заказа ГТД не обязательна
+     */
     private static function markExemplarAsGtdAbsent($resp): bool
     {
         $response = $resp->json();
@@ -1892,6 +1898,9 @@ class MarketplaceApiService
             ]);
     }
 
+    /**
+     * Метод для отправки запросов к WB.
+     */
     private static function wbRequest(): PendingRequest
     {
         return Http::accept('application/json')
