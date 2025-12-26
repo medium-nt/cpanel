@@ -1783,8 +1783,6 @@ class MarketplaceApiService
 
     private static function markExemplarAsGtdAbsent($resp): bool
     {
-        return true;
-
         $response = $resp->json();
 
         if (
@@ -1806,7 +1804,6 @@ class MarketplaceApiService
             'products' => [
                 [
                     'product_id' => $product['product_id'],
-                    'is_gtd_needed' => true,
                     'exemplars' => [
                         [
                             'exemplar_id' => $exemplar['exemplar_id'],
@@ -1818,7 +1815,7 @@ class MarketplaceApiService
         ];
 
         $apiResponse = self::ozonRequest()
-            ->post('https://api-seller.ozon.ru/v5/fbs/posting/product/exemplar/set', $body);
+            ->post('https://api-seller.ozon.ru/v6/fbs/posting/product/exemplar/set', $body);
 
         if (! $apiResponse->ok()) {
             Log::channel('marketplace_api')
