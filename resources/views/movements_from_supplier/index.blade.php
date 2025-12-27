@@ -12,7 +12,31 @@
 
         <div class="card">
             <div class="card-body">
-                <a href="{{ route('movements_from_supplier.create') }}" class="btn btn-primary mr-3">Добавить новое поступление</a>
+                <div class="row">
+                    <div class="col-md-2 mb-1 mr-1">
+                        <select class="form-control"
+                                id="status"
+                                name="status"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option value="all" selected>Все статусы</option>
+                            <option value="0"
+                                    @if(request()->get('status') == '0') selected @endif>
+                                Новый
+                            </option>
+                            <option value="3"
+                                    @if(request()->get('status') == '3') selected @endif>
+                                Завершено
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <a href="{{ route('movements_from_supplier.create') }}"
+                           class="btn btn-primary mr-3">Добавить новое
+                            поступление</a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -143,4 +167,8 @@
 
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
+@endpush
+
+@push('js')
+    <script src="{{ asset('js/PageQueryParam.js') }}"></script>
 @endpush

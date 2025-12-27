@@ -21,8 +21,12 @@ class MovementMaterialFromSupplierController extends Controller
             'title' => 'Поступление материалов на склад',
             'orders' => Order::query()
                 ->where('type_movement', 1)
+                ->when(request()->has('status'), function ($query) {
+                    return $query->where('status', request('status'));
+                })
                 ->latest()
-                ->paginate(10),
+                ->paginate(10)
+                ->withQueryString(),
         ]);
     }
 
