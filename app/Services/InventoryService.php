@@ -57,6 +57,32 @@ class InventoryService
         return round($result, 2);
     }
 
+    public static function materialInWarehouse_outStock($materialId): float
+    {
+        $outStock = MovementMaterial::query()
+            ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->where('material_id', $materialId)
+            ->where('orders.type_movement', 2)
+            ->whereNotIn('orders.status', [-1, 0])
+            ->sum('quantity');
+
+        return round($outStock, 2);
+    }
+
+    public static function materialInWarehouse_holdOutStockNew($materialId): float
+    {
+        $holdOutStockNew = self::countMaterial($materialId, 2, 0);
+
+        return round($holdOutStockNew, 2);
+    }
+
+    public static function materialInWarehouse_inStock($materialId): float
+    {
+        $inStock = self::countMaterial($materialId, 1, 3);
+
+        return round($inStock, 2);
+    }
+
     public static function defectMaterialInWarehouse($materialId): float
     {
         $inStock = self::countMaterial($materialId, 4, 3);
@@ -108,6 +134,9 @@ class InventoryService
 
             $materialsQuantity[] = [
                 'material' => $material,
+                'in_stock' => self::materialInWarehouse_inStock($material->id),
+                'out_stock' => self::materialInWarehouse_outStock($material->id),
+                'hold_out_stock' => self::materialInWarehouse_holdOutStockNew($material->id),
                 'quantity' => $quantity,
                 'remnants' => $remnantsQuantity,
             ];
@@ -143,20 +172,20 @@ class InventoryService
                 ];
             }
 
-            if (!empty($data)) {
+            if (! empty($data)) {
                 InventoryCheckItem::insert($data);
             }
 
             DB::commit();
 
             Log::channel('erp')
-                ->info('Создана инвентаризация ID: ' . $inventory->id . '
-                по полке: ' . $request->inventory_shelf);
+                ->info('Создана инвентаризация ID: '.$inventory->id.'
+                по полке: '.$request->inventory_shelf);
         } catch (\Throwable $th) {
             DB::rollBack();
 
             Log::channel('erp')
-                ->error('Ошибка при создании инвентаризации: ' . $th->getMessage());
+                ->error('Ошибка при создании инвентаризации: '.$th->getMessage());
 
             return false;
         }

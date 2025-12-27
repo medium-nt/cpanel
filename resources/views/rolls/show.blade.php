@@ -38,7 +38,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach ($roll->movementMaterials as $movementMaterial)
+                        @foreach ($roll->movementMaterialsNotFromSuppler as $movementMaterial)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $movementMaterial['material']->title }}</td>

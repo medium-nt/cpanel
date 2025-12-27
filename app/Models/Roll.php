@@ -44,10 +44,15 @@ class Roll extends Model
         return $this->belongsTo(Material::class);
     }
 
-    public function movementMaterials(): HasMany
+    public function movementMaterialsNotFromSuppler(): HasMany
     {
         return $this->hasMany(MovementMaterial::class)
             ->whereRelation('order', 'type_movement', '!=', 1);
+    }
+
+    public function movementMaterials(): HasMany
+    {
+        return $this->hasMany(MovementMaterial::class);
     }
 
     public function getStatusNameAttribute(): string

@@ -65,6 +65,15 @@ class SaveCollectMovementMaterialToWorkshopRequest extends FormRequest
                         'Рулон "'.$code.'" не принадлежит данному материалу или не находится на складе'
                     );
                 }
+
+                $order = $roll->movementMaterials()->first()?->order;
+
+                if ($order && $order->status != 3) {
+                    $validator->errors()->add(
+                        "roll_code.$index",
+                        'Поставка с рулоном "'.$code.'" еще не принята админом.'
+                    );
+                }
             }
         });
     }

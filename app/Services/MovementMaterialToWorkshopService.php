@@ -100,14 +100,10 @@ class MovementMaterialToWorkshopService
     public static function save_collect(SaveCollectMovementMaterialToWorkshopRequest $request, Order $order): bool|RedirectResponse
     {
         $movementMaterialIds = $request->input('id', []);
-        //        $quantities = $request->input('quantity', []);
         $rollCodes = $request->input('roll_code', []);
-
-        //        dd($request->all());
 
         if (
             empty($movementMaterialIds)
-            //            || empty($quantities)
         ) {
             return back()->withErrors([
                 'error' => 'Заполните правильно список материалов и количество.',
