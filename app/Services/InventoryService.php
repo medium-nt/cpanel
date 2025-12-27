@@ -64,6 +64,7 @@ class InventoryService
             ->where('material_id', $materialId)
             ->where('orders.type_movement', 2)
             ->whereNotIn('orders.status', [-1, 0])
+            ->whereDate('orders.created_at', '>', '2025-12-18')
             ->sum('quantity');
 
         return round($outStock, 2);
@@ -71,14 +72,14 @@ class InventoryService
 
     public static function materialInWarehouse_holdOutStockNew($materialId): float
     {
-        $holdOutStockNew = self::countMaterial($materialId, 2, 0);
+        $holdOutStockNew = self::countMaterialAfterRolls($materialId, 2, 0);
 
         return round($holdOutStockNew, 2);
     }
 
     public static function materialInWarehouse_inStock($materialId): float
     {
-        $inStock = self::countMaterial($materialId, 1, 3);
+        $inStock = self::countMaterialAfterRolls($materialId, 1, 3);
 
         return round($inStock, 2);
     }
@@ -110,6 +111,17 @@ class InventoryService
             ->where('material_id', $materialId)
             ->where('orders.type_movement', $type)
             ->where('orders.status', $status)
+            ->sum('quantity');
+    }
+
+    public static function countMaterialAfterRolls($materialId, $type, $status): float
+    {
+        return MovementMaterial::query()
+            ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->where('material_id', $materialId)
+            ->where('orders.type_movement', $type)
+            ->where('orders.status', $status)
+            ->whereDate('orders.created_at', '>', '2025-12-18')
             ->sum('quantity');
     }
 
