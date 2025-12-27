@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Material;
 use App\Models\Order;
 use App\Models\Roll;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -12,12 +13,16 @@ class RollController extends Controller
     {
         return view('rolls.index', [
             'title' => 'Рулоны',
+            'materials' => Material::all(),
             'rolls' => Roll::query()
                 ->when(request('status'), function ($query, $status) {
                     return $query->where('status', $status);
                 })
                 ->when(request('search'), function ($query, $search) {
                     return $query->where('roll_code', 'like', '%'.$search.'%');
+                })
+                ->when(request('material'), function ($query, $material) {
+                    return $query->where('material_id', $material);
                 })
                 ->orderBy('id', 'desc')
                 ->paginate(10)

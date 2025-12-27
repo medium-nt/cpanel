@@ -35,6 +35,22 @@
                         </select>
                     </div>
 
+                    <div class="col-md-2 mb-1 mr-1">
+                        <select class="form-control"
+                                id="material"
+                                name="material"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option value="all" selected>Все материалы</option>
+                            @foreach($materials as $material)
+                                <option value="{{ $material->id }}"
+                                        @if(request()->get('material') == $material->id) selected @endif>
+                                    {{ $material->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="col-md-4 mb-1 mr-1">
                         <form action="{{ route('rolls.index') }}" method="get">
                             <input type="text"
@@ -47,7 +63,7 @@
                                    value="{{ request()->get('status') }}">
                         </form>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <a href="{{ route('rolls.index') }}"
                            class="btn btn-outline-secondary">Сбросить</a>
                     </div>
