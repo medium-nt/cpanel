@@ -87,7 +87,14 @@ class MovementMaterialFromSupplierController extends Controller
         }
 
         DB::transaction(function () use ($order) {
+            $materials = $order->movementMaterials;
+
             $order->movementMaterials()->delete();
+
+            $materials->each(function (MovementMaterial $material) {
+                $material->roll()->delete();
+            });
+
             $order->delete();
         });
 
