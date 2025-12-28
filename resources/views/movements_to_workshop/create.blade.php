@@ -32,10 +32,6 @@
                 @csrf
                 <div class="card-body">
                     @livewire('material-form', ['isFirst' => true, 'isMovementToWorkshop' => true])
-                    @livewire('material-form', ['isMovementToWorkshop' => true])
-                    @livewire('material-form', ['isMovementToWorkshop' => true])
-                    @livewire('material-form', ['isMovementToWorkshop' => true])
-                    @livewire('material-form', ['isMovementToWorkshop' => true])
 
                     <div class="row">
                         <div class="col-md-12 form-group">
@@ -49,7 +45,9 @@
                     </div>
 
                     <div class="form-group">
-                        <button class="btn btn-primary">Оформить заказ</button>
+                        <button type="submit" class="btn btn-primary">Оформить
+                            заказ
+                        </button>
                     </div>
                 </div>
             </form>
@@ -80,6 +78,14 @@
             selects.forEach(select => {
                 select.addEventListener('change', checkUniqueSelects);
             });
+        });
+
+        const form = document.querySelector('form[action*="movements_to_workshop"]');
+        const button = form.querySelector('button');
+
+        form.addEventListener('submit', function () {
+            button.disabled = true;
+            button.textContent = 'Оформление...';
         });
     </script>
 @stop

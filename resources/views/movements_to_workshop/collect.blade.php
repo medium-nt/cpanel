@@ -49,7 +49,8 @@
                                        class="form-control @error('roll_code.' . $loop->index) is-invalid @enderror"
                                        value="{{ old('roll_code.' . $loop->index, $item->roll_code) }}"
                                        name="roll_code[]"
-                                       id="roll_code">
+                                       id="roll_code"
+                                       autofocus>
                             </div>
 
                             <input type="hidden" name="id[]" value="{{ $item->id }}">

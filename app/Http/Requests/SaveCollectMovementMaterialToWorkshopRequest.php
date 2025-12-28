@@ -64,6 +64,8 @@ class SaveCollectMovementMaterialToWorkshopRequest extends FormRequest
                         "roll_code.$index",
                         'Рулон "'.$code.'" не принадлежит данному материалу или не находится на складе'
                     );
+
+                    continue;
                 }
 
                 $order = $roll->movementMaterials()->first()?->order;

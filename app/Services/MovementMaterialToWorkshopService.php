@@ -32,12 +32,9 @@ class MovementMaterialToWorkshopService
     public static function store(StoreMovementMaterialToWorkshopRequest $request): bool|RedirectResponse
     {
         $materialIds = $request->input('material_id', []);
-        //        $quantities = $request->input('ordered_quantity', []);
+        $quantity = $request->input('quantity');
 
-        if (
-            empty($materialIds)
-            //            || empty($quantities)
-        ) {
+        if (empty($materialIds) || ($quantity < 1 || $quantity > 10)) {
             return back()->withErrors([
                 'error' => 'Заполните правильно список материалов и количество.',
             ]);
@@ -52,31 +49,33 @@ class MovementMaterialToWorkshopService
                 default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 
-            $order = Order::query()->create([
-                $field => auth()->user()->id,
-                'type_movement' => 2,
-                'status' => 0,
-                'comment' => $request->comment,
-            ]);
+            $material = '';
 
-            $list = '';
+            for ($i = 0; $i < $quantity; $i++) {
 
-            foreach ($materialIds as $key => $material_id) {
-                if ($material_id == 0) {
-                    continue;
+                $order = Order::query()->create([
+                    $field => auth()->user()->id,
+                    'type_movement' => 2,
+                    'status' => 0,
+                    'comment' => $request->comment,
+                ]);
+
+                foreach ($materialIds as $key => $material_id) {
+                    if ($material_id == 0) {
+                        continue;
+                    }
+
+                    $movementMaterial = MovementMaterial::query()->create([
+                        'order_id' => $order->id,
+                        'material_id' => $material_id,
+                        'ordered_quantity' => 0,
+                    ]);
+
+                    $material = '• '.$movementMaterial->material->title;
                 }
-
-                $movementData['order_id'] = $order->id;
-                $movementData['material_id'] = $material_id;
-                //                $movementData['ordered_quantity'] = $quantities[$key];
-                $movementData['ordered_quantity'] = 0;
-
-                $movementMaterial = MovementMaterial::query()->create($movementData);
-
-                $list .= '• '.$movementMaterial->material->title.' '.$movementMaterial->ordered_quantity.' '.$movementMaterial->material->unit."\n";
             }
 
-            $text = 'Швея '.auth()->user()->name.' запросила: '."\n".$list;
+            $text = 'Швея '.auth()->user()->name.' запросила: '."\n".$material.' x '.$quantity;
 
             Log::channel('erp')
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
@@ -89,6 +88,9 @@ class MovementMaterialToWorkshopService
 
             DB::commit();
         } catch (Throwable $e) {
+            Log::channel('erp')
+                ->error($e->getMessage());
+
             DB::rollBack();
 
             return false;
