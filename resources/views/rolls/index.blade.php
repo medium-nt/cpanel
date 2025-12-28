@@ -83,6 +83,7 @@
                             <th scope="col">Штрихкод</th>
                             <th scope="col">Материал</th>
                             <th scope="col">шт./п.м.</th>
+                            <th scope="col">Создан</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -98,6 +99,7 @@
                                 <td>{{ $roll->material->title }}</td>
                                 <td>{{ $roll->current_quantity }}
                                     из {{ $roll->initial_quantity }}</td>
+                                <td>{{ now()->parse($roll->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <a href="{{ route('rolls.show', $roll->id) }}"
                                        class="btn btn-primary mt-1">

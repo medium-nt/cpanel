@@ -50,8 +50,9 @@
                             <th scope="col">#</th>
                             <th scope="col">Материалы</th>
                             <th scope="col">Статус</th>
+                            <th scope="col">Кладовщик</th>
                             <th scope="col">Комментарий</th>
-                            <th scope="col">Дата</th>
+                            <th scope="col">Создано</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -77,8 +78,9 @@
                                 <td>
                                     <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                 </td>
+                                <td>{{ $order->user->name }}</td>
                                 <td>{{ $order->comment }}</td>
-                                <td>{{ now()->parse($order->created_at)->format('d/m/Y') }}</td>
+                                <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">
@@ -136,7 +138,11 @@
                                     </div>
 
                                     <small class="mr-2">
-                                        Создан: <b> {{ now()->parse($order->created_at)->format('d/m/Y') }}</b>
+                                        Создано:
+                                        <b> {{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</b>
+                                        <br>
+                                        Сотрудник:
+                                        <b> {{ $order->user->name }}</b>
                                     </small>
                                 </div>
 
