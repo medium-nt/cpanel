@@ -710,15 +710,30 @@ class MarketplaceOrderItemService
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
 
-        //        если швея (без кроя), то заказы со статусом "раскроено"
+        //  если швея (без кроя), то заказы со статусом "раскроено"
         if ((auth()->user()->isSeamstress() && ! auth()->user()->is_cutter)) {
             $items = $items->where('marketplace_order_items.status', 8);
         }
 
-        //          если закройщик или швея-закройщик, то заказы со статусом "новый"
+        //  если закройщик или швея-закройщик, то заказы со статусом "новый"
         if ((auth()->user()->isSeamstress() && auth()->user()->is_cutter) || auth()->user()->isCutter()) {
             $items = $items->where('marketplace_order_items.status', 0);
         }
+
+        $allowedMaterialIds = auth()->user()->materials->pluck('id');
+
+        if ($allowedMaterialIds->isNotEmpty()) {
+            $items = $items->whereHas('item', function ($q) use ($allowedMaterialIds) {
+                $q->whereHas('consumption', function ($q2) use ($allowedMaterialIds) {
+                    $q2->whereIn('material_id', $allowedMaterialIds)
+                        ->whereHas('material', function ($q3) {
+                            $q3->where('type_id', 1);  // только ткани
+                        });
+                });
+            });
+        }
+
+        $items = $items->with(['item.consumption.material']);
 
         $items = $items
             ->orderBy('marketplace_orders.fulfillment_type', 'asc');
@@ -745,6 +760,7 @@ class MarketplaceOrderItemService
         return $items
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
+            ->groupBy('marketplace_order_items.id')
             ->select('marketplace_order_items.*')
             ->get();
     }
