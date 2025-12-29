@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @mixin IdeHelperShelf
@@ -50,9 +51,9 @@ class Roll extends Model
             ->whereRelation('order', 'type_movement', '!=', 1);
     }
 
-    public function movementMaterials(): HasMany
+    public function movementMaterial(): HasOne
     {
-        return $this->hasMany(MovementMaterial::class);
+        return $this->hasOne(MovementMaterial::class);
     }
 
     public function getStatusNameAttribute(): string

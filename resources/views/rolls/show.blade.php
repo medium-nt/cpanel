@@ -12,9 +12,22 @@
 
         <div class="card">
             <div class="card-body">
-                <a href="{{ back()->getTargetUrl() }}" class="btn btn-default">Назад</a>
-                <br>
-                <br>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <a href="{{ back()->getTargetUrl() }}"
+                       class="btn btn-default mr-3">Назад</a>
+
+                    @if(auth()->user()->isAdmin() && $canDelete)
+                        <form
+                            action="{{ route('rolls.destroy', ['roll' => $roll->id]) }}"
+                            method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+                    @endif
+                </div>
                 Рулон: {{ $roll->roll_code }} <br>
                 Материал: {{ $roll->material->title }}<br>
                 Начальное

@@ -6,6 +6,7 @@ use App\Models\Material;
 use App\Models\Order;
 use App\Models\Roll;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class RollController extends Controller
 {
@@ -35,6 +36,7 @@ class RollController extends Controller
         return view('rolls.show', [
             'title' => 'Рулон '.$roll->roll_code,
             'roll' => Roll::find($roll->id),
+            'canDelete' => $roll->status == 'in_storage',
         ]);
     }
 
@@ -72,5 +74,34 @@ class RollController extends Controller
 
         return $pdf->setPaper('A4')
             ->download('roll_sticker.pdf');
+    }
+
+    public function destroy(Roll $roll)
+    {
+        if ($roll->status != 'in_storage') {
+            return redirect()
+                ->route('rolls.index')
+                ->with('error', 'Рулон уже в работе, не может быть удален');
+        }
+
+        $movementMaterial = $roll->movementMaterial;
+        $order = $movementMaterial->order;
+
+        $movementMaterial->delete();
+
+        if ($order->movementMaterials->count() == 0) {
+            $order->delete();
+        }
+
+        $rollCode = $roll->roll_code;
+
+        $roll->delete();
+
+        Log::channel('erp')
+            ->notice('Рулон "'.$rollCode.'" удален сотрудником '.auth()->user()->name);
+
+        return redirect()
+            ->route('rolls.index')
+            ->with('success', 'Рулон удален');
     }
 }

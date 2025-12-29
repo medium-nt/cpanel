@@ -43,6 +43,9 @@ class SaveCollectMovementMaterialToWorkshopRequest extends FormRequest
         ];
     }
 
+    /**
+     * Проверяем, что рулон принадлежит данному материалу и находится на складе
+     */
     public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
@@ -68,7 +71,7 @@ class SaveCollectMovementMaterialToWorkshopRequest extends FormRequest
                     continue;
                 }
 
-                $order = $roll->movementMaterials()->first()?->order;
+                $order = $roll->movementMaterial?->order;
 
                 if ($order && $order->status != 3) {
                     $validator->errors()->add(
