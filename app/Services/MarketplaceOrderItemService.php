@@ -466,12 +466,30 @@ class MarketplaceOrderItemService
                 default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 
+            $statusFrom = ($field === 'cutter_id' || auth()->user()->is_cutter) ? 0 : 8; // 0 - новый, 8 - закроено
+
             DB::beginTransaction();
 
-            $marketplaceOrderItem->update([
-                'status' => $status,
-                $field => auth()->user()->id,
-            ]);
+            //            $marketplaceOrderItem->update([
+            //                'status' => $status,
+            //                $field => auth()->user()->id,
+            //            ]);
+
+            // Атомарный UPDATE с защитой от race condition
+            $affected = DB::table('marketplace_order_items')
+                ->where('id', $marketplaceOrderItem->id)
+                ->where('status', $statusFrom)
+                ->update([
+                    'status' => $status,
+                    $field => auth()->user()->id,
+                ]);
+
+            if ($affected === 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Заказ уже был взят другим сотрудником. Попробуйте ещё раз.',
+                ];
+            }
 
             $order = Order::query()->create([
                 'type_movement' => 3,
@@ -524,73 +542,13 @@ class MarketplaceOrderItemService
             ];
         }
 
+        self::notifyAboutReservation($marketplaceOrderItem, $marketplaceItem);
+
         return [
             'success' => true,
             'message' => 'Заказ принят',
         ];
     }
-
-    /**
-     * @throws Exception
-     */
-    //    public static function getNewOrderItem_OLD(): array
-    //    {
-    //        $result = self::checkSchedule();
-    //        if (!$result['success']) {
-    //            return $result;
-    //        }
-    //
-    //        $result = self::checkMaxStack(auth()->user());
-    //        if (!$result['success']) {
-    //            return $result;
-    //        }
-    //
-    //        foreach (self::getFilteredItems() as $marketplaceOrderItem) {
-    //            $item = $marketplaceOrderItem->item()->first();
-    //
-    //            if (!self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
-    //                $text = 'На товар ' . $item->title . ' '. $item->width . 'x' . $item->height . ' недостаточно материала на складе';
-    //                TgService::sendMessage(config('telegram.admin_id'), $text);
-    //                continue;
-    //            }
-    //
-    //            if(!self::canUseMaterial($marketplaceOrderItem)) {
-    //                continue;
-    //            }
-    //
-    //            if (self::isReserved($marketplaceOrderItem)) {
-    //                continue;
-    //            }
-    //
-    //            self::reserve($marketplaceOrderItem);
-    //
-    //            $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceOrderItem->marketplaceOrder->marketplace_id);
-    //
-    //            $text = 'Товар ' . $marketplaceName . ' #' . $marketplaceOrderItem->id .
-    //                ' (' . $item->title . ' '. $item->width . 'x' . $item->height .
-    //                ') взял в работу сотрудник: ' . auth()->user()->name;
-    //
-    //            SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
-    //
-    //            if (auth()->user()->tg_id) {
-    //                SendTelegramMessageJob::dispatch(
-    //                    auth()->user()->tg_id,
-    //                    'Вы взяли в работу заказ # '
-    //                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' (' . $marketplaceName . '): '
-    //                    . $item->title . ' ' . $item->width . 'x' . $item->height
-    //                );
-    //            }
-    //
-    //            Log::channel('erp')->info($text);
-    //
-    //            return self::assignOrderToUser($marketplaceOrderItem);
-    //        }
-    //
-    //        return [
-    //            'success' => false,
-    //            'message' => 'Нет доступных заказов'
-    //        ];
-    //    }
 
     public static function getNewOrderItem(): array
     {
@@ -647,12 +605,11 @@ class MarketplaceOrderItemService
             return ['success' => false];
         }
 
-        if (self::isReserved($marketplaceOrderItem)) {
-            return ['success' => false];
-        }
-
-        self::reserve($marketplaceOrderItem);
-        self::notifyAboutReservation($marketplaceOrderItem, $item);
+        //        if (self::isReserved($marketplaceOrderItem)) {
+        //            return ['success' => false];
+        //        }
+        //
+        //        self::reserve($marketplaceOrderItem);
 
         return self::assignOrderToUser($marketplaceOrderItem);
     }
@@ -872,26 +829,26 @@ class MarketplaceOrderItemService
         }
     }
 
-    private static function isReserved($marketplaceOrderItem): bool
-    {
-        if ($marketplaceOrderItem->status == 99) {
-            Log::channel('erp')
-                ->warning('Конкурентный доступ! Заказ '.$marketplaceOrderItem->id.' находится в резерве');
+    //    private static function isReserved($marketplaceOrderItem): bool
+    //    {
+    //        if ($marketplaceOrderItem->status == 99) {
+    //            Log::channel('erp')
+    //                ->warning('Конкурентный доступ! Заказ '.$marketplaceOrderItem->id.' находится в резерве');
+    //
+    //            return true;
+    //        }
+    //
+    //        return false;
+    //    }
 
-            return true;
-        }
-
-        return false;
-    }
-
-    private static function reserve($marketplaceOrderItem): void
-    {
-        $marketplaceOrderItem->status = 99;
-        $marketplaceOrderItem->save();
-
-        Log::channel('erp')
-            ->warning('Зарезервирован товар '.$marketplaceOrderItem->id);
-    }
+    //    private static function reserve($marketplaceOrderItem): void
+    //    {
+    //        $marketplaceOrderItem->status = 99;
+    //        $marketplaceOrderItem->save();
+    //
+    //        Log::channel('erp')
+    //            ->warning('Зарезервирован товар '.$marketplaceOrderItem->id);
+    //    }
 
     private static function restoreReserve($marketplaceOrderItem): void
     {
