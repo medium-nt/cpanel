@@ -44,6 +44,9 @@ class MarketplaceOrderService
         } catch (Throwable $e) {
             DB::rollBack();
 
+            Log::channel('erp')
+                ->error($e->getMessage());
+
             return false;
         }
 
