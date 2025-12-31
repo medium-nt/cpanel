@@ -828,6 +828,28 @@ class MarketplaceApiService
         }
     }
 
+    private static function getBarcodeOzonBySku(?string $sku): ?string
+    {
+        if (empty($sku)) {
+            return null;
+        }
+
+        $body = [
+            'sku' => [$sku],
+        ];
+
+        $response = self::ozonRequest()
+            ->post('https://api-seller.ozon.ru/v3/product/info/list', $body);
+
+        if (!$response->successful()) {
+            return null;
+        }
+
+        $data = $response->json();
+
+        return $data['items'][0]['barcodes'][0] ?? null;
+    }
+
     public function getBarcodeOzon(mixed $orderId): object|false|null
     {
         $body = [
@@ -939,16 +961,13 @@ class MarketplaceApiService
 
         $seamstressName = $surname.' '.$initials;
 
-        $sku = Sku::query()
-            ->where('item_id', $order->items[0]->item->id)
-            ->where('marketplace_id', $order->marketplace_id)
-            ->first();
-
-        $barcode = ($order->marketplace_id == 1) ? 'OZN'.$sku->sku : $sku->sku;
+        $item = $order->items->first()->item;
+        $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
+        $barcode = ($order->marketplace_id == 1) ? self::getBarcodeOzonBySku($sku) : $sku;
 
         $pdf = PDF::loadView('pdf.fbo_ozon_sticker', [
             'barcode' => $barcode,
-            'item' => $order->items[0]->item,
+            'item' => $item,
             'seamstressName' => $seamstressName,
         ]);
 
