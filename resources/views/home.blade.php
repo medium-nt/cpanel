@@ -285,7 +285,7 @@
                         class="form-control"
                         onchange="updatePageWithQueryParam(this)"
                         required>
-                    @foreach($employees as $employee)
+                    @foreach($employeesForCalendar as $employee)
                         <option value="{{ $employee->id }}"
                                 @if(request('employee_id', $currentUserId) == $employee->id) selected @endif
                         >{{ $employee->name }}</option>

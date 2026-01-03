@@ -44,6 +44,10 @@ class HomeController extends Controller
             'employees' => User::query()
                 ->where('name', 'not like', '%Тест%')
                 ->paginate(5, ['*'], 'employees')->withQueryString(),
+            'employeesForCalendar' => User::query()
+                ->where('name', 'not like', '%Тест%')
+                ->orderBy('name')
+                ->get(),
             'currentUserId' => auth()->id(),
             'dates' => json_encode($dates),
             'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
