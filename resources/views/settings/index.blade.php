@@ -197,6 +197,18 @@
                                 </div>
 
                                 <div class="form-group col-md-2">
+                                    <label for="seamstress_daily_limit">Метраж в
+                                        день у швеи</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="seamstress_daily_limit"
+                                        name="seamstress_daily_limit"
+                                        value="{{ $settings->seamstress_daily_limit }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-2">
                                     <label for="orders_priority">Порядок
                                         заказов</label>
                                     <select name="orders_priority" id="orders_priority" class="form-control">

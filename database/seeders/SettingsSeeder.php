@@ -81,5 +81,10 @@ class SettingsSeeder extends Seeder
             ['name' => 'cutter_daily_limit'],
             ['value' => '1']
         );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'seamstress_daily_limit'],
+            ['value' => '1000']
+        );
     }
 }
