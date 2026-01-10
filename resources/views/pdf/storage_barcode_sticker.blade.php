@@ -85,13 +85,13 @@
             <div class="code-text">ширина {{ $item->item->width }}</div>
             <div class="code-text">высота {{ $item->item->height }}
                 <span
-                    style="float:right;">швея № {{ $item->seamstress->id }}</span>
+                    style="float:right; font-weight: bold">швея № {{ $item->seamstress->id }}</span>
             </div>
         </div>
 
         <div class="code-text2">
             @isset($item->cutter)
-                закройщик № {{ $item->cutter->id ?? '' }}
+                <b>закройщик № {{ $item->cutter->id ?? '' }}</b>
             @endisset
         </div>
     </div>
