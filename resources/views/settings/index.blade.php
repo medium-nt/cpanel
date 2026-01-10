@@ -220,6 +220,109 @@
                             </div>
                             <hr>
 
+                            <div class="row">
+                                <div class="form-group col-md-2">
+                                    <label
+                                        for="max_quantity_orders_without_timeout">Макс.
+                                        кол-во заказов без таймаута</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="max_quantity_orders_without_timeout"
+                                        name="max_quantity_orders_without_timeout"
+                                        min="0"
+                                        max="100"
+                                        value="{{ $settings->max_quantity_orders_without_timeout ?? '' }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label for="timeout_200">Таймаут на
+                                        200</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="timeout_200"
+                                        name="timeout_200"
+                                        value="{{ $settings->timeout_200 ?? '' }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label for="timeout_300">Таймаут на
+                                        300</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="timeout_300"
+                                        name="timeout_300"
+                                        value="{{ $settings->timeout_300 ?? '' }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label for="timeout_400">Таймаут на
+                                        400</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="timeout_400"
+                                        name="timeout_400"
+                                        value="{{ $settings->timeout_400 ?? '' }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label for="timeout_500">Таймаут на
+                                        500</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="timeout_500"
+                                        name="timeout_500"
+                                        value="{{ $settings->timeout_500 ?? '' }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label for="timeout_600">Таймаут на
+                                        600</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="timeout_600"
+                                        name="timeout_600"
+                                        value="{{ $settings->timeout_600 ?? '' }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label for="timeout_700">Таймаут на
+                                        700</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="timeout_700"
+                                        name="timeout_700"
+                                        value="{{ $settings->timeout_700 ?? '' }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label for="timeout_800">Таймаут на
+                                        800</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="timeout_800"
+                                        name="timeout_800"
+                                        value="{{ $settings->timeout_800 ?? '' }}"
+                                    >
+                                </div>
+                            </div>
+
+                            <hr>
+
                             <button type="submit" class="btn btn-primary">Сохранить</button>
                         </form>
                     </div>

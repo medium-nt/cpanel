@@ -86,5 +86,45 @@ class SettingsSeeder extends Seeder
             ['name' => 'seamstress_daily_limit'],
             ['value' => '1000']
         );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'max_quantity_orders_without_timeout'],
+            ['value' => '100']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'timeout_200'],
+            ['value' => '100']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'timeout_300'],
+            ['value' => '100']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'timeout_400'],
+            ['value' => '100']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'timeout_500'],
+            ['value' => '100']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'timeout_600'],
+            ['value' => '100']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'timeout_700'],
+            ['value' => '100']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'timeout_800'],
+            ['value' => '100']
+        );
     }
 }
