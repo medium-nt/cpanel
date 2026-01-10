@@ -841,7 +841,7 @@ class MarketplaceApiService
         $response = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v3/product/info/list', $body);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return null;
         }
 
@@ -944,23 +944,6 @@ class MarketplaceApiService
 
     public function getBarcodeOzonFBO(MarketplaceOrder $order): \Illuminate\Http\Response
     {
-        $fullName = $order->items[0]->seamstress->name ?? '';
-
-        $parts = explode(' ', $fullName);
-
-        $surname = $parts[0];
-        $initials = '';
-
-        if (isset($parts[1])) {
-            $initials .= mb_substr($parts[1], 0, 1).'.';
-        }
-
-        if (isset($parts[2])) {
-            $initials .= mb_substr($parts[2], 0, 1).'.';
-        }
-
-        $seamstressName = $surname.' '.$initials;
-
         $item = $order->items->first()->item;
         $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
         $barcode = ($order->marketplace_id == 1) ? self::getBarcodeOzonBySku($sku) : $sku;
@@ -968,7 +951,7 @@ class MarketplaceApiService
         $pdf = PDF::loadView('pdf.fbo_ozon_sticker', [
             'barcode' => $barcode,
             'item' => $item,
-            'seamstressName' => $seamstressName,
+            'seamstressId' => $order->items[0]->seamstress->id,
         ]);
 
         $pdf->setPaper('A4', 'portrait');
@@ -1824,11 +1807,11 @@ class MarketplaceApiService
         $product = $response['products'][0];
         $exemplar = $product['exemplars'][0];
 
-        if (!self::setCountryIsoCode($response['posting_number'], $product['product_id'])) {
+        if (! self::setCountryIsoCode($response['posting_number'], $product['product_id'])) {
             return false;
         }
 
-        if (!self::setGtdAbsent($response['posting_number'], $product['product_id'], $exemplar['exemplar_id'])) {
+        if (! self::setGtdAbsent($response['posting_number'], $product['product_id'], $exemplar['exemplar_id'])) {
             return false;
         }
 
@@ -1849,9 +1832,9 @@ class MarketplaceApiService
         $apiResponse = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v2/posting/fbs/product/country/set', $body);
 
-        if (!$apiResponse->ok()) {
+        if (! $apiResponse->ok()) {
             Log::channel('marketplace_api')
-                ->error('Не удалось установить "Страна-изготовитель" для заказа ' . $postingNumber, [
+                ->error('Не удалось установить "Страна-изготовитель" для заказа '.$postingNumber, [
                     'body' => $body,
                     'response' => $apiResponse->object(),
                 ]);
@@ -1860,7 +1843,7 @@ class MarketplaceApiService
         }
 
         Log::channel('marketplace_api')
-            ->info('Установлен "Страна-изготовитель" для заказа ' . $postingNumber);
+            ->info('Установлен "Страна-изготовитель" для заказа '.$postingNumber);
 
         return true;
     }
@@ -1888,9 +1871,9 @@ class MarketplaceApiService
         $apiResponse = self::ozonRequest()
             ->post('https://api-seller.ozon.ru/v6/fbs/posting/product/exemplar/set', $body);
 
-        if (!$apiResponse->ok()) {
+        if (! $apiResponse->ok()) {
             Log::channel('marketplace_api')
-                ->error('Не удалось установить "ГТД отсутствует" для заказа ' . $postingNumber, [
+                ->error('Не удалось установить "ГТД отсутствует" для заказа '.$postingNumber, [
                     'body' => $body,
                     'response' => $apiResponse->object(),
                 ]);
@@ -1899,7 +1882,7 @@ class MarketplaceApiService
         }
 
         Log::channel('marketplace_api')
-            ->info('Установили "ГТД отсутствует" для заказа ' . $postingNumber);
+            ->info('Установили "ГТД отсутствует" для заказа '.$postingNumber);
 
         return true;
     }

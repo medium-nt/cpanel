@@ -71,6 +71,6 @@
         <div class="code-text">высота {{ $item->height }}</div>
     </div>
 
-    <div class="code-text2">{{ $seamstressName }}</div>
+    <div class="code-text2">швея № {{ $seamstressId }}</div>
 </body>
 </html>

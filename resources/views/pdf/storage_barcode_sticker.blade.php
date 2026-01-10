@@ -85,11 +85,15 @@
             <div class="code-text">ширина {{ $item->item->width }}</div>
             <div class="code-text">высота {{ $item->item->height }}
                 <span
-                    style="float:right;">{{ $item->seamstress->short_name }}</span>
+                    style="float:right;">швея № {{ $item->seamstress->id }}</span>
             </div>
         </div>
 
-        <div class="code-text2">{{ $item->cutter->short_name ?? '' }}</div>
+        <div class="code-text2">
+            @isset($item->cutter)
+                закройщик № {{ $item->cutter->id ?? '' }}
+            @endisset
+        </div>
     </div>
     @if (!$loop->last)
         <div style="page-break-after: always;"></div>
