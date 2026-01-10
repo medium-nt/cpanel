@@ -870,6 +870,10 @@ class MarketplaceOrderItemService
         };
 
         if ($meters >= $dailyLimit) {
+            Log::channel('erp')
+                ->error('Сотрудник '.$user->name.' достиг дневного лимита! Метраж (готовый и в работе): '.
+                    $meters.', при лимите в '.$dailyLimit);
+
             return [
                 'success' => false,
                 'message' => 'Вы не можете взять больше заказов сегодня! Ваш метраж (готовый и в работе): '.
