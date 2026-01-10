@@ -454,16 +454,18 @@ class MarketplaceOrderItemService
             $materialConsumptions = $marketplaceItem->consumption;
             $quantityOrderItem = $marketplaceOrderItem->quantity;
 
-            $field = match (auth()->user()->role->name) {
+            $roleName = auth()->user()->role->name;
+
+            $field = match ($roleName) {
                 'seamstress' => 'seamstress_id',
                 'cutter' => 'cutter_id',
-                default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
+                default => throw new \Exception('Недопустимая роль: '.$roleName),
             };
 
-            $status = match (auth()->user()->role->name) {
+            $status = match ($roleName) {
                 'seamstress' => 4,
                 'cutter' => 7,
-                default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
+                default => throw new \Exception('Недопустимая роль: '.$roleName),
             };
 
             $statusFrom = ($field === 'cutter_id' || auth()->user()->is_cutter) ? 0 : 8; // 0 - новый, 8 - закроено
@@ -491,6 +493,11 @@ class MarketplaceOrderItemService
                 ];
             }
 
+            if ($roleName == 'seamstress') {
+                $marketplaceOrderItem->started_at = now();
+                $marketplaceOrderItem->save();
+            }
+
             $order = Order::query()->create([
                 'type_movement' => 3,
                 'status' => 4,
@@ -502,7 +509,7 @@ class MarketplaceOrderItemService
             foreach ($materialConsumptions as $item) {
                 $movementMaterial = new MovementMaterial;
 
-                switch (auth()->user()->role->name) {
+                switch ($roleName) {
                     case 'cutter':
                         if ($item->material->type_id == 1) {
                             $movementMaterial->material_id = $item->material_id;
