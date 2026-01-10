@@ -562,8 +562,8 @@ class MarketplaceOrderItemService
             return self::checkMaxStack($user);
         }
 
-        if (! self::checkCutterDailyLimit($user)['success']) {
-            return self::checkCutterDailyLimit($user);
+        if (! self::checkDailyLimit($user)['success']) {
+            return self::checkDailyLimit($user);
         }
 
         return self::processAvailableItems();
@@ -859,22 +859,22 @@ class MarketplaceOrderItemService
             ->warning('Восстановлен резервированный товара '.$marketplaceOrderItem->id);
     }
 
-    private static function checkCutterDailyLimit(User $user): array
+    private static function checkDailyLimit(User $user): array
     {
-        if ($user->isCutter()) {
-            $inCutting = self::getCutterMetersByStatus(7);
-            $inCut = self::getCutterMetersByStatus(8);
+        $meters = self::getMetersTodayByUser($user) / 100;
 
-            $meters = ($inCutting + $inCut) / 100;
-            $dailyLimit = Setting::getValue('cutter_daily_limit');
+        $dailyLimit = match ($user->role->name) {
+            'seamstress' => Setting::getValue('seamstress_daily_limit'),
+            'cutter' => Setting::getValue('cutter_daily_limit'),
+            default => 0,
+        };
 
-            if ($meters >= $dailyLimit) {
-                return [
-                    'success' => false,
-                    'message' => 'Вы не можете взять больше заказов! Ваш метраж (готовый и в работе): '.
-                        $meters.', при лимите в '.$dailyLimit,
-                ];
-            }
+        if ($meters >= $dailyLimit) {
+            return [
+                'success' => false,
+                'message' => 'Вы не можете взять больше заказов сегодня! Ваш метраж (готовый и в работе): '.
+                    $meters.', при лимите в '.$dailyLimit,
+            ];
         }
 
         return [
@@ -883,12 +883,24 @@ class MarketplaceOrderItemService
         ];
     }
 
-    private static function getCutterMetersByStatus(int $status): float
+    private static function getMetersTodayByUser(User $user): float
     {
+        $column = $user->isCutter() ? 'cutter_id' : 'seamstress_id';
+
         return MarketplaceOrderItem::query()
-            ->where('status', $status)
-            ->where('cutter_id', auth()->id())
-            ->when($status === 8, fn ($q) => $q->whereDate('cutting_completed_at', now()->toDateString()))
+            ->where($column, $user->id)
+            ->when($user->isCutter(), function ($q) {
+                $q->where(function ($q) {
+                    $q->where('status', 7)
+                        ->orWhereDate('cutting_completed_at', now()->toDateString());
+                });
+            })
+            ->when($user->isSeamstress(), function ($q) {
+                $q->where(function ($q) {
+                    $q->where('status', 4)
+                        ->orWhereDate('completed_at', now()->toDateString());
+                });
+            })
             ->whereHas('item')
             ->with('item')
             ->get()
