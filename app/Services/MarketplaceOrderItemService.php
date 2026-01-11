@@ -573,6 +573,10 @@ class MarketplaceOrderItemService
             return self::checkDailyLimit($user);
         }
 
+        if (! self::checkTimeout($user)['success']) {
+            return self::checkTimeout($user);
+        }
+
         return self::processAvailableItems();
     }
 
@@ -916,6 +920,82 @@ class MarketplaceOrderItemService
             ->with('item')
             ->get()
             ->sum(fn ($orderItem) => $orderItem->item->width ?? 0);
+    }
+
+    private static function checkTimeout(User $user): array
+    {
+        $success = [
+            'success' => true,
+            'message' => 'OK',
+        ];
+
+        if ($user->isCutter()) {
+            return $success;
+        }
+
+        $inWork = MarketplaceOrderItem::query()
+            ->where('status', 4)
+            ->where('seamstress_id', $user->id)
+            ->with('item')
+            ->get();
+
+        $maxCount = Setting::getValue('max_quantity_orders_without_timeout');
+
+        if ($maxCount > $inWork->count()) {
+            return $success;
+        }
+
+        $maxRemainingMinutes = 0;
+
+        $settings = Setting::getValues([
+            'timeout_200',
+            'timeout_300',
+            'timeout_400',
+            'timeout_500',
+            'timeout_600',
+            'timeout_700',
+            'timeout_800',
+        ]);
+
+        $timeout = [
+            200 => (int) ($settings['timeout_200'] ?? 0),
+            300 => (int) ($settings['timeout_300'] ?? 0),
+            400 => (int) ($settings['timeout_400'] ?? 0),
+            500 => (int) ($settings['timeout_500'] ?? 0),
+            600 => (int) ($settings['timeout_600'] ?? 0),
+            700 => (int) ($settings['timeout_700'] ?? 0),
+            800 => (int) ($settings['timeout_800'] ?? 0),
+        ];
+
+        foreach ($inWork as $orderItem) {
+            $orderItemTimeout = $timeout[$orderItem->item->width] ?? 0;
+
+            if ($orderItemTimeout === 0 || $orderItem->started_at === null) {
+                continue;
+            }
+
+            $deadline = Carbon::parse($orderItem->started_at)
+                ->addMinutes($orderItemTimeout);
+
+            if ($deadline->isFuture()) {
+                $remainingMinutes = (int) ceil(now()->diffInSeconds($deadline) / 60);
+                $maxRemainingMinutes = max($maxRemainingMinutes, $remainingMinutes);
+            }
+        }
+
+        if ($maxRemainingMinutes > 0) {
+            Log::channel('erp')
+                ->error('Сотрудник '.$user->name.
+                    ' пытался взять заказ, но у него не окончен таймаут. Ждать еще '
+                    .$maxRemainingMinutes.' минут');
+
+            return [
+                'success' => false,
+                'message' => 'Вы не можете взять новый заказ. Подождите '.$maxRemainingMinutes.' минут',
+            ];
+        }
+
+        return $success;
     }
 
     public function getOrdersGroupedByMaterial(User $user): \Illuminate\Support\Collection

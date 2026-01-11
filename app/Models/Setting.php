@@ -23,4 +23,12 @@ class Setting extends Model
             ->where('name', $name)
             ->value('value');
     }
+
+    public static function getValues(array $names): array
+    {
+        return static::query()
+            ->whereIn('name', $names)
+            ->pluck('value', 'name')
+            ->toArray();
+    }
 }
