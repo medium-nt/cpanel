@@ -60,7 +60,11 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="barcode">
-                        {!! DNS1D::getBarcodeHTML($user->role_id . '-' . $user->id . '-' . $user->created_at->format('Ymd'), 'C128', 2.2, 100) !!}
+                        {{--                        {!! DNS1D::getBarcodeHTML($user->role_id . '-' . $user->id . '-' . $user->created_at->format('Ymd'), 'C128', 2.2, 100) !!}--}}
+
+                        {!! QrCode::format('svg')->size(300)->generate(
+                            $user->role_id . '-' . $user->id . '-' . $user->created_at->format('Ymd')
+                        ) !!}
                     </div>
                     <div class="code-label">{{ $user->name }}</div>
                 </div>
