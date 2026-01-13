@@ -45,7 +45,7 @@ class MarketplaceOrderController extends Controller
 
     public function store(StoreMarketplaceOrderRequest $request)
     {
-        if (!MarketplaceOrderService::store($request)) {
+        if (! MarketplaceOrderService::store($request)) {
             return back()->with(['error' => 'Внутренняя ошибка']);
         }
 
@@ -135,15 +135,13 @@ class MarketplaceOrderController extends Controller
         if ($marketplaceOrder->items->some(function ($item) {
             return $item->status != 0;
         })) {
-            return redirect()
-                ->route('marketplace_orders.index')
+            return back()
                 ->with('error', 'Товары заказа уже переданы в работу. Заказ не может быть удален.');
         }
 
         $marketplaceOrder->delete();
 
-        return redirect()
-            ->route('marketplace_orders.index')
+        return back()
             ->with('success', 'Заказ удален.');
     }
 
