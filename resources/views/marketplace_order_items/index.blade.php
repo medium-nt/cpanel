@@ -471,6 +471,12 @@
                                     <small>Кроил:
                                         <b>{{ $item->cutter->shortName ?? '' }}</b>
                                     </small>
+                                    <br>
+                                @endisset
+                                @isset($item->seamstress)
+                                    <small>Швея:
+                                        <b>{{ $item->seamstress->shortName ?? '' }}</b>
+                                    </small>
                                 @endisset
                                 <div class="my-2">
                                     Товар: <span
