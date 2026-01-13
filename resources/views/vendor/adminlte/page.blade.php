@@ -62,7 +62,7 @@
                     <div class="barcode">
                         {{--                        {!! DNS1D::getBarcodeHTML($user->role_id . '-' . $user->id . '-' . $user->created_at->format('Ymd'), 'C128', 2.2, 100) !!}--}}
 
-                        {!! QrCode::format('svg')->size(300)->generate(
+                        {!! QrCode::format('svg')->size(150)->generate(
                             $user->role_id . '-' . $user->id . '-' . $user->created_at->format('Ymd')
                         ) !!}
                     </div>
