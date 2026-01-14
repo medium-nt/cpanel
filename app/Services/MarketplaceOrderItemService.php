@@ -264,7 +264,7 @@ class MarketplaceOrderItemService
             ->get();
 
         foreach ($seamstresses as $seamstress) {
-            $seamstressesLargeSizeRating[$seamstress->id]['name'] = $seamstress->name;
+            $seamstressesLargeSizeRating[$seamstress->id]['name'] = $seamstress->short_name;
             foreach ($dates as $date) {
                 $startDate = $endDate = $date;
 

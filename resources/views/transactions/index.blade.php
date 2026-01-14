@@ -48,7 +48,7 @@
                                     @foreach($users as $user)
                                         <option value="{{ $user->id }}"
                                             @if(request('user_id') == $user->id) selected @endif>
-                                            {{ $user->name }}
+                                            {{ $user->short_name }}
                                         </option>
                                     @endforeach
                                 </select>

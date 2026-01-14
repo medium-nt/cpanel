@@ -79,7 +79,7 @@
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}"
                                             @if(request('users_id') == $user->id) selected @endif
-                                    >{{ $user->name }}</option>
+                                    >{{ $user->short_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -162,7 +162,8 @@
                                             </li>
                                         @endforeach
                                         <div class="mt-2">
-                                            Сотрудник: <b>{{ $order->seamstress->name ?? '' }} {{ $order->cutter->name ?? '' }}</b>
+                                            Сотрудник:
+                                            <b>{{ $order->seamstress->short_name ?? '' }} {{ $order->cutter->short_name ?? '' }}</b>
                                         </div>
                                         <div class="my-2">
                                             Тип: <b>{{ $order->type_movement_name }}</b>
@@ -268,7 +269,7 @@
                                         <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                     </td>
                                     <td>{{ $order->type_movement_name }}</td>
-                                    <td>{{ $order->seamstress->name ?? '' }} {{ $order->cutter->name ?? '' }}</td>
+                                    <td>{{ $order->seamstress->short_name ?? '' }} {{ $order->cutter->short_name ?? '' }}</td>
                                     <td>{{ $order->comment }}</td>
                                     <td>{{ $order->created_date }}</td>
 

@@ -237,7 +237,7 @@
                         <td>
                             <img src="{{ asset('storage/' . $user->avatar) }}"
                                  style="width:50px; height:50px;" alt="">
-                            {{ $user->name }}
+                            {{ $user->short_name }}
                         </td>
                         <td>
                             @if(!$user->shift_is_open)
@@ -288,7 +288,7 @@
                     @foreach($employeesForCalendar as $employee)
                         <option value="{{ $employee->id }}"
                                 @if(request('employee_id', $currentUserId) == $employee->id) selected @endif
-                        >{{ $employee->name }}</option>
+                        >{{ $employee->short_name }}</option>
                     @endforeach
                 </select>
             </div>
