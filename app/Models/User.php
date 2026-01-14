@@ -133,6 +133,11 @@ class User extends Authenticatable
         return $this->role?->name === 'seamstress' && $this->is_cutter;
     }
 
+    public function seamstressNotCut(): bool
+    {
+        return $this->role?->name === 'seamstress' && ! $this->is_cutter;
+    }
+
     public function isStorekeeper(): bool
     {
         return $this->role?->name === 'storekeeper';

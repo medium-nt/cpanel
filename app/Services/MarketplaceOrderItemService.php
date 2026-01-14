@@ -443,15 +443,17 @@ class MarketplaceOrderItemService
             return false;
         }
 
+        $user = auth()->user();
         $quantityOrderItem = $marketplaceOrderItem->quantity;
 
         foreach ($materialConsumptions as $materialConsumption) {
-            $materialId = $materialConsumption->material_id;
-            $materialConsumptionQuantity = $materialConsumption->quantity;
+            if ($user->seamstressNotCut() && $materialConsumption->material->type_id == 1) {
+                continue;
+            }
 
-            $materialInWorkhouse = InventoryService::materialInWorkshop($materialId);
+            $materialInWorkhouse = InventoryService::materialInWorkshop($materialConsumption->material_id);
 
-            if ($materialInWorkhouse < $materialConsumptionQuantity * $quantityOrderItem) {
+            if ($materialInWorkhouse < $materialConsumption->quantity * $quantityOrderItem) {
                 return false;
             }
         }
