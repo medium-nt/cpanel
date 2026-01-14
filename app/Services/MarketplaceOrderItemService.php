@@ -124,6 +124,8 @@ class MarketplaceOrderItemService
                     ' ('.$marketplaceOrderItem->cutter->id.')'.PHP_EOL.
                     'Инициатор: '.auth()->user()->name.' ('.auth()->user()->id.')'.PHP_EOL;
 
+                StackService::reduceStack($marketplaceOrderItem->cutter_id);
+
                 $marketplaceOrderItem->status = 0;
                 $marketplaceOrderItem->cutter_id = null;
                 $marketplaceOrderItem->completed_at = null;
@@ -403,6 +405,16 @@ class MarketplaceOrderItemService
                 ];
             }
 
+            if ($user->role->name === 'cutter') {
+                $maxStack = StackService::getMaxStackByUser($user->id)->max;
+                if ($maxStack >= $maxCountOrderItems) {
+                    return [
+                        'success' => false,
+                        'message' => 'Достигнут максимум заказов. Сначала вам необходимо закрыть все текущие заказы.',
+                    ];
+                }
+            }
+
             return [
                 'success' => true,
                 'message' => 'OK',
@@ -472,11 +484,6 @@ class MarketplaceOrderItemService
 
             DB::beginTransaction();
 
-            //            $marketplaceOrderItem->update([
-            //                'status' => $status,
-            //                $field => auth()->user()->id,
-            //            ]);
-
             // Атомарный UPDATE с защитой от race condition
             $affected = DB::table('marketplace_order_items')
                 ->where('id', $marketplaceOrderItem->id)
@@ -496,6 +503,10 @@ class MarketplaceOrderItemService
             if ($roleName == 'seamstress') {
                 $marketplaceOrderItem->started_at = now();
                 $marketplaceOrderItem->save();
+            }
+
+            if ($roleName == 'cutter') {
+                StackService::incrementStackAndMaxStack(auth()->user()->id);
             }
 
             $order = Order::query()->create([

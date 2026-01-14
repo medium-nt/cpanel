@@ -9,6 +9,7 @@ use App\Models\Sku;
 use App\Models\User;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
+use App\Services\StackService;
 use App\Services\TransactionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -69,9 +70,9 @@ class MarketplaceOrderItemController extends Controller
             'completed_at' => now(),
         ]);
 
-        $text = 'Швея ' . $marketplaceOrderItem->seamstress->name .
-            ' (' . $marketplaceOrderItem->seamstress->id . ') выполнила заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id .
-            ' (товар #' . $marketplaceOrderItem->id . ')';
+        $text = 'Швея '.$marketplaceOrderItem->seamstress->name.
+            ' ('.$marketplaceOrderItem->seamstress->id.') выполнила заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.
+            ' (товар #'.$marketplaceOrderItem->id.')';
         Log::channel('erp')->notice($text);
 
         return back()->with('success', 'Заказ успешно выполнен');
@@ -81,7 +82,7 @@ class MarketplaceOrderItemController extends Controller
     {
         $result = MarketplaceOrderItemService::cancelToSeamstress($marketplaceOrderItem);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return redirect()
                 ->back()
                 ->with('error', $result['message']);
@@ -109,18 +110,18 @@ class MarketplaceOrderItemController extends Controller
                 default => false,
             };
 
-            if (!$result) {
+            if (! $result) {
                 Log::channel('marketplace_api')
-                    ->error('Не удалось передать заказ ' . $orderId . ' c sku: ' . $sku . ' на стикеровку');
+                    ->error('Не удалось передать заказ '.$orderId.' c sku: '.$sku.' на стикеровку');
 
                 return redirect()->route('marketplace_order_items.index')
                     ->with('error', 'Не удалось передать заказ на стикеровку');
             }
         }
 
-        $text = 'Швея ' . $marketplaceOrderItem->seamstress->name .
-            ' (' . $marketplaceOrderItem->seamstress->id . ') передала товар #' . $marketplaceOrderItem->id .
-            ' (заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id . ') на стикеровку';
+        $text = 'Швея '.$marketplaceOrderItem->seamstress->name.
+            ' ('.$marketplaceOrderItem->seamstress->id.') передала товар #'.$marketplaceOrderItem->id.
+            ' (заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.') на стикеровку';
 
         Log::channel('erp')->info($text);
 
@@ -161,9 +162,11 @@ class MarketplaceOrderItemController extends Controller
             'cutting_completed_at' => now(),
         ]);
 
-        $text = 'Закройщик ' . $marketplaceOrderItem->cutter->name .
-            ' (' . $marketplaceOrderItem->cutter->id . ') выполнил заказ ' . $marketplaceOrderItem->marketplaceOrder->order_id .
-            ' (товар #' . $marketplaceOrderItem->id . ')';
+        StackService::reduceStack($marketplaceOrderItem->cutter_id);
+
+        $text = 'Закройщик '.$marketplaceOrderItem->cutter->name.
+            ' ('.$marketplaceOrderItem->cutter->id.') выполнил заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.
+            ' (товар #'.$marketplaceOrderItem->id.')';
         Log::channel('erp')->notice($text);
 
         return back()->with('success', 'Заказ успешно выполнен');

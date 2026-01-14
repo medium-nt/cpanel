@@ -6,7 +6,10 @@ use App\Models\Stack;
 
 class StackService
 {
-    private static function getMaxStackByUser($seamstressId)
+    /**
+     * Получаем максимальное значение стэка у сотрудника.
+     */
+    public static function getMaxStackByUser($seamstressId): Stack
     {
         return Stack::query()->firstOrCreate(
             ['seamstress_id' => $seamstressId],
@@ -14,6 +17,9 @@ class StackService
         );
     }
 
+    /**
+     * Увеличиваем стек на 1.
+     */
     public static function incrementStackAndMaxStack($seamstressId): void
     {
         $stack = Stack::query()->where('seamstress_id', $seamstressId)->first();
@@ -23,6 +29,9 @@ class StackService
         $stack->save();
     }
 
+    /**
+     * Уменьшаем стек на 1 и если это последний заказ в стэке, то обнуляем стэк.
+     */
     public static function reduceStack($seamstressId): void
     {
         $stack = Stack::query()->where('seamstress_id', $seamstressId)->first();
@@ -40,6 +49,9 @@ class StackService
         }
     }
 
+    /**
+     * Обнуляем стэк.
+     */
     private static function resetMaxStackToZero(mixed $seamstressId): void
     {
         $stack = Stack::query()->where('seamstress_id', $seamstressId)->first();
