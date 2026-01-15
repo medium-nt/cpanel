@@ -1162,7 +1162,8 @@ class MarketplaceApiService
 
             if (! $response->ok()) {
                 Log::channel('marketplace_api')
-                    ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара');
+                    ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду товара:'.
+                        json_encode(['code' => $response->status(), 'body' => $response->body()]));
 
                 return '-';
             }
@@ -1179,6 +1180,10 @@ class MarketplaceApiService
         }
     }
 
+    /**
+     * Ищем по стикеру в возвратах номер заказа.
+     * Если не нашли, ищем по номеру стикера (сразу по номеру стикера нальзя - может быть пусто).
+     */
     public static function getOzonPostingNumberByReturnBarcode($barcode): array|string
     {
         $body = [
@@ -1192,11 +1197,16 @@ class MarketplaceApiService
             $response = self::ozonRequest()
                 ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
 
-            if (! $response->ok() || empty($response->object()->returns)) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')
                     ->error('ВНИМАНИЕ! Ошибка получения номера заказа из Ozon по штихкоду возврата');
 
                 return '-';
+            }
+
+            if (empty($response->object()->returns)) {
+                // сделать запрос по номеру стикера, а не по возвратам
+                return self::getOzonPostingNumberByBarcode($barcode);
             }
 
             $posting_number = $response->object()->returns[0]->posting_number;
