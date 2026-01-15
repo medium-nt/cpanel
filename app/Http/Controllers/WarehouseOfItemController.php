@@ -229,6 +229,7 @@ class WarehouseOfItemController extends Controller
 
         $marketplaceOrderItem = $marketplaceOrder->items->first();
         $marketplaceOrderItem->status = 3; // выполнен
+        $marketplaceOrderItem->shelf_id = null; // удаляем полку хранения
         $marketplaceOrderItem->save();
 
         return redirect()->route('warehouse_of_item.index')
