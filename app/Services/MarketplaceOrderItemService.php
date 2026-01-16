@@ -408,6 +408,11 @@ class MarketplaceOrderItemService
             if ($user->role->name === 'cutter') {
                 $maxStack = StackService::getMaxStackByUser($user->id)->max;
                 if ($maxStack >= $maxCountOrderItems) {
+
+                    Log::channel('erp')
+                        ->error('СТЭК! Достигнут максимум заказов у закройщика '.$user->name.', id: '.$user->id.
+                            '. Всего можно взять: '.$maxCountOrderItems.', текущее количество в работе (в стэке): '.$maxStack);
+
                     return [
                         'success' => false,
                         'message' => 'Достигнут максимум заказов. Сначала вам необходимо закрыть все текущие заказы.',
