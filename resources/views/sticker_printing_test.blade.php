@@ -30,16 +30,55 @@
                 <div class="card-body">
                     <label>Поле ввода сразу должно быть с фокусом.</label>
                     <input type="text"
+                           id="badgeInput"
                            class="form-control form-control-lg"
                            placeholder="1234567890"
                            style="border-width: 3px;"
                            value=""
                            autofocus>
+
+                    <span id="result"></span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    const input = document.getElementById('badgeInput');
+
+    let buffer = '';
+    let lastTime = Date.now();
+
+    document.addEventListener('keypress', e => {
+        const now = Date.now();
+
+        // если пауза — считаем, что начался новый скан
+        if (now - lastTime > 200) {
+            buffer = '';
+        }
+        lastTime = now;
+
+        if (e.key === 'Enter') {
+            input.value = buffer;
+            handleScanned(buffer); // твоя бизнес-логика
+            buffer = '';
+
+            // опционально очищать поле
+            setTimeout(() => input.value = '', 300);
+        } else {
+            buffer += e.key;
+        }
+    });
+
+    function handleScanned(code) {
+        console.log('SCANNED:', code);
+
+        // запротить span результат
+        const result = document.getElementById('result');
+        result.innerHTML = 'Отсканирован код: ' + code;
+    }
+</script>
 
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
