@@ -166,7 +166,7 @@
                                         $partBtoWB = $item->marketplaceOrder->part_b ? "({$item->marketplaceOrder->part_b})" : '';
 
                                         $route = match ($fulfillmentType) {
-                                            'FBO' => 'fbo_barcode',
+                                            'FBO' => 'fbo_barcode_html',
                                             'FBS' => 'barcode',
                                         }
                                     @endphp
@@ -189,13 +189,13 @@
 
                                     <tr>
                                         <td>
-                                            {{--                                            <button--}}
-                                            {{--                                                onclick="printBarcode('{{ $route }}' ,'{{ $item->marketplaceOrder->order_id }}')"--}}
-                                            {{--                                                class="btn btn-xs mx-5 d-flex align-items-center justify-content-center--}}
-                                            {{--                                                    @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "--}}
-                                            {{--                                                id="print_{{ $orderId }}">--}}
-                                            {{--                                                <i class="fas fa-barcode fa-xl"></i>--}}
-                                            {{--                                            </button>--}}
+                                            <button
+                                                onclick="printBarcode('{{ $route }}' ,'{{ $item->marketplaceOrder->order_id }}')"
+                                                class="btn btn-xs mx-5 d-flex align-items-center justify-content-center
+                                                    @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                id="print_{{ $orderId }}">
+                                                {{--                                                <i class="fas fa-barcode fa-xl"></i>--}}
+                                            </button>
 
                                             <a href="{{ route('marketplace_api.fbo_barcode_html', ['marketplaceOrderId' => $orderId]) }}"
                                                class="btn btn-xs mx-5 d-flex align-items-center justify-content-center
