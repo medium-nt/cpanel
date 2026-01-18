@@ -327,7 +327,7 @@
                 }
             };
 
-            iframe.src = '/' + link + `/?marketplaceOrderId=${orderId}`;
+            iframe.src = `${window.location.origin}/${link}/?marketplaceOrderId=${orderId}`;
         }
     </script>
 
