@@ -959,6 +959,19 @@ class MarketplaceApiService
         return $pdf->stream('barcode.pdf');
     }
 
+    public function getBarcodeOzonFBOHtml(MarketplaceOrder $order): \Illuminate\View\View
+    {
+        $item = $order->items->first()->item;
+        $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
+        $barcode = ($order->marketplace_id == 1) ? self::getBarcodeOzonBySku($sku) : $sku;
+
+        return view('pdf.fbo_ozon_sticker_html', [
+            'barcode' => $barcode,
+            'item' => $item,
+            'seamstressId' => $order->items[0]->seamstress->id,
+        ]);
+    }
+
     private static function checkCancelledProductsOzon(array $cancelledProductsOzon): array
     {
         $resultArray = [];

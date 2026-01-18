@@ -31,6 +31,9 @@ Route::get('barcode', [App\Http\Controllers\MarketplaceApiController::class, 'ge
 Route::get('fbo_barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getFBOBarcodeFile'])
     ->name('marketplace_api.fbo_barcode');
 
+Route::get('fbo_barcode_html', [App\Http\Controllers\MarketplaceApiController::class, 'getFBOBarcodeHtml'])
+    ->name('marketplace_api.fbo_barcode_html');
+
 Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
     ->name('marketplace_order_items.done');
 

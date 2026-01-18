@@ -101,4 +101,23 @@ class MarketplaceApiController extends Controller
 
         return $service->getBarcodeOzonFBO($order);
     }
+
+    public function getFBOBarcodeHtml(MarketplaceApiService $service)
+    {
+        $orderId = request()->marketplaceOrderId;
+
+        $order = MarketplaceOrder::query()
+            ->where('order_id', $orderId)
+            ->first();
+
+        if (! $order) {
+            echo 'Нет заказа с таким номером!';
+            exit;
+        }
+
+        $order->is_printed = true;
+        $order->save();
+
+        return $service->getBarcodeOzonFBOHtml($order);
+    }
 }
