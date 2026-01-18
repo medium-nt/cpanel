@@ -197,13 +197,6 @@
                                             {{--                                                --}}{{--                                                <i class="fas fa-barcode fa-xl"></i>--}}
                                             {{--                                            </button>--}}
 
-                                            <a href="{{ route('marketplace_api.fbo_barcode_html', ['marketplaceOrderId' => $orderId]) }}"
-                                               class="btn btn-xs mx-5 d-flex align-items-center justify-content-center
-                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
-                                               id="print_{{ $orderId }}">
-                                                <i class="fas fa-barcode fa-xl"></i>
-                                            </a>
-
                                         @if($fulfillmentType === 'FBS')
                                             <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $orderId]) }}"
                                                class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
@@ -214,6 +207,13 @@
                                             @endif
 
                                             @if($fulfillmentType === 'FBO')
+                                                <a href="{{ route('marketplace_api.fbo_barcode_html', ['marketplaceOrderId' => $orderId]) }}"
+                                                   class="btn btn-xs mx-5 d-flex align-items-center justify-content-center
+                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                   id="print_{{ $orderId }}">
+                                                    <i class="fas fa-barcode fa-xl"></i>
+                                                </a>
+
                                                 <a href="{{ route('marketplace_api.fbo_barcode', ['marketplaceOrderId' => $orderId]) }}"
                                                    class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
                                                @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
