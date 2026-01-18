@@ -68,10 +68,37 @@
             bottom: 5px;
             right: 5px;
         }
+
+        .print-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .print-button:hover {
+            background: #2563eb;
+        }
+
+        @media print {
+            .print-button {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="sticker">
+
+<button class="print-button" onclick="window.print()">Печать</button>
+
+<div class="sticker" id="printArea">
     <div class="barcode">
         {!! DNS1D::getBarcodeHTML($barcode, 'C128', 1.5, 85) !!}
     </div>
@@ -83,5 +110,6 @@
 
     <div class="code-text2"><b>швея № {{ $seamstressId }}</b></div>
 </div>
+
 </body>
 </html>
