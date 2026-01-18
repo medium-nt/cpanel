@@ -69,26 +69,42 @@
             right: 5px;
         }
 
-        .print-button {
+        .button-group {
             position: fixed;
             top: 10px;
             right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .print-button, .back-button {
             padding: 8px 16px;
-            background: #3b82f6;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            z-index: 1000;
+        }
+
+        .print-button {
+            background: #3b82f6;
         }
 
         .print-button:hover {
             background: #2563eb;
         }
 
+        .back-button {
+            background: #6b7280;
+        }
+
+        .back-button:hover {
+            background: #4b5563;
+        }
+
         @media print {
-            .print-button {
+            .button-group {
                 display: none !important;
             }
         }
@@ -96,7 +112,10 @@
 </head>
 <body>
 
-<button class="print-button" onclick="window.print()">Печать</button>
+<div class="button-group">
+    <button class="back-button" onclick="history.back()">Назад</button>
+    <button class="print-button" onclick="window.print()">Печать</button>
+</div>
 
 <div class="sticker" id="printArea">
     <div class="barcode">
