@@ -155,12 +155,20 @@
                                 </thead>
                                 <tbody>
 
+                                <iframe id="printFrame"
+                                        style="display:none"></iframe>
+
                                 @foreach ($items as $item)
                                     @php
                                         $isPrinted = $item->marketplaceOrder->is_printed;
                                         $orderId = $item->marketplaceOrder->order_id;
                                         $fulfillmentType = $item->marketplaceOrder->fulfillment_type;
-                                        $partBtoWB = $item->marketplaceOrder->part_b ? "({$item->marketplaceOrder->part_b})" : ''
+                                        $partBtoWB = $item->marketplaceOrder->part_b ? "({$item->marketplaceOrder->part_b})" : '';
+
+                                        $route = match ($fulfillmentType) {
+                                            'FBO' => 'fbo_barcode',
+                                            'FBS' => 'barcode',
+                                        }
                                     @endphp
                                     <script>
                                         $(document).ready(function() {
@@ -181,7 +189,15 @@
 
                                     <tr>
                                         <td>
-                                            @if($fulfillmentType === 'FBS')
+                                            <button
+                                                onclick="printBarcode('{{ $route }}' ,'{{ $item->marketplaceOrder->order_id }}')"
+                                                class="btn btn-xs mx-5 d-flex align-items-center justify-content-center
+                                                    @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                id="print_{{ $orderId }}">
+                                                <i class="fas fa-barcode fa-xl"></i>
+                                            </button>
+
+                                        @if($fulfillmentType === 'FBS')
                                             <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $orderId]) }}"
                                                class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
                                                @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
@@ -193,7 +209,7 @@
                                             @if($fulfillmentType === 'FBO')
                                                 <a href="{{ route('marketplace_api.fbo_barcode', ['marketplaceOrderId' => $orderId]) }}"
                                                    class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
-                                            @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
                                                    id="print_{{ $orderId }}">
                                                     <i class="fas fa-barcode fa-2x"></i>
                                                 </a>
@@ -297,6 +313,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function printBarcode(link, orderId) {
+            const iframe = document.getElementById('printFrame');
+
+            iframe.onload = () => {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (e) {
+                    console.error(e);
+                }
+            };
+
+            iframe.src = '/' + link + `/?marketplaceOrderId=${orderId}`;
+        }
+    </script>
 
     <script src="{{ asset('js/toggle_spoiler.js') }}"></script>
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
