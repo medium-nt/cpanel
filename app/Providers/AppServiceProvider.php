@@ -3,10 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,16 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Доверяем прокси Beget, чтобы Laravel понимал HTTPS
-        Request::setTrustedProxies(
-            [request()->getClientIp()],
-            Request::HEADER_X_FORWARDED_PROTO
-        );
-
-        if (app()->environment('production')) {
-            URL::forceScheme('https');
-        }
-
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
 
