@@ -327,8 +327,10 @@
                 }
             };
 
-            const BASE_URL = "{{ request()->getSchemeAndHttpHost() }}";
-            iframe.src = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
+            const url = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
+            console.log('iframe src =', url);
+
+            iframe.src = url;
         }
     </script>
 
