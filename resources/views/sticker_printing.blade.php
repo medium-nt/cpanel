@@ -327,6 +327,8 @@
                 }
             };
 
+            const BASE_URL = "{{ request()->getSchemeAndHttpHost() }}";
+
             const url = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
             console.log('iframe src =', url);
 
