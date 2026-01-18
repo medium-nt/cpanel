@@ -327,7 +327,8 @@
                 }
             };
 
-            iframe.src = `${window.location.origin}/${link}/?marketplaceOrderId=${orderId}`;
+            const BASE_URL = "{{ request()->getSchemeAndHttpHost() }}";
+            iframe.src = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
         }
     </script>
 
