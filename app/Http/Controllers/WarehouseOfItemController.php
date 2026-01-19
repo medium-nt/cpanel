@@ -78,22 +78,22 @@ class WarehouseOfItemController extends Controller
         if (! $marketplace_item->storage_barcode) {
             return redirect()
                 ->route('warehouse_of_item.new_refunds',
-                    ['barcode' => $marketplace_item->marketplaceOrder->order_id])
+                    ['barcode' => $marketplace_item->storage_barcode])
                 ->with('error', 'Не распечатан штрихкод хранения!');
         }
 
         if (! $request->shelf_id) {
             return redirect()
                 ->route('warehouse_of_item.new_refunds',
-                    ['barcode' => $marketplace_item->marketplaceOrder->order_id])
+                    ['barcode' => $marketplace_item->storage_barcode])
                 ->with('error', 'Не указан номер полки!');
         }
 
         $service->saveItemToStorage($marketplace_item, $request->shelf_id);
 
         return redirect()
-            ->route('warehouse_of_item.index')
-            ->with('success', 'Изменения сохранены');
+            ->route('warehouse_of_item.new_refunds')
+            ->with('success', 'Товар сохранен на полку!');
     }
 
     public function toPickList()
