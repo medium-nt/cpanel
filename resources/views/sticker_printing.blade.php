@@ -38,7 +38,7 @@
                 <div class="card" style="top: 10px;">
                     <div class="row mt-3 ml-1 mr-1">
                         <a class="btn btn-link btn-xs"
-                           href="{{ route('sticker_printing_test') }}">-</a>
+                           href="{{ route('kiosk') }}">-</a>
                         <div class="form-group col-md-1 mr-5">
                             <a class="btn btn-primary btn-lg" href="{{ route('sticker_printing') }}">Обновить</a>
                         </div>

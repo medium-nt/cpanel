@@ -16,7 +16,11 @@ if (App::environment(['local'])) {
 }
 
 Route::get('/sticker_printing', [App\Http\Controllers\StickerPrintingController::class, 'index'])->name('sticker_printing');
-Route::get('/sticker_printing_test', [App\Http\Controllers\StickerPrintingController::class, 'test'])->name('sticker_printing_test');
+
+Route::prefix('')
+    ->group(function () {
+        require base_path('routes/kiosk.php');
+    });
 
 Route::get('/open_close_work_shift', [App\Http\Controllers\StickerPrintingController::class, 'openCloseWorkShift'])
     ->name('open_close_work_shift');
