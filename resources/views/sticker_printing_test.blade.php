@@ -46,14 +46,11 @@
 
             <div class="card" style="top: 10px;">
                 <div class="card-body">
-                    <button onclick="printBarcode('fbo_barcode_proxy' ,'FBO')"
+                    <button onclick="printBarcode('fbo_barcode' ,'FBO1')"
                             class="btn btn-primary">
                         Печать
                     </button>
                 </div>
-
-                <iframe id="printFrame1" src="https://cpanel.su"></iframe>
-                <iframe id="printFrame1" src="http://cpanel.su"></iframe>
             </div>
         </div>
     </div>
@@ -62,13 +59,7 @@
 <script>
     async function printBarcode(link, orderId) {
         const iframe = document.getElementById('printFrame');
-
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        const BASE_URL = protocol + '//' + host;
-
-        const url = `${BASE_URL}/${link}?marketplaceOrderId=${orderId}`;
-        console.log('final url =', url);
+        const url = `${window.location.protocol}//${window.location.host}/${link}?marketplaceOrderId=${orderId}`;
 
         try {
             const response = await fetch(url);
