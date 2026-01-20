@@ -7,7 +7,12 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\TrustProxies;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->booting(fn () => TrustProxies::at('*'))
+    ->booting(function () {
+        TrustProxies::at('*');
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+    })
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
