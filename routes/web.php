@@ -34,6 +34,13 @@ Route::get('fbo_barcode', [App\Http\Controllers\MarketplaceApiController::class,
 Route::get('fbo_barcode_html', [App\Http\Controllers\MarketplaceApiController::class, 'getFBOBarcodeHtml'])
     ->name('marketplace_api.fbo_barcode_html');
 
+Route::get('/fbo_barcode_proxy', function () {
+    return app()->call(
+        'App\Http\Controllers\MarketplaceApiController@getFBOBarcodeFile',
+        request()->query()
+    );
+});
+
 Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
     ->name('marketplace_order_items.done');
 

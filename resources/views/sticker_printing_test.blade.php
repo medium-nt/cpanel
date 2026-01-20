@@ -46,7 +46,7 @@
 
             <div class="card" style="top: 10px;">
                 <div class="card-body">
-                    <button onclick="printBarcode('fbo_barcode' ,'FBO')"
+                    <button onclick="printBarcode('fbo_barcode_proxy' ,'FBO')"
                             class="btn btn-primary">
                         Печать
                     </button>
