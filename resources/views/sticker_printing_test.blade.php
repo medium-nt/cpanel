@@ -60,32 +60,35 @@
 </div>
 
 <script>
-    function printBarcode(link, orderId) {
+    async function printBarcode(link, orderId) {
         const iframe = document.getElementById('printFrame');
-
-        iframe.onload = () => {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            } catch (e) {
-                console.error(e);
-            }
-        };
 
         const protocol = window.location.protocol;
         const host = window.location.host;
         const BASE_URL = protocol + '//' + host;
 
-        const url = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
-        console.log('protocol =', protocol);
-        console.log('host =', host);
-        console.log('BASE_URL =', BASE_URL);
+        const url = `${BASE_URL}/${link}?marketplaceOrderId=${orderId}`;
         console.log('final url =', url);
-        console.log('iframe.src before =', iframe.src);
 
-        iframe.src = url;
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
 
-        console.log('iframe.src after =', iframe.src);
+            iframe.onload = () => {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (e) {
+                    console.error(e);
+                }
+                URL.revokeObjectURL(blobUrl);
+            };
+
+            iframe.src = blobUrl;
+        } catch (e) {
+            console.error('Error loading PDF:', e);
+        }
     }
 </script>
 
