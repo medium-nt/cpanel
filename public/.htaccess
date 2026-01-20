@@ -8,9 +8,9 @@
     # -------------------------------------------------
     # 2) Принудительный HTTP для /fbo_barcode
     # -------------------------------------------------
-    RewriteCond %{THE_REQUEST} \s/fbo_barcode [NC]
-    RewriteCond %{HTTP:X-Forwarded-Proto} !http
-    RewriteRule ^ http://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+#    RewriteCond %{THE_REQUEST} \s/fbo_barcode [NC]
+#    RewriteCond %{HTTP:X-Forwarded-Proto} !http
+#    RewriteRule ^ http://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # Handle X-XSRF-Token Header
     RewriteCond %{HTTP:x-xsrf-token} .
