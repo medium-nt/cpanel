@@ -51,6 +51,9 @@
                         Печать
                     </button>
                 </div>
+
+                <iframe id="printFrame1" src="https://cpanel.su"></iframe>
+                <iframe id="printFrame1" src="http://cpanel.su"></iframe>
             </div>
         </div>
     </div>
@@ -69,7 +72,7 @@
             }
         };
 
-        const BASE_URL = "{{ url('') }}";
+        const BASE_URL = window.location.protocol + '//' + window.location.host;
 
         const url = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
         console.log('iframe src =', url);
