@@ -72,12 +72,20 @@
             }
         };
 
-        const BASE_URL = window.location.protocol + '//' + window.location.host;
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const BASE_URL = protocol + '//' + host;
 
         const url = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
-        console.log('iframe src =', url);
+        console.log('protocol =', protocol);
+        console.log('host =', host);
+        console.log('BASE_URL =', BASE_URL);
+        console.log('final url =', url);
+        console.log('iframe.src before =', iframe.src);
 
         iframe.src = url;
+
+        console.log('iframe.src after =', iframe.src);
     }
 </script>
 
