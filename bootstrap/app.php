@@ -9,6 +9,7 @@ use Illuminate\Http\Middleware\TrustProxies;
 return Application::configure(basePath: dirname(__DIR__))
     ->booting(function () {
         TrustProxies::at('*');
+        URL::forceScheme('https');
     })
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
