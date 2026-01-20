@@ -40,9 +40,43 @@
                     <span id="result"></span>
                 </div>
             </div>
+
+            <iframe id="printFrame"
+                    style="display:none"></iframe>
+
+            <div class="card" style="top: 10px;">
+                <div class="card-body">
+                    <button onclick="printBarcode('fbo_barcode' ,'FBO')"
+                            class="btn btn-primary">
+                        Печать
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    function printBarcode(link, orderId) {
+        const iframe = document.getElementById('printFrame');
+
+        iframe.onload = () => {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        const BASE_URL = "{{ request()->getSchemeAndHttpHost() }}";
+
+        const url = `${BASE_URL}/${link}/?marketplaceOrderId=${orderId}`;
+        console.log('iframe src =', url);
+
+        iframe.src = url;
+    }
+</script>
 
 <script>
     const input = document.getElementById('badgeInput');
