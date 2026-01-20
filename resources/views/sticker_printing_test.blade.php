@@ -46,7 +46,8 @@
 
             <div class="card" style="top: 10px;">
                 <div class="card-body">
-                    <button onclick="printBarcode('fbo_barcode' ,'FBO1')"
+                    <button
+                        onclick="printBarcode('/fbo_barcode?marketplaceOrderId=FBO1')"
                             class="btn btn-primary">
                         Печать
                     </button>
@@ -55,33 +56,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    async function printBarcode(link, orderId) {
-        const iframe = document.getElementById('printFrame');
-        const url = `${window.location.protocol}//${window.location.host}/${link}?marketplaceOrderId=${orderId}`;
-
-        try {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            const blobUrl = URL.createObjectURL(blob);
-
-            iframe.onload = () => {
-                try {
-                    iframe.contentWindow.focus();
-                    iframe.contentWindow.print();
-                } catch (e) {
-                    console.error(e);
-                }
-                URL.revokeObjectURL(blobUrl);
-            };
-
-            iframe.src = blobUrl;
-        } catch (e) {
-            console.error('Error loading PDF:', e);
-        }
-    }
-</script>
 
 <script>
     const input = document.getElementById('badgeInput');
@@ -118,6 +92,8 @@
         result.innerHTML = 'Отсканирован код: ' + code;
     }
 </script>
+
+<script src="{{ asset('js/printBarcode.js') }}"></script>
 
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
