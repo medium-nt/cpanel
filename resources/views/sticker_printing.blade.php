@@ -193,7 +193,7 @@
                                                 onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}')"
                                                 class="btn btn-xs mx-5 d-flex align-items-center justify-content-center
                                                     @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
-                                                id="print_{{ $orderId }}">
+                                                id="print2_{{ $orderId }}">
                                                 <i class="fas fa-barcode fa-xl"></i>
                                             </button>
 
