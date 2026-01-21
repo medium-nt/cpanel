@@ -21,6 +21,7 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
+            touch-action: none;
         }
 
         .wrapper {
