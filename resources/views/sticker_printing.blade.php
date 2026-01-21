@@ -16,6 +16,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
         <style>
+            html, body {
+                touch-action: none;
+            }
             .wrapper {
                 background-color: #f4f6f9;
             }
@@ -191,20 +194,20 @@
                                         <td>
                                             <button
                                                 onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}')"
-                                                class="btn btn-xs mx-5 d-flex align-items-center justify-content-center
+                                                class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
                                                     @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
-                                                id="print2_{{ $orderId }}">
-                                                <i class="fas fa-barcode fa-xl"></i>
+                                                id="print_{{ $orderId }}">
+                                                <i class="fas fa-barcode fa-2x"></i>
                                             </button>
 
-                                            @if($fulfillmentType === 'FBS')
-                                            <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $orderId]) }}"
-                                               class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
-                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
-                                               id="print_{{ $orderId }}">
-                                                <i class="fas fa-barcode fa-2x"></i>
-                                            </a>
-                                            @endif
+                                            {{--                                            @if($fulfillmentType === 'FBS')--}}
+                                            {{--                                            <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $orderId]) }}"--}}
+                                            {{--                                               class="btn btn-lg mx-5 d-flex align-items-center justify-content-center--}}
+                                            {{--                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "--}}
+                                            {{--                                               id="print_{{ $orderId }}">--}}
+                                            {{--                                                <i class="fas fa-barcode fa-2x"></i>--}}
+                                            {{--                                            </a>--}}
+                                            {{--                                            @endif--}}
 
                                             @if($fulfillmentType === 'FBO')
                                                 {{--                                                <a href="{{ route('marketplace_api.fbo_barcode_html', ['marketplaceOrderId' => $orderId]) }}"--}}
@@ -214,12 +217,12 @@
                                                 {{--                                                    <i class="fas fa-barcode fa-xl"></i>--}}
                                                 {{--                                                </a>--}}
 
-                                                <a href="{{ route('marketplace_api.fbo_barcode', ['marketplaceOrderId' => $orderId]) }}"
-                                                   class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
-                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
-                                                   id="print_{{ $orderId }}">
-                                                    <i class="fas fa-barcode fa-2x"></i>
-                                                </a>
+                                                {{--                                                <a href="{{ route('marketplace_api.fbo_barcode', ['marketplaceOrderId' => $orderId]) }}"--}}
+                                                {{--                                                   class="btn btn-lg mx-5 d-flex align-items-center justify-content-center--}}
+                                                {{--                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "--}}
+                                                {{--                                                   id="print_{{ $orderId }}">--}}
+                                                {{--                                                    <i class="fas fa-barcode fa-2x"></i>--}}
+                                                {{--                                                </a>--}}
                                             @endif
                                         </td>
 

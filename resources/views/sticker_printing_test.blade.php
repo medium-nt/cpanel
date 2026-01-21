@@ -138,7 +138,8 @@
             <div class="kiosk-buttons-grid">
                 <a href="#" class="btn-kiosk btn-kiosk-blue">Открытие / Закрытие
                     смены</a>
-                <a href="#" class="btn-kiosk btn-kiosk-green">Печать стикеров
+                <a href="{{ route('sticker_printing') }}"
+                   class="btn-kiosk btn-kiosk-green">Печать стикеров
                     заказов</a>
                 <a href="#" class="btn-kiosk btn-kiosk-yellow">Работа с
                     рулонами</a>
