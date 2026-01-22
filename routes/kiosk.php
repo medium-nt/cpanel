@@ -5,4 +5,6 @@ Route::prefix('/kiosk')->group(function () {
         ->name('kiosk');
     Route::get('opening_closing_shifts', [App\Http\Controllers\StickerPrintingController::class, 'opening_closing_shifts'])
         ->name('opening_closing_shifts');
+    Route::get('statistics_reports', [App\Http\Controllers\StickerPrintingController::class, 'statisticsReports'])
+        ->name('statistics_reports');
 });

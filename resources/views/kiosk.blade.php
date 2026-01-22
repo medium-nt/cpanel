@@ -147,7 +147,8 @@
                 <a href="#" class="btn-kiosk btn-kiosk-red">Работа с
                     возвратами</a>
                 <a href="#" class="btn-kiosk btn-kiosk-purple">Кнопка 5</a>
-                <a href="#" class="btn-kiosk btn-kiosk-orange">Статистика /
+                <a href="{{ route('statistics_reports') }}"
+                   class="btn-kiosk btn-kiosk-orange">Статистика /
                     Отчеты</a>
             </div>
         </div>
