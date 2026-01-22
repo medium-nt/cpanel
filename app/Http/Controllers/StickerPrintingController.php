@@ -184,10 +184,28 @@ class StickerPrintingController extends Controller
             ->with('success', 'Смена успешно '.($user->shift_is_open ? 'открыта' : 'закрыта'));
     }
 
-    public function test()
+    public function kiosk(Request $request)
     {
+        if ($request->filled('idle') && $request->input('idle') == '1') {
+            session()->forget('user_id');
+        }
+
+        $user = null;
+        if ($request->filled('barcode')) {
+            $user = UserService::getUserByBarcode($request->barcode);
+        }
+
+        if (session('user_id')) {
+            $user = User::query()->find(session('user_id'));
+        }
+
+        if ($user !== null) {
+            session(['user_id' => $user->id]);
+        }
+
         return view('kiosk.kiosk', [
             'title' => 'Киоск',
+            'user' => $user,
         ]);
     }
 

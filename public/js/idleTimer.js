@@ -3,8 +3,8 @@ export default class IdleTimer {
         this.redirectUrl = options.redirectUrl;
         this.modalSelector = options.modalSelector || '#idleModal';
 
-        this.idleTimeout = 60000;
-        this.countdownSeconds = 60;
+        this.idleTimeout = 10000;
+        this.countdownSeconds = 10;
 
         this.modal = document.querySelector(this.modalSelector);
         this.countdownEl = document.querySelector(`${this.modalSelector} #idleCountdown`);

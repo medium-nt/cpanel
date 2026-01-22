@@ -23,6 +23,6 @@
     import IdleTimer from '';
 
     new IdleTimer({
-        redirectUrl: '{{ route('kiosk') }}'
+        redirectUrl: '{{ route('kiosk', ['idle' => true]) }}'
     });
 </script>
