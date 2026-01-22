@@ -183,7 +183,7 @@ class StickerPrintingController extends Controller
 
     public function test()
     {
-        return view('sticker_printing_test', [
+        return view('kiosk', [
             'title' => 'Киоск',
         ]);
     }
