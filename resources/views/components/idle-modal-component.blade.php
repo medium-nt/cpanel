@@ -1,0 +1,28 @@
+<div class="modal fade" id="idleModal" data-backdrop="static"
+     data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Вы отсутствуете</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p class="h4">Переход на главную страницу через:</p>
+                <p class="display-4 font-weight-bold" id="idleCountdown">60</p>
+                <p class="h5">секунд</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-lg"
+                        id="stayBtn">Остаться
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import IdleTimer from '';
+
+    new IdleTimer({
+        redirectUrl: '{{ route('kiosk') }}'
+    });
+</script>

@@ -160,6 +160,9 @@
     </div>
 </div>
 
+<!-- Modal для предупреждения о неактивности -->
+<x-idle-modal-component/>
+
 <script>
     const actionUrl = '{{ route('opening_closing_shifts') }}';
 
