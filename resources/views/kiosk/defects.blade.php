@@ -100,6 +100,10 @@
             background-color: #f97316;
             color: white;
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -163,7 +167,7 @@
                                     <label for="roll">Рулон</label>
                                     <input type="text" class="form-control"
                                            name="roll" id="roll"
-                                           value="{{ old('roll') }}" autofocus
+                                           value="{{ old('roll') }}"
                                            required readonly>
                                 </div>
                             </div>
@@ -176,7 +180,9 @@
                             </div>
                         </div>
                         <button type="submit"
-                                class="btn btn-kiosk btn-success mt-3">Создать
+                                id="submitBtn"
+                                class="btn btn-kiosk btn-success mt-3 hidden">
+                            Создать
                         </button>
                     </form>
                 </div>
@@ -189,11 +195,44 @@
 <x-idle-modal-component/>
 
 <script>
-    let roll = document.getElementById('roll');
-
     let buffer = '';
     let lastTime = Date.now();
+    let roll = document.getElementById('roll');
 
+    // Функция для подгрузки material_id
+    async function loadMaterialTitle(rollCode) {
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (!rollCode || rollCode.trim().length === 0) {
+            document.getElementById('material').value = '';
+            submitBtn.classList.add('hidden');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/kiosk/api/roll/${rollCode.trim()}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.material_id) {
+                document.getElementById('material').value = data.material_id;
+                submitBtn.classList.remove('hidden');
+            } else {
+                document.getElementById('material').value = 'такого материала нет';
+                submitBtn.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error fetching roll:', error);
+            submitBtn.classList.add('hidden');
+        }
+    }
+
+    // Обработчик сканера и нажатия Enter
     document.addEventListener('keypress', e => {
         const now = Date.now();
 
@@ -205,6 +244,7 @@
 
         if (e.key === 'Enter') {
             roll.value = buffer;
+            loadMaterialTitle(buffer);
             buffer = '';
         } else {
             buffer += e.key;

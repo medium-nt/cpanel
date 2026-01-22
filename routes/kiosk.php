@@ -12,4 +12,7 @@ Route::prefix('/kiosk')->group(function () {
         ->name('defects');
     Route::post('defects', [App\Http\Controllers\StickerPrintingController::class, 'saveDefects'])
         ->name('defects');
+
+    Route::get('api/roll/{roll_code}', [App\Http\Controllers\StickerPrintingController::class, 'getRollByCode'])
+        ->name('kiosk.api.roll');
 });

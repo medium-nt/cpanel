@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Roll;
 use App\Models\User;
 use App\Services\DefectMaterialService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -231,6 +233,8 @@ class StickerPrintingController extends Controller
 
     public function saveDefects(Request $request)
     {
+        dd($request->all());
+
         if (! DefectMaterialService::store($request)) {
             return back()
                 ->with('error', 'Внутренняя ошибка');
@@ -240,5 +244,18 @@ class StickerPrintingController extends Controller
             'title' => 'Брак / Остатки',
             'success' => 'Данные успешно сохранены',
         ])->with('success', 'Брак добавлен');
+    }
+
+    public function getRollByCode(string $roll_code): JsonResponse
+    {
+        $roll = Roll::where('roll_code', $roll_code)->first();
+
+        if (! $roll) {
+            return response()->json(['material_id' => null]);
+        }
+
+        return response()->json([
+            'material_id' => $roll->material->title,
+        ]);
     }
 }
