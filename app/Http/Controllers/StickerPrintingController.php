@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\DefectMaterialService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
@@ -219,5 +220,25 @@ class StickerPrintingController extends Controller
             'seamstressesJson' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
             'days_ago' => $daysAgo,
         ]);
+    }
+
+    public function defects()
+    {
+        return view('kiosk.defects', [
+            'title' => 'Брак / Остатки',
+        ]);
+    }
+
+    public function saveDefects(Request $request)
+    {
+        if (! DefectMaterialService::store($request)) {
+            return back()
+                ->with('error', 'Внутренняя ошибка');
+        }
+
+        return view('kiosk.defects', [
+            'title' => 'Брак / Остатки',
+            'success' => 'Данные успешно сохранены',
+        ])->with('success', 'Брак добавлен');
     }
 }

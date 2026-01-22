@@ -107,91 +107,26 @@
 <div class="wrapper">
     <div class="content">
         <div class="container-fluid">
-            <div class="card" style="top: 10px;">
-                <div class="card-body">
-                    <label>Поле ввода сразу должно быть с фокусом.</label>
-                    <input type="text"
-                           id="badgeInput"
-                           class="form-control form-control-lg"
-                           placeholder="1234567890"
-                           style="border-width: 3px;"
-                           value=""
-                           autofocus>
-
-                    <span id="result"></span>
-                </div>
-            </div>
-
-            <iframe id="printFrame"
-                    style="display:none"></iframe>
-
-            <div class="card" style="top: 10px;">
-                <div class="card-body">
-                    <button
-                        onclick="printBarcode('/fbo_barcode?marketplaceOrderId=FBO1')"
-                        class="btn btn-primary">
-                        Печать
-                    </button>
-                </div>
-            </div>
-
             <div class="kiosk-buttons-grid">
                 <a href="{{ route('opening_closing_shifts') }}"
                    class="btn-kiosk btn-kiosk-blue">Открытие / Закрытие
                     смены</a>
                 <a href="{{ route('sticker_printing') }}"
-                   class="btn-kiosk btn-kiosk-green">Печать стикеров
+                   class="btn-kiosk btn-kiosk-green">Печать
                     заказов</a>
-                <a href="#" class="btn-kiosk btn-kiosk-yellow">Работа с
-                    рулонами</a>
-                <a href="#" class="btn-kiosk btn-kiosk-red">Работа с
-                    возвратами</a>
-                <a href="#" class="btn-kiosk btn-kiosk-purple">Кнопка 5</a>
+                {{--                <a href="#" class="btn-kiosk btn-kiosk-yellow">Работа с--}}
+                {{--                    рулонами</a>--}}
+                {{--                <a href="#" class="btn-kiosk btn-kiosk-red">Работа с--}}
+                {{--                    возвратами</a>--}}
                 <a href="{{ route('statistics_reports') }}"
                    class="btn-kiosk btn-kiosk-orange">Статистика /
                     Отчеты</a>
+                <a href=" {{ route('defects') }}"
+                   class="btn-kiosk btn-kiosk-purple">Брак / Остатки</a>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    const input = document.getElementById('badgeInput');
-
-    let buffer = '';
-    let lastTime = Date.now();
-
-    document.addEventListener('keypress', e => {
-        const now = Date.now();
-
-        // если пауза — считаем, что начался новый скан
-        if (now - lastTime > 200) {
-            buffer = '';
-        }
-        lastTime = now;
-
-        if (e.key === 'Enter') {
-            input.value = buffer;
-            handleScanned(buffer); // твоя бизнес-логика
-            buffer = '';
-
-            // опционально очищать поле
-            setTimeout(() => input.value = '', 300);
-        } else {
-            buffer += e.key;
-        }
-    });
-
-    function handleScanned(code) {
-        console.log('SCANNED:', code);
-
-        // запротить span результат
-        const result = document.getElementById('result');
-        result.innerHTML = 'Отсканирован код: ' + code;
-    }
-</script>
-
-<script src="{{ asset('js/printBarcode.js') }}"></script>
 
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>

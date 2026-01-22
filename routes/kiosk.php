@@ -7,4 +7,9 @@ Route::prefix('/kiosk')->group(function () {
         ->name('opening_closing_shifts');
     Route::get('statistics_reports', [App\Http\Controllers\StickerPrintingController::class, 'statisticsReports'])
         ->name('statistics_reports');
+
+    Route::get('defects', [App\Http\Controllers\StickerPrintingController::class, 'defects'])
+        ->name('defects');
+    Route::post('defects', [App\Http\Controllers\StickerPrintingController::class, 'saveDefects'])
+        ->name('defects');
 });
