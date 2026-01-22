@@ -183,7 +183,7 @@ class StickerPrintingController extends Controller
 
     public function test()
     {
-        return view('kiosk', [
+        return view('kiosk.kiosk', [
             'title' => 'Киоск',
         ]);
     }
@@ -195,7 +195,7 @@ class StickerPrintingController extends Controller
             $user = UserService::getUserByBarcode($request->barcode);
         }
 
-        return view('opening_closing_shifts', [
+        return view('kiosk.opening_closing_shifts', [
             'title' => 'Открытие/закрытие смены',
             'user' => $user,
         ]);
@@ -212,7 +212,7 @@ class StickerPrintingController extends Controller
 
         $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
 
-        return view('statistics_reports', [
+        return view('kiosk.statistics_reports', [
             'title' => 'Статистика/Отчеты',
             'userId' => $request->user_id ?? 0,
             'dates' => json_encode($dates),
