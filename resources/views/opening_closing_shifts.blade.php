@@ -107,55 +107,61 @@
 <div class="wrapper">
     <div class="content">
         <div class="container-fluid">
-            <div class="card" style="top: 10px;">
+            <div class="card">
                 <div class="card-body">
-                    <label>Поле ввода сразу должно быть с фокусом.</label>
-                    <input type="text"
-                           id="badgeInput"
-                           class="form-control form-control-lg"
-                           placeholder="1234567890"
-                           style="border-width: 3px;"
-                           value=""
-                           autofocus>
-
-                    <span id="result"></span>
+                    <a href="{{ route('kiosk') }}"
+                       class="btn-kiosk btn-lg btn-kiosk-blue">На главную</a>
                 </div>
             </div>
 
-            <iframe id="printFrame"
-                    style="display:none"></iframe>
-
-            <div class="card" style="top: 10px;">
-                <div class="card-body">
-                    <button
-                        onclick="printBarcode('/fbo_barcode?marketplaceOrderId=FBO1')"
-                            class="btn btn-primary">
-                        Печать
-                    </button>
+            @if($user)
+                <div class="card" style="top: 10px;">
+                    <div class="card-body">
+                        <h2 class="mb-3">Приветствую, {{ $user->name }}!</h2>
+                        @if(!$user->shift_is_open)
+                            <a class="btn btn-success btn-lg"
+                               href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => request('barcode')]) }}">
+                                Открыть смену
+                            </a>
+                        @else
+                            <h4>
+                                Ваше начало
+                                смены: {{ Carbon\Carbon::parse($user->actual_start_work_shift)->format('H:i') }}
+                                <br>
+                                Ваш конец
+                                смены: {{ Carbon\Carbon::parse($user->end_work_shift)->format('H:i') }}
+                            </h4>
+                            @if($user->end_work_shift < Carbon\Carbon::now())
+                                <a class="btn btn-warning btn-lg mt-3"
+                                   href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => request('barcode')]) }}"
+                                   onclick="return confirm('Вы уверены, что хотите закрыть смену?')">
+                                    Закрыть смену
+                                </a>
+                            @endif
+                        @endif
+                    </div>
                 </div>
-            </div>
-
-            <div class="kiosk-buttons-grid">
-                <a href="{{ route('opening_closing_shifts') }}"
-                   class="btn-kiosk btn-kiosk-blue">Открытие / Закрытие
-                    смены</a>
-                <a href="{{ route('sticker_printing') }}"
-                   class="btn-kiosk btn-kiosk-green">Печать стикеров
-                    заказов</a>
-                <a href="#" class="btn-kiosk btn-kiosk-yellow">Работа с
-                    рулонами</a>
-                <a href="#" class="btn-kiosk btn-kiosk-red">Работа с
-                    возвратами</a>
-                <a href="#" class="btn-kiosk btn-kiosk-purple">Кнопка 5</a>
-                <a href="#" class="btn-kiosk btn-kiosk-orange">Статистика /
-                    Отчеты</a>
-            </div>
+            @else
+                @if(request()->filled('barcode'))
+                    <div class="alert alert-default-danger text-center">
+                        <h2>
+                            Такого сотрудника не существует!
+                        </h2>
+                    </div>
+                @else
+                    <div class="alert alert-default-info text-center">
+                        <h2>
+                            Отсканируйте свой штрих-код сотрудника
+                        </h2>
+                    </div>
+                @endif
+            @endif
         </div>
     </div>
 </div>
 
 <script>
-    const input = document.getElementById('badgeInput');
+    const actionUrl = '{{ route('opening_closing_shifts') }}';
 
     let buffer = '';
     let lastTime = Date.now();
@@ -170,27 +176,13 @@
         lastTime = now;
 
         if (e.key === 'Enter') {
-            input.value = buffer;
-            handleScanned(buffer); // твоя бизнес-логика
+            window.location.href = actionUrl + '?barcode=' + encodeURIComponent(buffer);
             buffer = '';
-
-            // опционально очищать поле
-            setTimeout(() => input.value = '', 300);
         } else {
             buffer += e.key;
         }
     });
-
-    function handleScanned(code) {
-        console.log('SCANNED:', code);
-
-        // запротить span результат
-        const result = document.getElementById('result');
-        result.innerHTML = 'Отсканирован код: ' + code;
-    }
 </script>
-
-<script src="{{ asset('js/printBarcode.js') }}"></script>
 
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>

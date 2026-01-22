@@ -187,4 +187,17 @@ class StickerPrintingController extends Controller
             'title' => 'Тест автофокуса',
         ]);
     }
+
+    public function opening_closing_shifts(Request $request)
+    {
+        $user = null;
+        if ($request->filled('barcode')) {
+            $user = UserService::getUserByBarcode($request->barcode);
+        }
+
+        return view('opening_closing_shifts', [
+            'title' => 'Открытие/закрытие смены',
+            'user' => $user,
+        ]);
+    }
 }
