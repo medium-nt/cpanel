@@ -186,21 +186,20 @@ class StickerPrintingController extends Controller
 
     public function kiosk(Request $request)
     {
-        if ($request->filled('idle') && $request->input('idle') == '1') {
+        // 1. Idle → сбрасываем пользователя
+        if ($request->boolean('idle')) {
             session()->forget('user_id');
-        }
-
-        $user = null;
-        if ($request->filled('barcode')) {
+            $user = null;
+        } // 2. Если есть barcode → ищем пользователя по нему
+        elseif ($request->filled('barcode')) {
             $user = UserService::getUserByBarcode($request->barcode);
-        }
 
-        if (session('user_id')) {
-            $user = User::query()->find(session('user_id'));
-        }
-
-        if ($user !== null) {
-            session(['user_id' => $user->id]);
+            if ($user) {
+                session(['user_id' => $user->id]);
+            }
+        } // 3. Иначе → пробуем восстановить из сессии
+        else {
+            $user = User::find(session('user_id'));
         }
 
         return view('kiosk.kiosk', [
@@ -211,9 +210,11 @@ class StickerPrintingController extends Controller
 
     public function opening_closing_shifts(Request $request)
     {
-        $user = null;
-        if ($request->filled('barcode')) {
-            $user = UserService::getUserByBarcode($request->barcode);
+        $user = User::query()->find(session('user_id'));
+
+        if (! $user) {
+            return redirect()
+                ->route('kiosk');
         }
 
         return view('kiosk.opening_closing_shifts', [

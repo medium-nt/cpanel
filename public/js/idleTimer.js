@@ -1,4 +1,4 @@
-export default class IdleTimer {
+class IdleTimer {
     constructor(options = {}) {
         this.redirectUrl = options.redirectUrl;
         this.modalSelector = options.modalSelector || '#idleModal';
@@ -97,3 +97,5 @@ export default class IdleTimer {
         }
     }
 }
+
+window.IdleTimer = IdleTimer;

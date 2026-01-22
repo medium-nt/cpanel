@@ -19,10 +19,9 @@
     </div>
 </div>
 
-<script type="module">
-    import IdleTimer from '';
-
-    new IdleTimer({
+<script src="{{ asset('js/idleTimer.js') }}"></script>
+<script>
+    new window.IdleTimer({
         redirectUrl: '{{ route('kiosk', ['idle' => true]) }}'
     });
 </script>
