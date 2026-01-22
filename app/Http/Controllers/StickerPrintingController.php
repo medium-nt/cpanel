@@ -247,6 +247,7 @@ class StickerPrintingController extends Controller
     {
         return view('kiosk.defects', [
             'title' => 'Брак / Остатки',
+            'userId' => session('user_id'),
         ]);
     }
 
@@ -262,6 +263,7 @@ class StickerPrintingController extends Controller
         return view('kiosk.defects', [
             'title' => 'Брак / Остатки',
             'success' => 'Данные успешно сохранены',
+            'userId' => session('user_id'),
         ])->with('success', 'Брак добавлен');
     }
 

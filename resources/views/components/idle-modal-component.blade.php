@@ -3,10 +3,10 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Вы отсутствуете</h5>
+                <h5 class="modal-title">Неактивность</h5>
             </div>
             <div class="modal-body text-center">
-                <p class="h4">Переход на главную страницу через:</p>
+                <p class="h4">Выход из системы через:</p>
                 <p class="display-4 font-weight-bold" id="idleCountdown">60</p>
                 <p class="h5">секунд</p>
             </div>

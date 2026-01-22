@@ -178,6 +178,8 @@
                                            id="material" readonly>
                                 </div>
                             </div>
+                            <input type="hidden" name="user_id"
+                                   value="{{ $userId }}">
                         </div>
                         <button type="submit"
                                 id="submitBtn"
