@@ -120,7 +120,7 @@
                         <h2 class="mb-3">Приветствую, {{ $user->name }}!</h2>
                         @if(!$user->shift_is_open)
                             <a class="btn btn-success btn-lg"
-                               href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => request('barcode')]) }}">
+                               href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => '1-'.$user->id.'-1']) }}">
                                 Открыть смену
                             </a>
                         @else
@@ -133,7 +133,7 @@
                             </h4>
                             @if($user->end_work_shift < Carbon\Carbon::now())
                                 <a class="btn btn-warning btn-lg mt-3"
-                                   href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => request('barcode')]) }}"
+                                   href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => '1-'.$user->id.'-1']) }}"
                                    onclick="return confirm('Вы уверены, что хотите закрыть смену?')">
                                     Закрыть смену
                                 </a>
