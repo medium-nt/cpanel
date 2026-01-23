@@ -118,6 +118,7 @@
                 </div>
             </div>
 
+            @if (!$isAdded)
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Новый брак/остаток</h3>
@@ -184,11 +185,25 @@
                         <button type="submit"
                                 id="submitBtn"
                                 class="btn btn-kiosk btn-success mt-3 hidden">
-                            Создать
+                            Создать заявку на брак
                         </button>
                     </form>
                 </div>
             </div>
+            @else
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title mt-3">
+                            Заявка создана. Распечатайте стикер и прикрепите на
+                            материал
+                        </h3>
+                        <a class="btn btn-success btn-lg ml-3"
+                           href="#">
+                            Распечатать стикер
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>

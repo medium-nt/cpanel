@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendTelegramMessageJob;
+use App\Models\MovementMaterial;
+use App\Models\Order;
 use App\Models\Roll;
 use App\Models\User;
-use App\Services\DefectMaterialService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class StickerPrintingController extends Controller
 {
@@ -248,23 +252,109 @@ class StickerPrintingController extends Controller
         return view('kiosk.defects', [
             'title' => 'Брак / Остатки',
             'userId' => session('user_id'),
+            'isAdded' => false,
         ]);
     }
 
     public function saveDefects(Request $request)
     {
-        dd($request->all());
+        $rules = [
+            'user_id' => 'required|exists:users,id',
+            'roll' => 'required|exists:rolls,roll_code',
+            'quantity' => 'required|numeric|min:0.01',
+            'type_movement_id' => 'nullable|in:4,7',
+            'comment' => 'nullable|string',
+        ];
 
-        if (! DefectMaterialService::store($request)) {
+        $text = [
+            'user_id.required' => 'Системная ошибка! Не указан пользователь.',
+            'user_id.exists' => 'Системная ошибка! Не верный пользователь.',
+            'roll.required' => 'Поле стикер рулона не заполнено',
+            'roll.exists' => 'Такой рулон в системе не найден',
+            'quantity.required' => 'Поле количество не заполнено',
+            'quantity.numeric' => 'Поле количество должно быть числом',
+            'quantity.min' => 'Поле количество должно быть больше 0',
+            'type_movement_id.in' => 'Системная ошибка! Тип движения должен быть браком или остатком',
+            'comment.string' => 'Поле комментарий должно быть строкой',
+        ];
+
+        $validatedData = $request->validate($rules, $text);
+
+        $quantity = $validatedData['quantity'];
+        $user = User::query()->find($validatedData['user_id']);
+        $roll = Roll::where('roll_code', $validatedData['roll'])->first();
+        $typeMovementId = $validatedData['type_movement_id'] ?? 4; // 4 - брак
+        $comment = $validatedData['comment'] ?? '';
+
+        if ($user == null || $roll == null || $quantity == 0) {
+            return redirect()
+                ->route('defects')
+                ->with('error', 'Введите данные');
+        }
+
+        $field = match ($user->role->name) {
+            'seamstress' => 'seamstress_id',
+            'cutter' => 'cutter_id',
+            default => throw new \Exception('Недопустимая роль: '.$user->role->name),
+        };
+
+        // 7 - остаток не может быть больше 1 метра
+        if ($typeMovementId == 7 && $quantity > 1) {
+            DB::rollBack();
+
+            return false;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $order = Order::query()->create([
+                $field => $user->id,
+                'type_movement' => $typeMovementId,
+                'status' => 0,
+                'comment' => $comment,
+                'completed_at' => now(),
+            ]);
+
+            $movementMaterial = MovementMaterial::query()->create([
+                'order_id' => $order->id,
+                'material_id' => $roll->material->id,
+                'quantity' => $quantity,
+            ]);
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+
             return back()
                 ->with('error', 'Внутренняя ошибка');
         }
 
+        $typeName = match ($typeMovementId) {
+            '4' => 'брак',
+            '7' => 'остаток',
+            default => '---',
+        };
+
+        $list = '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
+
+        $text = 'Сотрудник '.auth()->user()->name.' указал '.$typeName.': '."\n".$list;
+
+        Log::channel('erp')
+            ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
+
+        SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+
+        foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
+            SendTelegramMessageJob::dispatch($tgId, $text)
+                ->delay(now()->addSeconds($index + 1));
+        }
+
         return view('kiosk.defects', [
             'title' => 'Брак / Остатки',
-            'success' => 'Данные успешно сохранены',
+            'isAdded' => true,
             'userId' => session('user_id'),
-        ])->with('success', 'Брак добавлен');
+        ]);
     }
 
     public function getRollByCode(string $roll_code): JsonResponse
