@@ -249,10 +249,30 @@ class StickerPrintingController extends Controller
 
     public function defects()
     {
+        $user = User::query()->find(session('user_id'));
+
+        $field = match ($user->role->name) {
+            'seamstress' => 'seamstress_id',
+            'cutter' => 'cutter_id',
+            default => null,
+        };
+
+        $defectMaterialOrders = null;
+
+        if ($field) {
+            $defectMaterialOrders = Order::query()
+                ->where($field, session('user_id'))
+                ->whereIn('type_movement', [4, 7])
+                ->whereDate('created_at', today())
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
         return view('kiosk.defects', [
             'title' => 'Брак / Остатки',
             'userId' => session('user_id'),
             'isAdded' => false,
+            'defectMaterialOrders' => $defectMaterialOrders,
         ]);
     }
 
@@ -320,6 +340,7 @@ class StickerPrintingController extends Controller
                 'order_id' => $order->id,
                 'material_id' => $roll->material->id,
                 'quantity' => $quantity,
+                'roll_id' => $roll->id,
             ]);
 
             DB::commit();
@@ -350,10 +371,18 @@ class StickerPrintingController extends Controller
                 ->delay(now()->addSeconds($index + 1));
         }
 
+        $defectMaterialOrders = Order::query()
+            ->where($field, session('user_id'))
+            ->whereIn('type_movement', [4, 7])
+            ->whereDate('created_at', today())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('kiosk.defects', [
             'title' => 'Брак / Остатки',
             'isAdded' => true,
             'userId' => session('user_id'),
+            'defectMaterialOrders' => $defectMaterialOrders,
         ]);
     }
 

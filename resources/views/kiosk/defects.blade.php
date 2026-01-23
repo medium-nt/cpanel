@@ -165,7 +165,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="roll">Рулон</label>
+                                    <label for="roll">ШК рулона</label>
                                     <input type="text" class="form-control"
                                            name="roll" id="roll"
                                            value="{{ old('roll') }}"
@@ -193,17 +193,61 @@
             @else
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title mt-3">
-                            Заявка создана. Распечатайте стикер и прикрепите на
-                            материал
-                        </h3>
-                        <a class="btn btn-success btn-lg ml-3"
-                           href="#">
+                        <div
+                            class="alert alert-default-success text-center mt-3">
+                            <h3>
+                                Заявка успешно создана! Распечатайте стикер и
+                                прикрепите на
+                                материал.
+                            </h3>
+                        </div>
+
+                        <a class="btn btn-outline-primary btn-lg mr-5" href="#">
+                            <i class="fas fa-print"></i>
                             Распечатать стикер
+                        </a>
+
+                        <a class="btn btn-outline-success btn-lg ml-5"
+                           href="{{ route('defects') }}">
+                            Оформить еще одну заявку
                         </a>
                     </div>
                 </div>
             @endif
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">История заявок за сегодня</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Стикер</th>
+                            <th scope="col">Материал</th>
+                            <th scope="col">Количество</th>
+                            <th scope="col">ШК рулона</th>
+                            <th scope="col">Дата</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($defectMaterialOrders as $defect)
+                            <tr>
+                                <td>
+                                    <a href="#"
+                                       class="btn btn-outline-primary btn-md">
+                                        <i class="fas fa-print"></i>
+                                    </a>
+                                </td>
+                                <td>{{ $defect->movementMaterials->first()->material->title }}</td>
+                                <td>{{ $defect->movementMaterials->first()->quantity }} {{ $defect->movementMaterials->first()->material->unit }}</td>
+                                <td>{{ $defect->movementMaterials->first()?->roll?->roll_code }}</td>
+                                <td>{{ $defect->created_date_time }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
         </div>
     </div>
 </div>
