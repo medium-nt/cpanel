@@ -124,7 +124,7 @@
                     <h3 class="card-title">Новый брак/остаток</h3>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('defects') }}" method="POST">
+                    <form action="{{ route('defects.create') }}" method="POST">
                         @csrf
                         <div class="row">
                             <div class="col-md-3">
@@ -208,7 +208,7 @@
                         </a>
 
                         <a class="btn btn-outline-success btn-lg ml-5"
-                           href="{{ route('defects') }}">
+                           href="{{ route('defects.create') }}">
                             Оформить еще одну заявку
                         </a>
                     </div>

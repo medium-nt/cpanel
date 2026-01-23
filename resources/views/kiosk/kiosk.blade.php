@@ -135,7 +135,7 @@
                     <a href="{{ route('statistics_reports') }}"
                        class="btn-kiosk btn-kiosk-orange">Статистика /
                         Отчеты</a>
-                    <a href=" {{ route('defects') }}"
+                    <a href=" {{ route('defects.create') }}"
                        class="btn-kiosk btn-kiosk-purple">Брак / Остатки</a>
                 </div>
             @else

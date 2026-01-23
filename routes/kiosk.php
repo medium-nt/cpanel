@@ -9,9 +9,9 @@ Route::prefix('/kiosk')->group(function () {
         ->name('statistics_reports');
 
     Route::get('defects', [App\Http\Controllers\StickerPrintingController::class, 'defects'])
-        ->name('defects');
+        ->name('defects.create');
     Route::post('defects', [App\Http\Controllers\StickerPrintingController::class, 'saveDefects'])
-        ->name('defects');
+        ->name('defects.store');
 
     Route::get('api/roll/{roll_code}', [App\Http\Controllers\StickerPrintingController::class, 'getRollByCode'])
         ->name('kiosk.api.roll');
