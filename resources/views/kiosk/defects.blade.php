@@ -266,7 +266,7 @@
 
         if (!rollCode || rollCode.trim().length === 0) {
             document.getElementById('material').value = '';
-            submitBtn.classList.add('hidden');
+            checkSubmitBtnVisibility();
             return;
         }
 
@@ -282,13 +282,27 @@
 
             if (data.material_id) {
                 document.getElementById('material').value = data.material_id;
-                submitBtn.classList.remove('hidden');
+                checkSubmitBtnVisibility();
             } else {
                 document.getElementById('material').value = 'такого материала нет';
-                submitBtn.classList.add('hidden');
+                checkSubmitBtnVisibility();
             }
         } catch (error) {
             console.error('Error fetching roll:', error);
+            checkSubmitBtnVisibility();
+        }
+    }
+
+    // Функция для проверки видимости кнопки отправки
+    function checkSubmitBtnVisibility() {
+        const submitBtn = document.getElementById('submitBtn');
+        const material = document.getElementById('material').value;
+        const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+
+        // Показываем кнопку только если материал найден И количество > 0
+        if (material && material !== 'такого материала нет' && quantity > 0) {
+            submitBtn.classList.remove('hidden');
+        } else {
             submitBtn.classList.add('hidden');
         }
     }
@@ -327,6 +341,9 @@
 
             // Форматирование до 2 знаков после запятой
             quantityInput.value = newValue.toFixed(2);
+
+            // Проверяем видимость кнопки отправки
+            checkSubmitBtnVisibility();
 
             // Убираем фокус с кнопки
             this.blur();
