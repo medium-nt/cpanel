@@ -231,7 +231,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach ($defectMaterialOrders as $defect)
+                        @forelse ($defectMaterialOrders ?? [] as $defect)
                             <tr>
                                 <td>
                                     <a href="#"
@@ -244,7 +244,13 @@
                                 <td>{{ $defect->movementMaterials->first()?->roll?->roll_code }}</td>
                                 <td>{{ $defect->created_date_time }}</td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-muted text-center">
+                                    За сегодня заявок нет
+                                </td>
+                            </tr>
+                        @endforelse
                         </tbody>
                     </table>
                 </div>
