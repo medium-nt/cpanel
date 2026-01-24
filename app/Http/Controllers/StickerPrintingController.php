@@ -65,9 +65,6 @@ class StickerPrintingController extends Controller
                 ->where('name', 'not like', '%Тест%')
                 ->orderBy('name')
                 ->get(),
-            'dates' => json_encode($dates),
-            'seamstressesJson' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
-            'days_ago' => $daysAgo,
             'workShift' => $workShift,
         ]);
     }

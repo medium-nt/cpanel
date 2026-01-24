@@ -59,32 +59,6 @@
 
                         <x-modal-scan-barcode-component/>
 
-                        <div class="modal fade" id="barcodeModal2" tabindex="-1" role="dialog" aria-labelledby="barcodeModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <form id="barcodeForm" action="{{ route('sticker_printing') }}">
-                                    <div class="modal-content">
-                                        <div class="modal-body">
-                                            <input type="text" style="color: white; caret-color: #000" class="form-control"
-                                                   placeholder="тест выбора пользователя"
-                                                   id="barcodeInput2" name="barcode" autocomplete="off" autofocus>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="modal fade" id="barcodeModal3" tabindex="-1" aria-labelledby="barcodeModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-body">
-                                        <form id="barcodeForm" action="{{ route('sticker_printing') }}">
-                                            <input type="text" name="barcode" id="barcodeInput3" class="form-control" placeholder="Штрихкод">
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <x-modal-work-shift-component :userId="$userId"/>
 
                         <div class="form-group col-md-2">
@@ -199,31 +173,6 @@
                                                 id="print_{{ $orderId }}">
                                                 <i class="fas fa-barcode fa-2x"></i>
                                             </button>
-
-                                            {{--                                            @if($fulfillmentType === 'FBS')--}}
-                                            {{--                                            <a href="{{ route('marketplace_api.barcode', ['marketplaceOrderId' => $orderId]) }}"--}}
-                                            {{--                                               class="btn btn-lg mx-5 d-flex align-items-center justify-content-center--}}
-                                            {{--                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "--}}
-                                            {{--                                               id="print_{{ $orderId }}">--}}
-                                            {{--                                                <i class="fas fa-barcode fa-2x"></i>--}}
-                                            {{--                                            </a>--}}
-                                            {{--                                            @endif--}}
-
-                                            @if($fulfillmentType === 'FBO')
-                                                {{--                                                <a href="{{ route('marketplace_api.fbo_barcode_html', ['marketplaceOrderId' => $orderId]) }}"--}}
-                                                {{--                                                   class="btn btn-xs mx-5 d-flex align-items-center justify-content-center--}}
-                                                {{--                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "--}}
-                                                {{--                                                   id="print_{{ $orderId }}">--}}
-                                                {{--                                                    <i class="fas fa-barcode fa-xl"></i>--}}
-                                                {{--                                                </a>--}}
-
-                                                {{--                                                <a href="{{ route('marketplace_api.fbo_barcode', ['marketplaceOrderId' => $orderId]) }}"--}}
-                                                {{--                                                   class="btn btn-lg mx-5 d-flex align-items-center justify-content-center--}}
-                                                {{--                                               @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "--}}
-                                                {{--                                                   id="print_{{ $orderId }}">--}}
-                                                {{--                                                    <i class="fas fa-barcode fa-2x"></i>--}}
-                                                {{--                                                </a>--}}
-                                            @endif
                                         </td>
 
                                         <td class="td_style">
@@ -257,69 +206,13 @@
                         </div>
                     </div>
                 </div>
+                @else
+                    <div class="alert alert-default-success text-center mt-3">
+                        <h2>
+                            Для отображения списка заказов, выберите сотрудника!
+                        </h2>
+                    </div>
                 @endif
-
-                <div class="card" style="top: 10px;">
-                    <div class="card-header">
-                        Динамика преобладания большими размерами
-                        <i class="fas fa-info-circle ml-1" onclick="toggleSpoiler()"></i>
-
-                        @if($days_ago > 7)
-                            <a href="{{ route('sticker_printing', ['days_ago' => max(0, $days_ago - 7)]) }}"
-                               class="btn btn-default btn-sm float-right">
-                                Вперед
-                                <i class="fa fa-arrow-right"></i>
-                            </a>
-                        @endif
-
-                        @if($days_ago != 0)
-                            <a href="{{ route('sticker_printing') }}"
-                               class="btn btn-default btn-sm float-right mr-2">
-                                <i class="fa fa-dot-circle-o"></i>
-                                Сегодня
-                            </a>
-                        @endif
-
-                        @if($days_ago < 28)
-                            <a href="{{ route('sticker_printing', ['days_ago' => $days_ago + 7]) }}"
-                               class="btn btn-default btn-sm float-right mr-2">
-                                <i class="fa fa-arrow-left"></i>
-                                Назад
-                            </a>
-                        @endif
-                    </div>
-
-                    <div class="card-body">
-                        <div id="spoilerText" style="display:none;">
-                            <div class="callout callout-info">
-                                <h5><i class="icon fas fa-info mr-3 mb-1"></i> Индекс Доминирования</h5>
-                                <p>
-                                    В нашей компании высоко ценится эффективность и оптимальное использование материалов при пошиве штор.
-                                    Для объективной оценки работы швей и выявления лидеров по рациональному крою, мы разработали систему расчета
-                                    "индекса доминирования размера".
-                                    <br>
-                                    Суть метода заключается в вычислении среднего метража, используемого сотрудником на одно изделие в течение
-                                    рабочего дня. Общий метраж, сшитый швеей за день, делится на количество готовых штор. Результат демонстрирует
-                                    средний размер шторы, с которым преимущественно работает данный сотрудник.
-                                    <br><br>
-                                    Например, швея, обработавшая 80 метров ткани и изготовившая 15 штор, имеет индекс 5.33 (80/15 = 5.33).
-                                    В то же время, другая швея, также обработавшая 80 метров, но изготовившая 25 штор, имеет индекс 3.2.
-                                    <br>
-                                    Очевидно, что вторая швея в среднем шьет шторы меньшего размера, чем первая. Более высокий индекс указывает
-                                    на то, что швея чаще работает с крупными заказами, требующими большей ширины ткани (от 5 до 8 метров).
-                                    <br>
-                                    Низкий индекс, напротив, свидетельствует о преобладании в работе небольших заказов. Эта система позволяет не
-                                    только выявлять швей, успешно справляющихся с крупными размерами, но и анализировать общую структуру заказов,
-                                    выявлять тенденции и оптимизировать производственный процесс для достижения максимальной эффективности.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div style="width:100%; margin: auto;">
-                            <canvas id="ratingGraph" style="width: 100%; height: 400px"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -328,34 +221,11 @@
     <script src="{{ asset('js/toggle_spoiler.js') }}"></script>
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         $(document).ready(function() {
             localStorage.removeItem('orderId');
         });
 
-        window.seamstressesData = {!! $seamstressesJson !!};
-        window.dates = {!! $dates !!};
-    </script>
-    <script src="{{ asset('js/ratingGraph.js') }}"></script>
-
-    <!-- Скрипт фокусировки и inert -->
-    <script>
-        // const mainContent = document.getElementById('mainContent');
-        // const input = document.getElementById('barcodeInput3');
-        //
-        // $('#barcodeModal').on('shown.bs.modal', function () {
-        //     mainContent.setAttribute('inert', '');
-        //     input.value = '';
-        //     setTimeout(() => input.focus(), 100);
-        // });
-        //
-        // $('#barcodeModal').on('hidden.bs.modal', function () {
-        //     mainContent.removeAttribute('inert');
-        // });
-    </script>
-
-    <script>
         function setupModalFocus(modalId, inputId) {
             const input = document.getElementById(inputId);
 
@@ -379,42 +249,16 @@
         }
 
         setupModalFocus('barcodeModal', 'barcodeInput');
-        // setupModalFocus2('barcodeModal2', 'barcodeInput2');
         setupModalFocus('workShiftModal', 'workShiftInput');
 
-        function setupModalFocus2(modalId, inputId) {
-            const input = document.getElementById(inputId);
-
-            function enforceFocus(e) {
-                if (e.target !== input) {
-                    input?.focus();
-                }
-            }
-
-            const modal = $(`#${modalId}`);
-
-            modal.on('shown.bs.modal', function () {
-                if (input) {
-                    input.value = '';
-                    setTimeout(() => input.focus(), 100);
-                    document.addEventListener('focusin', enforceFocus);
-                }
-            });
-
-            modal.on('hidden.bs.modal', function () {
-                document.removeEventListener('focusin', enforceFocus);
-            });
-        }
+        <?php if (session('error')) { ?>
+        toastr.error("<?= session('error') ?>");
+        <?php } ?>
     </script>
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
     <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
-    <script>
-        <?php if (session('error')) { ?>
-        toastr.error("<?= session('error') ?>");
-        <?php } ?>
-    </script>
     </body>
 </html>
