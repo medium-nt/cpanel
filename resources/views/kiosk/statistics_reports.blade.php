@@ -15,57 +15,7 @@
 
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
-    <style>
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-            touch-action: none;
-        }
-
-        .wrapper {
-            background-color: #f4f6f9;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .container-fluid {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .btn-kiosk {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 0.5rem;
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        .btn-kiosk:active {
-            transform: scale(0.98);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-kiosk-blue {
-            background-color: #3b82f6;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
 </head>
 <body>
 
