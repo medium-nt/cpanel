@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -398,5 +399,16 @@ class StickerPrintingController extends Controller
         return response()->json([
             'material_id' => $roll->material->title,
         ]);
+    }
+
+    public function printSticker(Order $order)
+    {
+        $pdf = PDF::loadView('pdf.defect_sticker', [
+            'order' => $order,
+        ]);
+
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('barcode.pdf');
     }
 }

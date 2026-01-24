@@ -12,6 +12,8 @@ Route::prefix('/kiosk')->group(function () {
         ->name('defects.create');
     Route::post('defects', [App\Http\Controllers\StickerPrintingController::class, 'saveDefects'])
         ->name('defects.store');
+    Route::get('defects/print_sticker/{order}', [App\Http\Controllers\StickerPrintingController::class, 'printSticker'])
+        ->name('defects.print_sticker');
 
     Route::get('api/roll/{roll_code}', [App\Http\Controllers\StickerPrintingController::class, 'getRollByCode'])
         ->name('kiosk.api.roll');

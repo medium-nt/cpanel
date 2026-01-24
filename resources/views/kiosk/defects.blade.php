@@ -237,10 +237,12 @@
                             </h3>
                         </div>
 
-                        <a class="btn btn-outline-primary btn-lg mr-5" href="#">
+                        <button
+                            onclick="printBarcode('{{ route('defects.print_sticker', ['order' => $defectMaterialOrders->first()]) }}')"
+                            class="btn btn-outline-primary btn-lg mr-5">
                             <i class="fas fa-print"></i>
                             Распечатать стикер
-                        </a>
+                        </button>
 
                         <a class="btn btn-outline-success btn-lg ml-5"
                            href="{{ route('defects.create') }}">
@@ -249,6 +251,9 @@
                     </div>
                 </div>
             @endif
+
+            <iframe id="printFrame"
+                    style="display:none"></iframe>
 
             <div class="card">
                 <div class="card-header">
@@ -261,21 +266,24 @@
                             <th scope="col">Стикер</th>
                             <th scope="col">Материал</th>
                             <th scope="col">Количество</th>
+                            <th scope="col">Причина</th>
                             <th scope="col">ШК рулона</th>
                             <th scope="col">Дата</th>
                         </tr>
                         </thead>
                         <tbody>
                         @forelse ($defectMaterialOrders ?? [] as $defect)
-                            <tr>
+                            <tr style="{{ $loop->first ? 'background-color: #e6f4ef;' : '' }}">
                                 <td>
-                                    <a href="#"
-                                       class="btn btn-outline-primary btn-md">
-                                        <i class="fas fa-print"></i>
-                                    </a>
+                                    <button
+                                        onclick="printBarcode('{{ route('defects.print_sticker', ['order' => $defect]) }}')"
+                                        class="btn btn-outline-secondary btn-md">
+                                        <i class="fas fa-barcode fa-2x"></i>
+                                    </button>
                                 </td>
                                 <td>{{ $defect->movementMaterials->first()->material->title }}</td>
                                 <td>{{ $defect->movementMaterials->first()->quantity }} {{ $defect->movementMaterials->first()->material->unit }}</td>
+                                <td>{{ $defect->comment }}</td>
                                 <td>{{ $defect->movementMaterials->first()?->roll?->roll_code }}</td>
                                 <td>{{ $defect->created_date_time }}</td>
                             </tr>
@@ -391,6 +399,8 @@
         });
     });
 </script>
+
+    <script src="{{ asset('js/printBarcode.js') }}"></script>
 
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
