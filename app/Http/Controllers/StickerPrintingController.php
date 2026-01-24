@@ -249,7 +249,12 @@ class StickerPrintingController extends Controller
 
     public function defects()
     {
-        $user = User::query()->find(session('user_id'));
+        $user = User::find(session('user_id'));
+
+        if (! $user || ! $user->isSeamstress() && ! $user->isCutter()) {
+            return redirect()
+                ->route('kiosk');
+        }
 
         $field = match ($user->role->name) {
             'seamstress' => 'seamstress_id',
@@ -262,7 +267,7 @@ class StickerPrintingController extends Controller
         if ($field) {
             $defectMaterialOrders = Order::query()
                 ->where($field, session('user_id'))
-                ->whereIn('type_movement', [4, 7])
+                ->where('type_movement', 4)
                 ->whereDate('created_at', today())
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -282,8 +287,7 @@ class StickerPrintingController extends Controller
             'user_id' => 'required|exists:users,id',
             'roll' => 'required|exists:rolls,roll_code',
             'quantity' => 'required|numeric|min:0.01',
-            'type_movement_id' => 'nullable|in:4,7',
-            'comment' => 'nullable|string',
+            'reason' => 'nullable|string',
         ];
 
         $text = [
@@ -294,21 +298,24 @@ class StickerPrintingController extends Controller
             'quantity.required' => 'Поле количество не заполнено',
             'quantity.numeric' => 'Поле количество должно быть числом',
             'quantity.min' => 'Поле количество должно быть больше 0',
-            'type_movement_id.in' => 'Системная ошибка! Тип движения должен быть браком или остатком',
-            'comment.string' => 'Поле комментарий должно быть строкой',
+            'reason.string' => 'Поле комментарий должно быть строкой',
         ];
 
         $validatedData = $request->validate($rules, $text);
 
         $quantity = $validatedData['quantity'];
-        $user = User::query()->find($validatedData['user_id']);
+        $user = User::find($validatedData['user_id']);
         $roll = Roll::where('roll_code', $validatedData['roll'])->first();
-        $typeMovementId = $validatedData['type_movement_id'] ?? 4; // 4 - брак
-        $comment = $validatedData['comment'] ?? '';
+        $comment = $validatedData['reason'] ?? '';
 
-        if ($user == null || $roll == null || $quantity == 0) {
+        if (! $user || ! $user->isSeamstress() && ! $user->isCutter()) {
             return redirect()
-                ->route('defects')
+                ->route('kiosk');
+        }
+
+        if ($roll == null || $quantity == 0) {
+            return redirect()
+                ->route('defects.create')
                 ->with('error', 'Введите данные');
         }
 
@@ -318,19 +325,12 @@ class StickerPrintingController extends Controller
             default => throw new \Exception('Недопустимая роль: '.$user->role->name),
         };
 
-        // 7 - остаток не может быть больше 1 метра
-        if ($typeMovementId == 7 && $quantity > 1) {
-            DB::rollBack();
-
-            return false;
-        }
-
         try {
             DB::beginTransaction();
 
             $order = Order::query()->create([
                 $field => $user->id,
-                'type_movement' => $typeMovementId,
+                'type_movement' => 4,
                 'status' => 0,
                 'comment' => $comment,
                 'completed_at' => now(),
@@ -351,15 +351,9 @@ class StickerPrintingController extends Controller
                 ->with('error', 'Внутренняя ошибка');
         }
 
-        $typeName = match ($typeMovementId) {
-            '4' => 'брак',
-            '7' => 'остаток',
-            default => '---',
-        };
-
         $list = '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
 
-        $text = 'Сотрудник '.auth()->user()->name.' указал '.$typeName.': '."\n".$list;
+        $text = 'Сотрудник '.auth()->user()->name.' указал брак: '."\n".$list;
 
         Log::channel('erp')
             ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
@@ -373,7 +367,7 @@ class StickerPrintingController extends Controller
 
         $defectMaterialOrders = Order::query()
             ->where($field, session('user_id'))
-            ->whereIn('type_movement', [4, 7])
+            ->where('type_movement', 4)
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'desc')
             ->get();

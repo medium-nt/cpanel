@@ -165,6 +165,41 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
+                                    <label for="quantity">Причина</label>
+                                    <select name="reason" id="reason"
+                                            class="form-control is-invalid"
+                                            required>
+                                        <option value="" selected disabled>
+                                            Выберите причину
+                                        </option>
+                                        <option value="Пятна">Пятна</option>
+                                        <option value="Зацепки">Зацепки</option>
+                                        <option value="Стрелы">Стрелы</option>
+                                        <option value="Полосы">Полосы</option>
+                                        <option value="Дыры">Дыры</option>
+                                        <option value="Раздвижки">Раздвижки
+                                        </option>
+                                        <option value="Брак утяжелителя">Брак
+                                            утяжелителя
+                                        </option>
+                                    </select>
+                                    <script>
+                                        document.getElementById('reason').addEventListener('change', function () {
+                                            if (this.value) {
+                                                this.classList.remove('is-invalid');
+                                                this.classList.add('is-valid');
+                                            } else {
+                                                this.classList.remove('is-valid');
+                                                this.classList.add('is-invalid');
+                                            }
+                                            // Убираем фокус после выбора
+                                            setTimeout(() => this.blur(), 0);
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
                                     <label for="roll">ШК рулона</label>
                                     <input type="text" class="form-control"
                                            name="roll" id="roll"
@@ -172,7 +207,7 @@
                                            required readonly>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="material">Материал</label>
                                     <input type="text" class="form-control"
