@@ -117,19 +117,37 @@
             @if($user)
                 <div class="card" style="top: 10px;">
                     <div class="card-body">
-                        <h2 class="mb-3">Приветствую, {{ $user->name }}!</h2>
+                        <h2 class="mb-5">Приветствую, {{ $user->name }}!</h2>
                         @if(!$user->shift_is_open)
-                            <a class="btn btn-success btn-lg"
+                            <h4>
+                                Ваша смена начинается
+                                в: {{ Carbon\Carbon::parse($user->start_work_shift)->format('H:i') }}
+                                @if($isLate)
+                                    <p class="text-danger mt-3">
+                                        Вы опоздали
+                                        на {{ $lateTimeStartWorkShift }} мин.
+                                        Вам разрешено опоздание только
+                                        на {{ $user->max_late_minutes }} мин.
+                                        <br>
+                                        При открытии смены вам будет начислен
+                                        штраф в
+                                        размере: {{ $lateOpenedShiftPenalty }}
+                                        руб.
+                                        <br>
+                                    </p>
+                                @endif
+                            </h4>
+                            <a class="btn btn-success btn-lg mt-3"
                                href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => '1-'.$user->id.'-1']) }}">
                                 Открыть смену
                             </a>
                         @else
                             <h4>
-                                Ваше начало
-                                смены: {{ Carbon\Carbon::parse($user->actual_start_work_shift)->format('H:i') }}
+                                Ваше начало смены
+                                в: {{ Carbon\Carbon::parse($user->actual_start_work_shift)->format('H:i') }}
                                 <br>
-                                Ваш конец
-                                смены: {{ Carbon\Carbon::parse($user->end_work_shift)->format('H:i') }}
+                                Ваш конец смены
+                                в: {{ Carbon\Carbon::parse($user->end_work_shift)->format('H:i') }}
                             </h4>
                             @if($user->end_work_shift < Carbon\Carbon::now())
                                 <a class="btn btn-warning btn-lg mt-3"

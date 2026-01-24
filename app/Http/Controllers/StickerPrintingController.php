@@ -6,10 +6,12 @@ use App\Jobs\SendTelegramMessageJob;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -221,9 +223,17 @@ class StickerPrintingController extends Controller
                 ->route('kiosk');
         }
 
+        $shiftStart = Carbon::parse($user->start_work_shift);
+        $allowedTime = $shiftStart->copy()->addMinutes($user->max_late_minutes);
+        $lateAfterAllowed = $allowedTime->diffInMinutes(now(), false);
+        $lateFromShiftStart = $shiftStart->diffInSeconds(now(), false);
+
         return view('kiosk.opening_closing_shifts', [
             'title' => 'Открытие/закрытие смены',
             'user' => $user,
+            'lateOpenedShiftPenalty' => Setting::getValue('late_opened_shift_penalty'),
+            'isLate' => $lateAfterAllowed > 0,
+            'lateTimeStartWorkShift' => max(floor($lateFromShiftStart / 60), 0),
         ]);
     }
 

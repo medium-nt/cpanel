@@ -125,6 +125,7 @@
                     <a href="{{ route('opening_closing_shifts') }}"
                        class="btn-kiosk btn-kiosk-blue">Открытие / Закрытие
                         смены</a>
+                    @if($user->shift_is_open)
                     <a href="{{ route('sticker_printing') }}"
                        class="btn-kiosk btn-kiosk-green">Печать
                         заказов</a>
@@ -135,9 +136,11 @@
                     <a href="{{ route('statistics_reports') }}"
                        class="btn-kiosk btn-kiosk-orange">Статистика /
                         Отчеты</a>
-                    @if($user->isCutter() || $user->isSeamstress())
-                    <a href=" {{ route('defects.create') }}"
-                       class="btn-kiosk btn-kiosk-purple">Работа с браком</a>
+                        @if($user->isCutter() || $user->isSeamstress())
+                            <a href=" {{ route('defects.create') }}"
+                               class="btn-kiosk btn-kiosk-purple">Работа с
+                                браком</a>
+                        @endif
                     @endif
                 </div>
             @else
