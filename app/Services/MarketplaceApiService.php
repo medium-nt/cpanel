@@ -948,9 +948,21 @@ class MarketplaceApiService
         $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
         $barcode = ($order->marketplace_id == 1) ? self::getBarcodeOzonBySku($sku) : $sku;
 
+        $length = mb_strlen($order->cluster);
+
+        if ($length > 25) {
+            $fontSizeCluster = 9;
+        } elseif ($length > 18) {
+            $fontSizeCluster = 12;
+        } else {
+            $fontSizeCluster = 14;
+        }
+
         $pdf = PDF::loadView('pdf.fbo_ozon_sticker', [
             'barcode' => $barcode,
             'item' => $item,
+            'order' => $order,
+            'fontSizeCluster' => $fontSizeCluster,
             'seamstressId' => $order->items[0]->seamstress->id,
         ]);
 

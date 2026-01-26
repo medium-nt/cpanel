@@ -60,6 +60,7 @@ class MarketplaceOrderService
             'marketplace_id' => $request->marketplace_id,
             'fulfillment_type' => $request->fulfillment_type,
             'status' => 0,
+            'cluster' => $request->cluster ?? null,
         ]);
 
         MarketplaceOrderItem::query()->create([

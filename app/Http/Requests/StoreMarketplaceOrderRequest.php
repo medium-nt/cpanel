@@ -8,20 +8,16 @@ class StoreMarketplaceOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'order_id' => 'required|unique:marketplace_orders,order_id',
@@ -29,15 +25,14 @@ class StoreMarketplaceOrderRequest extends FormRequest
             'item_id' => 'required|exists:marketplace_items,id',
             'quantity.*' => 'integer|min:1',
             'fulfillment_type' => 'required|in:FBO,FBS',
+            'cluster' => 'nullable|string',
         ];
     }
 
     /**
      * Customize the error messages used by the validator.
-     *
-     * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'order_id.required' => 'Номер заказа обязателен.',
@@ -50,6 +45,7 @@ class StoreMarketplaceOrderRequest extends FormRequest
             'quantity.*.min' => 'Количество товара должно быть больше 0.',
             'fulfillment_type.required' => 'Тип фулфилмента обязателен.',
             'fulfillment_type.in' => 'Тип фулфилмента должен быть "FBO" или "FBS".',
+            'cluster.string' => 'Не верно указан кластер',
         ];
     }
 }

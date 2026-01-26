@@ -66,7 +66,14 @@
         </div>
 
         <div class="code-label">{{ $barcode }}</div>
-        <div class="code-text">Тюль {{ $item->title }}</div>
+        <div class="code-text">
+            <div class="reason">Тюль {{ $item->title }}
+                <span
+                    style="float:right; font-weight: bold; font-size: {{ $fontSizeCluster }}px">
+                    {{ $order->cluster }}
+                </span>
+            </div>
+        </div>
         <div class="code-text">ширина {{ $item->width }}</div>
         <div class="code-text">высота {{ $item->height }}</div>
     </div>

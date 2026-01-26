@@ -8,7 +8,7 @@
 {{-- Content body: main page content --}}
 
 @section('content_body')
-    <div class="col-md-6">
+    <div class="col-md-12 col-lg-12">
         <div class="card">
 
             @if(session('success'))
@@ -32,7 +32,7 @@
                 @csrf
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="order_id">Номер заявки</label>
                                 <input type="text"
@@ -45,7 +45,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label for="marketplace_id">Маркетплейс</label>
                                 <select name="marketplace_id" id="marketplace_id" class="form-control" required>
@@ -63,6 +63,118 @@
                                     <option value="" disabled selected>---</option>
                                     <option value="FBO" @if(old('fulfillment_type') == 'FBO') selected @endif>FBO</option>
                                     <option value="FBS" @if(old('fulfillment_type') == 'FBS') selected @endif>FBS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label for="cluster">Кластер (только для
+                                    FBO)</label>
+                                <select name="cluster" id="cluster"
+                                        class="form-control" required>
+                                    <option value="" disabled selected>---
+                                    </option>
+                                    <option value="Алматы"
+                                            @if(old('cluster') == 'Алматы') selected @endif>
+                                        Алматы
+                                    </option>
+                                    <option value="Астана"
+                                            @if(old('cluster') == 'Астана') selected @endif>
+                                        Астана
+                                    </option>
+                                    <option value="Беларусь"
+                                            @if(old('cluster') == 'Беларусь') selected @endif>
+                                        Беларусь
+                                    </option>
+                                    <option value="Воронеж"
+                                            @if(old('cluster') == 'Воронеж') selected @endif>
+                                        Воронеж
+                                    </option>
+                                    <option value="Дальний Восток"
+                                            @if(old('cluster') == 'Дальний Восток') selected @endif>
+                                        Дальний Восток
+                                    </option>
+                                    <option value="Екатеринбург"
+                                            @if(old('cluster') == 'Екатеринбург') selected @endif>
+                                        Екатеринбург
+                                    </option>
+                                    <option value="Казань"
+                                            @if(old('cluster') == 'Казань') selected @endif>
+                                        Казань
+                                    </option>
+                                    <option value="Калининград"
+                                            @if(old('cluster') == 'Калининград') selected @endif>
+                                        Калининград
+                                    </option>
+                                    <option value="Краснодар"
+                                            @if(old('cluster') == 'Краснодар') selected @endif>
+                                        Краснодар
+                                    </option>
+                                    <option value="Красноярск"
+                                            @if(old('cluster') == 'Красноярск') selected @endif>
+                                        Красноярск
+                                    </option>
+                                    <option value="Махачкала"
+                                            @if(old('cluster') == 'Махачкала') selected @endif>
+                                        Махачкала
+                                    </option>
+                                    <option value="Москва, МО и Дальние регионы"
+                                            @if(old('cluster') == 'Москва, МО и Дальние регионы') selected @endif>
+                                        Москва, МО и Дальние регионы
+                                    </option>
+                                    <option value="Невинномысск"
+                                            @if(old('cluster') == 'Невинномысск') selected @endif>
+                                        Невинномысск
+                                    </option>
+                                    <option value="Новосибирск"
+                                            @if(old('cluster') == 'Новосибирск') selected @endif>
+                                        Новосибирск
+                                    </option>
+                                    <option value="Омск"
+                                            @if(old('cluster') == 'Омск') selected @endif>
+                                        Омск
+                                    </option>
+                                    <option value="Оренбург"
+                                            @if(old('cluster') == 'Оренбург') selected @endif>
+                                        Оренбург
+                                    </option>
+                                    <option value="Пермь"
+                                            @if(old('cluster') == 'Пермь') selected @endif>
+                                        Пермь
+                                    </option>
+                                    <option value="Ростов"
+                                            @if(old('cluster') == 'Ростов') selected @endif>
+                                        Ростов
+                                    </option>
+                                    <option value="Самара"
+                                            @if(old('cluster') == 'Самара') selected @endif>
+                                        Самара
+                                    </option>
+                                    <option value="Санкт-Петербург и СЗО"
+                                            @if(old('cluster') == 'Санкт-Петербург и СЗО') selected @endif>
+                                        Санкт-Петербург и СЗО
+                                    </option>
+                                    <option value="Саратов"
+                                            @if(old('cluster') == 'Саратов') selected @endif>
+                                        Саратов
+                                    </option>
+                                    <option value="Тверь"
+                                            @if(old('cluster') == 'Тверь') selected @endif>
+                                        Тверь
+                                    </option>
+                                    <option value="Тюмень"
+                                            @if(old('cluster') == 'Тюмень') selected @endif>
+                                        Тюмень
+                                    </option>
+                                    <option value="Уфа"
+                                            @if(old('cluster') == 'Уфа') selected @endif>
+                                        Уфа
+                                    </option>
+                                    <option value="Ярославль"
+                                            @if(old('cluster') == 'Ярославль') selected @endif>
+                                        Ярославль
+                                    </option>
                                 </select>
                             </div>
                         </div>
