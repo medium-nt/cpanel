@@ -13,7 +13,8 @@
         </div>
         @foreach ($supply_orders as $order)
             <div class="col-md-4">
-                <div class="card">
+                <div class="card"
+                     @if($order->supply_id == $supplyId) style="background-color: #c1ffc1" @endif>
                     <div class="card-body">
                         <b>{{ $order->order_id }}</b> {!! $order->marketplace_status_label !!}
                         <div class="my-3">
@@ -23,7 +24,7 @@
                                 х {{ $firstItem->item->height }}
                             @endif
                         </div>
-                        @if($status == 0)
+                        @if($status == 0 && $order->supply_id == $supplyId)
                         <div class="btn-group" role="group">
                             <button
                                 onclick="confirmRemove({{ $order->id }})"
@@ -71,7 +72,7 @@
                         </thead>
                         <tbody>
                         @foreach ($supply_orders as $order)
-                            <tr>
+                            <tr @if($order->supply_id == $supplyId) style="background-color: #c1ffc1" @endif>
                                 <td>{!! $order->marketplace_status_label !!}</td>
                                 <td>{{ $order->order_id }} <b>{{ $order->part_b ? "({$order->part_b})" : '' }}</b></td>
                                 <td>
@@ -82,7 +83,7 @@
                                     @endif
                                 </td>
                                 <td style="width: 100px">
-                                @if($status == 0)
+                                    @if($status == 0 && $order->supply_id == $supplyId)
                                     <button
                                         onclick="confirmRemove({{ $order->id }})"
                                         class="btn btn-danger">

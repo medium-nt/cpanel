@@ -28,9 +28,10 @@ class SupplyOrderList extends Component
 
         if ($order && $order->supply_id === $this->supplyId) {
             $order->supply_id = null;
+            $order->marketplace_status = null;
             $order->save();
 
-            Log::channel('erp')->notice('Заказ №' . $order->order_id . ' успешно удален из поставки.');
+            Log::channel('erp')->notice('Заказ №'.$order->order_id.' успешно удален из поставки.');
         }
 
         $this->dispatch('orderRemoved');
@@ -39,15 +40,10 @@ class SupplyOrderList extends Component
 
     public function render(): View
     {
-        $supply_orders = MarketplaceOrder::query()
-            ->with('items.item')
-            ->where('supply_id', $this->supplyId)
-            ->orderBy('updated_at', 'desc')
-            ->get();
-
         $marketplaceSupply = MarketplaceSupply::query()->find($this->supplyId);
 
-        $totalReady = MarketplaceOrder::query()
+        $readyOrders = MarketplaceOrder::query()
+            ->with('items.item')
             ->where('status', 6)
             ->where('fulfillment_type', 'FBS')
             ->where('marketplace_id', $marketplaceSupply->marketplace_id)
@@ -55,11 +51,25 @@ class SupplyOrderList extends Component
                 $q->where('supply_id', $this->supplyId)
                     ->orWhereNull('supply_id');
             })
-            ->count();
+            ->get();
 
-        $totalItems = $supply_orders->sum(function ($order) {
+        $supplyOrders = MarketplaceOrder::query()
+            ->with('items.item')
+            ->where('supply_id', $this->supplyId)
+            ->get();
+
+        // объединяем, убираем дубликаты по id и сортируем по updated_at
+        $supply_orders = $supplyOrders
+            ->merge($readyOrders)
+            ->unique('id')
+            ->sortByDesc('updated_at')
+            ->values();
+
+        $totalItems = $supplyOrders->sum(function ($order) {
             return $order->items->count();
         });
+
+        $totalReady = $readyOrders->count();
 
         $status = $marketplaceSupply->status;
 
