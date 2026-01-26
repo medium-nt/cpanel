@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveSettingRequest;
-use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\TgService;
 use App\Services\TransactionService;
 use Illuminate\Support\Facades\DB;
@@ -18,9 +18,23 @@ class SettingController extends Controller
      */
     public function index()
     {
+        $hasOpenSeamstressShifts = User::query()
+            ->join('roles', 'users.role_id', '=', 'roles.id')
+            ->where('roles.name', 'seamstress')
+            ->where('users.shift_is_open', true)
+            ->exists();
+
+        $hasOpenCutterShifts = User::query()
+            ->join('roles', 'users.role_id', '=', 'roles.id')
+            ->where('roles.name', 'cutter')
+            ->where('users.shift_is_open', true)
+            ->exists();
+
         return view('settings.index', [
             'title' => 'Настройки системы',
-            'settings' => (object)Setting::query()->pluck('value', 'name')->toArray(),
+            'settings' => (object) Setting::query()->pluck('value', 'name')->toArray(),
+            'hasOpenSeamstressShifts' => $hasOpenSeamstressShifts,
+            'hasOpenCutterShifts' => $hasOpenCutterShifts,
         ]);
     }
 
@@ -48,7 +62,7 @@ class SettingController extends Controller
     public function test()
     {
         //  тестовая функция для запуска других методов только на development сервере.
-        if (!app()->environment('production')) {
+        if (! app()->environment('production')) {
 
             $chatId = 6523232418;
 
@@ -96,7 +110,7 @@ class SettingController extends Controller
         // Группируем заказы по marketplace_order_id
         $groupedOrders = $fullOrders->groupBy('marketplace_order_id');
 
-        echo '<h2>Всего заказов: ' . $groupedOrders->count() . '</h2>';
+        echo '<h2>Всего заказов: '.$groupedOrders->count().'</h2>';
         echo '<hr>';
 
         foreach ($groupedOrders as $marketplaceId => $orders) {

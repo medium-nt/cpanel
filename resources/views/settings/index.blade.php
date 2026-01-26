@@ -169,7 +169,10 @@
                                         id="max_quantity_orders_to_cutter"
                                         name="max_quantity_orders_to_cutter"
                                         value="{{ $settings->max_quantity_orders_to_cutter }}"
+                                        {{ $hasOpenCutterShifts ? 'readonly' : '' }}
                                     >
+                                    <small
+                                        class="text-danger text-bold"> {{ $hasOpenCutterShifts ? '* есть открытые смены' : '' }} </small>
                                 </div>
 
                                 <div class="form-group col-md-2">
