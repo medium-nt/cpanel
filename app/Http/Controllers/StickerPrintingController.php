@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendTelegramMessageJob;
+use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
@@ -130,6 +131,16 @@ class StickerPrintingController extends Controller
                     ->with('error', 'Ошибка! Нельзя закрыть смену, пока не закончилось рабочее время!');
             }
 
+            if ($this->hasOrdersInWork($user)) {
+                Log::channel('work_shift')
+                    ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
+                        'пытался закрыть смену, но есть заказы в работе.');
+
+                return redirect()
+                    ->route('sticker_printing', ['user_id' => $selectedUser->id])
+                    ->with('error', 'Ошибка! Нельзя закрыть смену, пока есть заказы в работе!');
+            }
+
             UserService::checkWorkShiftClosure($user);
 
             $user->shift_is_open = false;
@@ -169,6 +180,12 @@ class StickerPrintingController extends Controller
     public function openCloseWorkShiftAdmin(User $user)
     {
         if ($user->shift_is_open) {
+            if ($this->hasOrdersInWork($user)) {
+                return redirect()
+                    ->route('home')
+                    ->with('error', 'Ошибка! Нельзя закрыть смену, пока есть заказы в работе!');
+            }
+
             $user->closed_work_shift = now()->format('H:i');
             ScheduleService::closeWorkShift($user);
         } else {
@@ -410,5 +427,24 @@ class StickerPrintingController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream('barcode.pdf');
+    }
+
+    private function hasOrdersInWork(User $user): bool
+    {
+        if ($user->isSeamstress()) {
+            return MarketplaceOrderItem::query()
+                ->where('seamstress_id', $user->id)
+                ->whereIn('status', [4, 5])
+                ->exists();
+        }
+
+        if ($user->isCutter()) {
+            return MarketplaceOrderItem::query()
+                ->where('cutter_id', $user->id)
+                ->where('status', 7)
+                ->exists();
+        }
+
+        return false;
     }
 }
