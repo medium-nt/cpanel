@@ -72,6 +72,13 @@ class DefectMaterialController extends Controller
         ]);
     }
 
+    public function scan()
+    {
+        return view('defect_materials.scan', [
+            'title' => 'Сканирование брака',
+        ]);
+    }
+
     public function save(Order $order, Request $request)
     {
         $result = DefectMaterialService::save($request, $order);

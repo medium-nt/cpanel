@@ -27,6 +27,10 @@ Route::prefix('/defect_materials')->group(function () {
         ->can('pick_up', 'order')
         ->name('defect_materials.pick_up');
 
+    Route::get('/scan', [App\Http\Controllers\DefectMaterialController::class, 'scan'])
+        ->can('viewAny', MovementMaterial::class)
+        ->name('defect_materials.scan');
+
     Route::delete('/{order}/delete', [App\Http\Controllers\DefectMaterialController::class, 'delete'])
         ->can('delete', 'order')
         ->name('defect_materials.delete');

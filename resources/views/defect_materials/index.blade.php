@@ -138,6 +138,14 @@
                             'date_end' => request('date_end'),
                         ]) }}"
                            class="btn btn-link">Отказанные</a>
+
+                        @if(auth()->user()->isStorekeeper() || auth()->user()->isAdmin())
+                            <a href="{{ route('defect_materials.scan') }}"
+                               class="btn btn-success">
+                                <i class="fas fa-barcode mr-1"></i> Сканирование
+                                брака
+                            </a>
+                        @endif
                 </div>
             </div>
 
