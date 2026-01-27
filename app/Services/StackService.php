@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Stack;
+use Illuminate\Support\Facades\Log;
 
 class StackService
 {
@@ -58,5 +59,20 @@ class StackService
 
         $stack->max = 0;
         $stack->save();
+    }
+
+    /**
+     * Очищает стеки у всех сотрудников.
+     * Обнуляет колонки stack и max в таблице stacks.
+     */
+    public static function clearAllStacks(): void
+    {
+        Stack::query()->update([
+            'stack' => 0,
+            'max' => 0,
+        ]);
+
+        Log::channel('work_shift')
+            ->info('Выполнена очистка стеков у всех сотрудников.');
     }
 }

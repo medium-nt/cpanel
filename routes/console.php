@@ -3,6 +3,7 @@
 use App\Models\Setting;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceSupplyService;
+use App\Services\StackService;
 use App\Services\TransactionService;
 use App\Services\UserService;
 use Illuminate\Foundation\Inspiring;
@@ -28,6 +29,7 @@ Schedule::call(function () {
 Schedule::call(function () {
     UserService::checkUnclosedWorkShifts();
     UserService::clearTimeForClosedWorkShifts();
+    StackService::clearAllStacks();
 })->dailyAt('00:01');
 
 Schedule::call(function () {
