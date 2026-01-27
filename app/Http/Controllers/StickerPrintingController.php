@@ -434,7 +434,7 @@ class StickerPrintingController extends Controller
         if ($user->isSeamstress()) {
             return MarketplaceOrderItem::query()
                 ->where('seamstress_id', $user->id)
-                ->whereIn('status', [4, 5])
+                ->where('status', 4)
                 ->exists();
         }
 
