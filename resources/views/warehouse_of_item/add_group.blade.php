@@ -115,7 +115,8 @@
                                 @foreach($seamstresses as $seamstress)
                                     <option value="{{ $seamstress->id }}"
                                             @if($seamstress->id == old('seamstress_id', request('seamstress'))) selected @endif>
-                                        {{ $seamstress->name }}
+                                        id:{{ $seamstress->id }}
+                                        | {{ $seamstress->name }}
                                     </option>
                                 @endforeach
                             </select>
