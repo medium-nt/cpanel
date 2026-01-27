@@ -27,6 +27,10 @@ class MarketplaceOrderController extends Controller
             $orders = $orders->where('marketplace_orders.marketplace_id', $request->marketplace_id);
         }
 
+        if (isset($request->fulfillment_type)) {
+            $orders = $orders->where('marketplace_orders.fulfillment_type', $request->fulfillment_type);
+        }
+
         $queryParams = $request->except(['page']);
 
         return view('marketplace_orders.index', [

@@ -41,6 +41,24 @@
                             <option value="2" @if(request()->get('marketplace_id') == 2) selected @endif>WB</option>
                         </select>
                     </div>
+
+                        <div class="form-group col-md-2">
+                            <select name="fulfillment_type"
+                                    id="fulfillment_type"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>---</option>
+                                <option value="fbo"
+                                        @if(request()->get('fulfillment_type') == 'fbo') selected @endif>
+                                    FBO
+                                </option>
+                                <option value="fbs"
+                                        @if(request()->get('fulfillment_type') == 'fbs') selected @endif>
+                                    FBS
+                                </option>
+                            </select>
+                        </div>
                 </div>
 
             </div>
