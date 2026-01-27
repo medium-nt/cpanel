@@ -81,6 +81,10 @@
                                 <span class="mx-1 badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                 <b>{{ $order->fulfillment_type }}</b> <br>
 
+                                @if($order->cluster)
+                                    Кластер:<b> {{ $order->cluster }} </b>
+                                @endif
+
                                 <div class="my-3">
                                     @php
                                         $orderStatus = true;
@@ -171,6 +175,7 @@
                             @endif
                             <th scope="col">Маркетплейс</th>
                             <th scope="col">Тип</th>
+                            <th scope="col">Кластер</th>
                             <th scope="col">Товары</th>
                             <th scope="col">Создан</th>
                             <th scope="col">Выполнен</th>
@@ -198,6 +203,7 @@
                                          alt="{{ $order->marketplace_name }}">
                                 </td>
                                 <td>{{ $order->fulfillment_type }}</td>
+                                <td>{{ $order->cluster }}</td>
                                 <td>
                                     @php
                                         $orderStatus = true;
