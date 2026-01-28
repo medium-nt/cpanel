@@ -133,7 +133,8 @@
                                 @foreach($cutters as $cutter)
                                     <option value="{{ $cutter->id }}"
                                             @if($cutter->id == old('cutter_id', request('cutter'))) selected @endif>
-                                        {{ $cutter->name }}
+                                        id:{{ $cutter->id }}
+                                        | {{ $cutter->name }}
                                     </option>
                                 @endforeach
                             </select>
