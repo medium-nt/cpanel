@@ -42,16 +42,19 @@ class SupplyOrderList extends Component
     {
         $marketplaceSupply = MarketplaceSupply::query()->find($this->supplyId);
 
-        $readyOrders = MarketplaceOrder::query()
-            ->with('items.item')
-            ->where('status', 6)
-            ->where('fulfillment_type', 'FBS')
-            ->where('marketplace_id', $marketplaceSupply->marketplace_id)
-            ->where(function ($q) {
-                $q->where('supply_id', $this->supplyId)
-                    ->orWhereNull('supply_id');
-            })
-            ->get();
+        $readyOrders = collect();
+        if ($marketplaceSupply->status === 0) {
+            $readyOrders = MarketplaceOrder::query()
+                ->with('items.item')
+                ->where('status', 6)
+                ->where('fulfillment_type', 'FBS')
+                ->where('marketplace_id', $marketplaceSupply->marketplace_id)
+                ->where(function ($q) {
+                    $q->where('supply_id', $this->supplyId)
+                        ->orWhereNull('supply_id');
+                })
+                ->get();
+        }
 
         $supplyOrders = MarketplaceOrder::query()
             ->with('items.item')
