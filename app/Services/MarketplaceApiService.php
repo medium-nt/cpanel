@@ -1806,7 +1806,6 @@ class MarketplaceApiService
 
             $text = 'Статус экземпляров заказа '.$orderId.' не соответствует "ship_available"!'.
                 ' Статус: '.$response->object()->status."\n".
-                ' requirements: '.json_encode($response->object()->requirements)."\n".
                 ' Пробуем передать что ГТД не обязательна...';
 
             Log::channel('marketplace_api')
