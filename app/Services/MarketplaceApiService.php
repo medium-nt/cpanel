@@ -1842,9 +1842,9 @@ class MarketplaceApiService
         $product = $response['products'][0];
         $exemplar = $product['exemplars'][0];
 
-        if (! self::setCountryIsoCode($response['posting_number'], $product['product_id'])) {
-            return false;
-        }
+//        if (! self::setCountryIsoCode($response['posting_number'], $product['product_id'])) {
+//            return false;
+//        }
 
         if (! self::setGtdAbsent($response['posting_number'], $product['product_id'], $exemplar['exemplar_id'])) {
             return false;
