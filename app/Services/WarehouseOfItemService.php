@@ -20,7 +20,7 @@ class WarehouseOfItemService
         if ($request->has('status')) {
             $items = $items->where('marketplace_order_items.status', $request->status);
         } else {
-            $items = $items->whereIn('marketplace_order_items.status', [9, 10, 11, 12]);
+            $items = $items->whereIn('marketplace_order_items.status', [9, 10, 11, 12, 13]);
         }
 
         if ($request->has('material')) {
