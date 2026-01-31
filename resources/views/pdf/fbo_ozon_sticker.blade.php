@@ -69,13 +69,20 @@
         <div class="code-text">
             <div class="reason">Тюль {{ $item->title }}
                 <span
+                    style="float:right; font-size: {{ $fontSizeCluster }}px">
+                    {{ $order->order_id }}
+                </span>
+            </div>
+        </div>
+        <div class="code-text">ширина {{ $item->width }}</div>
+        <div class="code-text">
+            <div class="reason">высота {{ $item->height }}
+                <span
                     style="float:right; font-weight: bold; font-size: {{ $fontSizeCluster }}px">
                     {{ $order->cluster }}
                 </span>
             </div>
         </div>
-        <div class="code-text">ширина {{ $item->width }}</div>
-        <div class="code-text">высота {{ $item->height }}</div>
     </div>
 
     <div class="code-text2"><b>швея № {{ $seamstressId }}</b></div>
