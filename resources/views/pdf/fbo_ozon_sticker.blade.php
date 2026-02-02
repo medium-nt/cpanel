@@ -50,12 +50,12 @@
         .code-text2 {
             font-family: DejaVu Sans, sans-serif;
             letter-spacing: -1.0px;
-            font-size: 8px;
+            font-size: 7px;
             line-height: 0.8;
             text-align: right;
             position: absolute;
-            bottom: 5px;
-            right: 5px;
+            bottom: 1px;
+            right: 1px;
         }
     </style>
 </head>
@@ -83,12 +83,13 @@
                 </span>
             </div>
         </div>
-    </div>
 
-    <div class="code-text2"><b>
-            @isset($cutterId)
-                закройщик № {{ $cutterId }} |
-            @endisset
-            швея № {{ $seamstressId }}</b></div>
+        <div class="code-text2"><b>
+                @isset($cutterId)
+                    закройщик № {{ $cutterId }} |
+                @endisset
+                швея № {{ $seamstressId }}</b>
+        </div>
+    </div>
 </body>
 </html>
