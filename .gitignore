@@ -31,3 +31,4 @@ db.db
 /.claude/
 /coverage/
 /.mcp.json
+/nul

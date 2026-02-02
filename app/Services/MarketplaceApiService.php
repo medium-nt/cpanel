@@ -964,6 +964,7 @@ class MarketplaceApiService
             'order' => $order,
             'fontSizeCluster' => $fontSizeCluster,
             'seamstressId' => $order->items[0]->seamstress->id,
+            'cutterId' => $order->items[0]->cutter?->id,
         ]);
 
         $pdf->setPaper('A4', 'portrait');

@@ -85,6 +85,10 @@
         </div>
     </div>
 
-    <div class="code-text2"><b>швея № {{ $seamstressId }}</b></div>
+    <div class="code-text2"><b>
+            @isset($cutterId)
+                закройщик № {{ $cutterId }} |
+            @endisset
+            швея № {{ $seamstressId }}</b></div>
 </body>
 </html>
