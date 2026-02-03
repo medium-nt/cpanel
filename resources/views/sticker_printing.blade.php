@@ -61,6 +61,8 @@
 
                         <x-modal-work-shift-component :userId="$userId"/>
 
+                        <x-confirm-reprint-modal/>
+
                         <div class="form-group col-md-2">
                             <select name="user_id"
                                     id="user_id"
@@ -323,7 +325,7 @@
                                     <tr>
                                         <td>
                                             <button
-                                                onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}')"
+                                                onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }})"
                                                 class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
                                                     @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
                                                 id="print_{{ $orderId }}">
@@ -373,7 +375,6 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/printBarcode.js') }}"></script>
     <script src="{{ asset('js/toggle_spoiler.js') }}"></script>
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
 
@@ -415,6 +416,7 @@
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
     <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/printBarcode.js') }}"></script>
 
     </body>
 </html>
