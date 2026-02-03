@@ -333,7 +333,11 @@ class MarketplaceOrderItemService
             ->select('marketplace_order_items.*');
 
         if ($request->has('user_id')) {
-            $items = $items->where('marketplace_order_items.seamstress_id', $request->user_id);
+            $user = User::find($request->user_id);
+
+            if ($user && ! $user->isOtk() && ! $user->isAdmin()) {
+                $items = $items->where('marketplace_order_items.seamstress_id', $request->user_id);
+            }
         } else {
             $items = $items->where('marketplace_order_items.seamstress_id', 0);
         }

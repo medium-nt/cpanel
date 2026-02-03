@@ -53,6 +53,7 @@ class StickerPrintingController extends Controller
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
             'userId' => $request->user_id ?? 0,
+            'user' => $user ?? null,
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
             'users' => User::query()->whereIn('role_id', [1, 2, 4, 5])
                 ->where('name', 'not like', '%Тест%')
