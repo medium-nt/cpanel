@@ -130,7 +130,7 @@
                         </div>
                         <button type="submit"
                                 id="submitBtn"
-                                class="btn btn-kiosk btn-success mt-3 hidden">
+                                class="btn btn-kiosk btn-success mt-3 d-none">
                             Создать заявку на брак
                         </button>
                     </form>
@@ -261,9 +261,9 @@
 
         // Показываем кнопку только если материал найден И количество > 0
         if (material && material !== 'такого материала нет' && quantity > 0) {
-            submitBtn.classList.remove('hidden');
+            submitBtn.classList.remove('d-none');
         } else {
-            submitBtn.classList.add('hidden');
+            submitBtn.classList.add('d-none');
         }
     }
 
