@@ -329,6 +329,7 @@ class MarketplaceOrderItemService
         $items = MarketplaceOrderItem::query()
             ->where('marketplace_order_items.status', '5')
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
             ->select('marketplace_order_items.*');
 
         if ($request->has('user_id')) {
@@ -340,6 +341,11 @@ class MarketplaceOrderItemService
         if ($request->has('marketplace_id')) {
             $items = $items->where('marketplace_orders.marketplace_id', $request->marketplace_id);
         }
+
+        $items = $items
+            ->where('marketplace_items.title', $request->material ?? '')
+            ->where('marketplace_items.height', $request->height ?? 0)
+            ->where('marketplace_items.width', $request->width ?? 0);
 
         return $items->get();
     }

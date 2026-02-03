@@ -39,15 +39,6 @@ class StickerPrintingController extends Controller
             return redirect()->route('sticker_printing', $query);
         }
 
-        $daysAgo = $request->input('days_ago') ?? 0;
-        $daysAgo = intval($daysAgo);
-
-        if ($daysAgo < 0 || $daysAgo > 28) {
-            $daysAgo = 0;
-        }
-
-        $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
-
         $workShift = [];
         if ($request->filled('user_id')) {
             $user = User::query()->find($request->user_id);
