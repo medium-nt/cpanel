@@ -372,7 +372,7 @@ class StickerPrintingController extends Controller
 
         $list = '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
 
-        $text = 'Сотрудник '.auth()->user()->name.' указал брак: '."\n".$list;
+        $text = 'Сотрудник '.$user->name.' указал брак: '."\n".$list;
 
         Log::channel('erp')
             ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
