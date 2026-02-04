@@ -75,7 +75,7 @@ class StickerPrintingController extends Controller
                     .($request->barcode ?? ' --- '));
 
             return redirect()
-                ->route('sticker_printing')
+                ->route('opening_closing_shifts')
                 ->with('error', 'Внутренняя ошибка!');
         }
 
@@ -85,7 +85,7 @@ class StickerPrintingController extends Controller
                     .'не отсканировал штрихкод (штрихкод отсутствует).');
 
             return redirect()
-                ->route('sticker_printing')
+                ->route('opening_closing_shifts')
                 ->with('error', 'Ошибка! Штрихкод не отсканирован!');
         }
 
@@ -97,7 +97,7 @@ class StickerPrintingController extends Controller
                     .'отсканировал неверный штрихкод: '.$request->barcode);
 
             return redirect()
-                ->route('sticker_printing', ['user_id' => $selectedUser->id])
+                ->route('opening_closing_shifts')
                 ->with('error', 'Штрихкод неверен! Такой сотрудник в системе не найден.');
         }
 
@@ -107,7 +107,7 @@ class StickerPrintingController extends Controller
                     'пытался закрыть смену сотрудника '.$user->name.' ('.$user->id.') ');
 
             return redirect()
-                ->route('sticker_printing', ['user_id' => $selectedUser->id])
+                ->route('opening_closing_shifts')
                 ->with('error', 'Ошибка! Штрихкод не соответствует выбранному сотруднику.');
         }
 
@@ -119,7 +119,7 @@ class StickerPrintingController extends Controller
                         'пытался закрыть смену до окончания рабочего времени.');
 
                 return redirect()
-                    ->route('sticker_printing', ['user_id' => $selectedUser->id])
+                    ->route('opening_closing_shifts')
                     ->with('error', 'Ошибка! Нельзя закрыть смену, пока не закончилось рабочее время!');
             }
 
@@ -129,7 +129,7 @@ class StickerPrintingController extends Controller
                         'пытался закрыть смену, но есть заказы в работе.');
 
                 return redirect()
-                    ->route('sticker_printing', ['user_id' => $selectedUser->id])
+                    ->route('opening_closing_shifts')
                     ->with('error', 'Ошибка! Нельзя закрыть смену, пока есть заказы в работе!');
             }
 
@@ -147,7 +147,7 @@ class StickerPrintingController extends Controller
                         'пытался второй раз за день открыть смену.');
 
                 return redirect()
-                    ->route('sticker_printing', ['user_id' => $selectedUser->id])
+                    ->route('opening_closing_shifts')
                     ->with('error', 'Ошибка! Нельзя второй раз за день открыть смену!');
             }
 
@@ -164,9 +164,11 @@ class StickerPrintingController extends Controller
             ->info('Сотрудник '.$user->name.' ('.$user->id.') '
                 .($user->shift_is_open ? 'открыл' : 'закрыл').' смену.');
 
+        $route = $user->shift_is_open ? 'opening_closing_shifts' : 'kiosk';
+
         return redirect()
-            ->route('sticker_printing', ['user_id' => $selectedUser->id])
-            ->with('success', 'Смена успешно '.($user->shift_is_open ? 'открыта' : 'закрыта'));
+            ->route($route)
+            ->with('success', 'Ваша смена успешно '.($user->shift_is_open ? 'открыта' : 'закрыта'));
     }
 
     public function openCloseWorkShiftAdmin(User $user)

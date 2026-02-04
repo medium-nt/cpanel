@@ -16,6 +16,9 @@
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
     <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"
+        rel="stylesheet">
 </head>
 <body>
 
@@ -123,6 +126,35 @@
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
 <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+
+<!-- Подключаем JS-файл Toastr -->
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "5000"
+    };
+</script>
+<style>
+    .toast {
+        opacity: 1 !important;
+    }
+</style>
+
+@if(session('success'))
+    <script>
+        toastr.success("{{ session('success') }}");
+    </script>
+@endif
+
+@if(session('error'))
+    <script>
+        toastr.error("{{ session('error') }}");
+    </script>
+@endif
 
 </body>
 </html>
