@@ -350,7 +350,7 @@ class StickerPrintingController extends Controller
             $order = Order::query()->create([
                 $field => $user->id,
                 'type_movement' => 4,
-                'status' => 0,
+                'status' => 1,
                 'comment' => $comment,
                 'completed_at' => now(),
             ]);
