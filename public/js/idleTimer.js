@@ -3,8 +3,8 @@ class IdleTimer {
         this.redirectUrl = options.redirectUrl;
         this.modalSelector = options.modalSelector || '#idleModal';
 
-        this.idleTimeout = 10000;
-        this.countdownSeconds = 10;
+        this.idleTimeout = 30000;
+        this.countdownSeconds = 30;
 
         this.modal = document.querySelector(this.modalSelector);
         this.countdownEl = document.querySelector(`${this.modalSelector} #idleCountdown`);
@@ -15,7 +15,6 @@ class IdleTimer {
         this.countdownValue = this.countdownSeconds;
 
         if (!this.modal) {
-            console.error('IdleTimer: Modal not found');
             return;
         }
 
