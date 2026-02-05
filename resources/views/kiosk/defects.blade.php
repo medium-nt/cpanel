@@ -93,6 +93,8 @@
                                         <option value="Брак утяжелителя">Брак
                                             утяжелителя
                                         </option>
+                                        <option value="Дыры">Заводской брак
+                                        </option>
                                     </select>
                                     <script>
                                         document.getElementById('reason').addEventListener('change', function () {
