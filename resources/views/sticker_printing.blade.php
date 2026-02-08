@@ -15,12 +15,22 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+        <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
+
         <style>
             html, body {
-                touch-action: none;
+                touch-action: pan-y;
             }
             .wrapper {
                 background-color: #f4f6f9;
+            }
+
+            .content {
+                overflow-y: auto;
+            }
+
+            .container-fluid {
+                overflow-y: auto;
             }
             .td_style {
                 text-align: center;
@@ -32,7 +42,6 @@
                 caret-color: #000;
             }
         </style>
-        <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
     </head>
     <body>
 
