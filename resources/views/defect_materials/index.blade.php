@@ -59,14 +59,14 @@
             <div class="card">
                 <div class="card-body">
 
-                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <a href="{{ route('defect_materials.create', ['type_movement_id' => 4]) }}" class="btn btn-primary mr-3 mb-3">Добавить новый брак</a>
-                            <a href="{{ route('defect_materials.create', ['type_movement_id' => 7]) }}" class="btn btn-primary mb-3">Добавить новый остаток</a>
-                        </div>
-                    </div>
-                    @endif
+                    {{--                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())--}}
+                    {{--                    <div class="row">--}}
+                    {{--                        <div class="form-group col-md-6">--}}
+                    {{--                            <a href="{{ route('defect_materials.create', ['type_movement_id' => 4]) }}" class="btn btn-primary mr-3 mb-3">Добавить новый брак</a>--}}
+                    {{--                            <a href="{{ route('defect_materials.create', ['type_movement_id' => 7]) }}" class="btn btn-primary mb-3">Добавить новый остаток</a>--}}
+                    {{--                        </div>--}}
+                    {{--                    </div>--}}
+                    {{--                    @endif--}}
 
                     <div class="row">
                         <div class="form-group col-md-3">
