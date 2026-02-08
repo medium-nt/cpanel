@@ -71,7 +71,7 @@
 <div class="page">
     <div class="container">
         <div class="barcode">
-            {!! DNS1D::getBarcodeHTML('DEF-'.$order->id, 'C128', 1.7, 85) !!}
+            {!! DNS1D::getBarcodeHTML('DEF-'.$order->id, 'C128', 1.5, 85) !!}
         </div>
         <div class="code-label">{{ 'DEF-'.$order->id }}</div>
         <div class="material">
