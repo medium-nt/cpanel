@@ -41,7 +41,9 @@
                                     {{ $marketplace_item->item->title }}
                                     {{ $marketplace_item->item->width }}
                                     x {{ $marketplace_item->item->height }}
-                                    (швея: {{ $marketplace_item->seamstress->name ?? '' }}
+                                    (швея:
+                                    id {{ $marketplace_item->seamstress_id }}|
+                                    {{ $marketplace_item->seamstress->name ?? '' }}
                                     )
                                 </a>
                             </li>
