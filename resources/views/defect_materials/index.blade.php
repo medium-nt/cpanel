@@ -270,7 +270,14 @@
                                     </td>
                                     <td>
                                         @foreach($order->movementMaterials as $material)
-                                            <b>{{ $material->material->title }}</b> - {{ $material->quantity }} {{ $material->material->unit }} <br>
+                                            <b>{{ $material->material->title }}</b>
+                                            - {{ $material->quantity }} {{ $material->material->unit }}
+                                            @if($material->roll)
+                                                (рулон:
+                                                <b>{{ $material->roll->roll_code ?? '' }} </b>
+                                                )
+                                            @endif
+                                            <br>
                                         @endforeach
                                     </td>
                                     <td>
