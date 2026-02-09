@@ -2113,5 +2113,4 @@ class MarketplaceApiService
             'fastening_type' => $attributes->firstWhere('id', 15001420)->value[0] ?? null,
         ];
     }
-
 }
