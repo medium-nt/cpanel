@@ -1,29 +1,30 @@
 <?php
 
+use App\Http\Controllers\MaterialController;
 use App\Models\Material;
 
 Route::prefix('/materials')->group(function () {
-    Route::get('', [App\Http\Controllers\MaterialController::class, 'index'])
+    Route::get('', [MaterialController::class, 'index'])
         ->can('viewAny', Material::class)
         ->name('materials.index');
 
-    Route::get('/create', [App\Http\Controllers\MaterialController::class, 'create'])
+    Route::get('/create', [MaterialController::class, 'create'])
         ->can('create', Material::class)
         ->name('materials.create');
 
-    Route::post('/store', [App\Http\Controllers\MaterialController::class, 'store'])
+    Route::post('/store', [MaterialController::class, 'store'])
         ->can('create', Material::class)
         ->name('materials.store');
 
-    Route::get('/{material}/edit', [App\Http\Controllers\MaterialController::class, 'edit'])
+    Route::get('/{material}/edit', [MaterialController::class, 'edit'])
         ->can('update', 'material')
         ->name('materials.edit');
 
-    Route::put('/update/{material}', [App\Http\Controllers\MaterialController::class, 'update'])
+    Route::put('/update/{material}', [MaterialController::class, 'update'])
         ->can('update', 'material')
         ->name('materials.update');
 
-    Route::delete('/delete/{material}', [App\Http\Controllers\MaterialController::class, 'destroy'])
+    Route::delete('/delete/{material}', [MaterialController::class, 'destroy'])
         ->can('delete', 'material')
         ->name('materials.destroy');
 });

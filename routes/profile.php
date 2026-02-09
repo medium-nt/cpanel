@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\UsersController;
+
 Route::prefix('/profile')->group(function () {
-    Route::get('', [App\Http\Controllers\UsersController::class, 'profile'])
+    Route::get('', [UsersController::class, 'profile'])
         ->name('profile');
-    Route::put('', [App\Http\Controllers\UsersController::class, 'profileUpdate'])
+    Route::put('', [UsersController::class, 'profileUpdate'])
         ->name('profile.update');
-    Route::get('disconnectTg', [App\Http\Controllers\UsersController::class, 'disconnectTg'])
+    Route::get('disconnectTg', [UsersController::class, 'disconnectTg'])
         ->name('profile.disconnectTg');
 });

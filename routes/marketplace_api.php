@@ -1,21 +1,21 @@
 <?php
 
-use App\Models\User;
+use App\Http\Controllers\MarketplaceApiController;
 
 Route::prefix('/marketplace_api')->group(function () {
-    Route::get('check_skuz', [App\Http\Controllers\MarketplaceApiController::class, 'checkSkuz'])
+    Route::get('check_skuz', [MarketplaceApiController::class, 'checkSkuz'])
 //        ->can('viewAny', User::class)
         ->name('marketplace_api.checkSkuz');
 
-    Route::get('new_order', [App\Http\Controllers\MarketplaceApiController::class, 'uploadingNewProducts'])
+    Route::get('new_order', [MarketplaceApiController::class, 'uploadingNewProducts'])
 //        ->can('viewAny', User::class)
         ->name('marketplace_api.newOrder');
 
-    Route::get('check_duplicate_skuz', [App\Http\Controllers\MarketplaceApiController::class, 'checkDuplicateSkuz'])
+    Route::get('check_duplicate_skuz', [MarketplaceApiController::class, 'checkDuplicateSkuz'])
 //        ->can('viewAny', User::class)
         ->name('marketplace_api.checkDuplicateSkuz');
 
-    Route::get('check_cancelled', [App\Http\Controllers\MarketplaceApiController::class, 'uploadingCancelledProducts'])
+    Route::get('check_cancelled', [MarketplaceApiController::class, 'uploadingCancelledProducts'])
 //        ->can('viewAny', User::class)
         ->name('marketplace_api.check_cancelled');
 

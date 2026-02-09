@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MarketplaceApiController;
+use App\Http\Controllers\MarketplaceOrderItemController;
+use App\Http\Controllers\StickerPrintingController;
+use App\Http\Controllers\UsersController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -10,40 +15,40 @@ Route::get('/', function () {
 
 if (App::environment(['local'])) {
     Route::prefix('autologin')->group(function () {
-        Route::get('/{email}', [App\Http\Controllers\UsersController::class, 'autologin'])
+        Route::get('/{email}', [UsersController::class, 'autologin'])
             ->name('users.autologin');
     });
 }
 
-Route::get('/sticker_printing', [App\Http\Controllers\StickerPrintingController::class, 'index'])->name('sticker_printing');
+Route::get('/sticker_printing', [StickerPrintingController::class, 'index'])->name('sticker_printing');
 
 Route::prefix('')
     ->group(function () {
         require base_path('routes/kiosk.php');
     });
 
-Route::get('/open_close_work_shift', [App\Http\Controllers\StickerPrintingController::class, 'openCloseWorkShift'])
+Route::get('/open_close_work_shift', [StickerPrintingController::class, 'openCloseWorkShift'])
     ->name('open_close_work_shift');
 
-Route::get('/open_close_work_shift_admin/{user}', [App\Http\Controllers\StickerPrintingController::class, 'openCloseWorkShiftAdmin'])
+Route::get('/open_close_work_shift_admin/{user}', [StickerPrintingController::class, 'openCloseWorkShiftAdmin'])
     ->can('update', User::class)
     ->name('open_close_work_shift_admin');
 
-Route::get('barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getBarcodeFile'])
+Route::get('barcode', [MarketplaceApiController::class, 'getBarcodeFile'])
     ->name('marketplace_api.barcode');
 
-Route::get('fbo_barcode', [App\Http\Controllers\MarketplaceApiController::class, 'getFBOBarcodeFile'])
+Route::get('fbo_barcode', [MarketplaceApiController::class, 'getFBOBarcodeFile'])
     ->name('marketplace_api.fbo_barcode');
 
-Route::get('fbo_barcode_html', [App\Http\Controllers\MarketplaceApiController::class, 'getFBOBarcodeHtml'])
+Route::get('fbo_barcode_html', [MarketplaceApiController::class, 'getFBOBarcodeHtml'])
     ->name('marketplace_api.fbo_barcode_html');
 
-Route::put('/done/{marketplace_order_item}', [App\Http\Controllers\MarketplaceOrderItemController::class, 'done'])
+Route::put('/done/{marketplace_order_item}', [MarketplaceOrderItemController::class, 'done'])
     ->name('marketplace_order_items.done');
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 //  доступно без начала смены.
 Route::prefix('megatulle')

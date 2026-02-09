@@ -1,34 +1,35 @@
 <?php
 
+use App\Http\Controllers\InventoryController;
 use App\Models\InventoryCheck;
 use App\Models\MovementMaterial;
 
 Route::prefix('/inventory')->group(function () {
-    Route::get('/warehouse', [App\Http\Controllers\InventoryController::class, 'byWarehouse'])
+    Route::get('/warehouse', [InventoryController::class, 'byWarehouse'])
         ->can('viewAny', MovementMaterial::class)
         ->name('inventory.warehouse');
 
-    Route::get('/workshop', [App\Http\Controllers\InventoryController::class, 'byWorkshop'])
+    Route::get('/workshop', [InventoryController::class, 'byWorkshop'])
         ->can('viewAny', MovementMaterial::class)
         ->name('inventory.workshop');
 
-    Route::get('/inventory_checks', [App\Http\Controllers\InventoryController::class, 'inventoryChecks'])
+    Route::get('/inventory_checks', [InventoryController::class, 'inventoryChecks'])
         ->can('viewAny', InventoryCheck::class)
         ->name('inventory.inventory_checks');
 
-    Route::get('/{inventory}/show', [App\Http\Controllers\InventoryController::class, 'show'])
+    Route::get('/{inventory}/show', [InventoryController::class, 'show'])
         ->can('view', InventoryCheck::class)
         ->name('inventory.show');
 
-    Route::get('/create', [App\Http\Controllers\InventoryController::class, 'create'])
+    Route::get('/create', [InventoryController::class, 'create'])
         ->can('create', InventoryCheck::class)
         ->name('inventory.create');
 
-    Route::post('/store', [App\Http\Controllers\InventoryController::class, 'store'])
+    Route::post('/store', [InventoryController::class, 'store'])
         ->can('create', InventoryCheck::class)
         ->name('inventory.store');
 
-    Route::delete('/delete/{inventory}', [App\Http\Controllers\InventoryController::class, 'destroy'])
+    Route::delete('/delete/{inventory}', [InventoryController::class, 'destroy'])
         ->can('delete', InventoryCheck::class)
         ->name('inventory.destroy');
 
