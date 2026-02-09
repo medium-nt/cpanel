@@ -14,9 +14,14 @@ function showConfirmModal() {
     });
 }
 
-function printBarcode(url, isPrinted = false) {
+function printBarcode(url, isPrinted = false, force = false) {
     const urlObj = new URL(url, window.location.origin);
     const orderId = urlObj.searchParams.get('marketplaceOrderId');
+
+    if (force) {
+        executePrint(url, orderId);
+        return;
+    }
 
     const alreadyPrinted = isPrinted || printedOrders.has(orderId);
     if (alreadyPrinted) {

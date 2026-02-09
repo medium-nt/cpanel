@@ -15,6 +15,9 @@ Route::prefix('/kiosk')->group(function () {
     Route::get('defects/print_sticker/{order}', [App\Http\Controllers\StickerPrintingController::class, 'printSticker'])
         ->name('defects.print_sticker');
 
+    Route::get('product-label/{marketplaceOrderItem}', [App\Http\Controllers\StickerPrintingController::class, 'printProductLabel'])
+        ->name('kiosk.product-label');
+
     Route::get('api/roll/{roll_code}', [App\Http\Controllers\StickerPrintingController::class, 'getRollByCode'])
         ->name('kiosk.api.roll');
 });

@@ -354,19 +354,26 @@
 
                                     <tr>
                                         <td>
-                                            <button
-                                                onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }})"
-                                                class="btn btn-lg mx-5 d-flex align-items-center justify-content-center
-                                                    @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
-                                                id="print_{{ $orderId }}">
-                                                <i class="fas fa-barcode fa-2x"></i>
-                                            </button>
-                                        </td>
+                                            <div class="d-flex">
+                                                <button
+                                                    onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }})"
+                                                    class="btn btn-lg mr-2 d-flex align-items-center justify-content-center
+                                                        @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                    id="print_{{ $orderId }}">
+                                                    <i class="fas fa-barcode fa-2x"></i>
+                                                </button>
 
+                                                <button
+                                                    onclick="printBarcode('/kiosk/product-label/{{ $item->id }}', false, true)"
+                                                    class="btn btn-xs d-flex align-items-center justify-content-center btn-outline-secondary"
+                                                    id="productLabelPrint_{{ $orderId }}">
+                                                    <i class="fas fa-barcode fa-2x"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                         <td class="td_style">
                                             {{ $item->seamstress->name }}
                                         </td>
-
                                         <td class="td_style">
                                             {{ $orderId }} <b>{{ $partBtoWB }}</b>
                                         </td>

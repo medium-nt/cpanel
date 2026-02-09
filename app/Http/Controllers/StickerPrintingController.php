@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
@@ -421,6 +422,24 @@ class StickerPrintingController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream('barcode.pdf');
+    }
+
+    public function printProductLabel(MarketplaceOrderItem $marketplaceOrderItem, MarketplaceApiService $marketplaceApiService)
+    {
+        $data = $marketplaceApiService->getProductInfo($marketplaceOrderItem);
+
+        if ($data == null) {
+            echo 'Нет данных для печати стикера.';
+            exit;
+        }
+
+        $pdf = PDF::loadView('pdf.product_label', [
+            'data' => $data,
+        ]);
+
+        $pdf->setPaper([0, 0, 164.41, 113.39]);
+
+        return $pdf->stream('product_label.pdf');
     }
 
     private function hasOrdersInWork(User $user): bool

@@ -2021,4 +2021,97 @@ class MarketplaceApiService
             return '---';
         }
     }
+
+    public function getProductInfo($marketplaceOrderItem): ?array
+    {
+        $marketplaceId = $marketplaceOrderItem->marketplaceOrder->marketplace_id;
+
+        return match ($marketplaceId) {
+            1 => self::getProductInfoOzon($marketplaceOrderItem),
+            2 => self::getProductInfoWB($marketplaceOrderItem),
+            default => null,
+        };
+    }
+
+    private static function getProductInfoOzon($marketplaceOrderItem): ?array
+    {
+        $body = [
+            'filter' => [
+                'sku' => [
+                    $marketplaceOrderItem->item->sku
+                        ->where('marketplace_id', $marketplaceOrderItem->marketplaceOrder->marketplace_id)
+                        ->first()
+                        ->sku,
+                ],
+            ],
+            'limit' => 1,
+        ];
+
+        $response = self::ozonRequest()
+            ->post('https://api-seller.ozon.ru/v4/product/info/attributes', $body);
+
+        if (!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->error('ВНИМАНИЕ! Ошибка получения информации о товаре из Ozon по заказу '
+                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' Ответ:',
+                    [$response->object()]);
+
+            return null;
+        }
+
+        $attributes = collect($response->object()?->result[0]->attributes ?? []);
+
+        return [
+            'title' => $marketplaceOrderItem->item->title,
+            'material' => $attributes->firstWhere('id', 6383)->values[0]->value ?? null,
+            'country' => $attributes->firstWhere('id', 4389)->values[0]->value ?? null,
+            'print_type' => $attributes->firstWhere('id', 6391)->values[0]->value ?? null,
+            'color' => $attributes->firstWhere('id', 10096)->values[0]->value ?? null,
+            'fastening_type' => $attributes->firstWhere('id', 6816)->values[0]->value ?? null,
+        ];
+    }
+
+    private static function getProductInfoWB($marketplaceOrderItem): ?array
+    {
+        $sku = $marketplaceOrderItem->item->sku
+            ->where('marketplace_id', $marketplaceOrderItem->marketplaceOrder->marketplace_id)
+            ->first()
+            ->sku;
+
+        $body = [
+            'settings' => [
+                'cursor' => [
+                    'limit' => 1,
+                ],
+                'filter' => [
+                    'withPhoto' => -1,
+                    'textSearch' => (string)$sku,
+                ],
+            ],
+        ];
+
+        $response = self::wbRequest()
+            ->post('https://content-api.wildberries.ru/content/v2/get/cards/list', $body);
+
+        if (!$response->ok()) {
+            Log::channel('marketplace_api')
+                ->error('ВНИМАНИЕ! Ошибка получения информации о товаре из WB по заказу '
+                    . $marketplaceOrderItem->marketplaceOrder->order_id . ' Ответ:',
+                    [$response->object()]);
+
+            return null;
+        }
+
+        $attributes = collect($response->object()->cards[0]->characteristics ?? []);
+
+        return [
+            'title' => $marketplaceOrderItem->item->title,
+            'material' => $attributes->firstWhere('id', 17596)->value[0] ?? null,
+            'country' => $attributes->firstWhere('id', 14177451)->value[0] ?? null,
+            'print_type' => $attributes->firstWhere('id', 12)->value[0] ?? null,
+            'color' => $attributes->firstWhere('id', 14177449)->value[0] ?? null,
+            'fastening_type' => $attributes->firstWhere('id', 15001420)->value[0] ?? null,
+        ];
+    }
+
 }
