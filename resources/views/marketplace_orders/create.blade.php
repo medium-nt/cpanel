@@ -216,7 +216,7 @@
                     </div>
 
                     <div id="fbo-additional-rows">
-                        @for($i = 1; $i < 10; $i++)
+                        @for($i = 1; $i < 20; $i++)
                         <x-odred_item-component :items="$items" :i="$i"/>
                     @endfor
                     </div>
