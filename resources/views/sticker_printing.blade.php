@@ -354,7 +354,6 @@
 
                                     <tr>
                                         <td>
-                                            <div class="d-flex">
                                                 <button
                                                     onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }})"
                                                     class="btn btn-lg mr-2 d-flex align-items-center justify-content-center
@@ -362,14 +361,6 @@
                                                     id="print_{{ $orderId }}">
                                                     <i class="fas fa-barcode fa-2x"></i>
                                                 </button>
-
-                                                <button
-                                                    onclick="printBarcode('/kiosk/product-label/{{ $item->id }}', false, true)"
-                                                    class="btn btn-xs d-flex align-items-center justify-content-center btn-outline-secondary"
-                                                    id="productLabelPrint_{{ $orderId }}">
-                                                    <i class="fas fa-barcode fa-2x"></i>
-                                                </button>
-                                            </div>
                                         </td>
                                         <td class="td_style">
                                             {{ $item->seamstress->name }}
