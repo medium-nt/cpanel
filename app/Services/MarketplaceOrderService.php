@@ -21,6 +21,17 @@ class MarketplaceOrderService
         $itemIds = $request->input('item_id', []);
         $quantities = $request->input('quantity', []);
 
+        // Фильтруем пустые значения и собираем товары
+        $items = [];
+        foreach ($itemIds as $index => $itemId) {
+            if (! empty($itemId) && ! empty($quantities[$index])) {
+                $items[] = [
+                    'item_id' => (int) $itemId,
+                    'quantity' => (int) $quantities[$index],
+                ];
+            }
+        }
+
         if (empty($itemIds) || empty($quantities)) {
             return back()->withErrors([
                 'error' => 'Заполните правильно список товаров и количество.',
@@ -31,13 +42,15 @@ class MarketplaceOrderService
             DB::beginTransaction();
 
             if ($request->fulfillment_type == 'FBO') {
-                $quantity = $request->input('quantity', [])[0];
-                for ($i = 1; $i <= $quantity; $i++) {
-                    $orderIndex = '-'.$i;
-                    self::addMarketplaceOrder($request, $orderIndex);
+                $orderCounter = 1;
+                foreach ($items as $item) {
+                    for ($i = 1; $i <= $item['quantity']; $i++) {
+                        $orderIndex = '-'.$orderCounter++;
+                        self::addMarketplaceOrder($request, $orderIndex, $item['item_id']);
+                    }
                 }
             } else {
-                self::addMarketplaceOrder($request, '');
+                self::addMarketplaceOrder($request, '', $items[0]['item_id']);
             }
 
             DB::commit();
@@ -53,7 +66,7 @@ class MarketplaceOrderService
         return true;
     }
 
-    private static function addMarketplaceOrder(StoreMarketplaceOrderRequest $request, $orderIndex): void
+    private static function addMarketplaceOrder(StoreMarketplaceOrderRequest $request, $orderIndex, $itemId): void
     {
         $marketplaceOrder = MarketplaceOrder::query()->create([
             'order_id' => $request->order_id.$orderIndex,
@@ -65,7 +78,7 @@ class MarketplaceOrderService
 
         MarketplaceOrderItem::query()->create([
             'marketplace_order_id' => $marketplaceOrder->id,
-            'marketplace_item_id' => $request->item_id[0],
+            'marketplace_item_id' => $itemId,
             'quantity' => 1,
             'price' => 0,
         ]);

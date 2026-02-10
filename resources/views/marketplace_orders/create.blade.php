@@ -72,7 +72,7 @@
                                 <label for="cluster">Кластер (только для
                                     FBO)</label>
                                 <select name="cluster" id="cluster"
-                                        class="form-control" required>
+                                        class="form-control">
                                     <option value="" disabled selected>---
                                     </option>
                                     <option value="Алматы"
@@ -183,14 +183,15 @@
                     <div class="row">
                         <div class="col-md-9">
                             <div class="form-group">
-                                <label for="item_id">Товар</label>
+                                <label for="item_id0">Товар</label>
                                 <select name="item_id[]"
-                                        id="item_id"
+                                        id="item_id0"
                                         class="form-control item_id"
                                         required>
                                     <option value="" disabled selected>---</option>
                                     @foreach($items as $item)
-                                        <option value="{{ $item->id }}" @if(old('item_id') == $item->id) selected @endif>
+                                        <option value="{{ $item->id }}"
+                                                @if(old('item_id.0') == $item->id) selected @endif>
                                             {{ $item->title }} {{ $item->width }}х{{ $item->height }}
                                         </option>
                                     @endforeach
@@ -200,21 +201,25 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="quantity">Количество</label>
+                                <label for="quantity0">Количество</label>
                                 <input type="number"
-                                       class="form-control @error('quantity') is-invalid @enderror"
-                                       id="quantity"
+                                       class="form-control @error('quantity.0') is-invalid @enderror"
+                                       id="quantity0"
                                        name="quantity[]"
                                        step="1"
+                                       min="1"
                                        disabled
+                                       @if(old('quantity.0')) value="{{ old('quantity.0') }}" @endif
                                 >
                             </div>
                         </div>
                     </div>
 
-                    @for($i = 1; $i < 1; $i++)
+                    <div id="fbo-additional-rows">
+                        @for($i = 1; $i < 10; $i++)
                         <x-odred_item-component :items="$items" :i="$i"/>
                     @endfor
+                    </div>
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Создать</button>
@@ -231,11 +236,54 @@
 
     <script>
         $(document).ready(function() {
-            $('.item_id').on('change', function() {
-                var quantityInput = $(this).closest('.row').find('[name="quantity[]"]');
+            const fulfillmentTypeSelect = $('#fulfillment_type');
+            const fboAdditionalRows = $('#fbo-additional-rows');
+            const clusterSelect = $('#cluster');
 
+            function toggleFboMode(isFbo) {
+                if (isFbo) {
+                    fboAdditionalRows.show();
+                    clusterSelect.prop('disabled', false).prop('required', true);
+                } else {
+                    fboAdditionalRows.hide();
+                    clusterSelect.prop('disabled', true).prop('required', false).val('').trigger('change');
+                    // Очистить дополнительные поля
+                    fboAdditionalRows.find('select').val('').trigger('change');
+                    fboAdditionalRows.find('input[type="number"]').val('').prop('disabled', true);
+                }
+            }
+
+            // Инициализация при загрузке
+            toggleFboMode(fulfillmentTypeSelect.val() === 'FBO');
+
+            // Обработка изменения типа
+            fulfillmentTypeSelect.on('change', function () {
+                toggleFboMode($(this).val() === 'FBO');
+            });
+
+            const itemSelects = $('.item_id');
+
+            // Логика активации quantity
+            function initQuantityState() {
+                itemSelects.each(function () {
+                    const quantityInput = $(this).closest('.row').find('[name="quantity[]"]');
+                    if (!$(this).val()) {
+                        quantityInput.prop('disabled', true);
+                    } else {
+                        quantityInput.prop('disabled', false);
+                    }
+                });
+            }
+
+            // Инициализация при загрузке (для old()) - с задержкой после Select2
+            setTimeout(function () {
+                initQuantityState();
+            }, 100);
+
+            itemSelects.on('change', function () {
+                const quantityInput = $(this).closest('.row').find('[name="quantity[]"]');
                 if ($(this).val() === '') {
-                    quantityInput.prop('disabled', true);
+                    quantityInput.prop('disabled', true).val('');
                 } else {
                     quantityInput.prop('disabled', false);
                 }
