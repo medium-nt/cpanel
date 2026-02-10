@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\SaveCollectMovementMaterialToWorkshopRequest;
 use App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest;
 use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
+use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
@@ -224,6 +225,13 @@ class MovementMaterialToWorkshopService
         return Order::query()
             ->where('type_movement', 2)
             ->where('status', 2)
+            ->count();
+    }
+
+    public static function getStickeredMarketplaceOrderItem(): int
+    {
+        return MarketplaceOrderItem::query()
+            ->where('status', 5)
             ->count();
     }
 }

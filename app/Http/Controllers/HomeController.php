@@ -41,6 +41,7 @@ class HomeController extends Controller
             'urgentMarketplaceOrderItem' => MarketplaceOrderItemService::urgent(),
             'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements(),
             'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(),
+            'stickeredMarketplaceOrderItem' => MovementMaterialToWorkshopService::getStickeredMarketplaceOrderItem(),
             'employees' => User::query()
                 ->where('name', 'not like', '%Тест%')
                 ->paginate(5, ['*'], 'employees')->withQueryString(),

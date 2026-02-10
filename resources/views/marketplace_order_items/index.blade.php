@@ -104,6 +104,7 @@
                     'marketplace_id' => request('marketplace_id')
                 ]) }}"
                    class="btn btn-link">В работе</a>
+                @endif
 
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'labeling',
@@ -114,6 +115,7 @@
                 ]) }}"
                    class="btn btn-link">Стикеровка</a>
 
+                @if(!auth()->user()->isOtk())
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'done',
                     'user_id' => request('user_id'),

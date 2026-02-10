@@ -128,6 +128,24 @@
                     </a>
                 </div>
                 @endif
+
+                    @if(auth()->user()->isOtk() || auth()->user()->isAdmin())
+                        <div
+                            class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                            <a href="{{ route('marketplace_order_items.index', ['status' => 'labeling']) }}"
+                               class="link-black">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info"><i
+                                            class="fas fa-sticky-note"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Товары на стикеровке</span>
+                                        <span
+                                            class="info-box-number">{{ $stickeredMarketplaceOrderItem }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    @endif
             </div>
         </div>
     </div>
