@@ -355,11 +355,14 @@
                                     <tr>
                                         <td>
                                                 <button
-                                                    onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }})"
+                                                    onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }}, this)"
                                                     class="btn btn-lg mr-2 d-flex align-items-center justify-content-center
                                                         @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
                                                     id="print_{{ $orderId }}">
-                                                    <i class="fas fa-barcode fa-2x"></i>
+                                                    <i class="fas fa-barcode fa-2x barcode-icon"></i>
+                                                    <span
+                                                        class="spinner-border spinner-border-sm d-none ms-0 print-spinner"
+                                                        role="status"></span>
                                                 </button>
                                         </td>
                                         <td class="td_style">
@@ -451,7 +454,8 @@
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
     <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/printBarcode.js') }}"></script>
+    <script
+        src="{{ asset('js/printBarcode.js') }}?v={{ filemtime(public_path('js/printBarcode.js')) }}"></script>
 
     </body>
 </html>

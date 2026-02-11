@@ -9,6 +9,8 @@ Route::prefix('/kiosk')->group(function () {
         ->name('opening_closing_shifts');
     Route::get('statistics_reports', [StickerPrintingController::class, 'statisticsReports'])
         ->name('statistics_reports');
+    Route::get('product_stickers', [StickerPrintingController::class, 'productStickers'])
+        ->name('product_stickers');
 
     Route::get('defects', [StickerPrintingController::class, 'defects'])
         ->name('defects.create');
@@ -17,7 +19,7 @@ Route::prefix('/kiosk')->group(function () {
     Route::get('defects/print_sticker/{order}', [StickerPrintingController::class, 'printSticker'])
         ->name('defects.print_sticker');
 
-    Route::get('product-label/{marketplaceOrderItem}', [StickerPrintingController::class, 'printProductLabel'])
+    Route::get('product-label/{materialName}', [StickerPrintingController::class, 'printProductLabel'])
         ->name('kiosk.product-label');
 
     Route::get('api/roll/{roll_code}', [StickerPrintingController::class, 'getRollByCode'])

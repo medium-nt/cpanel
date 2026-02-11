@@ -58,6 +58,9 @@
                         {{--                        <a href="#" class="btn-kiosk btn-kiosk-red">Работа с--}}
                         {{--                            возвратами</a>--}}
                     @endif
+                    <a href="{{ route('product_stickers') }}"
+                       class="btn-kiosk btn-kiosk-yellow">Печать стикеров
+                        товара</a>
                 </div>
             @else
                 @if(request()->filled('barcode'))

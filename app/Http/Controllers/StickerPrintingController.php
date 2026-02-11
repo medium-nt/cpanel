@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendTelegramMessageJob;
+use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
@@ -10,6 +11,7 @@ use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\MarketplaceApiService;
+use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
@@ -267,6 +269,22 @@ class StickerPrintingController extends Controller
         ]);
     }
 
+    public function productStickers()
+    {
+        $user = User::find(session('user_id'));
+
+        if (! $user) {
+            return redirect()
+                ->route('kiosk');
+        }
+
+        return view('kiosk.product_stickers', [
+            'title' => 'Печать стикеров товара',
+            'user' => $user,
+            'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
+        ]);
+    }
+
     public function defects()
     {
         $user = User::find(session('user_id'));
@@ -424,12 +442,28 @@ class StickerPrintingController extends Controller
         return $pdf->stream('barcode.pdf');
     }
 
-    public function printProductLabel(MarketplaceOrderItem $marketplaceOrderItem, MarketplaceApiService $marketplaceApiService)
+    public function printProductLabel(string $material, MarketplaceApiService $marketplaceApiService)
     {
-        $data = $marketplaceApiService->getProductInfo($marketplaceOrderItem);
+        $marketplaceItem = MarketplaceItem::query()
+            ->where('title', $material)
+            ->first();
+
+        if (! $marketplaceItem) {
+            echo 'Товар не найден';
+            exit;
+        }
+
+        $orderItem = $marketplaceItem->marketplaceOrderItem()->first();
+
+        if (! $orderItem) {
+            echo 'Нет товаров на маркетплейсе для печати стикера.';
+            exit;
+        }
+
+        $data = $marketplaceApiService->getProductInfo($orderItem);
 
         if ($data == null) {
-            echo 'Нет данных для печати стикера.';
+            echo 'Не получены данные из маркетплейса для печати стикера.';
             exit;
         }
 
@@ -437,7 +471,7 @@ class StickerPrintingController extends Controller
             'data' => $data,
         ]);
 
-        $pdf->setPaper([0, 0, 164.41, 113.39]);
+        $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream('product_label.pdf');
     }

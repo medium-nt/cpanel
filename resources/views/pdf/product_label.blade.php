@@ -53,6 +53,7 @@
     </style>
 </head>
 <body>
+@for($i = 0; $i < 20; $i++)
 <div class="page">
     <div class="container">
         <div class="title">Тюль {{ $data['title'] }}</div>
@@ -69,6 +70,7 @@
         </div>
     </div>
 </div>
+@endfor
 
 </body>
 </html>

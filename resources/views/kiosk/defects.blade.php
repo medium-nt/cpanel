@@ -151,10 +151,14 @@
                         </div>
 
                         <button
+                            id="printStickerBtn"
                             onclick="printBarcode('{{ route('defects.print_sticker', ['order' => $defectMaterialOrders->first()]) }}')"
                             class="btn btn-outline-primary btn-lg mr-5">
                             <i class="fas fa-print"></i>
-                            Распечатать стикер
+                            <span id="printBtnText">Распечатать стикер</span>
+                            <span id="printSpinner"
+                                  class="spinner-border spinner-border-sm d-none ms-2"
+                                  role="status"></span>
                         </button>
 
                         <a class="btn btn-outline-success btn-lg ml-5"
@@ -189,9 +193,12 @@
                             <tr style="{{ $loop->first ? 'background-color: #e6f4ef;' : '' }}">
                                 <td>
                                     <button
-                                        onclick="printBarcode('{{ route('defects.print_sticker', ['order' => $defect]) }}')"
+                                        onclick="printBarcode('{{ route('defects.print_sticker', ['order' => $defect]) }}', false, this)"
                                         class="btn btn-outline-secondary btn-md">
-                                        <i class="fas fa-barcode fa-2x"></i>
+                                        <i class="fas fa-barcode fa-2x barcode-icon"></i>
+                                        <span
+                                            class="spinner-border spinner-border-sm d-none ms-0 print-spinner"
+                                            role="status"></span>
                                     </button>
                                 </td>
                                 <td>{{ $defect->movementMaterials->first()->material->title }}</td>
@@ -313,11 +320,12 @@
     });
 </script>
 
-    <script src="{{ asset('js/printBarcode.js') }}"></script>
-
+    <script
+        src="{{ asset('js/printBarcode.js') }}?v={{ filemtime(public_path('js/printBarcode.js')) }}"></script>
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
 <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
+</div>
 </body>
 </html>
