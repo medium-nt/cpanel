@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Sku;
 use App\Models\User;
 use App\Services\MarketplaceApiService;
+use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\StackService;
 use App\Services\TransactionService;
@@ -46,6 +47,9 @@ class MarketplaceOrderItemController extends Controller
             'bonus' => TransactionService::getBonusForTodayOrdersByUsers(),
             'users' => User::query()->whereIn('role_id', [1, 4])
                 ->where('name', 'not like', '%Тест%')->get(),
+            'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
+            'widthMaterials' => MarketplaceItemService::getAllWidthMaterials(),
+            'heightMaterials' => MarketplaceItemService::getAllHeightMaterials(),
         ]);
     }
 

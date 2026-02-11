@@ -42,7 +42,52 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
+                            <select name="material"
+                                    id="material"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>Все материалы</option>
+                                @foreach($titleMaterials as $tm)
+                                    <option value="{{ $tm->title }}"
+                                            @if(request()->get('material') == $tm->title) selected @endif
+                                    >{{ $tm->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-2">
+                            <select name="width"
+                                    id="width"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>Все ширины</option>
+                                @foreach($widthMaterials as $wm)
+                                    <option value="{{ $wm->width }}"
+                                            @if(request()->get('width') == $wm->width) selected @endif
+                                    >{{ $wm->width }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-2">
+                            <select name="height"
+                                    id="height"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>Все высоты</option>
+                                @foreach($heightMaterials as $hm)
+                                    <option value="{{ $hm->height }}"
+                                            @if(request()->get('height') == $hm->height) selected @endif
+                                    >{{ $hm->height }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-3">
                         <input type="date"
                                name="date_start"
                                id="date_start"
@@ -68,7 +113,10 @@
                     'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id')
+                    'marketplace_id' => request('marketplace_id'),
+                    'material' => request('material'),
+                    'width' => request('width'),
+                    'height' => request('height')
                 ]) }}"
                        class="btn btn-link">Новые</a>
                 @endif
@@ -79,7 +127,10 @@
                     'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id')
+                    'marketplace_id' => request('marketplace_id'),
+                    'material' => request('material'),
+                    'width' => request('width'),
+                    'height' => request('height')
                 ]) }}"
                    class="btn btn-link">На раскрое</a>
                 @endif
@@ -90,7 +141,10 @@
                     'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id')
+                    'marketplace_id' => request('marketplace_id'),
+                    'material' => request('material'),
+                    'width' => request('width'),
+                    'height' => request('height')
                 ]) }}"
                    class="btn btn-link">Раскроено</a>
                 @endif
@@ -101,7 +155,10 @@
                     'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id')
+                    'marketplace_id' => request('marketplace_id'),
+                    'material' => request('material'),
+                    'width' => request('width'),
+                    'height' => request('height')
                 ]) }}"
                    class="btn btn-link">В работе</a>
                 @endif
@@ -111,7 +168,10 @@
                     'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id')
+                    'marketplace_id' => request('marketplace_id'),
+                    'material' => request('material'),
+                    'width' => request('width'),
+                    'height' => request('height')
                 ]) }}"
                    class="btn btn-link">Стикеровка</a>
 
@@ -121,7 +181,10 @@
                     'user_id' => request('user_id'),
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id')
+                    'marketplace_id' => request('marketplace_id'),
+                    'material' => request('material'),
+                    'width' => request('width'),
+                    'height' => request('height')
                 ]) }}"
                    class="btn btn-link">Готовые</a>
                 @endif

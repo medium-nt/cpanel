@@ -34,6 +34,7 @@ class MarketplaceOrderItemService
         $items = MarketplaceOrderItem::query();
 
         $items = $items->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
             ->orderBy('marketplace_orders.fulfillment_type', 'asc')
             ->orderBy('marketplace_orders.created_at', 'asc')
             ->orderBy('marketplace_order_items.id', 'asc')
@@ -94,6 +95,18 @@ class MarketplaceOrderItemService
 
         if ($request->has('date_end') && $status == 'done') {
             $items = $items->where('marketplace_order_items.completed_at', '<=', $dateEndWithTime);
+        }
+
+        if ($request->has('width')) {
+            $items = $items->where('marketplace_items.width', $request->width);
+        }
+
+        if ($request->has('height')) {
+            $items = $items->where('marketplace_items.height', $request->height);
+        }
+
+        if ($request->has('material')) {
+            $items = $items->where('marketplace_items.title', $request->material);
         }
 
         return $items;
