@@ -109,6 +109,10 @@ class MarketplaceOrderItemService
             $items = $items->where('marketplace_items.title', $request->material);
         }
 
+        if ($request->has('fulfillment_type') && $request->fulfillment_type !== '') {
+            $items = $items->where('marketplace_orders.fulfillment_type', $request->fulfillment_type);
+        }
+
         return $items;
     }
 

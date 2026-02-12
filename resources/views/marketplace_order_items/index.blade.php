@@ -42,6 +42,24 @@
                         </select>
                     </div>
 
+                        <div class="form-group col-md-1">
+                            <select name="fulfillment_type"
+                                    id="fulfillment_type"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>Все типы</option>
+                                <option value="FBO"
+                                        @if(request()->get('fulfillment_type') == 'FBO') selected @endif>
+                                    FBO
+                                </option>
+                                <option value="FBS"
+                                        @if(request()->get('fulfillment_type') == 'FBS') selected @endif>
+                                    FBS
+                                </option>
+                            </select>
+                        </div>
+
                         <div class="form-group col-md-2">
                             <select name="material"
                                     id="material"
@@ -114,6 +132,7 @@
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id'),
+                    'fulfillment_type' => request('fulfillment_type'),
                     'material' => request('material'),
                     'width' => request('width'),
                     'height' => request('height')
@@ -128,6 +147,7 @@
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id'),
+                    'fulfillment_type' => request('fulfillment_type'),
                     'material' => request('material'),
                     'width' => request('width'),
                     'height' => request('height')
@@ -142,6 +162,7 @@
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id'),
+                    'fulfillment_type' => request('fulfillment_type'),
                     'material' => request('material'),
                     'width' => request('width'),
                     'height' => request('height')
@@ -156,6 +177,7 @@
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id'),
+                    'fulfillment_type' => request('fulfillment_type'),
                     'material' => request('material'),
                     'width' => request('width'),
                     'height' => request('height')
@@ -169,6 +191,7 @@
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id'),
+                    'fulfillment_type' => request('fulfillment_type'),
                     'material' => request('material'),
                     'width' => request('width'),
                     'height' => request('height')
@@ -182,6 +205,7 @@
                     'date_start' => request('date_start'),
                     'date_end' => request('date_end'),
                     'marketplace_id' => request('marketplace_id'),
+                    'fulfillment_type' => request('fulfillment_type'),
                     'material' => request('material'),
                     'width' => request('width'),
                     'height' => request('height')
