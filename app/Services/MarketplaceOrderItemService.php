@@ -992,25 +992,7 @@ class MarketplaceOrderItemService
 
         $maxRemainingMinutes = 0;
 
-        $settings = Setting::getValues([
-            'timeout_200',
-            'timeout_300',
-            'timeout_400',
-            'timeout_500',
-            'timeout_600',
-            'timeout_700',
-            'timeout_800',
-        ]);
-
-        $timeout = [
-            200 => (int) ($settings['timeout_200'] ?? 0),
-            300 => (int) ($settings['timeout_300'] ?? 0),
-            400 => (int) ($settings['timeout_400'] ?? 0),
-            500 => (int) ($settings['timeout_500'] ?? 0),
-            600 => (int) ($settings['timeout_600'] ?? 0),
-            700 => (int) ($settings['timeout_700'] ?? 0),
-            800 => (int) ($settings['timeout_800'] ?? 0),
-        ];
+        $timeout = self::getTimeout();
 
         foreach ($inWork as $orderItem) {
             $orderItemTimeout = $timeout[$orderItem->item->width] ?? 0;
@@ -1041,6 +1023,50 @@ class MarketplaceOrderItemService
         }
 
         return $success;
+    }
+
+    public function checkTimeoutOrderItem(MarketplaceOrderItem $marketplaceOrderItem): bool
+    {
+        $timeout = self::getTimeout();
+
+        $orderItemTimeout = $timeout[$marketplaceOrderItem->item->width] ?? 0;
+
+        $deadline = Carbon::parse($marketplaceOrderItem->started_at)
+            ->addMinutes($orderItemTimeout);
+
+        $remainingMinutes = 0;
+        if ($deadline->isFuture()) {
+            $remainingMinutes = (int) ceil(now()->diffInSeconds($deadline) / 60);
+        }
+
+        if ($remainingMinutes > 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function getTimeout(): array
+    {
+        $settings = Setting::getValues([
+            'timeout_200',
+            'timeout_300',
+            'timeout_400',
+            'timeout_500',
+            'timeout_600',
+            'timeout_700',
+            'timeout_800',
+        ]);
+
+        return [
+            200 => (int) ($settings['timeout_200'] ?? 0),
+            300 => (int) ($settings['timeout_300'] ?? 0),
+            400 => (int) ($settings['timeout_400'] ?? 0),
+            500 => (int) ($settings['timeout_500'] ?? 0),
+            600 => (int) ($settings['timeout_600'] ?? 0),
+            700 => (int) ($settings['timeout_700'] ?? 0),
+            800 => (int) ($settings['timeout_800'] ?? 0),
+        ];
     }
 
     public function getOrdersGroupedByMaterial(User $user): \Illuminate\Support\Collection

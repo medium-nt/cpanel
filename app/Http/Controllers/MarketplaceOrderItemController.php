@@ -97,10 +97,18 @@ class MarketplaceOrderItemController extends Controller
             ->with('success', $result['message']);
     }
 
-    public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
+    public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem, MarketplaceOrderItemService $marketplaceOrderItemService)
     {
-        $fulfillmentType = $marketplaceOrderItem->marketplaceOrder->fulfillment_type;
+        if (! $marketplaceOrderItemService->checkTimeoutOrderItem($marketplaceOrderItem)) {
+            Log::channel('erp')
+                ->error('Швея '.$marketplaceOrderItem->seamstress->name.
+                    ' пыталась сдать заказ в стикеровку почти сразу после начала работы!');
 
+            return redirect()->back()
+                ->with('error', 'Заказ на стикеровку не передан. Слишком быстро выполнен заказ.');
+        }
+
+        $fulfillmentType = $marketplaceOrderItem->marketplaceOrder->fulfillment_type;
         if ($fulfillmentType === 'FBS') {
             $orderId = $marketplaceOrderItem->marketplaceOrder->order_id;
 
