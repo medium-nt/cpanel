@@ -28,7 +28,6 @@
                             @endforeach
                         </select>
                     </div>
-                    @endif
 
                     <div class="form-group col-md-2">
                         <select name="marketplace_id"
@@ -104,8 +103,9 @@
                                 @endforeach
                             </select>
                         </div>
+                    @endif
 
-                        <div class="form-group col-md-3">
+                    <div class="form-group col-md-3">
                         <input type="date"
                                name="date_start"
                                id="date_start"
