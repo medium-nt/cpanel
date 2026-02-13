@@ -2106,7 +2106,7 @@ class MarketplaceApiService
 
         return [
             'title' => $marketplaceOrderItem->item->title,
-//            'material' => $attributes->firstWhere('id', 17596)->value[0] ?? null,
+            //            'material' => $attributes->firstWhere('id', 17596)->value[0] ?? null,
             'material' => $attributes->firstWhere('id', 14177450)->value[0] ?? null,
             'country' => $attributes->firstWhere('id', 14177451)->value[0] ?? null,
             'print_type' => $attributes->firstWhere('id', 12)->value[0] ?? null,
