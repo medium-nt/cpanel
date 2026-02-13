@@ -943,7 +943,7 @@ class MarketplaceOrderItemService
         ];
     }
 
-    private static function getMetersTodayByUser(User $user): float
+    public static function getMetersTodayByUser(User $user): float
     {
         $column = $user->isCutter() ? 'cutter_id' : 'seamstress_id';
 

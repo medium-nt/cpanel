@@ -78,7 +78,7 @@
                                 Ваш конец смены
                                 в: {{ Carbon\Carbon::parse($user->end_work_shift)->format('H:i') }}
                             </h4>
-                            @if($user->end_work_shift < Carbon\Carbon::now())
+                            @if($user->end_work_shift < Carbon\Carbon::now() || $user->dailyLimitReached())
                                 <a class="btn btn-warning btn-lg mt-3"
                                    href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => '1-'.$user->id.'-1']) }}"
                                    onclick="return confirm('Вы уверены, что хотите закрыть смену?')">

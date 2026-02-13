@@ -116,7 +116,7 @@ class StickerPrintingController extends Controller
 
         if ($user->shift_is_open) {
 
-            if ($user->end_work_shift->greaterThan(now())) {
+            if ($user->end_work_shift->greaterThan(now()) && ! $user->dailyLimitReached()) {
                 Log::channel('work_shift')
                     ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
                         'пытался закрыть смену до окончания рабочего времени.');

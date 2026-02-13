@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Services\MarketplaceOrderItemService;
 use App\Services\UserService;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -178,5 +179,24 @@ class User extends Authenticatable
         $middleInitial = isset($parts[2]) ? mb_substr($parts[2], 0, 1) : '';
 
         return $lastName.' '.$firstInitial.'.'.($middleInitial ? $middleInitial.'.' : '');
+    }
+
+    public function dailyLimitReached(): bool
+    {
+        $user = $this;
+
+        $meters = MarketplaceOrderItemService::getMetersTodayByUser($user) / 100;
+
+        $dailyLimit = match ($user->role->name) {
+            'seamstress' => Setting::getValue('seamstress_daily_limit'),
+            'cutter' => Setting::getValue('cutter_daily_limit'),
+            default => 0,
+        };
+
+        if ($meters >= $dailyLimit) {
+            return true;
+        }
+
+        return false;
     }
 }
