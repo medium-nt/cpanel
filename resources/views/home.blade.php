@@ -129,7 +129,7 @@
                 </div>
                 @endif
 
-                    @if(auth()->user()->isOtk() || auth()->user()->isAdmin())
+                    @if(auth()->user()->isOtk() || auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                         <div
                             class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                             <a href="{{ route('marketplace_order_items.index', ['status' => 'labeling']) }}"
