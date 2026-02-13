@@ -13,6 +13,18 @@
             font-size: 12px;
         }
 
+        .page {
+            page-break-before: always;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .page:first-child {
+            page-break-before: avoid;
+        }
+
         h2 {
             margin: 20px 0 5px;
         }
@@ -49,30 +61,36 @@
             border: none !important;
             background: transparent !important;
         }
+
+        /* Вторая страница - крупные ячейки для разрезки */
+        .page-large .dimensions {
+            font-size: 20px;
+        }
+
+        .page-large .dimensions-span {
+            font-size: 36px;
+        }
+
+        .page-large td {
+            height: 80px;
+        }
     </style>
 </head>
 <body>
 
-<table>
-    <thead>
-    <tr>
-        <th class="dimensions">{{ auth()->user()->name }}</th>
-        <th class="col-cutting">{{ now()->format('d/m/Y') }}</th>
-        <th class="col-hidden"></th>
-    </tr>
-    </thead>
-</table>
-
-@foreach($orders as $material => $items)
+<div class="page">
     <table>
         <thead>
-        {{--        <tr>--}}
-        {{--            <th сlass="col-item">Заказ</th>--}}
-        {{--            <th class="col-cutting">Накроено</th>--}}
-        {{--            <th сlass="col-item">Заказ</th>--}}
-        {{--            <th class="col-cutting">Накроено</th>--}}
-        {{--        </tr>--}}
+        <tr>
+            <th class="dimensions">{{ auth()->user()->name }}</th>
+            <th class="col-cutting">{{ now()->format('d/m/Y') }}</th>
+            <th class="col-hidden"></th>
+        </tr>
         </thead>
+    </table>
+
+    @foreach($orders as $material => $items)
+    <table>
         <tbody>
         @foreach($items->chunk(2) as $pair)
             <tr>
@@ -97,7 +115,35 @@
         @endforeach
         </tbody>
     </table>
-@endforeach
+    @endforeach
+</div>
 
+<div class="page page-large">
+    @foreach($orders as $material => $items)
+        <table>
+            <tbody>
+            @foreach($items->chunk(2) as $pair)
+                <tr>
+                    @foreach($pair as $item)
+                        <td class="dimensions">
+                        <span class="dimensions-span">
+                        {{ $material }}
+                            {{ $item->item->width }} × {{ $item->item->height }}<br>
+                        </span>
+                            {{ $item->marketplaceOrder->MarketplaceTitle }}
+                            {{ $item->marketplaceOrder->order_id }}
+                        </td>
+                    @endforeach
+
+                    @if($pair->count() < 2)
+                        {{-- Если только один элемент в строке, добавим пустую ячейку --}}
+                        <td class="dimensions"></td>
+                    @endif
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    @endforeach
+</div>
 </body>
 </html>
