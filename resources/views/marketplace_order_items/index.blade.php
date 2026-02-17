@@ -14,33 +14,6 @@
 
                 <div class="row">
                     @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isOtk())
-                    <div class="form-group col-md-3">
-                        <select name="user_id"
-                                id="user_id"
-                                class="form-control"
-                                onchange="updatePageWithQueryParam(this)"
-                                required>
-                            <option value="" selected>Все</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}"
-                                        @if(request('user_id') == $user->id) selected @endif
-                                >{{ $user->short_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-group col-md-2">
-                        <select name="marketplace_id"
-                                id="marketplace_id"
-                                class="form-control"
-                                onchange="updatePageWithQueryParam(this)"
-                                required>
-                            <option value="" selected>---</option>
-                            <option value="1" @if(request()->get('marketplace_id') == 1) selected @endif>OZON</option>
-                            <option value="2" @if(request()->get('marketplace_id') == 2) selected @endif>WB</option>
-                        </select>
-                    </div>
-
                         <div class="form-group col-md-1">
                             <select name="fulfillment_type"
                                     id="fulfillment_type"
@@ -55,6 +28,41 @@
                                 <option value="FBS"
                                         @if(request()->get('fulfillment_type') == 'FBS') selected @endif>
                                     FBS
+                                </option>
+                            </select>
+                        </div>
+                    @endif
+
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                        <div class="form-group col-md-3">
+                            <select name="user_id"
+                                    id="user_id"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>Все</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}"
+                                            @if(request('user_id') == $user->id) selected @endif
+                                    >{{ $user->short_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-2">
+                            <select name="marketplace_id"
+                                    id="marketplace_id"
+                                    class="form-control"
+                                    onchange="updatePageWithQueryParam(this)"
+                                    required>
+                                <option value="" selected>---</option>
+                                <option value="1"
+                                        @if(request()->get('marketplace_id') == 1) selected @endif>
+                                    OZON
+                                </option>
+                                <option value="2"
+                                        @if(request()->get('marketplace_id') == 2) selected @endif>
+                                    WB
                                 </option>
                             </select>
                         </div>
