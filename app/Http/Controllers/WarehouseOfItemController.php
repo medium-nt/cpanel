@@ -300,4 +300,11 @@ class WarehouseOfItemController extends Controller
         return redirect($route)->withInput()
             ->with('success', 'Товары добавлены на хранение');
     }
+
+    public function shelfChange()
+    {
+        return view('warehouse_of_item.shelf_change', [
+            'title' => 'Смена полки',
+        ]);
+    }
 }

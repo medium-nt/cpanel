@@ -102,6 +102,9 @@
             <a href="{{ route('warehouse_of_item.to_pick_list') }}"
                class="btn btn-primary mr-3 mb-3">Товары к подбору</a>
 
+            <a href="{{ route('warehouse_of_item.shelf_change') }}"
+               class="btn btn-warning mr-3 mb-3">Смена полки</a>
+
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">
                     <thead class="thead-dark">

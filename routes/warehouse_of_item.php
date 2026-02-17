@@ -51,4 +51,8 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('update', Shelf::class)
         ->name('warehouse_of_item.to_work');
 
+    Route::get('/shelf_change', [WarehouseOfItemController::class, 'shelfChange'])
+        ->can('update', Shelf::class)
+        ->name('warehouse_of_item.shelf_change');
+
 });
