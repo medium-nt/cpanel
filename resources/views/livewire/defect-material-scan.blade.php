@@ -127,8 +127,8 @@
                 Livewire.on('scanSuccess', () => playScanSound('scan-success-sound'));
                 Livewire.on('scanError', () => playScanSound('scan-error-sound'));
 
-                // Восстановление фокуса после каждого обновления
-                Livewire.hook('message.processed', (message, component) => {
+                // Восстановление фокуса после обновления DOM (Livewire 3)
+                Livewire.hook('morph.updated', ({component}) => {
                     const input = component.el.querySelector('[x-ref="scanInput"]');
                     if (input) {
                         input.focus();
