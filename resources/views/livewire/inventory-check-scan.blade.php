@@ -158,3 +158,19 @@
         </div>
     @endif
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Livewire !== 'undefined') {
+                // Восстановление фокуса после обновления DOM (Livewire 3)
+                Livewire.hook('morph.updated', ({component}) => {
+                    const input = component.el.querySelector('[x-ref="scanInput"]');
+                    if (input) {
+                        input.focus();
+                    }
+                });
+            }
+        });
+    </script>
+@endpush
