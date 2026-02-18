@@ -51,6 +51,7 @@
                             <th scope="col">Материалы</th>
                             <th scope="col">Статус</th>
                             <th scope="col">Кладовщик</th>
+                            <th scope="col">Поставщик</th>
                             <th scope="col">Комментарий</th>
                             <th scope="col">Создано</th>
                             <th scope="col"></th>
@@ -79,6 +80,7 @@
                                     <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                 </td>
                                 <td>{{ $order->user->name }}</td>
+                                <td>{{ $order->supplier->title }}</td>
                                 <td>{{ $order->comment }}</td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
 

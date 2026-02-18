@@ -100,6 +100,11 @@ class MovementMaterialFromSupplierService
         $materialIds = $request->input('id', []);
         $prices = $request->input('price', []);
 
+        if (auth()->user()->isAdmin()) {
+            $order->supplier_id = $request->supplier_id;
+            $order->save();
+        }
+
         if (
             empty($materialIds) || empty($prices)
         ) {

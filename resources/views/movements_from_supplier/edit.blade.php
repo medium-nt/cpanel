@@ -33,12 +33,26 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label for="supplier_id">Поставщик</label>
-                        <input type="text"
-                               class="form-control"
-                               id="supplier_id"
-                               name="supplier_id"
-                               value="{{ $order->supplier->title }}"
-                               readonly>
+                        @if(auth()->user()->isAdmin())
+                            <select class="form-control"
+                                    id="supplier_id"
+                                    name="supplier_id"
+                                    required>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}"
+                                        {{ $order->supplier_id == $supplier->id ? 'selected' : '' }}>
+                                        {{ $supplier->title }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <input type="text"
+                                   class="form-control"
+                                   id="supplier_id"
+                                   name="supplier_id"
+                                   value="{{ $order->supplier->title }}"
+                                   readonly>
+                        @endif
                     </div>
 
                     @foreach($order->movementMaterials as $item)

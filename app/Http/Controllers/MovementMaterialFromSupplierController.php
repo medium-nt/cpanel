@@ -61,6 +61,7 @@ class MovementMaterialFromSupplierController extends Controller
             'title' => 'Изменить поставку',
             'order' => $order,
             'materials' => Material::query()->get(),
+            'suppliers' => Supplier::query()->get(),
         ]);
     }
 
