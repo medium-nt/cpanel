@@ -123,11 +123,17 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof Livewire !== 'undefined') {
-                // Звук успешного сканирования
+                // Обработчики звуков
                 Livewire.on('scanSuccess', () => playScanSound('scan-success-sound'));
-
-                // Звук ошибки
                 Livewire.on('scanError', () => playScanSound('scan-error-sound'));
+
+                // Восстановление фокуса после каждого обновления
+                Livewire.hook('message.processed', (message, component) => {
+                    const input = component.el.querySelector('[x-ref="scanInput"]');
+                    if (input) {
+                        input.focus();
+                    }
+                });
             } else {
                 console.warn('Livewire не загружен');
             }
