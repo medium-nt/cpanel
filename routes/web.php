@@ -85,4 +85,5 @@ Route::prefix('megatulle')
         require base_path('routes/warehouse_of_item.php');
         require base_path('routes/shelves.php');
         require base_path('routes/rolls.php');
+        require base_path('routes/product_stickers.php');
     });

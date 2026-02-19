@@ -449,6 +449,12 @@ return [
                     'can' => 'is-admin',
                 ],
                 [
+                    'text' => 'product_stickers',
+                    'url' => 'megatulle/product_stickers',
+                    'icon' => 'fas fa-fw fa-tags',
+                    'can' => 'is-admin',
+                ],
+                [
                     'text' => 'shelves',
                     'url' => 'megatulle/shelves',
                     'icon' => 'fas fa-fw fa-pallet',

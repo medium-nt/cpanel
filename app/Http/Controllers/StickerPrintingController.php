@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendTelegramMessageJob;
-use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\ProductSticker;
 use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\User;
-use App\Services\MarketplaceApiService;
-use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
@@ -281,7 +279,7 @@ class StickerPrintingController extends Controller
         return view('kiosk.product_stickers', [
             'title' => 'Печать стикеров товара',
             'user' => $user,
-            'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
+            'titleMaterials' => ProductSticker::query()->orderBy('title')->get(),
         ]);
     }
 
@@ -442,30 +440,25 @@ class StickerPrintingController extends Controller
         return $pdf->stream('barcode.pdf');
     }
 
-    public function printProductLabel(string $material, MarketplaceApiService $marketplaceApiService)
+    public function printProductLabel(string $material)
     {
-        $marketplaceItem = MarketplaceItem::query()
+        $sticker = ProductSticker::query()
             ->where('title', $material)
             ->first();
 
-        if (! $marketplaceItem) {
-            echo 'Товар не найден';
+        if (!$sticker) {
+            echo 'Стикер не найден. Создайте его в админке.';
             exit;
         }
 
-        $orderItem = $marketplaceItem->marketplaceOrderItem()->first();
-
-        if (! $orderItem) {
-            echo 'Нет товаров на маркетплейсе для печати стикера.';
-            exit;
-        }
-
-        $data = $marketplaceApiService->getProductInfo($orderItem);
-
-        if ($data == null) {
-            echo 'Не получены данные из маркетплейса для печати стикера.';
-            exit;
-        }
+        $data = [
+            'title' => $sticker->title,
+            'color' => $sticker->color,
+            'print_type' => $sticker->print_type,
+            'material' => $sticker->material,
+            'country' => $sticker->country,
+            'fastening_type' => $sticker->fastening_type,
+        ];
 
         $pdf = PDF::loadView('pdf.product_label', [
             'data' => $data,

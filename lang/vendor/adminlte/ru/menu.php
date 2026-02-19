@@ -34,6 +34,7 @@ return [
     'inventory_by_workshop' => 'Материал в цехе',
     'marketplace' => 'Маркетплейсы',
     'marketplace_items' => 'Товары на маркетплейсе',
+    'product_stickers' => 'Стикеры товаров',
     'marketplace_orders' => 'Заказы с маркетплейса',
     'marketplace_order_items' => 'Товары для пошива',
     'defect_materials' => 'Передать брак на склад',
