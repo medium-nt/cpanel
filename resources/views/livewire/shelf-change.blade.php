@@ -54,6 +54,7 @@
         <div class="card">
             <div class="card-body">
                 <button
+                    data-no-refocus
                     onclick="confirm('Сохранить изменения? Все товары будут перемещены на выбранную полку.') || event.stopImmediatePropagation()"
                     wire:click="saveChanges"
                     class="btn btn-success"
@@ -89,6 +90,7 @@
                             <td>{{ $shelves->firstWhere('id', $selectedShelfId)?->title }}</td>
                             <td>
                                 <button
+                                    data-no-refocus
                                     type="button"
                                     class="btn btn-sm btn-outline-danger"
                                     onclick="confirm('Удалить из списка?') || event.stopImmediatePropagation()"
@@ -111,3 +113,18 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Livewire !== 'undefined') {
+                Livewire.hook('morph.updated', ({component}) => {
+                    const input = component.el.querySelector('[x-ref="scanInput"]');
+                    if (input) {
+                        input.focus();
+                    }
+                });
+            }
+        });
+    </script>
+@endpush
