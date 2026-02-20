@@ -387,6 +387,12 @@ return [
                     'icon' => 'fas fa-fw fa-warehouse',
                     'can' => 'is-storekeeper-admin-driver',
                 ],
+                [
+                    'text' => 'ozon-returns',
+                    'url' => 'megatulle/ozon-returns',
+                    'icon' => 'fas fa-fw fa-undo',
+                    'can' => 'is-storekeeper-admin-driver',
+                ],
             ],
         ],
         [

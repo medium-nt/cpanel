@@ -48,4 +48,5 @@ return [
     'shelves' => 'Полки на складе',
     'inventory_checks' => 'Инвентаризации',
     'rolls' => 'Рулоны',
+    'ozon-returns' => 'Получение возвратов',
 ];

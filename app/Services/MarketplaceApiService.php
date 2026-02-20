@@ -13,6 +13,7 @@ use App\Models\Sku;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -2019,6 +2020,199 @@ class MarketplaceApiService
             );
 
             return '---';
+        }
+    }
+
+    public static function getReturnsGiveoutPng(): ?array
+    {
+        return Cache::remember('ozon_returns_giveout_png', 43200, function () {
+            try {
+                $responsePng = self::ozonRequest()
+                    ->post('https://api-seller.ozon.ru/v1/return/giveout/get-png', null);
+
+                $responseBarcode = self::ozonRequest()
+                    ->post('https://api-seller.ozon.ru/v1/return/giveout/barcode', null);
+
+                if (!$responsePng->ok() || !$responseBarcode->ok()) {
+                    Log::channel('marketplace_api')->error(
+                        'ВНИМАНИЕ! Ошибка получения штрих-кода выдачи возвратов из Ozon',
+                        [
+                            'status_png' => $responsePng->status(),
+                            'status_barcode' => $responseBarcode->status(),
+                        ]
+                    );
+
+                    return null;
+                }
+
+                $dataPng = $responsePng->json();
+                $dataBarcode = $responseBarcode->json();
+
+                return [
+                    'png' => $dataPng['png'] ?? null,
+                    'barcode' => $dataBarcode['barcode'] ?? null,
+                ];
+            } catch (Throwable $e) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения штрих-кода выдачи возвратов из Ozon: ' . $e->getMessage()
+                );
+
+                return null;
+            }
+        });
+    }
+
+    public static function resetReturnsGiveoutBarcode(): ?array
+    {
+        // Сбрасываем кеш
+        Cache::forget('ozon_returns_giveout_png');
+
+        try {
+            $responsePng = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/return/giveout/barcode-reset', null);
+
+            $responseBarcode = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/return/giveout/barcode', null);
+
+            if (!$responsePng->ok() || !$responseBarcode->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка сброса штрих-кода выдачи возвратов из Ozon',
+                    [
+                        'status_png' => $responsePng->status(),
+                        'status_barcode' => $responseBarcode->status(),
+                    ]
+                );
+
+                return null;
+            }
+
+            $dataPng = $responsePng->json();
+            $dataBarcode = $responseBarcode->json();
+
+            $result = [
+                'png' => $dataPng['png'] ?? null,
+                'barcode' => $dataBarcode['barcode'] ?? null,
+            ];
+
+            // Сохраняем в кеш
+            if ($result['png'] || $result['barcode']) {
+                Cache::put('ozon_returns_giveout_png', $result, 86400);
+            }
+
+            return $result;
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка сброса штрих-кода выдачи возвратов из Ozon: ' . $e->getMessage()
+            );
+
+            return null;
+        }
+    }
+
+    public static function getReturnsCompanyFbsInfo(): array
+    {
+        try {
+            $body = [
+                'filter' => (object)[],
+                'pagination' => [
+                    'limit' => 100,
+                    'offset' => 0,
+                ],
+            ];
+
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/returns/company/fbs/info', $body);
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка получения списка возвратов из Ozon',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return [];
+            }
+
+            $data = $response->json();
+
+            return $data['drop_off_points'] ?? [];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка получения списка возвратов из Ozon: ' . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
+
+    public static function getReturnsGiveoutList(): array
+    {
+        try {
+            $body = [
+                'limit' => 100,
+                'last_id' => 0,
+            ];
+
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/return/giveout/list', $body);
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка получения списка активных выдач из Ozon',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return [];
+            }
+
+            $data = $response->json();
+
+            return $data['giveouts'] ?? [];
+
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка получения списка активных выдач из Ozon: ' . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
+
+    public static function getReturnsGiveoutInfo(int $giveoutId): ?array
+    {
+        try {
+            $body = [
+                'giveout_id' => $giveoutId,
+            ];
+
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/return/giveout/info', $body);
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка получения информации о выдаче из Ozon',
+                    [
+                        'giveout_id' => $giveoutId,
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return null;
+            }
+
+            return $response->json();
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка получения информации о выдаче из Ozon: ' . $e->getMessage()
+            );
+
+            return null;
         }
     }
 }
