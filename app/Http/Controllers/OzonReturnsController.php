@@ -61,4 +61,34 @@ class OzonReturnsController extends Controller
 
         return response()->json($info);
     }
+
+    public function products(Request $request, MarketplaceApiService $apiService): View
+    {
+        $visualStatusName = $request->get('visual_status_name');
+
+        // Формируем фильтр для API
+        $filter = [];
+        if ($visualStatusName) {
+            $filter['visual_status_name'] = $visualStatusName;
+        }
+
+        // Всегда фильтруем за последние 365 дней
+        $filter['logistic_return_date'] = [
+            'time_from' => now()->subYear()->format('Y-m-d\TH:i:s\Z'),
+            'time_to' => now()->format('Y-m-d\TH:i:s\Z'),
+        ];
+
+        // Получаем данные из API
+        $result = $apiService->getReturnsList($filter, 500);
+
+        // Сортируем по дате возврата (новые сверху)
+        $returns = collect($result['returns'])->sortByDesc('logistic.return_date')->values();
+
+        return view('ozon_returns.products', [
+            'title' => 'Возвраты товаров',
+            'returns' => $returns,
+            'hasNext' => $result['has_next'],
+            'currentStatus' => $visualStatusName,
+        ]);
+    }
 }

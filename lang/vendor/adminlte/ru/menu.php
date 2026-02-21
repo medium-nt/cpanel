@@ -49,4 +49,5 @@ return [
     'inventory_checks' => 'Инвентаризации',
     'rolls' => 'Рулоны',
     'ozon-returns' => 'Получение возвратов',
+    'ozon_returns_products' => 'Возвраты OZON',
 ];

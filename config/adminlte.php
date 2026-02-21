@@ -393,6 +393,12 @@ return [
                     'icon' => 'fas fa-fw fa-undo',
                     'can' => 'is-storekeeper-admin-driver',
                 ],
+                [
+                    'text' => 'ozon_returns_products',
+                    'url' => 'megatulle/ozon-returns/products',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'is-storekeeper-admin-driver',
+                ],
             ],
         ],
         [

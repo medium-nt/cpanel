@@ -2215,4 +2215,52 @@ class MarketplaceApiService
             return null;
         }
     }
+
+    public static function getReturnsList(array $filter = [], int $limit = 100, $lastId = null): array
+    {
+        try {
+            $body = [
+                'filter' => $filter,
+                'limit' => $limit,
+            ];
+
+            if ($lastId !== null) {
+                $body['last_id'] = $lastId;
+            }
+
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка получения списка возвратов из Ozon',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return [
+                    'returns' => [],
+                    'has_next' => false,
+                ];
+            }
+
+            $data = $response->json();
+
+            return [
+                'returns' => $data['returns'] ?? [],
+                'has_next' => $data['has_next'] ?? false,
+            ];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка получения списка возвратов из Ozon: ' . $e->getMessage()
+            );
+
+            return [
+                'returns' => [],
+                'has_next' => false,
+            ];
+        }
+    }
 }
