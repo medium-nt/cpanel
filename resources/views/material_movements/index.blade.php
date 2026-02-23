@@ -142,7 +142,14 @@
                         <tbody>
                         @forelse($movements as $order)
                             @php
-                                $material = $order->movementMaterials->first();
+                                $materials = $order->movementMaterials;
+                                if (isset($filters['material_id'])) {
+                                    $materials = $materials->where('material_id', $filters['material_id']);
+                                }
+                                if (isset($filters['roll_id'])) {
+                                    $materials = $materials->where('roll_id', $filters['roll_id']);
+                                }
+                                $material = $materials->first();
                             @endphp
                             <tr>
                                 <td>{{ $order->id }}</td>
