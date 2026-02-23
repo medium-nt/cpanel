@@ -352,6 +352,12 @@ return [
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
+                    'text' => 'material_movements',
+                    'url' => 'megatulle/material-movements',
+                    'icon' => 'fas fa-fw fa-list-alt',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
+                [
                     'text' => 'movements_defect_to_supplier',
                     'url' => 'megatulle/movements_defect_to_supplier',
                     'icon' => 'fas fa-fw fa-dolly',

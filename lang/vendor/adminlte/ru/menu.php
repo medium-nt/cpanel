@@ -24,6 +24,7 @@ return [
     'suppliers' => 'Поставщики',
     'movements' => 'Отгрузки',
     'movements_from_supplier' => 'Отгрузка от поставщика',
+    'material_movements' => 'Движения материалов',
     'movements_to_workshop' => 'Отгрузка в цех',
     'movements_defect_to_supplier' => 'Возврат поставщику',
     'workshop' => 'Производство',
