@@ -36,7 +36,7 @@ class MaterialMovementController extends Controller
             ])
             ->whereHas('movementMaterials')
             ->when($filters['type_movement'] ?? null, fn ($q, $v) => $q->where('type_movement', $v))
-            ->when($filters['status'] ?? null, fn ($q, $v) => $q->where('status', $v))
+            ->when(array_key_exists('status', $filters), fn ($q) => $q->where('status', $filters['status']))
             ->when($filters['seamstress_id'] ?? null, fn ($q, $v) => $q->where('seamstress_id', $v))
             ->when($filters['cutter_id'] ?? null, fn ($q, $v) => $q->where('cutter_id', $v))
             ->when($filters['supplier_id'] ?? null, fn ($q, $v) => $q->where('supplier_id', $v))
@@ -49,7 +49,7 @@ class MaterialMovementController extends Controller
             ->withQueryString();
 
         $types = TypeMovement::TYPES;
-        $statuses = StatusMovement::STATUSES;
+        $statuses = collect(StatusMovement::STATUSES)->only([-1, 0, 1, 2, 4, 3])->all();
         $seamstresses = User::whereHas('role', fn ($q) => $q->where('name', 'seamstress'))->pluck('name', 'id');
         $cutters = User::whereHas('role', fn ($q) => $q->where('name', 'cutter'))->pluck('name', 'id');
         $materials = Material::orderBy('title')->pluck('title', 'id');
