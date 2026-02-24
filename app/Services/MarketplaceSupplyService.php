@@ -21,8 +21,8 @@ class MarketplaceSupplyService
             ->get();
 
         foreach ($video as $item) {
-            if (Storage::disk('public')->exists('videos/' . $item->video)) {
-                Storage::disk('public')->delete('videos/' . $item->video);
+            if (Storage::disk('public')->exists('videos/'.$item->video)) {
+                Storage::disk('public')->delete('videos/'.$item->video);
             }
 
             $item->update([
@@ -30,7 +30,7 @@ class MarketplaceSupplyService
             ]);
 
             Log::channel('erp')
-                ->notice('Видео для поставки #' . $item->id . ' удалено после 60 дней.');
+                ->notice('Видео для поставки #'.$item->id.' удалено после 60 дней.');
         }
 
         Log::channel('erp')
@@ -49,7 +49,7 @@ class MarketplaceSupplyService
 
         Log::info("Чанк #{$index} / {$totalChunks} получен.");
 
-        $fileName = $request->get('marketplace_supply_id') . '.' . $file->getClientOriginalExtension();
+        $fileName = $request->get('marketplace_supply_id').'.'.$file->getClientOriginalExtension();
         $chunkPath = "chunks/{$uuid}";
         $chunkName = "{$index}.part";
 
@@ -98,5 +98,47 @@ class MarketplaceSupplyService
         return response()->json([
             'status' => "Чанк {$index} сохранён",
         ]);
+    }
+
+    public static function updateStatusSupply(): void
+    {
+        Log::channel('erp')->info('Запуск обновления статусов поставок...');
+
+        $supplies = MarketplaceSupply::query()
+            ->where('status', 4)
+            ->get();
+
+        $count = 0;
+        foreach ($supplies as $supply) {
+            $isUpdated = match ($supply->marketplace_id) {
+                1 => MarketplaceApiService::updateStatusOrderBySupplyOzon($supply),
+                2 => MarketplaceApiService::updateStatusOrderBySupplyWB($supply),
+            };
+
+            if (! $isUpdated) {
+                Log::channel('erp')
+                    ->error('Не удалось обновить статус поставки #'.$supply->id);
+
+                continue;
+            }
+
+            $hasOldStatuses = $supply->marketplace_orders()
+                ->whereIn('marketplace_status', ['confirm', 'awaiting_deliver'])
+                ->exists();
+
+            if (! $hasOldStatuses) {
+                $supply->update([
+                    'status' => 3,
+                    'completed_at' => now(),
+                ]);
+
+                Log::channel('erp')
+                    ->info('Поставка #'.$supply->id.' закрыта, так как у всех товаров новый статус.');
+            }
+
+            $count++;
+        }
+
+        Log::channel('erp')->info("Обновление статусов поставок завершено. Обработано: {$count}");
     }
 }
