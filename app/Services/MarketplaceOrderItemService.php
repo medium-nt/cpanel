@@ -1046,7 +1046,7 @@ class MarketplaceOrderItemService
         return true;
     }
 
-    private function getTimeout(): array
+    private static function getTimeout(): array
     {
         $settings = Setting::getValues([
             'timeout_200',
