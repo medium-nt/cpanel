@@ -64,7 +64,7 @@ class MarketplaceItemController extends Controller
         MarketplaceItemService::saveMaterialsConsumption($marketplaceItem, $request);
 
         return redirect()
-            ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
+            ->back()
             ->with('success', 'Изменения сохранены');
     }
 
