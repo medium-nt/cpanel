@@ -27,6 +27,10 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.save_storage');
 
+    Route::post('/to_inspection/{marketplace_item}', [WarehouseOfItemController::class, 'toInspection'])
+        ->can('create', Shelf::class)
+        ->name('warehouse_of_item.to_inspection');
+
     Route::get('/to_pick_list', [WarehouseOfItemController::class, 'toPickList'])
         ->can('viewAny', Shelf::class)
         ->name('warehouse_of_item.to_pick_list');

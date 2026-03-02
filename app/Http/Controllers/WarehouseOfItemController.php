@@ -307,4 +307,18 @@ class WarehouseOfItemController extends Controller
             'title' => 'Смена полки',
         ]);
     }
+
+    public function toInspection(MarketplaceOrderItem $marketplace_item)
+    {
+        $marketplace_item->status = 12;
+        $marketplace_item->save();
+
+        $marketplace_item->marketplaceOrder->status = 9;
+        $marketplace_item->marketplaceOrder->save();
+
+        return redirect()
+            ->route('warehouse_of_item.new_refunds')
+            ->with('success', 'Товар добавлен на проверку!');
+
+    }
 }

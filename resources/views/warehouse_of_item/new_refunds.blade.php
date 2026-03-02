@@ -128,17 +128,18 @@
 
                     <div class="card">
                         <div class="card-body">
-                            <div class="form-group">
-                                <button type="submit"
-                                        class="btn btn-warning mb-3 w-50">на
-                                    осмотр
-                                </button>
-                                <br>
-                                <button type="submit"
-                                        class="btn btn-danger mb-3 w-50">брак
-                                </button>
-                                <br>
-                            </div>
+                            <form
+                                action="{{ route('warehouse_of_item.to_inspection', ['marketplace_item' => $marketplace_item]) }}"
+                                method="post">
+                                @csrf
+                                <div class="form-group">
+                                    <button type="submit"
+                                            class="btn btn-warning btn-lg mb-3 w-50">
+                                        Отправить на осмотр
+                                    </button>
+                                    <br>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
