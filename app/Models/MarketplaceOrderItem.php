@@ -23,6 +23,7 @@ class MarketplaceOrderItem extends Model
         'quantity',
         'price',
         'status',
+        'defect_reason',
         'seamstress_id',
         'cutter_id',
         'cutting_completed_at',

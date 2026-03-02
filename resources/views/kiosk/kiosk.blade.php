@@ -53,6 +53,11 @@
                                class="btn-kiosk btn-kiosk-purple">Работа с
                                 браком</a>
                         @endif
+                        @if($user->isOtk())
+                            <a href="{{ route('on_inspection') }}"
+                               class="btn-kiosk btn-kiosk-purple">Работа с
+                                возвратами</a>
+                        @endif
                         {{--                        <a href="#" class="btn-kiosk btn-kiosk-yellow">Работа с--}}
                         {{--                            рулонами</a>--}}
                         {{--                        <a href="#" class="btn-kiosk btn-kiosk-red">Работа с--}}

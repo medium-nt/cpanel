@@ -82,3 +82,31 @@ html, body {
     background-color: #f97316;
     color: white;
 }
+
+/* Табы навигации для киоска */
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 0;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background-color: #e5e7eb;
+    color: #374151;
+    margin-right: 0.25rem;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #d1d5db;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #ffffff;
+    color: #1f2937;
+    border-bottom: 3px solid #3b82f6;
+}
+
+.nav-tabs .nav-link.bg-white {
+    background-color: #ffffff !important;
+    color: #1f2937;
+    border-bottom: 3px solid #3b82f6;
+}

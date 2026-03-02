@@ -24,4 +24,29 @@ Route::prefix('/kiosk')->group(function () {
 
     Route::get('api/roll/{roll_code}', [StickerPrintingController::class, 'getRollByCode'])
         ->name('kiosk.api.roll');
+
+    Route::get('returns', [StickerPrintingController::class, 'returns'])
+        ->name('returns');
+
+    Route::get('on_inspection', [StickerPrintingController::class, 'onInspection'])
+        ->name('on_inspection');
+
+    Route::get('processed_items', [StickerPrintingController::class, 'processedItems'])
+        ->name('kiosk.processed_items');
+
+    Route::post('scan_inspection_item', [StickerPrintingController::class, 'scanInspectionItem'])
+        ->name('kiosk.scan_inspection_item');
+
+    Route::get('item_card/{item_id}/{action}', [StickerPrintingController::class, 'itemCard'])
+        ->name('kiosk.item_card')
+        ->where('action', 'repack|replace|defect');
+
+    Route::post('item_card/{item_id}/defect', [StickerPrintingController::class, 'processDefect'])
+        ->name('kiosk.process_defect');
+
+    Route::post('item_card/{orderItem}/repack', [StickerPrintingController::class, 'processRepack'])
+        ->name('kiosk.process_repack');
+
+    Route::post('item_card/{orderItem}/replace', [StickerPrintingController::class, 'processReplace'])
+        ->name('kiosk.process_replace');
 });

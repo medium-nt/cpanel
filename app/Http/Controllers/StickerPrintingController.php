@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendTelegramMessageJob;
+use App\Models\MarketplaceItem;
+use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
@@ -10,6 +12,7 @@ use App\Models\ProductSticker;
 use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\KioskService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
@@ -64,7 +67,7 @@ class StickerPrintingController extends Controller
         ]);
     }
 
-    public function openCloseWorkShift(Request $request)
+    public function openCloseWorkShift(Request $request, KioskService $kioskService)
     {
         $selectedUser = $request->user_id
             ? User::query()->find($request->user_id)
@@ -124,7 +127,7 @@ class StickerPrintingController extends Controller
                     ->with('error', 'Ошибка! Нельзя закрыть смену, пока не закончилось рабочее время!');
             }
 
-            if ($this->hasOrdersInWork($user)) {
+            if ($kioskService->hasOrdersInWork($user)) {
                 Log::channel('work_shift')
                     ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
                         'пытался закрыть смену, но есть заказы в работе.');
@@ -172,10 +175,10 @@ class StickerPrintingController extends Controller
             ->with('success', 'Ваша смена успешно '.($user->shift_is_open ? 'открыта' : 'закрыта'));
     }
 
-    public function openCloseWorkShiftAdmin(User $user)
+    public function openCloseWorkShiftAdmin(User $user, KioskService $kioskService)
     {
         if ($user->shift_is_open) {
-            if ($this->hasOrdersInWork($user)) {
+            if ($kioskService->hasOrdersInWork($user)) {
                 return redirect()
                     ->route('home')
                     ->with('error', 'Ошибка! Нельзя закрыть смену, пока есть заказы в работе!');
@@ -446,7 +449,7 @@ class StickerPrintingController extends Controller
             ->where('title', $material)
             ->first();
 
-        if (!$sticker) {
+        if (! $sticker) {
             echo 'Стикер не найден. Создайте его в админке.';
             exit;
         }
@@ -469,22 +472,282 @@ class StickerPrintingController extends Controller
         return $pdf->stream('product_label.pdf');
     }
 
-    private function hasOrdersInWork(User $user): bool
+    public function returns(Request $request, KioskService $kioskService)
     {
-        if ($user->isSeamstress()) {
-            return MarketplaceOrderItem::query()
-                ->where('seamstress_id', $user->id)
-                ->where('status', 4)
-                ->exists();
+        $kioskService->authorizeOtk();
+
+        return view('kiosk.returns', [
+            'title' => 'Товары готовые к осмотру',
+            'userId' => session('user_id'),
+            'returnItems' => $kioskService->getFilteredInspectionItems($request, 10),
+        ]);
+    }
+
+    public function onInspection(Request $request, KioskService $kioskService)
+    {
+        $kioskService->authorizeOtk();
+
+        return view('kiosk.on_inspection', [
+            'title' => 'Товары на осмотре',
+            'userId' => session('user_id'),
+            'onInspectionItems' => $kioskService->getFilteredInspectionItems($request, 12),
+        ]);
+    }
+
+    public function processedItems(Request $request, KioskService $kioskService)
+    {
+        $kioskService->authorizeOtk();
+
+        return view('kiosk.processed_items', [
+            'title' => 'Обработанные товары',
+            'userId' => session('user_id'),
+            'processedItems' => $kioskService->getFilteredInspectionItems($request, [15, 16], orderByDesc: true),
+        ]);
+    }
+
+    public function scanInspectionItem(Request $request): JsonResponse
+    {
+        $barcode = $request->input('barcode');
+
+        if (! $barcode) {
+            return response()->json(['success' => false, 'message' => 'Штрихкод не передан'], 400);
         }
 
-        if ($user->isCutter()) {
-            return MarketplaceOrderItem::query()
-                ->where('cutter_id', $user->id)
-                ->where('status', 7)
-                ->exists();
+        // Ищем item по storage_barcode
+        $orderItem = MarketplaceOrderItem::query()
+            ->where('storage_barcode', $barcode)
+            ->first();
+
+        if (! $orderItem) {
+            return response()->json(['success' => false, 'message' => 'Товар не найден'], 404);
         }
 
-        return false;
+        // Проверяем, что заказ имеет статус 10 (На разборе)
+        if ($orderItem->marketplaceOrder?->status != 10) {
+            if ($orderItem->marketplaceOrder?->status == 12) {
+                return response()->json(['success' => false, 'message' => 'Товар уже добавлен на проверку'], 400);
+            }
+
+            return response()->json(['success' => false, 'message' => 'Товар не имеет статус "На разборе"'], 400);
+        }
+
+        // Проверяем лимит товаров в статусе 12 (На проверке) - максимум 5
+        $inspectionCount = MarketplaceOrderItem::query()
+            ->where('status', 12)
+            ->count();
+
+        if ($inspectionCount >= 5) {
+            return response()->json(['success' => false, 'message' => 'Достигнут лимит 5 товаров на проверке'], 400);
+        }
+
+        // Меняем статус заказа на 12 (На проверке)
+        $orderItem->marketplaceOrder->update(['status' => 12]);
+
+        return response()->json(['success' => true, 'message' => 'Статус обновлён']);
+    }
+
+    public function itemCard(Request $request, int $item_id, string $action)
+    {
+        $user = User::find(session('user_id'));
+
+        if (! $user || ! $user->isOtk()) {
+            return redirect()->route('kiosk');
+        }
+
+        $orderItem = MarketplaceOrderItem::query()->find($item_id);
+
+        if (! $orderItem) {
+            return redirect()->route('on_inspection')
+                ->with('error', 'Товар не найден');
+        }
+
+        // Проверяем допустимость action
+        if (! in_array($action, ['repack', 'replace', 'defect'])) {
+            return redirect()->route('on_inspection')
+                ->with('error', 'Неверное действие');
+        }
+
+        $title = match ($action) {
+            'repack' => 'Переупаковка',
+            'replace' => 'Подмена',
+            'defect' => 'Брак',
+        };
+
+        return view('kiosk.item_card', [
+            'title' => $title,
+            'orderItem' => $orderItem,
+            'action' => $action,
+        ]);
+    }
+
+    public function processDefect(Request $request, int $item_id)
+    {
+        $user = User::find(session('user_id'));
+
+        if (! $user || ! $user->isOtk()) {
+            return redirect()->route('kiosk');
+        }
+
+        $orderItem = MarketplaceOrderItem::query()->find($item_id);
+
+        if (! $orderItem) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Товар не найден');
+        }
+
+        $request->validate([
+            'reason' => 'required|in:Порван,Грязный,Неверный размер,Брак ткани',
+        ], [
+            'reason.required' => 'Выберите причину брака',
+            'reason.in' => 'Неверная причина',
+        ]);
+
+        $orderItem->update([
+            'defect_reason' => $request->reason,
+            'status' => 16,
+        ]);
+
+        return redirect()
+            ->route('on_inspection')
+            ->with('success', 'Товар отправлен на утилизацию');
+    }
+
+    public function processRepack(Request $request, MarketplaceOrderItem $orderItem, KioskService $kioskService)
+    {
+        $user = User::find(session('user_id'));
+
+        if (! $user || ! $user->isOtk()) {
+            return redirect()->route('kiosk');
+        }
+
+        $request->validate([
+            'material_used' => 'required|in:nothing,flyer,bag,flyer-bag',
+        ], [
+            'material_used.required' => 'Выберите потраченный материал',
+            'material_used.in' => 'Неверное значение',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Списываем материалы упаковки
+            $kioskService->deductPackagingMaterials(
+                $orderItem->item,
+                $request->material_used,
+                'Переупаковка товара No: '.$orderItem->id.
+                ' ('.$orderItem->item->title.' '.$orderItem->item->width.'х'.$orderItem->item->height.')'
+            );
+
+            $orderItem->update([
+                'status' => 15,
+            ]);
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::channel('erp')->error('Ошибка при переупаковке товара: '.$e->getMessage());
+
+            return redirect()
+                ->route('on_inspection')
+                ->with('error', 'Ошибка при переупаковке товара');
+        }
+
+        return redirect()
+            ->route('on_inspection')
+            ->with('success', 'Товар осмотрен');
+    }
+
+    public function processReplace(Request $request, MarketplaceOrderItem $orderItem, KioskService $kioskService): JsonResponse
+    {
+        Log::channel('erp')->info('processReplace called', ['orderItemId' => $orderItem->id ?? null]);
+
+        $user = User::find(session('user_id'));
+
+        if (! $user || ! $user->isOtk()) {
+            return response()->json(['success' => false, 'message' => 'Нет доступа'], 403);
+        }
+
+        Log::channel('erp')->info('User OK', ['userId' => $user->id, 'request' => $request->all()]);
+
+        $request->validate([
+            'material_title' => 'required|string',
+            'width' => 'required|integer',
+            'height' => 'required|integer',
+            'material_used' => 'required|in:nothing,flyer,bag,flyer-bag',
+        ]);
+
+        Log::channel('erp')->info('Validation passed');
+
+        try {
+            DB::beginTransaction();
+
+            // 1. Помечаем старый товар как "утерян" (статус 14)
+            $orderItem->update(['status' => 14]);
+
+            // 2. Находим существующий MarketplaceItem
+            $item = MarketplaceItem::query()
+                ->where('title', $request->material_title)
+                ->where('width', $request->width)
+                ->where('height', $request->height)
+                ->first();
+
+            if (! $item) {
+                DB::rollBack();
+
+                return response()->json(['success' => false, 'message' => 'Товар с такими параметрами не найден'], 404);
+            }
+
+            // 3. Создаём новый MarketplaceOrder (FBO)
+            $marketplaceOrder = MarketplaceOrder::query()->create([
+                'order_id' => '...',
+                'marketplace_id' => 1,
+                'fulfillment_type' => 'FBO',
+                'status' => 9,
+                'completed_at' => now(),
+                'returned_at' => now(),
+                'created_at' => now(),
+            ]);
+
+            // 4. Создаём новый MarketplaceOrderItem
+            $newOrderItem = MarketplaceOrderItem::query()->create([
+                'marketplace_order_id' => $marketplaceOrder->id,
+                'marketplace_item_id' => $item->id,
+                'shelf_id' => null,
+                'quantity' => 1,
+                'price' => 0,
+                'status' => 15,
+                'seamstress_id' => 0,
+                'cutter_id' => null,
+                'completed_at' => now()->startOfDay()->subDays(2),
+                'created_at' => Carbon::parse($marketplaceOrder->created_at),
+            ]);
+
+            $marketplaceOrder->order_id = 'REPLACE-'.$orderItem->marketplaceOrder->order_id;
+            $marketplaceOrder->save();
+
+            // 5. Списание материалов упаковки
+            $kioskService->deductPackagingMaterials(
+                $item,
+                $request->material_used,
+                'Подмена товара No: '.$orderItem->id.' на новый '.$newOrderItem->id.
+                ' ('.$item->title.' '.$item->width.'х'.$item->height.')'
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'marketplace_order_id' => $marketplaceOrder->order_id,
+                'item_id' => $newOrderItem->id,
+            ]);
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::channel('erp')->error('Ошибка при подмене товара: '.$e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Внутренняя ошибка'], 500);
+        }
     }
 }
