@@ -136,7 +136,7 @@
                                     @if($item->status === 15)
                                         <span class="badge badge-success">Осмотрен</span>
                                     @elseif($item->status === 16)
-                                        <span class="badge badge-danger">Утилизирован</span>
+                                        <span class="badge badge-danger">На утилизацию</span>
                                     @endif
                                 </td>
                             </tr>
