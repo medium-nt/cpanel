@@ -964,7 +964,7 @@ class MarketplaceApiService
             'item' => $item,
             'order' => $order,
             'fontSizeCluster' => $fontSizeCluster,
-            'seamstressId' => $order->items[0]->seamstress->id,
+            'seamstressId' => $order->items[0]->seamstress?->id,
             'cutterId' => $order->items[0]->cutter?->id,
         ]);
 
@@ -2033,7 +2033,7 @@ class MarketplaceApiService
                 $responseBarcode = self::ozonRequest()
                     ->post('https://api-seller.ozon.ru/v1/return/giveout/barcode', null);
 
-                if (!$responsePng->ok() || !$responseBarcode->ok()) {
+                if (! $responsePng->ok() || ! $responseBarcode->ok()) {
                     Log::channel('marketplace_api')->error(
                         'ВНИМАНИЕ! Ошибка получения штрих-кода выдачи возвратов из Ozon',
                         [
@@ -2054,7 +2054,7 @@ class MarketplaceApiService
                 ];
             } catch (Throwable $e) {
                 Log::channel('marketplace_api')->error(
-                    'Ошибка получения штрих-кода выдачи возвратов из Ozon: ' . $e->getMessage()
+                    'Ошибка получения штрих-кода выдачи возвратов из Ozon: '.$e->getMessage()
                 );
 
                 return null;
@@ -2074,7 +2074,7 @@ class MarketplaceApiService
             $responseBarcode = self::ozonRequest()
                 ->post('https://api-seller.ozon.ru/v1/return/giveout/barcode', null);
 
-            if (!$responsePng->ok() || !$responseBarcode->ok()) {
+            if (! $responsePng->ok() || ! $responseBarcode->ok()) {
                 Log::channel('marketplace_api')->error(
                     'ВНИМАНИЕ! Ошибка сброса штрих-кода выдачи возвратов из Ozon',
                     [
@@ -2102,7 +2102,7 @@ class MarketplaceApiService
             return $result;
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка сброса штрих-кода выдачи возвратов из Ozon: ' . $e->getMessage()
+                'Ошибка сброса штрих-кода выдачи возвратов из Ozon: '.$e->getMessage()
             );
 
             return null;
@@ -2113,7 +2113,7 @@ class MarketplaceApiService
     {
         try {
             $body = [
-                'filter' => (object)[],
+                'filter' => (object) [],
                 'pagination' => [
                     'limit' => 100,
                     'offset' => 0,
@@ -2123,7 +2123,7 @@ class MarketplaceApiService
             $response = self::ozonRequest()
                 ->post('https://api-seller.ozon.ru/v1/returns/company/fbs/info', $body);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     'ВНИМАНИЕ! Ошибка получения списка возвратов из Ozon',
                     [
@@ -2140,7 +2140,7 @@ class MarketplaceApiService
             return $data['drop_off_points'] ?? [];
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка получения списка возвратов из Ozon: ' . $e->getMessage()
+                'Ошибка получения списка возвратов из Ozon: '.$e->getMessage()
             );
 
             return [];
@@ -2158,7 +2158,7 @@ class MarketplaceApiService
             $response = self::ozonRequest()
                 ->post('https://api-seller.ozon.ru/v1/return/giveout/list', $body);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     'ВНИМАНИЕ! Ошибка получения списка активных выдач из Ozon',
                     [
@@ -2176,7 +2176,7 @@ class MarketplaceApiService
 
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка получения списка активных выдач из Ozon: ' . $e->getMessage()
+                'Ошибка получения списка активных выдач из Ozon: '.$e->getMessage()
             );
 
             return [];
@@ -2193,7 +2193,7 @@ class MarketplaceApiService
             $response = self::ozonRequest()
                 ->post('https://api-seller.ozon.ru/v1/return/giveout/info', $body);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     'ВНИМАНИЕ! Ошибка получения информации о выдаче из Ozon',
                     [
@@ -2209,7 +2209,7 @@ class MarketplaceApiService
             return $response->json();
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка получения информации о выдаче из Ozon: ' . $e->getMessage()
+                'Ошибка получения информации о выдаче из Ozon: '.$e->getMessage()
             );
 
             return null;
@@ -2231,7 +2231,7 @@ class MarketplaceApiService
             $response = self::ozonRequest()
                 ->post('https://api-seller.ozon.ru/v1/returns/list', $body);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     'ВНИМАНИЕ! Ошибка получения списка возвратов из Ozon',
                     [
@@ -2254,7 +2254,7 @@ class MarketplaceApiService
             ];
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка получения списка возвратов из Ozon: ' . $e->getMessage()
+                'Ошибка получения списка возвратов из Ozon: '.$e->getMessage()
             );
 
             return [

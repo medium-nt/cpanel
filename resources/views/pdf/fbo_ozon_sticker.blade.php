@@ -88,7 +88,7 @@
                 @isset($cutterId)
                     закройщик № {{ $cutterId }} |
                 @endisset
-                швея № {{ $seamstressId }}</b>
+                    швея № {{ $seamstressId ?? '0' }}</b>
         </div>
     </div>
 </body>

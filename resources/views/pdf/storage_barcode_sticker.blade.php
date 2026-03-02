@@ -85,7 +85,7 @@
             <div class="code-text">ширина {{ $item->item->width }}</div>
             <div class="code-text">высота {{ $item->item->height }}
                 <span
-                    style="float:right; font-weight: bold">швея № {{ $item->seamstress->id }}</span>
+                    style="float:right; font-weight: bold">швея № {{ $item->seamstress->id ?? '0' }}</span>
             </div>
         </div>
 
