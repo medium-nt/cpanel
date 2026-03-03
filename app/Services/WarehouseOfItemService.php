@@ -187,6 +187,12 @@ class WarehouseOfItemService
             'defect' => MarketplaceOrderItem::query()
                 ->where('status', 16) // На утилизацию
                 ->count(),
+            'from_workshop' => MarketplaceOrderItem::query()
+                ->where('status', 18) // Забран с цеха
+                ->count(),
+            'to_utilize' => MarketplaceOrderItem::query()
+                ->where('status', 19) // Утилизировать
+                ->count(),
         ];
     }
 

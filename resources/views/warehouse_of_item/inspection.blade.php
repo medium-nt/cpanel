@@ -8,66 +8,112 @@
         {{-- Статистические виджеты --}}
         <div class="row mb-4">
             {{-- На осмотре --}}
-            <div class="col-md-4">
-                <div class="card bg-secondary">
-                    <div class="card-body">
-                        <h3 class="card-title text-white">{{ $stats['on_inspection'] }}</h3>
-                        <p class="card-text text-white mb-0">На осмотре</p>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <a href="{{ route('warehouse_of_item.new_refunds') }}"
+                   class="link-black">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-secondary">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">На осмотре в цехе</span>
+                            <span
+                                class="info-box-number">{{ $stats['on_inspection'] }}</span>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             {{-- Осмотрено --}}
-            <div class="col-md-4">
-                <div class="card bg-success">
-                    <div class="card-body">
-                        <h3 class="card-title text-white">{{ $stats['inspected'] }}</h3>
-                        <p class="card-text text-white mb-0">Осмотрено</p>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Брак --}}
-            <div class="col-md-4">
-                <div class="card bg-danger">
-                    <div class="card-body">
-                        <h3 class="card-title text-white">{{ $stats['defect'] }}</h3>
-                        <p class="card-text text-white mb-0">Брак</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Кнопки действий --}}
-        <div class="card">
-            <div class="card-body d-flex flex-wrap align-items-center">
-                <a href="{{ route('warehouse_of_item.new_refunds') }}"
-                   class="btn btn-primary btn mr-3 mb-3">
-                    <i class="fas fa-search"></i> Отправить на осмотр
-                </a>
-
-                <a href="{{ route('warehouse_of_item.inspection_print') }}"
-                   class="btn btn-info btn mr-3 mb-3"
-                   target="_blank">
-                    <i class="fas fa-file-pdf"></i> Печать списка на осмотре
-                </a>
-
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <a href="{{ route('warehouse_of_item.status_change_scan', [
                     'from' => 15,
                     'to' => 18,
-                    'title' => 'Принять осмотренные'
-                ]) }}"
-                   class="btn btn-success mr-3 mb-3">
-                    <i class="fas fa-check"></i> Принять осмотренные
+                    'title' => 'Забрать осмотренные из цеха'
+                ]) }}" class="link-black">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-success">
+                            <i class="fas fa-check"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Уже осмотрено</span>
+                            <span
+                                class="info-box-number">{{ $stats['inspected'] }}</span>
+                        </div>
+                    </div>
                 </a>
+            </div>
 
+            {{-- Брак --}}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <a href="{{ route('warehouse_of_item.status_change_scan', [
                     'from' => 16,
                     'to' => 19,
-                    'title' => 'Принять брак'
-                ]) }}"
-                   class="btn btn-danger mb-3">
-                    <i class="fas fa-trash"></i> Принять брак
+                    'title' => 'Забрать брак из цеха'
+                ]) }}" class="link-black">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Найдено с браком</span>
+                            <span
+                                class="info-box-number">{{ $stats['defect'] }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            {{-- Забрано с цеха --}}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <a href="{{ route('warehouse_of_item.status_change_scan', [
+                    'from' => 18,
+                    'to' => 11,
+                    'title' => 'Разместить на склад хранения'
+                ]) }}" class="link-black">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info">
+                            <i class="fas fa-dolly"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Забрано с цеха</span>
+                            <span
+                                class="info-box-number">{{ $stats['from_workshop'] }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            {{-- Требуется утилизировать --}}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <a href="{{ route('warehouse_of_item.status_change_scan', [
+                    'from' => 19,
+                    'to' => 17,
+                    'title' => 'Утилизировать'
+                ]) }}" class="link-black">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-warning">
+                            <i class="fas fa-recycle"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">На утилизацию</span>
+                            <span
+                                class="info-box-number">{{ $stats['to_utilize'] }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        {{-- Кнопка печати --}}
+        <div class="card">
+            <div class="card-body">
+                <a href="{{ route('warehouse_of_item.inspection_print') }}"
+                   class="btn btn-info"
+                   target="_blank">
+                    <i class="fas fa-file-pdf"></i> Печать списка на осмотре
                 </a>
             </div>
         </div>
