@@ -12,6 +12,14 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.new_refunds');
 
+    Route::get('/inspection', [WarehouseOfItemController::class, 'inspection'])
+        ->can('viewAny', Shelf::class)
+        ->name('warehouse_of_item.inspection');
+
+    Route::post('/inspection/sticker_type', [WarehouseOfItemController::class, 'setStickerType'])
+        ->can('create', Shelf::class)
+        ->name('warehouse_of_item.set_sticker_type');
+
     Route::get('/add_group', [WarehouseOfItemController::class, 'addGroup'])
         ->can('createAdmin', Shelf::class)
         ->name('warehouse_of_item.add_group');

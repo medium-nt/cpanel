@@ -17,6 +17,7 @@
 </head>
 <body data-action="{{ $action }}"
       data-csrf-token="{{ csrf_token() }}"
+      data-sticker-type="{{ $stickerType ?? 'FBO' }}"
       data-replace-fbo-url="{{ route('marketplace_api.fbo_barcode') }}"
       data-replace-storage-url="{{ route('warehouse_of_item.storage_barcode') }}"
       data-replace-process-url="{{ route('kiosk.process_replace', ['orderItem' => $orderItem]) }}"
@@ -77,16 +78,21 @@
                                 @enderror
                             </div>
                             <div class="d-flex gap-2">
-                                <button type="button"
-                                        id="repack-print-fbo-btn"
-                                        class="btn btn-success btn-lg d-none">
-                                    Печать FBO
-                                </button>
-                                <button type="button"
-                                        id="repack-print-storage-btn"
-                                        class="btn btn-success btn-lg ml-2 d-none">
-                                    Стикер хранения
-                                </button>
+                                @if($stickerType === 'FBO')
+                                    <button type="button"
+                                            id="repack-print-fbo-btn"
+                                            onclick="printRepackSticker()"
+                                            class="btn btn-success btn-lg d-none">
+                                        Печать FBO
+                                    </button>
+                                @else
+                                    <button type="button"
+                                            id="repack-print-storage-btn"
+                                            onclick="printRepackSticker()"
+                                            class="btn btn-success btn-lg d-none">
+                                        Стикер хранения
+                                    </button>
+                                @endif
                             </div>
                             <button type="submit"
                                     id="repack-complete-btn"
@@ -173,6 +179,7 @@
                             <!-- Кнопка создания товара -->
                             <button type="button"
                                     id="replace-create-btn"
+                                    onclick="createReplaceItem()"
                                     class="btn btn-warning btn-lg d-none">
                                 Создать товар
                             </button>
@@ -180,16 +187,21 @@
                             <!-- Кнопки печати (после создания) -->
                             <div class="d-none gap-2"
                                  id="replace-print-buttons">
-                                <button type="button"
-                                        id="replace-print-fbo-btn"
-                                        class="btn btn-success btn-lg">Печать
-                                    FBO
-                                </button>
-                                <button type="button"
-                                        id="replace-print-storage-btn"
-                                        class="btn btn-success btn-lg">Стикер
-                                    хранения
-                                </button>
+                                @if($stickerType === 'FBO')
+                                    <button type="button"
+                                            id="replace-print-fbo-btn"
+                                            onclick="printReplaceSticker()"
+                                            class="btn btn-success btn-lg">
+                                        Печать FBO
+                                    </button>
+                                @else
+                                    <button type="button"
+                                            id="replace-print-storage-btn"
+                                            onclick="printReplaceSticker()"
+                                            class="btn btn-success btn-lg">
+                                        Стикер хранения
+                                    </button>
+                                @endif
                             </div>
 
                             <!-- Кнопка готово (после печати ЛЮБОГО стикера) -->

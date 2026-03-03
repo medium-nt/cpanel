@@ -6,6 +6,7 @@ use App\Http\Requests\SaveGroupWarehouseOfItemRequest;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Setting;
 use App\Models\Shelf;
 use App\Models\Sku;
 use App\Models\User;
@@ -33,6 +34,17 @@ class WarehouseOfItemController extends Controller
             'shelves' => Shelf::all(),
             'totalItems' => $filteredItems->count(),
             'items' => $filteredItems->paginate(20),
+        ]);
+    }
+
+    public function inspection(WarehouseOfItemService $warehouseOfItemService): \Illuminate\View\View
+    {
+        $stats = $warehouseOfItemService->getInspectionStats();
+
+        return view('warehouse_of_item.inspection', [
+            'title' => 'Возвраты на осмотр',
+            'stats' => $stats,
+            'stickerType' => Setting::getValue('sticker_type_by_returns') ?? 'FBO',
         ]);
     }
 
@@ -320,5 +332,21 @@ class WarehouseOfItemController extends Controller
             ->route('warehouse_of_item.new_refunds')
             ->with('success', 'Товар добавлен на проверку!');
 
+    }
+
+    public function setStickerType(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'sticker_type' => 'required|in:FBO,storage',
+        ]);
+
+        Setting::updateOrCreate(
+            ['name' => 'sticker_type_by_returns'],
+            ['value' => $request->sticker_type]
+        );
+
+        return redirect()
+            ->route('warehouse_of_item.inspection')
+            ->with('success', 'Тип стикера обновлен');
     }
 }

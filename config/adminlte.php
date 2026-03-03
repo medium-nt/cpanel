@@ -327,6 +327,12 @@ return [
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
+                    'text' => 'inspection',
+                    'url' => 'megatulle/warehouse_of_item/inspection',
+                    'icon' => 'fas fa-fw fa-clipboard-check',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
+                [
                     'text' => 'inventory_checks',
                     'url' => 'megatulle/inventory/inventory_checks',
                     'icon' => 'fas fa-fw fa-clipboard-list',

@@ -175,6 +175,21 @@ class WarehouseOfItemService
         ];
     }
 
+    public function getInspectionStats(): array
+    {
+        return [
+            'on_inspection' => MarketplaceOrderItem::query()
+                ->where('status', 12) // На проверке
+                ->count(),
+            'inspected' => MarketplaceOrderItem::query()
+                ->where('status', 15) // Осмотрено
+                ->count(),
+            'defect' => MarketplaceOrderItem::query()
+                ->where('status', 16) // На утилизацию
+                ->count(),
+        ];
+    }
+
     public function getCreateItems($validatedData, MarketplaceItem $item): array
     {
         $marketplaceItems = [];

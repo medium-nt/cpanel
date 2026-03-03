@@ -10,6 +10,7 @@
     const body = document.body;
     const action = body.dataset.action;
     const csrfToken = body.dataset.csrfToken;
+    const stickerType = body.dataset.stickerType || 'FBO';
 
     // Данные для подмены (replace)
     const replaceData = {
@@ -114,15 +115,16 @@
         document.getElementById('replace-material-used').disabled = true;
     }
 
-    function printReplaceFBOSticker() {
-        const url = replaceData.fboUrl + '?marketplaceOrderId=' + newMarketplaceOrderId;
-        printBarcode(url, false, document.getElementById('replace-print-fbo-btn'));
-        markReplacePrintClicked();
-    }
+    function printReplaceSticker() {
+        const btnId = stickerType === 'FBO'
+            ? 'replace-print-fbo-btn'
+            : 'replace-print-storage-btn';
+        const btn = document.getElementById(btnId);
+        const url = stickerType === 'FBO'
+            ? replaceData.fboUrl + '?marketplaceOrderId=' + newMarketplaceOrderId
+            : replaceData.storageUrl + '?marketplace_items=' + newItemId;
 
-    function printReplaceStorageSticker() {
-        const url = replaceData.storageUrl + '?marketplace_items=' + newItemId;
-        printBarcode(url, false, document.getElementById('replace-print-storage-btn'));
+        printBarcode(url, false, btn);
         markReplacePrintClicked();
     }
 
@@ -155,15 +157,16 @@
 
     // === Repack (Переупаковка) Functions ===
 
-    function printFBOSticker() {
-        const url = repackData.fboUrl + '?marketplaceOrderId=' + repackData.marketplaceOrderId;
-        printBarcode(url, false, document.getElementById('repack-print-fbo-btn'));
-        markRepackPrintClicked();
-    }
+    function printRepackSticker() {
+        const btnId = stickerType === 'FBO'
+            ? 'repack-print-fbo-btn'
+            : 'repack-print-storage-btn';
+        const btn = document.getElementById(btnId);
+        const url = stickerType === 'FBO'
+            ? repackData.fboUrl + '?marketplaceOrderId=' + repackData.marketplaceOrderId
+            : repackData.storageUrl + '?marketplace_items=' + repackData.itemId;
 
-    function printStorageSticker() {
-        const url = repackData.storageUrl + '?marketplace_items=' + repackData.itemId;
-        printBarcode(url, false, document.getElementById('repack-print-storage-btn'));
+        printBarcode(url, false, btn);
         markRepackPrintClicked();
     }
 
@@ -250,10 +253,8 @@
 
         // Делаем функции глобальными для onclick атрибутов
         window.createReplaceItem = createReplaceItem;
-        window.printReplaceFBOSticker = printReplaceFBOSticker;
-        window.printReplaceStorageSticker = printReplaceStorageSticker;
-        window.printFBOSticker = printFBOSticker;
-        window.printStorageSticker = printStorageSticker;
+        window.printReplaceSticker = printReplaceSticker;
+        window.printRepackSticker = printRepackSticker;
     }
 
     // Запускаем инициализацию после загрузки DOM

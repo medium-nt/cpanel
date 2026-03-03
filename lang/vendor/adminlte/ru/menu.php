@@ -46,6 +46,7 @@ return [
     'marketplace_supplies' => 'Поставки в маркетплейс',
     'logs' => 'Просмотр логов',
     'warehouse_of_item' => 'Склад товара',
+    'inspection' => 'Возвраты на осмотр',
     'shelves' => 'Полки на складе',
     'inventory_checks' => 'Инвентаризации',
     'rolls' => 'Рулоны',
