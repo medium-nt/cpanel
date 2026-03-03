@@ -41,24 +41,6 @@
         {{-- Кнопки действий --}}
         <div class="card">
             <div class="card-body d-flex flex-wrap align-items-center">
-                {{-- Форма выбора типа стикера --}}
-                <form action="{{ route('warehouse_of_item.set_sticker_type') }}"
-                      method="post"
-                      class="d-inline-flex align-items-center mr-3 mb-3">
-                    @csrf
-                    <label class="mb-0 mr-2">Тип стикера:</label>
-                    <select name="sticker_type" class="form-control"
-                            onchange="this.form.submit()">
-                        <option value="FBO"
-                                @if($stickerType == 'FBO') selected @endif>FBO
-                        </option>
-                        <option value="storage"
-                                @if($stickerType == 'storage') selected @endif>
-                            Хранение
-                        </option>
-                    </select>
-                </form>
-
                 <a href="{{ route('warehouse_of_item.new_refunds') }}"
                    class="btn btn-primary btn mr-3 mb-3">
                     <i class="fas fa-search"></i> Отправить на осмотр
@@ -70,13 +52,23 @@
                     <i class="fas fa-file-pdf"></i> Печать списка на осмотре
                 </a>
 
-                <button class="btn btn-success btn mb-3 mr-3" disabled>
+                <a href="{{ route('warehouse_of_item.status_change_scan', [
+                    'from' => 15,
+                    'to' => 18,
+                    'title' => 'Принять осмотренные'
+                ]) }}"
+                   class="btn btn-success mr-3 mb-3">
                     <i class="fas fa-check"></i> Принять осмотренные
-                </button>
+                </a>
 
-                <button class="btn btn-danger btn mb-3" disabled>
+                <a href="{{ route('warehouse_of_item.status_change_scan', [
+                    'from' => 16,
+                    'to' => 19,
+                    'title' => 'Принять брак'
+                ]) }}"
+                   class="btn btn-danger mb-3">
                     <i class="fas fa-trash"></i> Принять брак
-                </button>
+                </a>
             </div>
         </div>
     </div>

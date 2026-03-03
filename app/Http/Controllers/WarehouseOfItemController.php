@@ -6,7 +6,6 @@ use App\Http\Requests\SaveGroupWarehouseOfItemRequest;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
-use App\Models\Setting;
 use App\Models\Shelf;
 use App\Models\Sku;
 use App\Models\User;
@@ -19,6 +18,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class WarehouseOfItemController extends Controller
 {
@@ -37,14 +37,13 @@ class WarehouseOfItemController extends Controller
         ]);
     }
 
-    public function inspection(WarehouseOfItemService $warehouseOfItemService): \Illuminate\View\View
+    public function inspection(WarehouseOfItemService $warehouseOfItemService): View
     {
         $stats = $warehouseOfItemService->getInspectionStats();
 
         return view('warehouse_of_item.inspection', [
             'title' => 'Возвраты на осмотр',
             'stats' => $stats,
-            'stickerType' => Setting::getValue('sticker_type_by_returns') ?? 'FBO',
         ]);
     }
 
@@ -320,6 +319,13 @@ class WarehouseOfItemController extends Controller
         ]);
     }
 
+    public function statusChangeScan(): View
+    {
+        return view('warehouse_of_item.status_change_scan', [
+            'title' => request('title', 'Сканирование товаров'),
+        ]);
+    }
+
     public function toInspection(MarketplaceOrderItem $marketplace_item)
     {
         $marketplace_item->status = 12;
@@ -332,22 +338,6 @@ class WarehouseOfItemController extends Controller
             ->route('warehouse_of_item.new_refunds')
             ->with('success', 'Товар добавлен на проверку!');
 
-    }
-
-    public function setStickerType(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $request->validate([
-            'sticker_type' => 'required|in:FBO,storage',
-        ]);
-
-        Setting::updateOrCreate(
-            ['name' => 'sticker_type_by_returns'],
-            ['value' => $request->sticker_type]
-        );
-
-        return redirect()
-            ->route('warehouse_of_item.inspection')
-            ->with('success', 'Тип стикера обновлен');
     }
 
     public function printInspectionList(): \Illuminate\Http\Response
@@ -364,11 +354,8 @@ class WarehouseOfItemController extends Controller
                 ];
             });
 
-        $stickerType = Setting::getValue('sticker_type_by_returns') ?? 'FBO';
-
         $pdf = PDF::loadView('pdf.inspection_list', [
             'items' => $items,
-            'stickerType' => $stickerType,
         ]);
 
         return $pdf->setPaper('A4')->stream('inspection_list.pdf');

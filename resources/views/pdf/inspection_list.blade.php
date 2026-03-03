@@ -18,26 +18,6 @@
             text-align: center;
         }
 
-        .sticker-type {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .sticker-type td {
-            padding: 5px;
-            background: #f0f0f0;
-            border: 1px solid #000;
-        }
-
-        .sticker-type td:first-child {
-            text-align: left;
-        }
-
-        .sticker-type td:last-child {
-            text-align: right;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -62,13 +42,6 @@
 </head>
 <body>
 <h2>Товары на осмотр</h2>
-<table class="sticker-type">
-    <tr>
-        <td>Тип стикера: {{ $stickerType === 'FBO' ? 'FBO' : 'Хранение' }}</td>
-        <td>Всего товаров: {{ $items->count() }}</td>
-    </tr>
-</table>
-
 <table>
     <thead>
     <tr>

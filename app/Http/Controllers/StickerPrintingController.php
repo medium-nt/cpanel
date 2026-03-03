@@ -577,7 +577,6 @@ class StickerPrintingController extends Controller
             'title' => $title,
             'orderItem' => $orderItem,
             'action' => $action,
-            'stickerType' => Setting::getValue('sticker_type_by_returns') ?? 'FBO',
         ]);
     }
 

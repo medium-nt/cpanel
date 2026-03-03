@@ -126,10 +126,5 @@ class SettingsSeeder extends Seeder
             ['name' => 'timeout_800'],
             ['value' => '100']
         );
-
-        Setting::query()->firstOrCreate(
-            ['name' => 'sticker_type_by_returns'],
-            ['value' => 'FBO']
-        );
     }
 }

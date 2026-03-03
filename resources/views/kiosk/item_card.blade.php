@@ -17,13 +17,9 @@
 </head>
 <body data-action="{{ $action }}"
       data-csrf-token="{{ csrf_token() }}"
-      data-sticker-type="{{ $stickerType ?? 'FBO' }}"
-      data-replace-fbo-url="{{ route('marketplace_api.fbo_barcode') }}"
       data-replace-storage-url="{{ route('warehouse_of_item.storage_barcode') }}"
       data-replace-process-url="{{ route('kiosk.process_replace', ['orderItem' => $orderItem]) }}"
-      data-repack-marketplace-order-id="{{ $orderItem->marketplaceOrder->order_id }}"
       data-repack-item-id="{{ $orderItem->id }}"
-      data-repack-fbo-url="{{ route('marketplace_api.fbo_barcode') }}"
       data-repack-storage-url="{{ route('warehouse_of_item.storage_barcode') }}"
       data-defect-old-reason="{{ old('reason') }}">
 
@@ -78,21 +74,12 @@
                                 @enderror
                             </div>
                             <div class="d-flex gap-2">
-                                @if($stickerType === 'FBO')
-                                    <button type="button"
-                                            id="repack-print-fbo-btn"
-                                            onclick="printRepackSticker()"
-                                            class="btn btn-success btn-lg d-none">
-                                        Печать FBO
-                                    </button>
-                                @else
-                                    <button type="button"
-                                            id="repack-print-storage-btn"
-                                            onclick="printRepackSticker()"
-                                            class="btn btn-success btn-lg d-none">
-                                        Стикер хранения
-                                    </button>
-                                @endif
+                                <button type="button"
+                                        id="repack-print-storage-btn"
+                                        onclick="printRepackSticker()"
+                                        class="btn btn-success btn-lg d-none">
+                                    Стикер хранения
+                                </button>
                             </div>
                             <button type="submit"
                                     id="repack-complete-btn"
@@ -187,21 +174,12 @@
                             <!-- Кнопки печати (после создания) -->
                             <div class="d-none gap-2"
                                  id="replace-print-buttons">
-                                @if($stickerType === 'FBO')
-                                    <button type="button"
-                                            id="replace-print-fbo-btn"
-                                            onclick="printReplaceSticker()"
-                                            class="btn btn-success btn-lg">
-                                        Печать FBO
-                                    </button>
-                                @else
-                                    <button type="button"
-                                            id="replace-print-storage-btn"
-                                            onclick="printReplaceSticker()"
-                                            class="btn btn-success btn-lg">
-                                        Стикер хранения
-                                    </button>
-                                @endif
+                                <button type="button"
+                                        id="replace-print-storage-btn"
+                                        onclick="printReplaceSticker()"
+                                        class="btn btn-success btn-lg">
+                                    Стикер хранения
+                                </button>
                             </div>
 
                             <!-- Кнопка готово (после печати ЛЮБОГО стикера) -->

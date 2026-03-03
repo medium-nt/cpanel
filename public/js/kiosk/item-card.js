@@ -10,20 +10,16 @@
     const body = document.body;
     const action = body.dataset.action;
     const csrfToken = body.dataset.csrfToken;
-    const stickerType = body.dataset.stickerType || 'FBO';
 
     // Данные для подмены (replace)
     const replaceData = {
-        fboUrl: body.dataset.replaceFboUrl || '',
         storageUrl: body.dataset.replaceStorageUrl || '',
         processUrl: body.dataset.replaceProcessUrl || ''
     };
 
     // Данные для переупаковки (repack)
     const repackData = {
-        marketplaceOrderId: body.dataset.repackMarketplaceOrderId || '',
         itemId: body.dataset.repackItemId || '',
-        fboUrl: body.dataset.repackFboUrl || '',
         storageUrl: body.dataset.repackStorageUrl || ''
     };
 
@@ -116,13 +112,8 @@
     }
 
     function printReplaceSticker() {
-        const btnId = stickerType === 'FBO'
-            ? 'replace-print-fbo-btn'
-            : 'replace-print-storage-btn';
-        const btn = document.getElementById(btnId);
-        const url = stickerType === 'FBO'
-            ? replaceData.fboUrl + '?marketplaceOrderId=' + newMarketplaceOrderId
-            : replaceData.storageUrl + '?marketplace_items=' + newItemId;
+        const btn = document.getElementById('replace-print-storage-btn');
+        const url = replaceData.storageUrl + '?marketplace_items=' + newItemId;
 
         printBarcode(url, false, btn);
         markReplacePrintClicked();
@@ -158,13 +149,8 @@
     // === Repack (Переупаковка) Functions ===
 
     function printRepackSticker() {
-        const btnId = stickerType === 'FBO'
-            ? 'repack-print-fbo-btn'
-            : 'repack-print-storage-btn';
-        const btn = document.getElementById(btnId);
-        const url = stickerType === 'FBO'
-            ? repackData.fboUrl + '?marketplaceOrderId=' + repackData.marketplaceOrderId
-            : repackData.storageUrl + '?marketplace_items=' + repackData.itemId;
+        const btn = document.getElementById('repack-print-storage-btn');
+        const url = repackData.storageUrl + '?marketplace_items=' + repackData.itemId;
 
         printBarcode(url, false, btn);
         markRepackPrintClicked();
@@ -177,7 +163,6 @@
 
     function checkRepackFields() {
         const materialUsed = document.getElementById('material-used');
-        const repackPrintFboBtn = document.getElementById('repack-print-fbo-btn');
         const repackPrintStorageBtn = document.getElementById('repack-print-storage-btn');
         const repackCompleteBtn = document.getElementById('repack-complete-btn');
 
@@ -185,10 +170,8 @@
             const materialSelected = materialUsed.value !== '';
 
             if (materialSelected) {
-                if (repackPrintFboBtn) repackPrintFboBtn.classList.remove('d-none');
                 if (repackPrintStorageBtn) repackPrintStorageBtn.classList.remove('d-none');
             } else {
-                if (repackPrintFboBtn) repackPrintFboBtn.classList.add('d-none');
                 if (repackPrintStorageBtn) repackPrintStorageBtn.classList.add('d-none');
                 repackCompleteBtn.classList.add('d-none');
             }

@@ -20,10 +20,6 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('viewAny', Shelf::class)
         ->name('warehouse_of_item.inspection_print');
 
-    Route::post('/inspection/sticker_type', [WarehouseOfItemController::class, 'setStickerType'])
-        ->can('create', Shelf::class)
-        ->name('warehouse_of_item.set_sticker_type');
-
     Route::get('/add_group', [WarehouseOfItemController::class, 'addGroup'])
         ->can('createAdmin', Shelf::class)
         ->name('warehouse_of_item.add_group');
@@ -70,5 +66,9 @@ Route::prefix('/warehouse_of_item')->group(function () {
     Route::get('/shelf_change', [WarehouseOfItemController::class, 'shelfChange'])
         ->can('update', Shelf::class)
         ->name('warehouse_of_item.shelf_change');
+
+    Route::get('/status_change_scan', [WarehouseOfItemController::class, 'statusChangeScan'])
+        ->can('update', Shelf::class)
+        ->name('warehouse_of_item.status_change_scan');
 
 });
