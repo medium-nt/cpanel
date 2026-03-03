@@ -64,6 +64,12 @@
                     <i class="fas fa-search"></i> Отправить на осмотр
                 </a>
 
+                <a href="{{ route('warehouse_of_item.inspection_print') }}"
+                   class="btn btn-info btn mr-3 mb-3"
+                   target="_blank">
+                    <i class="fas fa-file-pdf"></i> Печать списка на осмотре
+                </a>
+
                 <button class="btn btn-success btn mb-3 mr-3" disabled>
                     <i class="fas fa-check"></i> Принять осмотренные
                 </button>

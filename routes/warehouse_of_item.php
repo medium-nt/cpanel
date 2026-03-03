@@ -16,6 +16,10 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('viewAny', Shelf::class)
         ->name('warehouse_of_item.inspection');
 
+    Route::get('/inspection/print', [WarehouseOfItemController::class, 'printInspectionList'])
+        ->can('viewAny', Shelf::class)
+        ->name('warehouse_of_item.inspection_print');
+
     Route::post('/inspection/sticker_type', [WarehouseOfItemController::class, 'setStickerType'])
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.set_sticker_type');

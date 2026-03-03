@@ -349,4 +349,28 @@ class WarehouseOfItemController extends Controller
             ->route('warehouse_of_item.inspection')
             ->with('success', 'Тип стикера обновлен');
     }
+
+    public function printInspectionList(): \Illuminate\Http\Response
+    {
+        $items = MarketplaceOrderItem::query()
+            ->where('status', 12)
+            ->with('item')
+            ->get()
+            ->sortBy(function ($item) {
+                return [
+                    $item->item->title,
+                    $item->item->width,
+                    $item->item->height,
+                ];
+            });
+
+        $stickerType = Setting::getValue('sticker_type_by_returns') ?? 'FBO';
+
+        $pdf = PDF::loadView('pdf.inspection_list', [
+            'items' => $items,
+            'stickerType' => $stickerType,
+        ]);
+
+        return $pdf->setPaper('A4')->stream('inspection_list.pdf');
+    }
 }
