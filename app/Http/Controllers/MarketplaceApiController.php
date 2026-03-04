@@ -99,7 +99,11 @@ class MarketplaceApiController extends Controller
         $order->is_printed = true;
         $order->save();
 
-        return $service->getBarcodeOzonFBO($order);
+        return match ($order->marketplace_id) {
+            1 => $service->getBarcodeOzonFBO($order),
+            2 => $service->getBarcodeWBFBO($order),
+            default => null,
+        };
     }
 
     public function getFBOBarcodeHtml(MarketplaceApiService $service)

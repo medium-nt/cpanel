@@ -8,6 +8,7 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\ProductSticker;
 use App\Models\Setting;
 use App\Models\Sku;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -984,6 +985,53 @@ class MarketplaceApiService
             'item' => $item,
             'seamstressId' => $order->items[0]->seamstress->id,
         ]);
+    }
+
+    public function getBarcodeWBFBO(MarketplaceOrder $order): \Illuminate\Http\Response
+    {
+        $item = $order->items->first()->item;
+        $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
+        $barcode = $sku;
+
+        $productSticker = ProductSticker::query()
+            ->where('title', $item->title)
+            ->first();
+
+        $pdf = PDF::loadView('pdf.fbo_wb_sticker', [
+            'item' => $item,
+            'barcode' => $barcode,
+            'article' => $this->getItemWbBySku($sku)->nmID ?? '',
+            'color' => $productSticker->color ?? '',
+            'country' => $productSticker->country ?? '',
+        ]);
+
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('barcode.pdf');
+    }
+
+    public static function getItemWbBySku($sku): ?object
+    {
+        $body = [
+            'settings' => [
+                'cursor' => [
+                    'limit' => 1,
+                ],
+                'filter' => [
+                    'withPhoto' => -1,
+                    'textSearch' => (string) $sku,
+                ],
+            ],
+        ];
+
+        $response = self::wbRequest()
+            ->post('https://content-api.wildberries.ru/content/v2/get/cards/list', $body);
+
+        if (! $response->ok()) {
+            return null;
+        }
+
+        return $response->object()?->cards[0] ?? null;
     }
 
     private static function checkCancelledProductsOzon(array $cancelledProductsOzon): array
