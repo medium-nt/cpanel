@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\MarketplaceOrderItem;
+use App\Models\StatusMovement;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -109,6 +111,7 @@ class StatusChangeScan extends Component
         }
 
         $count = 0;
+        $changedItemIds = [];
 
         foreach ($this->scannedItems as $itemData) {
             $orderItem = MarketplaceOrderItem::find($itemData['id']);
@@ -116,8 +119,21 @@ class StatusChangeScan extends Component
             if ($orderItem && $orderItem->status === $this->fromStatus) {
                 $orderItem->status = $this->toStatus;
                 $orderItem->save();
+                $changedItemIds[] = $orderItem->id;
                 $count++;
             }
+        }
+
+        // Единый лог для всех товаров
+        if (! empty($changedItemIds)) {
+            $toStatusName = StatusMovement::STATUSES[$this->toStatus] ?? "статус {$this->toStatus}";
+            $itemsList = implode(', ', $changedItemIds);
+
+            Log::channel('erp')->info(
+                'Кладовщик '.auth()->user()->name.
+                "на странице '{$this->pageTitle}' отсканировал товары: {$itemsList}".
+                " (статус: {$toStatusName})"
+            );
         }
 
         $scannedCount = count($this->scannedItems);

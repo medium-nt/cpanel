@@ -543,6 +543,10 @@ class StickerPrintingController extends Controller
         // Меняем статус заказа на 12 (На проверке)
         $orderItem->marketplaceOrder->update(['status' => 12]);
 
+        Log::channel('erp')
+            ->info('Упаковщик '.session('user_id').' взял товар id: '.$orderItem->id.
+                ' от заказа '.$orderItem->marketplace_order_id.' на проверку');
+
         return response()->json(['success' => true, 'message' => 'Статус обновлён']);
     }
 
@@ -609,6 +613,10 @@ class StickerPrintingController extends Controller
             'status' => 16,
         ]);
 
+        Log::channel('erp')
+            ->info('Упаковщик '.session('user_id').' отправил товар id: '.$orderItem->id.
+                ' от заказа '.$orderItem->marketplace_order_id.' в брак');
+
         return redirect()
             ->route('on_inspection')
             ->with('success', 'Товар отправлен на утилизацию');
@@ -643,6 +651,9 @@ class StickerPrintingController extends Controller
             $orderItem->update([
                 'status' => 15,
             ]);
+
+            Log::channel('erp')
+                ->info('Упаковщик '.session('user_id').' переупаковал товар id: '.$orderItem->id);
 
             DB::commit();
         } catch (Throwable $e) {
@@ -736,6 +747,11 @@ class StickerPrintingController extends Controller
             );
 
             DB::commit();
+
+            Log::channel('erp')
+                ->info('Упаковщик '.session('user_id').' подменил товар id: '.$orderItem->id.
+                    '(заказ '.$orderItem->marketplaceOrder->order_id.') на '.
+                    $newOrderItem->id.'(заказ '.$marketplaceOrder->order_id.')');
 
             return response()->json([
                 'success' => true,

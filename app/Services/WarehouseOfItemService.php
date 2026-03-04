@@ -9,6 +9,7 @@ use App\Models\Sku;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class WarehouseOfItemService
 {
@@ -83,6 +84,9 @@ class WarehouseOfItemService
                 'returned_at' => now(),
                 'status' => 9,
             ]);
+
+        Log::channel('erp')
+            ->info('Товар с заказа '.$item->marketplace_order_id.' помещен на склад хранения на полку '.$shelfId);
     }
 
     public function findRefundItemByBarcode($barcode): array

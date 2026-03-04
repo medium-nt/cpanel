@@ -334,6 +334,10 @@ class WarehouseOfItemController extends Controller
         $marketplace_item->marketplaceOrder->status = 9;
         $marketplace_item->marketplaceOrder->save();
 
+        Log::channel('erp')
+            ->info('Товар id: '.$marketplace_item->id.' от заказа id:
+            '.$marketplace_item->marketplaceOrder->id.' отправлен на осмотр в цех');
+
         return redirect()
             ->route('warehouse_of_item.new_refunds')
             ->with('success', 'Товар добавлен на проверку!');
