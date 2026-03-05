@@ -276,7 +276,9 @@
                     </form>
                 </div>
             </div>
+            @endif
 
+            @if($user->isSeamstress() || $user->isCutter() || $user->isOtk())
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Таблица зарплаты</h3>
@@ -300,6 +302,9 @@
                                 @endif
                                 @if($user->isCutter())
                                 <th class="text-center">закройщик</th>
+                                @endif
+                                @if($user->isOtk())
+                                    <th class="text-center">упаковка</th>
                                 @endif
                             </tr>
                             </thead>
@@ -331,6 +336,15 @@
                                                    id="cutter_rate_{{$rate->id}}"
                                                    name="cutter_rate[{{$rate->id}}]"
                                                    value="{{ old('cutter_rate')[$i] ?? $rate->rates->first()->cutter_rate ?? '' }}">
+                                        </td>
+                                    @endif
+                                    @if($user->isOtk())
+                                        <td>
+                                            <input type="number"
+                                                   class="form-control"
+                                                   id="rate_{{$rate->id}}"
+                                                   name="rate[{{$rate->id}}]"
+                                                   value="{{ $rate->rates->first()->rate ?? '' }}">
                                         </td>
                                     @endif
                                 </tr>
