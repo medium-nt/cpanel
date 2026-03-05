@@ -997,9 +997,23 @@ class MarketplaceApiService
             ->where('title', $item->title)
             ->first();
 
+        $length = mb_strlen($order->cluster);
+
+        if ($length > 25) {
+            $fontSizeCluster = 5;
+        } elseif ($length > 18) {
+            $fontSizeCluster = 8;
+        } else {
+            $fontSizeCluster = 10;
+        }
+
         $pdf = PDF::loadView('pdf.fbo_wb_sticker', [
             'item' => $item,
             'barcode' => $barcode,
+            'order' => $order,
+            'fontSizeCluster' => $fontSizeCluster,
+            'seamstressId' => $order->items[0]->seamstress?->id,
+            'cutterId' => $order->items[0]->cutter?->id,
             'article' => $this->getItemWbBySku($sku)->nmID ?? '',
             'color' => $productSticker->color ?? '',
             'country' => $productSticker->country ?? '',

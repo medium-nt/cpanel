@@ -56,7 +56,7 @@
 
         .title-row {
             position: relative;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         .title-row img {
@@ -70,6 +70,15 @@
             font-size: 10px;
             margin-bottom: 2px;
             line-height: 0.8;
+        }
+
+        .footer {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 6px;
+            margin-right: 5px;
+            margin-top: 2px;
+            line-height: 0.8;
+            float: right;
         }
     </style>
 </head>
@@ -94,7 +103,21 @@
     <div class="text">Цвет: {{ $color }} / Размер: {{ $item->width }}
         x{{ $item->height }}</div>
     <div class="text">Страна: {{ $country }}</div>
-    <div class="text">Бренд: МЕГАТЮЛЬ</div>
+    <div class="text">Бренд: МЕГАТЮЛЬ
+        <span
+            style="float:right; margin-right: 5px; font-weight: bold; font-size: {{ $fontSizeCluster }}px">
+            {{ $order->cluster }}
+        </span>
+    </div>
+
+    <div class="footer">
+        <b>
+            @isset($cutterId)
+                закройщик № {{ $cutterId }} |
+            @endisset
+            швея № {{ $seamstressId ?? '0' }}
+        </b>
+    </div>
 </div>
 </body>
 </html>
