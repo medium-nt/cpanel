@@ -26,6 +26,7 @@ class MarketplaceOrderItem extends Model
         'defect_reason',
         'seamstress_id',
         'cutter_id',
+        'otk_id',
         'cutting_completed_at',
         'completed_at',
         'created_at',

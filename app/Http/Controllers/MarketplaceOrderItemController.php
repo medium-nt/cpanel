@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
 use App\Models\Sku;
@@ -55,27 +54,27 @@ class MarketplaceOrderItemController extends Controller
 
     public function done(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
-        Order::query()
-            ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+        Order::where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
             ->update([
                 'status' => 3,
                 'completed_at' => now(),
             ]);
 
-        MarketplaceOrder::query()
-            ->where('id', $marketplaceOrderItem->marketplaceOrder->id)
-            ->update([
-                'status' => 6,
-                'completed_at' => now(),
-            ]);
+        $marketplaceOrderItem->marketplaceOrder->status = 6;
+        $marketplaceOrderItem->marketplaceOrder->completed_at = now();
+        $marketplaceOrderItem->marketplaceOrder->save();
 
-        $marketplaceOrderItem->update([
-            'status' => 3,
-            'completed_at' => now(),
-        ]);
+        $user = User::find(session('user_id'));
 
-        $text = 'Швея '.$marketplaceOrderItem->seamstress->name.
-            ' ('.$marketplaceOrderItem->seamstress->id.') выполнила заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.
+        if ($user->isOtk()) {
+            $marketplaceOrderItem->otk_id = $user->id;
+        }
+        $marketplaceOrderItem->status = 3;
+        $marketplaceOrderItem->completed_at = now();
+        $marketplaceOrderItem->save();
+
+        $text = 'Сотрудник '.$user->name.' (id: '.$user->id.') выполнил заказ '
+            .$marketplaceOrderItem->marketplaceOrder->order_id.
             ' (товар #'.$marketplaceOrderItem->id.')';
         Log::channel('erp')->notice($text);
 
