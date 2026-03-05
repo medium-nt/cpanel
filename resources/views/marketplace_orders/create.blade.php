@@ -67,12 +67,16 @@
                             </div>
                         </div>
 
+                        {{-- Кластер --}}
                         <div class="col-md-5">
                             <div class="form-group">
-                                <label for="cluster">Кластер (только для
+                                <label for="cluster_ozon">Кластер (только для
                                     FBO)</label>
-                                <select name="cluster" id="cluster"
-                                        class="form-control">
+
+                                {{-- OZON --}}
+                                <select name="cluster" id="cluster_ozon"
+                                        class="form-control cluster-select"
+                                        disabled>
                                     <option value="" disabled selected>---
                                     </option>
                                     <option value="Алматы"
@@ -176,6 +180,87 @@
                                         Ярославль
                                     </option>
                                 </select>
+
+                                {{-- WB --}}
+                                <select name="cluster" id="cluster_wb"
+                                        class="form-control cluster-select"
+                                        disabled>
+                                    <option value="" disabled selected>---
+                                    </option>
+                                    <option value="Алексин (Тула)"
+                                            @if(old('cluster') == 'Алексин (Тула)') selected @endif>
+                                        Алексин (Тула)
+                                    </option>
+                                    <option value="Владимир (Воршинское)"
+                                            @if(old('cluster') == 'Владимир (Воршинское)') selected @endif>
+                                        Владимир (Воршинское)
+                                    </option>
+                                    <option value="Волгоград"
+                                            @if(old('cluster') == 'Волгоград') selected @endif>
+                                        Волгоград
+                                    </option>
+                                    <option value="Екатеринбург (Испытателей)"
+                                            @if(old('cluster') == 'Екатеринбург (Испытателей)') selected @endif>
+                                        Екатеринбург (Испытателей)
+                                    </option>
+                                    <option value="Екатеринбург (Перспективный)"
+                                            @if(old('cluster') == 'Екатеринбург (Перспективный)') selected @endif>
+                                        Екатеринбург (Перспективный)
+                                    </option>
+                                    <option value="Казань"
+                                            @if(old('cluster') == 'Казань') selected @endif>
+                                        Казань
+                                    </option>
+                                    <option value="Коледино"
+                                            @if(old('cluster') == 'Коледино') selected @endif>
+                                        Коледино
+                                    </option>
+                                    <option value="Котовск"
+                                            @if(old('cluster') == 'Котовск') selected @endif>
+                                        Котовск
+                                    </option>
+                                    <option value="Краснодар"
+                                            @if(old('cluster') == 'Краснодар') selected @endif>
+                                        Краснодар
+                                    </option>
+                                    <option value="Невинномысск"
+                                            @if(old('cluster') == 'Невинномысск') selected @endif>
+                                        Невинномысск
+                                    </option>
+                                    <option value="Нижний Новгород"
+                                            @if(old('cluster') == 'Нижний Новгород') selected @endif>
+                                        Нижний Новгород
+                                    </option>
+                                    <option value="Новосибирск(Петухова)"
+                                            @if(old('cluster') == 'Новосибирск(Петухова)') selected @endif>
+                                        Новосибирск(Петухова)
+                                    </option>
+                                    <option value="Рязань"
+                                            @if(old('cluster') == 'Рязань') selected @endif>
+                                        Рязань
+                                    </option>
+                                    <option value="Самара (Новосемейкино)"
+                                            @if(old('cluster') == 'Самара (Новосемейкино)') selected @endif>
+                                        Самара (Новосемейкино)
+                                    </option>
+                                    <option
+                                        value="Санкт-Петербург(Уткина Заводь)"
+                                        @if(old('cluster') == 'Санкт-Петербург(Уткина Заводь)') selected @endif>
+                                        Санкт-Петербург(Уткина Заводь)
+                                    </option>
+                                    <option value="Санкт-Петербург(Шушары)"
+                                            @if(old('cluster') == 'Санкт-Петербург(Шушары)') selected @endif>
+                                        Санкт-Петербург(Шушары)
+                                    </option>
+                                    <option value="Сарапул"
+                                            @if(old('cluster') == 'Сарапул') selected @endif>
+                                        Сарапул
+                                    </option>
+                                    <option value="Электросталь"
+                                            @if(old('cluster') == 'Электросталь') selected @endif>
+                                        Электросталь
+                                    </option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -238,7 +323,7 @@
         $(document).ready(function() {
             const fulfillmentTypeSelect = $('#fulfillment_type');
             const fboAdditionalRows = $('#fbo-additional-rows');
-            const clusterSelect = $('#cluster');
+            let clusterSelect = $('#cluster_ozon');
 
             function toggleFboMode(isFbo) {
                 if (isFbo) {
@@ -259,6 +344,58 @@
             // Обработка изменения типа
             fulfillmentTypeSelect.on('change', function () {
                 toggleFboMode($(this).val() === 'FBO');
+            });
+
+            // Переключение кластеров в зависимости от маркетплейса
+            const marketplaceSelect = $('#marketplace_id');
+            const clusterOzon = $('#cluster_ozon');
+            const clusterWb = $('#cluster_wb');
+
+            // Инициализируем Select2 для кластеров
+            clusterOzon.select2();
+            clusterWb.select2();
+
+            // Сначала скрываем оба Select2 контейнера
+            clusterOzon.next('.select2').hide();
+            clusterWb.next('.select2').hide();
+            clusterOzon.prop('disabled', true);
+            clusterWb.prop('disabled', true);
+
+            function toggleClusterByMarketplace(marketplaceId) {
+                // Скрываем оба Select2 контейнера
+                clusterOzon.next('.select2').hide();
+                clusterWb.next('.select2').hide();
+                clusterOzon.prop('disabled', true);
+                clusterWb.prop('disabled', true);
+
+                // Показываем нужный
+                if (marketplaceId == 1) { // OZON
+                    clusterOzon.next('.select2').show();
+                    clusterOzon.prop('disabled', false);
+                    clusterSelect = clusterOzon;
+                } else if (marketplaceId == 2) { // WB
+                    clusterWb.next('.select2').show();
+                    clusterWb.prop('disabled', false);
+                    clusterSelect = clusterWb;
+                }
+            }
+
+            // Инициализация при загрузке
+            const initialMarketplace = marketplaceSelect.val();
+            if (initialMarketplace) {
+                toggleClusterByMarketplace(initialMarketplace);
+            }
+
+            // Переключение маркетплейса
+            marketplaceSelect.on('change', function () {
+                const newValue = $(this).val();
+                toggleClusterByMarketplace(newValue);
+
+                // Сбросить выбранное значение
+                clusterSelect.val('').trigger('change');
+
+                // Обновить FBO/FBS состояние
+                toggleFboMode($('#fulfillment_type').val() === 'FBO');
             });
 
             const itemSelects = $('.item_id');
