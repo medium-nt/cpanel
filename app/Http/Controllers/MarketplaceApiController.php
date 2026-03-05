@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrder;
 use App\Models\Sku;
+use App\Models\User;
 use App\Services\MarketplaceApiService;
+use Illuminate\Support\Facades\Log;
 
 class MarketplaceApiController extends Controller
 {
@@ -80,6 +82,12 @@ class MarketplaceApiController extends Controller
         $order->is_printed = true;
         $order->save();
 
+        $user = User::find(session('user_id'));
+        if ($user) {
+            Log::channel('erp')
+                ->info('Стикер заказа '.$orderId.' был распечатан сотрудником '.$user->name);
+        }
+
         return $result;
     }
 
@@ -98,6 +106,12 @@ class MarketplaceApiController extends Controller
 
         $order->is_printed = true;
         $order->save();
+
+        $user = User::find(session('user_id'));
+        if ($user) {
+            Log::channel('erp')
+                ->info('Стикер заказа '.$orderId.' был распечатан сотрудником '.$user->name);
+        }
 
         return match ($order->marketplace_id) {
             1 => $service->getBarcodeOzonFBO($order),
