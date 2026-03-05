@@ -611,6 +611,7 @@ class StickerPrintingController extends Controller
         $orderItem->update([
             'defect_reason' => $request->reason,
             'status' => 16,
+            'otk_id' => $user->id,
         ]);
 
         Log::channel('erp')
@@ -650,6 +651,7 @@ class StickerPrintingController extends Controller
 
             $orderItem->update([
                 'status' => 15,
+                'otk_id' => $user->id,
             ]);
 
             Log::channel('erp')
@@ -731,6 +733,7 @@ class StickerPrintingController extends Controller
                 'status' => 15,
                 'seamstress_id' => 0,
                 'cutter_id' => null,
+                'otk_id' => $user->id,
                 'completed_at' => now()->startOfDay()->subDays(2),
                 'created_at' => Carbon::parse($marketplaceOrder->created_at),
             ]);
@@ -750,8 +753,8 @@ class StickerPrintingController extends Controller
 
             Log::channel('erp')
                 ->info('Упаковщик '.session('user_id').' подменил товар id: '.$orderItem->id.
-                    '(заказ '.$orderItem->marketplaceOrder->order_id.') на '.
-                    $newOrderItem->id.'(заказ '.$marketplaceOrder->order_id.')');
+                    ' (заказ '.$orderItem->marketplaceOrder->order_id.') на '.
+                    $newOrderItem->id.' (заказ '.$marketplaceOrder->order_id.')');
 
             return response()->json([
                 'success' => true,
