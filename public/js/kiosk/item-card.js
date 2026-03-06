@@ -121,7 +121,9 @@
 
     function markReplacePrintClicked() {
         replacePrintClicked = true;
-        document.getElementById('replace-complete-btn').classList.remove('d-none');
+        setTimeout(() => {
+            document.getElementById('replace-complete-btn').classList.remove('d-none');
+        }, 3000);
     }
 
     function checkReplaceFields() {
@@ -158,7 +160,7 @@
 
     function markRepackPrintClicked() {
         repackPrintClicked = true;
-        checkRepackFields();
+        setTimeout(() => checkRepackFields(), 3000);
     }
 
     function checkRepackFields() {
