@@ -5,6 +5,7 @@ use App\Http\Controllers\MarketplaceApiController;
 use App\Http\Controllers\MarketplaceOrderItemController;
 use App\Http\Controllers\StickerPrintingController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\WarehouseOfItemController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,9 @@ Route::get('barcode', [MarketplaceApiController::class, 'getBarcodeFile'])
 
 Route::get('fbo_barcode', [MarketplaceApiController::class, 'getFBOBarcodeFile'])
     ->name('marketplace_api.fbo_barcode');
+
+Route::get('/storage_barcode', [WarehouseOfItemController::class, 'getStorageBarcodeFile'])
+    ->name('warehouse_of_item.storage_barcode');
 
 Route::get('fbo_barcode_html', [MarketplaceApiController::class, 'getFBOBarcodeHtml'])
     ->name('marketplace_api.fbo_barcode_html');

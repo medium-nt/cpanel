@@ -28,9 +28,6 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('createAdmin', Shelf::class)
         ->name('warehouse_of_item.save_group');
 
-    Route::get('/storage_barcode', [WarehouseOfItemController::class, 'getStorageBarcodeFile'])
-        ->name('warehouse_of_item.storage_barcode');
-
     Route::post('/save_storage/{marketplace_item}', [WarehouseOfItemController::class, 'saveStorage'])
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.save_storage');
