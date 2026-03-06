@@ -328,7 +328,7 @@ class WarehouseOfItemController extends Controller
 
     public function toInspection(MarketplaceOrderItem $marketplace_item)
     {
-        $marketplace_item->status = 12;
+        $marketplace_item->status = 10;
         $marketplace_item->save();
 
         $marketplace_item->marketplaceOrder->status = 9;

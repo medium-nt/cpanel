@@ -522,9 +522,8 @@ class StickerPrintingController extends Controller
             return response()->json(['success' => false, 'message' => 'Товар не найден'], 404);
         }
 
-        // Проверяем, что заказ имеет статус 10 (На разборе)
-        if ($orderItem->marketplaceOrder?->status != 10) {
-            if ($orderItem->marketplaceOrder?->status == 12) {
+        if ($orderItem->status != 10) {
+            if ($orderItem->status == 12) {
                 return response()->json(['success' => false, 'message' => 'Товар уже добавлен на проверку'], 400);
             }
 
@@ -540,8 +539,9 @@ class StickerPrintingController extends Controller
             return response()->json(['success' => false, 'message' => 'Достигнут лимит 5 товаров на проверке'], 400);
         }
 
-        // Меняем статус заказа на 12 (На проверке)
-        $orderItem->marketplaceOrder->update(['status' => 12]);
+        // Меняем статус товара на 12 (На проверке)
+        $orderItem->status = 12;
+        $orderItem->save();
 
         Log::channel('erp')
             ->info('Упаковщик '.session('user_id').' взял товар id: '.$orderItem->id.
