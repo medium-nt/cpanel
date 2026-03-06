@@ -246,6 +246,7 @@
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">Заказ</th>
                             <th scope="col">Товар</th>
                             <th scope="col">Действия</th>
                         </tr>
@@ -255,6 +256,11 @@
                             <tr>
                                 <td class="align-middle">
                                     {{ $item->id }}
+                                </td>
+                                <td class="align-middle">
+                                    <b>
+                                        {{ $item->marketplaceOrder->order_id }}
+                                    </b>
                                 </td>
                                 <td class="align-middle">
                                     <b>
