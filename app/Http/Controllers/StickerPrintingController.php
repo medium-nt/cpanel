@@ -11,8 +11,10 @@ use App\Models\Order;
 use App\Models\ProductSticker;
 use App\Models\Roll;
 use App\Models\Setting;
+use App\Models\Sku;
 use App\Models\User;
 use App\Services\KioskService;
+use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
 use App\Services\UserService;
@@ -513,9 +515,53 @@ class StickerPrintingController extends Controller
             return response()->json(['success' => false, 'message' => 'Штрихкод не передан'], 400);
         }
 
-        // Ищем item по storage_barcode
+        // Обработка OZON FBS (15 символов)
+        if (! is_array($barcode) && mb_strlen(trim($barcode)) == 15) {
+            $barcode = MarketplaceApiService::getOzonPostingNumberByBarcode($barcode);
+        }
+
+        // Обработка OZON возврат (начинается с 'ii')
+        if (! is_array($barcode) && str_starts_with(trim($barcode), 'ii')) {
+            $barcode = MarketplaceApiService::getOzonPostingNumberByReturnBarcode($barcode);
+        }
+
+        $isFBO = false;
+        $fboMarketplaceId = null;
+
+        // Обработка WB FBO (13 символов)
+        if (! is_array($barcode) && mb_strlen(trim($barcode)) == 13) {
+            $sku = trim($barcode);
+            $barcode = Sku::query()->where('sku', $sku)->first()?->item->id ?? '-';
+            $isFBO = true;
+            $fboMarketplaceId = 2; // WB
+        }
+
+        // Обработка OZON FBO (начинается с 'OZN')
+        if (! is_array($barcode) && str_starts_with(trim($barcode), 'OZN')) {
+            $sku = trim($barcode, 'OZN');
+            $barcode = Sku::query()->where('sku', $sku)->first()?->item->id ?? '-';
+            $isFBO = true;
+            $fboMarketplaceId = 1; // Ozon
+        }
+
+        // Ищем item по нескольким полям (как в warehouse_of_item/new_refunds)
+        // товар должен быть в статусе 10
         $orderItem = MarketplaceOrderItem::query()
-            ->where('storage_barcode', $barcode)
+            ->join('marketplace_orders', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+            ->where('marketplace_order_items.status', 10) // На разборе
+            ->where(function ($query) use ($barcode) {
+                $query->where('marketplace_orders.order_id', $barcode)
+                    ->orWhere('marketplace_order_items.storage_barcode', $barcode)
+                    ->orWhere('marketplace_orders.part_b', $barcode)
+                    ->orWhere('marketplace_orders.barcode', $barcode)
+                    ->orWhere('marketplace_items.id', $barcode);
+            })
+            ->when($isFBO, function ($query) use ($fboMarketplaceId) {
+                $query->where('marketplace_orders.fulfillment_type', 'FBO')
+                    ->where('marketplace_orders.marketplace_id', $fboMarketplaceId);
+            })
+            ->select('marketplace_order_items.*')
             ->first();
 
         if (! $orderItem) {
