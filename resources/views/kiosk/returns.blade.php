@@ -219,7 +219,6 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Товар</th>
-                            <th scope="col">Действия</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -234,14 +233,6 @@
                                         {{ $item->item->width }} х
                                         {{ $item->item->height }}
                                     </b>
-                                </td>
-                                <td>
-                                    <a href="{{ route('kiosk.item_card', ['item_id' => $item->id, 'action' => 'repack']) }}"
-                                       class="btn btn-xl btn-success mr-5">Переупаковка</a>
-                                    <a href="{{ route('kiosk.item_card', ['item_id' => $item->id, 'action' => 'replace']) }}"
-                                       class="btn btn-xl btn-warning mr-5">Подмена</a>
-                                    <a href="{{ route('kiosk.item_card', ['item_id' => $item->id, 'action' => 'defect']) }}"
-                                       class="btn btn-xl btn-danger mr-5">Брак</a>
                                 </td>
                             </tr>
                         @empty
