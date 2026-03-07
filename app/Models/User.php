@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @mixin IdeHelperUser
@@ -192,6 +193,10 @@ class User extends Authenticatable
             'cutter' => Setting::getValue('cutter_daily_limit'),
             default => 0,
         };
+
+        Log::channel('work_shift')
+            ->info('Пользователь '.$user->name.' (id: '.$user->id.') смотрел свои смену. Метраж (готовый и в работе): '.
+                $meters.', при лимите в '.$dailyLimit);
 
         if ($meters >= $dailyLimit) {
             return true;
