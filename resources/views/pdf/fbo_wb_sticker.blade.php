@@ -100,8 +100,11 @@
 
     <div class="text">ТЮЛЬ {{ Str::upper($item->title) }}</div>
     <div class="text">Артикул: {{ $article }}</div>
-    <div class="text">Цвет: {{ $color }} / Размер: {{ $item->width }}
-        x{{ $item->height }}</div>
+    <div class="text">Цвет: {{ $color }} / Размер:
+        <b>
+            {{ $item->width }} x {{ $item->height }}
+        </b>
+    </div>
     <div class="text">Страна: {{ $country }}</div>
     <div class="text">Бренд: МЕГАТЮЛЬ
         <span
