@@ -68,6 +68,7 @@ class MarketplaceOrderItemController extends Controller
 
         if ($user->isOtk()) {
             $marketplaceOrderItem->otk_id = $user->id;
+            $marketplaceOrderItem->packed_at = now();
         }
         $marketplaceOrderItem->status = 3;
         $marketplaceOrderItem->completed_at = now();

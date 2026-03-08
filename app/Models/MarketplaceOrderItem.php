@@ -28,6 +28,7 @@ class MarketplaceOrderItem extends Model
         'cutter_id',
         'otk_id',
         'cutting_completed_at',
+        'packed_at',
         'completed_at',
         'created_at',
     ];

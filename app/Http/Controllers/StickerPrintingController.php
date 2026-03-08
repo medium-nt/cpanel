@@ -698,6 +698,7 @@ class StickerPrintingController extends Controller
             $orderItem->update([
                 'status' => 15,
                 'otk_id' => $user->id,
+                'packed_at' => now(),
             ]);
 
             Log::channel('erp')
@@ -780,6 +781,7 @@ class StickerPrintingController extends Controller
                 'seamstress_id' => 0,
                 'cutter_id' => null,
                 'otk_id' => $user->id,
+                'packed_at' => now(),
                 'completed_at' => now()->startOfDay()->subDays(2),
                 'created_at' => Carbon::parse($marketplaceOrder->created_at),
             ]);
