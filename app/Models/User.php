@@ -89,6 +89,11 @@ class User extends Authenticatable
         return $this->hasMany(MarketplaceOrderItem::class, 'cutter_id');
     }
 
+    public function marketplaceOrderItemsByOtk(): HasMany
+    {
+        return $this->hasMany(MarketplaceOrderItem::class, 'otk_id');
+    }
+
     public function adminlte_profile_url(): string
     {
         return '/megatulle/profile';

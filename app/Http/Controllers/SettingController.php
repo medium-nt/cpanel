@@ -210,6 +210,6 @@ class SettingController extends Controller
 
     public static function salary()
     {
-        TransactionService::accrualSeamstressesSalary(true);
+        TransactionService::accrualOtkSalary(true);
     }
 }

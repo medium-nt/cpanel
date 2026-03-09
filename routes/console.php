@@ -51,6 +51,10 @@ Schedule::call(function () {
 })->dailyAt('00:45');
 
 Schedule::call(function () {
+    TransactionService::accrualOtkSalary();
+})->dailyAt('00:55');
+
+Schedule::call(function () {
     MarketplaceSupplyService::deleteOldVideos();
 })->dailyAt('01:00');
 

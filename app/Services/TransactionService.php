@@ -77,18 +77,32 @@ class TransactionService
 
                 $accrualForDate = Carbon::parse($worker->date);
 
-                Transaction::query()->create([
-                    'user_id' => $user->id,
-                    'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
-                    'accrual_for_date' => $accrualForDate->format('Y-m-d'),
-                    'amount' => $user->salary_rate,
-                    'transaction_type' => 'out',
-                    'status' => 1,
-                ]);
+                // если есть зарплата за смену, то ее начисляем
+                if ($user->salary_rate > 0) {
+                    // НО если упаковщик не сделал ни одной упаковку за смену, то ему не начисляем
+                    if ($user->isOtk() && $user->marketplaceOrderItems->count() === 0) {
+                        Log::channel('salary')->warning(
+                            "Зарплата не начислена для {$role['label']} {$user->name}! Сотрудник не сделал ни одной упаковки за смену."
+                        );
+                    } else {
+                        Transaction::query()->create([
+                            'user_id' => $user->id,
+                            'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
+                            'accrual_for_date' => $accrualForDate->format('Y-m-d'),
+                            'amount' => $user->salary_rate,
+                            'transaction_type' => 'out',
+                            'status' => 1,
+                        ]);
 
-                Log::channel('salary')->info(
-                    "Добавили зарплату в размере {$user->salary_rate} рублей для {$role['label']} {$user->name}"
-                );
+                        Log::channel('salary')->info(
+                            "Добавили зарплату в размере {$user->salary_rate} рублей для {$role['label']} {$user->name}"
+                        );
+                    }
+                } else {
+                    Log::channel('salary')->error(
+                        "В карточке {$user->name} {$role['label']} не указана зарплата за смену. Начисление зарплаты не производится."
+                    );
+                }
             }
         }
     }
@@ -224,6 +238,18 @@ class TransactionService
 
         foreach ($cutters as $cutter) {
             self::processAccrual($cutter, $test);
+        }
+
+        dd('end');
+    }
+
+    public static function accrualOtkSalary($test = false): void
+    {
+        // Выбрать всех упаковщиков. По каждому упаковщику выбрать все заказы выполненные за вчера
+        $otks = self::getPackagesWithOrders();
+
+        foreach ($otks as $otk) {
+            self::processAccrual($otk, $test);
         }
 
         dd('end');
@@ -447,17 +473,50 @@ class TransactionService
             ->get();
     }
 
+    private static function getPackagesWithOrders(): Collection
+    {
+        return User::query()
+            ->whereHas('role', fn ($q) => $q->where('name', 'otk'))
+            ->with([
+                'marketplaceOrderItemsByOtk' => fn ($q) => $q
+                    ->whereDate('packed_at', Carbon::yesterday()->format('Y-m-d'))
+                    ->orderBy('packed_at')
+                    ->with('item')])
+            ->get();
+    }
+
     private static function processAccrual(User $user, bool $test): void
     {
-        if ($user->isSeamstress()) {
-            $roleName = 'Швея';
-            $marketplaceOrderItem = $user->marketplaceOrderItems;
-        } else {
-            $roleName = 'Закройщик';
-            $marketplaceOrderItem = $user->marketplaceOrderItemsByCutter;
+        switch ($user->role->name) {
+            case 'seamstress':
+                $roleName = 'Швея';
+                $marketplaceOrderItem = $user->marketplaceOrderItems;
+                break;
+            case 'cutter':
+                $roleName = 'Закройщик';
+                $marketplaceOrderItem = $user->marketplaceOrderItemsByCutter;
+                break;
+            case 'otk':
+                $roleName = 'Сотрудник ОТК';
+                $marketplaceOrderItem = $user->marketplaceOrderItemsByOtk;
+                break;
+            default:
+                $roleName = '---';
+                $marketplaceOrderItem = [];
+                break;
         }
 
         echo "<b>$roleName: $user->name</b><br>";
+
+        if ($user->isOtk() && $user->salary_rate > 0) {
+            $text = 'По метражу зарплата не начисляется, так как у сотрудника '
+                .$user->name.' установлена дневная ставка: '.$user->salary_rate.' руб.';
+
+            Log::channel('salary')->info($text);
+            echo $text.'<br>';
+
+            return;
+        }
 
         $motivations = Motivation::query()
             ->where('user_id', $user->id)
@@ -512,6 +571,10 @@ class TransactionService
             case 'cutter':
                 $accrualForDate = $marketplaceOrderItems->cutting_completed_at;
                 $roleName = 'Закройщик';
+                break;
+            case 'otk':
+                $accrualForDate = $marketplaceOrderItems->packed_at;
+                $roleName = 'Сотрудник ОТК';
                 break;
             default:
                 $accrualForDate = null;
@@ -596,6 +659,9 @@ class TransactionService
                 $nowMotivationBonus = $motivationBonus->not_cutter_bonus ?? 0;
                 $salary = $salaryRate->not_cutter_rate ?? 0;
             }
+        } elseif ($user->isOtk()) {
+            $nowMotivationBonus = 0;
+            $salary = $salaryRate->rate ?? 0;
         } else {
             $nowMotivationBonus = 0;
             $salary = 0;
