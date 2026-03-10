@@ -42,6 +42,9 @@ class StickerPrintingController extends Controller
             'userId' => $request->user_id ?? 0,
             'user' => $user,
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
+            'isOtkOnShift' => User::query()->where('role_id', 5)
+                ->where('shift_is_open', true)
+                ->exists(),
             'seamstresses' => User::query()->where('role_id', 1)
                 ->where('name', 'not like', '%Тест%')
                 ->orderBy('name')

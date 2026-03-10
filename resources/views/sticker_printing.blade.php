@@ -257,6 +257,13 @@
                             </div>
                         </div>
 
+                        @if($isOtkOnShift && !$user->isOtk())
+                            <div class="alert alert-danger">
+                                Самостоятельная стикеровка запрещена, на смене
+                                есть упаковщица!
+                            </div>
+                        @endif
+
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered">
                                 <thead class="thead-dark">
@@ -307,16 +314,18 @@
 
                                     <tr>
                                         <td>
+                                            @if(!$isOtkOnShift || $user->isOtk())
                                                 <button
                                                     onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }}, this)"
                                                     class="btn btn-lg mr-2 d-flex align-items-center justify-content-center
-                                                        @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                    @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
                                                     id="print_{{ $orderId }}">
                                                     <i class="fas fa-barcode fa-2x barcode-icon"></i>
                                                     <span
                                                         class="spinner-border spinner-border-sm d-none ms-0 print-spinner"
                                                         role="status"></span>
                                                 </button>
+                                            @endif
                                         </td>
                                         <td class="td_style">
                                             {{ $item->seamstress->name }}
@@ -333,6 +342,7 @@
                                                  alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                         </td>
                                         <td class="td_style">
+                                            @if(!$isOtkOnShift || $user->isOtk())
                                             <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
                                                   method="POST">
                                                 @csrf
@@ -344,6 +354,7 @@
                                                     <i class="fas fa-check fa-2x"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
