@@ -30,42 +30,22 @@ class StickerPrintingController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->filled('barcode')) {
-            $user = UserService::getUserByBarcode($request->barcode);
+        $user = User::query()->find(session('user_id'));
 
-            if (! $user) {
-                return redirect()
-                    ->route('sticker_printing')
-                    ->with('error', 'Пользователь не найден');
-            }
-
-            $query = $request->except('barcode');
-            $query['user_id'] = $user->id;
-
-            return redirect()->route('sticker_printing', $query);
-        }
-
-        $workShift = [];
-        if ($request->filled('user_id')) {
-            $user = User::query()->find($request->user_id);
-
-            $workShift = [
-                'shift_is_open' => $user->shift_is_open,
-                'start' => $user->actual_start_work_shift,
-                'end' => $user->end_work_shift,
-            ];
+        if (! $user) {
+            return redirect()
+                ->route('kiosk');
         }
 
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
             'userId' => $request->user_id ?? 0,
-            'user' => $user ?? null,
+            'user' => $user,
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
-            'users' => User::query()->whereIn('role_id', [1, 2, 4, 5])
+            'seamstresses' => User::query()->where('role_id', 1)
                 ->where('name', 'not like', '%Тест%')
                 ->orderBy('name')
                 ->get(),
-            'workShift' => $workShift,
         ]);
     }
 

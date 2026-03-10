@@ -58,53 +58,6 @@
 
                 <x-confirm-reprint-modal/>
 
-                {{--                <div class="card">--}}
-                {{--                    <div class="row mt-3 ml-1 mr-1">--}}
-                {{--                        <div class="form-group col-md-1 mr-5">--}}
-                {{--                            <a class="btn btn-primary btn-lg" href="{{ route('sticker_printing') }}">Обновить</a>--}}
-                {{--                        </div>--}}
-                {{--                        <div class="form-group col-md-1 ml-3">--}}
-                {{--                            <a class="btn btn-outline-primary btn-lg" href="#" onclick="window.location.reload()">--}}
-                {{--                                <i class="fas fa-sync"></i>--}}
-                {{--                            </a>--}}
-                {{--                        </div>--}}
-
-                {{--                        <div class="form-group col-md-2">--}}
-                {{--                            <a class="btn btn-outline-primary btn-lg" href="#" data-toggle="modal" data-target="#barcodeModal">--}}
-                {{--                                <i class="fas fa-barcode"></i>--}}
-                {{--                            </a>--}}
-                {{--                        </div>--}}
-
-                {{--                        <x-modal-scan-barcode-component/>--}}
-
-                {{--                        <x-modal-work-shift-component :userId="$userId"/>--}}
-
-                {{--                        <div class="form-group col-md-3">--}}
-                {{--                            @if($workShift)--}}
-                {{--                                @if(!$workShift['shift_is_open'])--}}
-                {{--                                <a class="btn btn-success btn-lg" href="#" data-toggle="modal" data-target="#workShiftModal">--}}
-                {{--                                    Открыть смену--}}
-                {{--                                </a>--}}
-                {{--                                @else--}}
-                {{--                                <div class="row">--}}
-                {{--                                    <div class="col-6">--}}
-                {{--                                        Начало смены: {{ Carbon\Carbon::parse($workShift['start'])->format('H:i') }} <br>--}}
-                {{--                                        Конец смены: {{ Carbon\Carbon::parse($workShift['end'])->format('H:i') }}--}}
-                {{--                                    </div>--}}
-                {{--                                    @if($workShift['end'] < Carbon\Carbon::now())--}}
-                {{--                                    <div class="col-6">--}}
-                {{--                                        <a class="btn btn-warning btn-lg" href="#" data-toggle="modal" data-target="#workShiftModal">--}}
-                {{--                                            Закрыть смену--}}
-                {{--                                        </a>--}}
-                {{--                                    </div>--}}
-                {{--                                    @endif--}}
-                {{--                                </div>--}}
-                {{--                                @endif--}}
-                {{--                            @endif--}}
-                {{--                        </div>--}}
-                {{--                    </div>--}}
-                {{--                </div>--}}
-
                 @if($items->isNotEmpty() || $userId != 0)
                     <div class="card">
                     <div class="card-body">
@@ -263,6 +216,26 @@
                                 </select>
                             </div>
 
+                            @if($user?->isOtk())
+                                <div class="form-group col-md-2">
+                                    <select name="seamstress_id"
+                                            id="seamstress_id"
+                                            class="form-control form-control-lg"
+                                            onchange="updatePageWithQueryParam(this)"
+                                            required>
+                                        <option value="" selected disabled>
+                                            Выберите швею
+                                        </option>
+                                        @foreach($seamstresses as $seamstress)
+                                            <option
+                                                value="{{ $seamstress->id }}"
+                                                @if(request('seamstress_id') == $seamstress->id) selected @endif
+                                            >{{ $seamstress->short_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
                             <div class="form-group col-md-3">
                                 <select name="marketplace_id"
                                         id="marketplace_id"
@@ -282,26 +255,6 @@
                                     </option>
                                 </select>
                             </div>
-
-                            @if($user?->isOtk())
-                                <div class="form-group col-md-2">
-                                    <select name="user_id"
-                                            id="user_id"
-                                            class="form-control form-control-lg"
-                                            onchange="updatePageWithQueryParam(this)"
-                                            required>
-                                        <option value="" selected disabled>
-                                            Выберите
-                                            сотрудника
-                                        </option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user->id }}"
-                                                    @if(request('user_id') == $user->id) selected @endif
-                                            >{{ $user->short_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            @endif
                         </div>
 
                         <div class="table-responsive">
@@ -444,7 +397,7 @@
         }
 
         setupModalFocus('barcodeModal', 'barcodeInput');
-        setupModalFocus('workShiftModal', 'workShiftInput');
+        // setupModalFocus('workShiftModal', 'workShiftInput');
 
         <?php if (session('error')) { ?>
         toastr.error("<?= session('error') ?>");

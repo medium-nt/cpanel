@@ -349,16 +349,6 @@ class MarketplaceOrderItemService
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
             ->select('marketplace_order_items.*');
 
-        if ($request->has('user_id')) {
-            $user = User::find($request->user_id);
-
-            if ($user && ! $user->isOtk() && ! $user->isAdmin()) {
-                $items = $items->where('marketplace_order_items.seamstress_id', $request->user_id);
-            }
-        } else {
-            $items = $items->where('marketplace_order_items.seamstress_id', 0);
-        }
-
         if ($request->has('marketplace_id')) {
             $items = $items->where('marketplace_orders.marketplace_id', $request->marketplace_id);
         }
@@ -367,6 +357,12 @@ class MarketplaceOrderItemService
             ->where('marketplace_items.title', $request->material ?? '')
             ->where('marketplace_items.height', $request->height ?? 0)
             ->where('marketplace_items.width', $request->width ?? 0);
+
+        $user = User::find($request->user_id ?? 0);
+        if ($user && ($user->isOtk() || $user->isAdmin())) {
+            $items = $items
+                ->where('marketplace_order_items.seamstress_id', $request->seamstress_id ?? 0);
+        }
 
         return $items->get();
     }
