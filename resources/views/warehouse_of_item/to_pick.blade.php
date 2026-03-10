@@ -106,7 +106,8 @@
                 Полки:
                 @foreach($shelfStats as $item)
                     <li>
-                        {{ $item->shelf->title }} - {{ $item->quantity }} шт.
+                        {{ $item->shelf->title ?? '---' }}
+                        - {{ $item->quantity }} шт.
                     </li>
                 @endforeach
             </div>
