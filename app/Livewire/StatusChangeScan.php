@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\MarketplaceOrderItem;
+use App\Models\Shelf;
 use App\Models\StatusMovement;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
@@ -27,6 +28,10 @@ class StatusChangeScan extends Component
 
     public string $statusClass = 'alert-secondary';
 
+    public int $selectedShelfId = 0;
+
+    public Collection $shelves;
+
     public function mount(): void
     {
         $this->fromStatus = (int) request('from', 0);
@@ -34,6 +39,10 @@ class StatusChangeScan extends Component
         $this->pageTitle = request('title', 'Сканирование товаров');
 
         $this->loadItems();
+
+        if ($this->isStorageScenario()) {
+            $this->loadShelves();
+        }
     }
 
     public function render(): View
@@ -46,6 +55,16 @@ class StatusChangeScan extends Component
         $this->items = MarketplaceOrderItem::with(['item'])
             ->where('status', $this->fromStatus)
             ->get();
+    }
+
+    protected function isStorageScenario(): bool
+    {
+        return $this->fromStatus === 18 && $this->toStatus === 11;
+    }
+
+    protected function loadShelves(): void
+    {
+        $this->shelves = Shelf::orderBy('title')->get();
     }
 
     public function handleScan(): void
@@ -110,6 +129,13 @@ class StatusChangeScan extends Component
             return;
         }
 
+        // Валидация выбора полки для сценария размещения на склад
+        if ($this->isStorageScenario() && $this->selectedShelfId === 0) {
+            $this->setStatus('Выберите полку для размещения товаров', 'warn');
+
+            return;
+        }
+
         $count = 0;
         $changedItemIds = [];
 
@@ -117,6 +143,10 @@ class StatusChangeScan extends Component
             $orderItem = MarketplaceOrderItem::find($itemData['id']);
 
             if ($orderItem && $orderItem->status === $this->fromStatus) {
+                // Сохраняем shelf_id только для сценария размещения
+                if ($this->isStorageScenario()) {
+                    $orderItem->shelf_id = $this->selectedShelfId;
+                }
                 $orderItem->status = $this->toStatus;
                 $orderItem->save();
                 $changedItemIds[] = $orderItem->id;
@@ -131,7 +161,7 @@ class StatusChangeScan extends Component
 
             Log::channel('erp')->info(
                 'Кладовщик '.auth()->user()->name.
-                "на странице '{$this->pageTitle}' отсканировал товары: {$itemsList}".
+                " на странице '{$this->pageTitle}' отсканировал товары: {$itemsList}".
                 " (статус: {$toStatusName})"
             );
         }

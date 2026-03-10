@@ -16,6 +16,30 @@
         </div>
     </div>
 
+    {{-- Выбор полки - только для сценария размещения на склад --}}
+    @if($fromStatus === 18 && $toStatus === 11)
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <label class="form-label mb-0">Полка для
+                            размещения:</label>
+                    </div>
+                    <div class="col-md-3">
+                        <select wire:model.live="selectedShelfId"
+                                class="form-control">
+                            <option value="0">-- Выберите полку --</option>
+                            @foreach($shelves as $shelf)
+                                <option
+                                    value="{{ $shelf->id }}">{{ $shelf->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Поле сканирования --}}
     <div class="card">
         <div class="card-body">
