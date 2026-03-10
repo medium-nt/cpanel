@@ -44,7 +44,7 @@ class MarketplaceOrderItemController extends Controller
             'items' => $paginatedItems->appends($queryParams),
             //            'materials' => InventoryService::materialsQuantityBy('workhouse'),
             'bonus' => TransactionService::getBonusForTodayOrdersByUsers(),
-            'users' => User::query()->whereIn('role_id', [1, 4])
+            'users' => User::query()->whereIn('role_id', [1, 4, 5])
                 ->where('name', 'not like', '%Тест%')->get(),
             'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
             'widthMaterials' => MarketplaceItemService::getAllWidthMaterials(),

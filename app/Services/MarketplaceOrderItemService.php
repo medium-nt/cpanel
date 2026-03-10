@@ -71,7 +71,8 @@ class MarketplaceOrderItemService
         if ($request->has('user_id') && $status != 'new') {
             $items = $items->where(function ($query) use ($request) {
                 $query->where('marketplace_order_items.seamstress_id', $request->user_id)
-                    ->orWhere('marketplace_order_items.cutter_id', $request->user_id);
+                    ->orWhere('marketplace_order_items.cutter_id', $request->user_id)
+                    ->orWhere('marketplace_order_items.otk_id', $request->user_id);
             });
         }
 
