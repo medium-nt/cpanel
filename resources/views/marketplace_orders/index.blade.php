@@ -115,6 +115,14 @@
                                             {{ $order->created_at->diffForHumans(['parts' => 2]) }}
                                         </badge>
                                     </div>
+                                    @if($order->completed_at)
+                                        <div class="mt-2">
+                                            <small class="mr-2">
+                                                Выполнен:
+                                                <b> {{ now()->parse($order->completed_at)->format('d/m/Y H:i') }}</b>
+                                            </small>
+                                        </div>
+                                    @endif
                                     @if(request()->status == 3)
                                         <td>
                                             @isset($order->supply_id)
