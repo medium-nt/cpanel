@@ -21,15 +21,17 @@
                         <a href="{{ route('marketplace_api.check_cancelled') }}" class="btn btn-warning mr-3 mb-3">Проверить отмененные заказы</a>
                     @endif
 
-                    <a href="{{ route('marketplace_orders.index', ['status' => 0, 'marketplace_id' => request('marketplace_id')]) }}"
+                        <a href="{{ route('marketplace_orders.index', ['status' => 0, 'marketplace_id' => request('marketplace_id'), 'fulfillment_type' => request('fulfillment_type'), 'cluster' => request('cluster')]) }}"
                        class="btn btn-link mr-3 mb-3">Новые заказы</a>
 
-                    <a href="{{ route('marketplace_orders.index', ['status' => 6, 'marketplace_id' => request('marketplace_id')]) }}"
+                        <a href="{{ route('marketplace_orders.index', ['status' => 6, 'marketplace_id' => request('marketplace_id'), 'fulfillment_type' => request('fulfillment_type'), 'cluster' => request('cluster')]) }}"
                        class="btn btn-link mr-3 mb-3">На поставку</a>
 
-                        <a href="{{ route('marketplace_orders.index', ['status' => 3, 'marketplace_id' => request('marketplace_id')]) }}"
+                        <a href="{{ route('marketplace_orders.index', ['status' => 3, 'marketplace_id' => request('marketplace_id'), 'fulfillment_type' => request('fulfillment_type'), 'cluster' => request('cluster')]) }}"
                            class="btn btn-link mr-3 mb-3">Выполненные</a>
+                </div>
 
+                <div class="row">
                     <div class="form-group col-md-2">
                         <select name="marketplace_id"
                                 id="marketplace_id"
@@ -42,23 +44,215 @@
                         </select>
                     </div>
 
-                        <div class="form-group col-md-2">
-                            <select name="fulfillment_type"
-                                    id="fulfillment_type"
-                                    class="form-control"
-                                    onchange="updatePageWithQueryParam(this)"
-                                    required>
-                                <option value="" selected>---</option>
-                                <option value="fbo"
-                                        @if(request()->get('fulfillment_type') == 'fbo') selected @endif>
-                                    FBO
-                                </option>
-                                <option value="fbs"
-                                        @if(request()->get('fulfillment_type') == 'fbs') selected @endif>
-                                    FBS
-                                </option>
-                            </select>
-                        </div>
+                    <div class="form-group col-md-2">
+                        <select name="fulfillment_type"
+                                id="fulfillment_type"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option value="" selected>---</option>
+                            <option value="fbo"
+                                    @if(request()->get('fulfillment_type') == 'fbo') selected @endif>
+                                FBO
+                            </option>
+                            <option value="fbs"
+                                    @if(request()->get('fulfillment_type') == 'fbs') selected @endif>
+                                FBS
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        {{-- OZON кластеры --}}
+                        <select name="cluster"
+                                id="cluster_ozon"
+                                class="form-control cluster-select"
+                                style="display: none;"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">---</option>
+                            <option value="Алматы"
+                                    @if(request()->get('cluster') == 'Алматы') selected @endif>
+                                Алматы
+                            </option>
+                            <option value="Астана"
+                                    @if(request()->get('cluster') == 'Астана') selected @endif>
+                                Астана
+                            </option>
+                            <option value="Беларусь"
+                                    @if(request()->get('cluster') == 'Беларусь') selected @endif>
+                                Беларусь
+                            </option>
+                            <option value="Воронеж"
+                                    @if(request()->get('cluster') == 'Воронеж') selected @endif>
+                                Воронеж
+                            </option>
+                            <option value="Дальний Восток"
+                                    @if(request()->get('cluster') == 'Дальний Восток') selected @endif>
+                                Дальний Восток
+                            </option>
+                            <option value="Екатеринбург"
+                                    @if(request()->get('cluster') == 'Екатеринбург') selected @endif>
+                                Екатеринбург
+                            </option>
+                            <option value="Казань"
+                                    @if(request()->get('cluster') == 'Казань') selected @endif>
+                                Казань
+                            </option>
+                            <option value="Калининград"
+                                    @if(request()->get('cluster') == 'Калининград') selected @endif>
+                                Калининград
+                            </option>
+                            <option value="Краснодар"
+                                    @if(request()->get('cluster') == 'Краснодар') selected @endif>
+                                Краснодар
+                            </option>
+                            <option value="Красноярск"
+                                    @if(request()->get('cluster') == 'Красноярск') selected @endif>
+                                Красноярск
+                            </option>
+                            <option value="Махачкала"
+                                    @if(request()->get('cluster') == 'Махачкала') selected @endif>
+                                Махачкала
+                            </option>
+                            <option value="Москва, МО и Дальние регионы"
+                                    @if(request()->get('cluster') == 'Москва, МО и Дальние регионы') selected @endif>
+                                Москва, МО и Дальние регионы
+                            </option>
+                            <option value="Невинномысск"
+                                    @if(request()->get('cluster') == 'Невинномысск') selected @endif>
+                                Невинномысск
+                            </option>
+                            <option value="Новосибирск"
+                                    @if(request()->get('cluster') == 'Новосибирск') selected @endif>
+                                Новосибирск
+                            </option>
+                            <option value="Омск"
+                                    @if(request()->get('cluster') == 'Омск') selected @endif>
+                                Омск
+                            </option>
+                            <option value="Оренбург"
+                                    @if(request()->get('cluster') == 'Оренбург') selected @endif>
+                                Оренбург
+                            </option>
+                            <option value="Пермь"
+                                    @if(request()->get('cluster') == 'Пермь') selected @endif>
+                                Пермь
+                            </option>
+                            <option value="Ростов"
+                                    @if(request()->get('cluster') == 'Ростов') selected @endif>
+                                Ростов
+                            </option>
+                            <option value="Самара"
+                                    @if(request()->get('cluster') == 'Самара') selected @endif>
+                                Самара
+                            </option>
+                            <option value="Санкт-Петербург и СЗО"
+                                    @if(request()->get('cluster') == 'Санкт-Петербург и СЗО') selected @endif>
+                                Санкт-Петербург и СЗО
+                            </option>
+                            <option value="Саратов"
+                                    @if(request()->get('cluster') == 'Саратов') selected @endif>
+                                Саратов
+                            </option>
+                            <option value="Тверь"
+                                    @if(request()->get('cluster') == 'Тверь') selected @endif>
+                                Тверь
+                            </option>
+                            <option value="Тюмень"
+                                    @if(request()->get('cluster') == 'Тюмень') selected @endif>
+                                Тюмень
+                            </option>
+                            <option value="Уфа"
+                                    @if(request()->get('cluster') == 'Уфа') selected @endif>
+                                Уфа
+                            </option>
+                            <option value="Ярославль"
+                                    @if(request()->get('cluster') == 'Ярославль') selected @endif>
+                                Ярославль
+                            </option>
+                        </select>
+
+                        {{-- WB кластеры --}}
+                        <select name="cluster"
+                                id="cluster_wb"
+                                class="form-control cluster-select"
+                                style="display: none;"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">---</option>
+                            <option value="Алексин (Тула)"
+                                    @if(request()->get('cluster') == 'Алексин (Тула)') selected @endif>
+                                Алексин (Тула)
+                            </option>
+                            <option value="Владимир (Воршинское)"
+                                    @if(request()->get('cluster') == 'Владимир (Воршинское)') selected @endif>
+                                Владимир (Воршинское)
+                            </option>
+                            <option value="Волгоград"
+                                    @if(request()->get('cluster') == 'Волгоград') selected @endif>
+                                Волгоград
+                            </option>
+                            <option value="Екатеринбург (Испытателей)"
+                                    @if(request()->get('cluster') == 'Екатеринбург (Испытателей)') selected @endif>
+                                Екатеринбург (Испытателей)
+                            </option>
+                            <option value="Екатеринбург (Перспективный)"
+                                    @if(request()->get('cluster') == 'Екатеринбург (Перспективный)') selected @endif>
+                                Екатеринбург (Перспективный)
+                            </option>
+                            <option value="Казань"
+                                    @if(request()->get('cluster') == 'Казань') selected @endif>
+                                Казань
+                            </option>
+                            <option value="Коледино"
+                                    @if(request()->get('cluster') == 'Коледино') selected @endif>
+                                Коледино
+                            </option>
+                            <option value="Котовск"
+                                    @if(request()->get('cluster') == 'Котовск') selected @endif>
+                                Котовск
+                            </option>
+                            <option value="Краснодар"
+                                    @if(request()->get('cluster') == 'Краснодар') selected @endif>
+                                Краснодар
+                            </option>
+                            <option value="Невинномысск"
+                                    @if(request()->get('cluster') == 'Невинномысск') selected @endif>
+                                Невинномысск
+                            </option>
+                            <option value="Нижний Новгород"
+                                    @if(request()->get('cluster') == 'Нижний Новгород') selected @endif>
+                                Нижний Новгород
+                            </option>
+                            <option value="Новосибирск(Петухова)"
+                                    @if(request()->get('cluster') == 'Новосибирск(Петухова)') selected @endif>
+                                Новосибирск(Петухова)
+                            </option>
+                            <option value="Рязань"
+                                    @if(request()->get('cluster') == 'Рязань') selected @endif>
+                                Рязань
+                            </option>
+                            <option value="Самара (Новосемейкино)"
+                                    @if(request()->get('cluster') == 'Самара (Новосемейкино)') selected @endif>
+                                Самара (Новосемейкино)
+                            </option>
+                            <option value="Санкт-Петербург(Уткина Заводь)"
+                                    @if(request()->get('cluster') == 'Санкт-Петербург(Уткина Заводь)') selected @endif>
+                                Санкт-Петербург(Уткина Заводь)
+                            </option>
+                            <option value="Санкт-Петербург(Шушары)"
+                                    @if(request()->get('cluster') == 'Санкт-Петербург(Шушары)') selected @endif>
+                                Санкт-Петербург(Шушары)
+                            </option>
+                            <option value="Сарапул"
+                                    @if(request()->get('cluster') == 'Сарапул') selected @endif>
+                                Сарапул
+                            </option>
+                            <option value="Электросталь"
+                                    @if(request()->get('cluster') == 'Электросталь') selected @endif>
+                                Электросталь
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
             </div>
@@ -281,8 +475,55 @@
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
     <link href="{{ asset('css/badges.css') }}" rel="stylesheet"/>
+    <link
+        href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+        rel="stylesheet"/>
+    <link href="{{ asset('css/marketplace_orders.css') }}" rel="stylesheet"/>
 @endpush
 
 @push('js')
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const marketplaceSelect = $('#marketplace_id');
+            const fulfillmentTypeSelect = $('#fulfillment_type');
+            const clusterOzon = $('#cluster_ozon');
+            const clusterWb = $('#cluster_wb');
+
+            // Инициализируем Select2 для кластеров
+            clusterOzon.select2({width: '100%'});
+            clusterWb.select2({width: '100%'});
+
+            // Сначала скрываем оба Select2 контейнера
+            clusterOzon.next('.select2').hide();
+            clusterWb.next('.select2').hide();
+
+            function toggleClusters() {
+                const marketplaceId = marketplaceSelect.val();
+                const fulfillmentType = fulfillmentTypeSelect.val();
+
+                // Скрываем оба Select2 контейнера
+                clusterOzon.next('.select2').hide();
+                clusterWb.next('.select2').hide();
+
+                // Показываем только если выбран FBO и маркетплейс
+                if (fulfillmentType === 'fbo' && marketplaceId) {
+                    if (marketplaceId == 1) { // OZON
+                        clusterOzon.next('.select2').show();
+                    } else if (marketplaceId == 2) { // WB
+                        clusterWb.next('.select2').show();
+                    }
+                }
+            }
+
+            // Инициализация при загрузке
+            toggleClusters();
+
+            // Переключение маркетплейса или типа
+            marketplaceSelect.on('change', toggleClusters);
+            fulfillmentTypeSelect.on('change', toggleClusters);
+        });
+    </script>
 @endpush
