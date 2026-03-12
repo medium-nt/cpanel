@@ -565,7 +565,7 @@
                             <div class="card-body">
                                 <b>{{ $item->marketplaceOrder->order_id }} </b>
                                 <b> {{ $item->marketplaceOrder->fulfillment_type }}</b><br>
-                                @if($item->marketplaceOrder->fulfillment_type === 'FBS')
+                                @if($item->marketplaceOrder->fulfillment_type === 'FBO')
                                     <b>Кластер: {{ $item->marketplaceOrder->cluster ?? '---' }} </b>
                                     <br>
                                 @endif
