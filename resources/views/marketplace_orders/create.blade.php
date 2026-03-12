@@ -39,7 +39,7 @@
                                        class="form-control @error('order_id') is-invalid @enderror"
                                        id="order_id"
                                        name="order_id"
-                                       placeholder=""
+                                       maxlength="15"
                                        value="{{ old('order_id') }}"
                                        required>
                             </div>
