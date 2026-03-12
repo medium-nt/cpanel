@@ -12,6 +12,16 @@
           href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
+
+    <style>
+        .content {
+            overflow-y: auto;
+        }
+
+        .container-fluid {
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
 <div class="wrapper">
@@ -127,10 +137,10 @@
                         </thead>
                         <tbody>
                         @forelse ($processedItems ?? [] as $item)
-                            <tr>
+                            <tr style="font-size: 18px;">
                                 <td class="align-middle">{{ $item->id }}</td>
                                 <td class="align-middle">
-                                    <b>
+                                    <b style="color: #FF8C00;">
                                         {{ $item->marketplaceOrder->order_id }}
                                     </b>
                                 </td>
