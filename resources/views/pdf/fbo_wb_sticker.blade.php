@@ -76,9 +76,8 @@
             font-family: DejaVu Sans, sans-serif;
             font-size: 6px;
             margin-right: 5px;
-            margin-top: 2px;
+            margin-top: 3px;
             line-height: 0.8;
-            float: right;
         }
     </style>
 </head>
@@ -114,12 +113,18 @@
     </div>
 
     <div class="footer">
-        <b>
-            @isset($cutterId)
-                закройщик № {{ $cutterId }} |
-            @endisset
-            швея № {{ $seamstressId ?? '0' }}
-        </b>
+        <span style="font-weight: bold; font-size: 8px">
+            {{ $order->order_id }}
+        </span>
+
+        <span style="float:right; margin-top: 2px;">
+            <b>
+                @isset($cutterId)
+                    закройщик № {{ $cutterId }} |
+                @endisset
+                швея № {{ $seamstressId ?? '0' }}
+            </b>
+        </span>
     </div>
 </div>
 </body>
