@@ -290,6 +290,9 @@
                                 заказа
                             </th>
                             <th style="text-align: center" scope="col">
+                                Кластер
+                            </th>
+                            <th style="text-align: center" scope="col">
                                 Название
                             </th>
                             <th style="text-align: center" scope="col">Ширина
@@ -345,6 +348,7 @@
                                         </a>
                                     @endif
                                 </td>
+                                <td style="text-align: center">{{ $item->marketplaceOrder->cluster }}</td>
                                 <td style="text-align: center">{{ $item->item->title }}</td>
                                 <td style="text-align: center">{{ $item->item->width }}</td>
                                 <td style="text-align: center">{{ $item->item->height }}</td>
@@ -561,6 +565,10 @@
                             <div class="card-body">
                                 <b>{{ $item->marketplaceOrder->order_id }} </b>
                                 <b> {{ $item->marketplaceOrder->fulfillment_type }}</b><br>
+                                @if($item->marketplaceOrder->fulfillment_type === 'FBS')
+                                    <b>Кластер: {{ $item->marketplaceOrder->cluster ?? '---' }} </b>
+                                    <br>
+                                @endif
                                 <span
                                     class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
                                 <br>
