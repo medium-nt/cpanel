@@ -365,6 +365,10 @@
                                             <b>Закройщик:</b> {{ $item->cutter?->shortName }}
                                             <br>
                                         @endif
+                                            @if($item->otk_id)
+                                                <b>Упаковщик:</b> {{ $item->otk?->shortName }}
+                                                <br>
+                                            @endif
                                         @if($item->seamstress_id)
                                             <b>Швея:</b> {{ $item->seamstress?->shortName }}
                                         @endif
@@ -581,6 +585,12 @@
                                 @isset($item->seamstress)
                                     <small>Швея:
                                         <b>{{ $item->seamstress->shortName ?? '' }}</b>
+                                    </small>
+                                @endisset
+                                @isset($item->otk_id)
+                                    <br>
+                                    <small>Упаковщик:
+                                        <b>{{ $item->otk->shortName ?? '' }}</b>
                                     </small>
                                 @endisset
                                 <div class="my-2">

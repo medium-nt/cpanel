@@ -60,6 +60,11 @@ class MarketplaceOrderItem extends Model
         return $this->hasOne(User::class, 'id', 'cutter_id')->withTrashed();
     }
 
+    public function otk(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'otk_id')->withTrashed();
+    }
+
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status];
