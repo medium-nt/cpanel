@@ -212,4 +212,11 @@ class SettingController extends Controller
     {
         TransactionService::accrualOtkSalary(true);
     }
+
+    public function tariffs()
+    {
+        return view('settings.tariffs', [
+            'title' => 'Тарифы сотрудников',
+        ]);
+    }
 }

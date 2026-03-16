@@ -23,4 +23,8 @@ Route::prefix('/setting')->group(function () {
     Route::get('duplicates', [SettingController::class, 'duplicates'])
         ->can('update', Setting::class)
         ->name('setting.duplicates');
+
+    Route::get('tariffs', [SettingController::class, 'tariffs'])
+        ->can('viewAny', Setting::class)
+        ->name('setting.tariffs');
 });
