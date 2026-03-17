@@ -429,6 +429,11 @@ return [
                     'url' => 'megatulle/marketplace_order_items',
                     'icon' => 'fas fa-fw fa-stream',
                 ],
+                //                [
+                //                    'text' => 'barcode_search',
+                //                    'url' => 'megatulle/barcode_search',
+                //                    'icon' => 'fas fa-fw fa-barcode',
+                //                ],
             ],
         ],
         [

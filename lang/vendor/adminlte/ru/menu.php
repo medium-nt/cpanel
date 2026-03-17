@@ -52,4 +52,5 @@ return [
     'rolls' => 'Рулоны',
     'ozon-returns' => 'Получение возвратов',
     'ozon_returns_products' => 'Возвраты OZON',
+    'barcode_search' => 'Поиск по штрихкоду',
 ];

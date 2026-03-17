@@ -76,6 +76,7 @@ Route::prefix('megatulle')
         require base_path('routes/marketplace_items.php');
         require base_path('routes/marketplace_orders.php');
         require base_path('routes/marketplace_order_items.php');
+        require base_path('routes/barcode_search.php');
         require base_path('routes/material_consumption.php');
         require base_path('routes/defect_materials.php');
         //        require base_path('routes/salary.php');
