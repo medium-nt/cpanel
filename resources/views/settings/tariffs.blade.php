@@ -34,7 +34,8 @@
                             <div class="col-md-3">
                                 <select
                                     class="form-control measurement-type-select">
-                                    <option value="" selected>-----</option>
+                                    <option value="" selected>-не начислять-
+                                    </option>
                                     <option value="per_meter">за пог.метр
                                     </option>
                                     <option value="per_piece">за штуку</option>
@@ -50,38 +51,15 @@
                                             <thead>
                                             <tr>
                                                 <th>Материал</th>
-                                                <th width="80">200</th>
-                                                <th width="80">300</th>
-                                                <th width="80">400</th>
-                                                <th width="80">500</th>
-                                                <th width="80">600</th>
-                                                <th width="80">700</th>
-                                                <th width="80">800</th>
+                                                <th width="120">до 10 п.м.</th>
+                                                <th width="120">до 100 п.м.</th>
+                                                <th width="120">до 1000 п.м.
+                                                </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <td>Бамбук</td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                                 <td><input type="number"
                                                            class="form-control form-control-sm"
                                                            placeholder="0"
@@ -115,26 +93,6 @@
                                                            placeholder="0"
                                                            style="padding: 2px 5px; height: 28px;">
                                                 </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Вуаль</td>
@@ -153,49 +111,9 @@
                                                            placeholder="0"
                                                            style="padding: 2px 5px; height: 28px;">
                                                 </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Мрамор</td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                                 <td><input type="number"
                                                            class="form-control form-control-sm"
                                                            placeholder="0"
@@ -404,7 +322,8 @@
                             <div class="col-md-3">
                                 <select
                                     class="form-control measurement-type-select">
-                                    <option value="" selected>-----</option>
+                                    <option value="" selected>-не начислять-
+                                    </option>
                                     <option value="per_meter">за пог.метр
                                     </option>
                                     <option value="per_piece">за штуку</option>
@@ -420,38 +339,15 @@
                                             <thead>
                                             <tr>
                                                 <th>Материал</th>
-                                                <th width="80">200</th>
-                                                <th width="80">300</th>
-                                                <th width="80">400</th>
-                                                <th width="80">500</th>
-                                                <th width="80">600</th>
-                                                <th width="80">700</th>
-                                                <th width="80">800</th>
+                                                <th width="120">до 10 п.м.</th>
+                                                <th width="120">до 100 п.м.</th>
+                                                <th width="120">до 1000 п.м.
+                                                </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <td>Бамбук</td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                                 <td><input type="number"
                                                            class="form-control form-control-sm"
                                                            placeholder="0"
@@ -485,26 +381,6 @@
                                                            placeholder="0"
                                                            style="padding: 2px 5px; height: 28px;">
                                                 </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Вуаль</td>
@@ -523,49 +399,9 @@
                                                            placeholder="0"
                                                            style="padding: 2px 5px; height: 28px;">
                                                 </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Мрамор</td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                                 <td><input type="number"
                                                            class="form-control form-control-sm"
                                                            placeholder="0"
@@ -774,7 +610,8 @@
                             <div class="col-md-3">
                                 <select
                                     class="form-control measurement-type-select">
-                                    <option value="" selected>-----</option>
+                                    <option value="" selected>-не начислять-
+                                    </option>
                                     <option value="per_meter">за пог.метр
                                     </option>
                                     <option value="per_piece">за штуку</option>
@@ -790,38 +627,15 @@
                                             <thead>
                                             <tr>
                                                 <th>Материал</th>
-                                                <th width="80">200</th>
-                                                <th width="80">300</th>
-                                                <th width="80">400</th>
-                                                <th width="80">500</th>
-                                                <th width="80">600</th>
-                                                <th width="80">700</th>
-                                                <th width="80">800</th>
+                                                <th width="120">до 10 п.м.</th>
+                                                <th width="120">до 100 п.м.</th>
+                                                <th width="120">до 1000 п.м.
+                                                </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <td>Бамбук</td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                                 <td><input type="number"
                                                            class="form-control form-control-sm"
                                                            placeholder="0"
@@ -855,26 +669,6 @@
                                                            placeholder="0"
                                                            style="padding: 2px 5px; height: 28px;">
                                                 </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Вуаль</td>
@@ -893,49 +687,9 @@
                                                            placeholder="0"
                                                            style="padding: 2px 5px; height: 28px;">
                                                 </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Мрамор</td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
-                                                <td><input type="number"
-                                                           class="form-control form-control-sm"
-                                                           placeholder="0"
-                                                           style="padding: 2px 5px; height: 28px;">
-                                                </td>
                                                 <td><input type="number"
                                                            class="form-control form-control-sm"
                                                            placeholder="0"
