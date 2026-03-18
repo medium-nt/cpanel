@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MotivationUpdateUsersRequest;
 use App\Http\Requests\RateUpdateUsersRequest;
 use App\Http\Requests\StoreUsersRequest;
+use App\Http\Requests\TariffsUpdateRequest;
 use App\Models\Material;
 use App\Models\Motivation;
+use App\Models\Tariff;
 use App\Models\User;
+use App\Models\UserTariff;
 use App\Services\ScheduleService;
 use App\Services\TgService;
 use App\Services\UserService;
@@ -48,15 +51,33 @@ class UsersController extends Controller
 
     public function edit(User $user): View
     {
+        $user = User::query()->findOrFail($user->id);
+        $role = $user->role->name;
+
+        $actions = \App\Models\UserTariff::getActionsForRole($role);
+
+        $userTariffsCollection = $user->userTariffs()->with('tariffs')->get()->keyBy('action');
+
+        $userTariffs = collect($actions)->mapWithKeys(function ($action) use ($userTariffsCollection) {
+            $userTariff = $userTariffsCollection->get($action);
+            if (! $userTariff) {
+                return [$action => new \App\Models\UserTariff(['action' => $action, 'type' => ''])];
+            }
+
+            return [$action => $userTariff];
+        });
+
         return view('users.edit', [
             'title' => 'Изменить пользователя',
-            'user' => User::query()->findOrFail($user->id),
+            'user' => $user,
             'events' => ScheduleService::getScheduleByUserId($user->id),
             'motivations' => UserService::getMotivationByUserId($user->id),
             'isBeforeStartWorkDay' => ScheduleService::isBeforeStartWorkDay($user),
             'materials' => Material::query()->where('type_id', 1)->get(),
             'selectedMaterials' => $user->materials()->pluck('id')->toArray(),
             'rates' => UserService::getRateByUserId($user->id),
+            'userTariffs' => $userTariffs,
+            'tariffActions' => $actions,
         ]);
     }
 
@@ -186,5 +207,89 @@ class UsersController extends Controller
         return view('pdf.user_barcode', [
             'user' => $user,
         ]);
+    }
+
+    public function tariffsUpdate(TariffsUpdateRequest $request, User $user): RedirectResponse
+    {
+        $data = $request->validated();
+
+        $role = $user->role->name;
+        $actions = UserTariff::getActionsForRole($role);
+
+        // Удаляем старые тарифы пользователя
+        UserTariff::where('user_id', $user->id)->delete();
+
+        // Сохраняем оклад за день
+        if (isset($data['fixed_salary_per_day']) && $data['fixed_salary_per_day'] > 0) {
+            $userTariff = UserTariff::create([
+                'user_id' => $user->id,
+                'action' => 'Оклад',
+                'type' => 'fixed',
+            ]);
+
+            Tariff::create([
+                'user_tariff_id' => $userTariff->id,
+                'material_id' => null,
+                'range' => null,
+                'width' => null,
+                'value' => $data['fixed_salary_per_day'],
+            ]);
+        }
+
+        foreach ($actions as $action) {
+            if ($action === 'Оклад') {
+                continue;
+            }
+
+            $type = $data['tariffs'][$action]['type'] ?? null;
+
+            if (! $type) {
+                continue; // Пропускаем, если "не начислять"
+            }
+
+            // Создаём UserTariff
+            $userTariff = UserTariff::create([
+                'user_id' => $user->id,
+                'action' => $action,
+                'type' => $type,
+            ]);
+
+            // Создаём тарифы в зависимости от типа
+            if ($type === 'per_meter') {
+                $ranges = ['0-10', '10-100', '100-1000'];
+                foreach ($ranges as $range) {
+                    foreach ($data['tariffs'][$action]['per_meter'][$range] ?? [] as $materialId => $value) {
+                        $value = is_numeric($value) ? floatval($value) : null;
+                        if ($value !== null && $value > 0) {
+                            Tariff::create([
+                                'user_tariff_id' => $userTariff->id,
+                                'material_id' => $materialId,
+                                'range' => $range,
+                                'value' => $value,
+                            ]);
+                        }
+                    }
+                }
+            } elseif ($type === 'per_piece') {
+                $widths = ['200', '300', '400', '500', '600', '700', '800'];
+                foreach ($widths as $width) {
+                    foreach ($data['tariffs'][$action]['per_piece'][$width] ?? [] as $materialId => $value) {
+                        $value = is_numeric($value) ? floatval($value) : null;
+                        if ($value !== null && $value > 0) {
+                            Tariff::create([
+                                'user_tariff_id' => $userTariff->id,
+                                'material_id' => $materialId,
+                                'width' => $width,
+                                'value' => $value,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return redirect()
+            ->route('users.edit', ['user' => $user->id])
+            ->with('success', 'Тарифы сохранены.');
     }
 }

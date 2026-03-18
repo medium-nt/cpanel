@@ -357,6 +357,178 @@
                 </div>
             </div>
             @endif
+
+            {{-- Новая система тарифов --}}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Тарифы</h3>
+                </div>
+                <div class="card-body">
+                    <form
+                        action="{{ route('users.tariffs_update', ['user' => $user->id]) }}"
+                        method="POST" id="tariffsForm">
+                        @method('PUT')
+                        @csrf
+
+                        {{-- Раздел: Оклад за день (всегда отображается) --}}
+                        <h4>Оклад за день</h4>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <input type="number" class="form-control"
+                                       id="fixed_salary_per_day"
+                                       name="fixed_salary_per_day"
+                                       placeholder="0"
+                                       min="0"
+                                       step="0.01"
+                                       value="{{ $userTariffs->get('Оклад')?->tariffs->first()?->value ?? old('fixed_salary_per_day') }}">
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        {{-- Динамический рендер действий --}}
+                        @foreach($tariffActions as $action)
+                            @if($action === 'Оклад')
+                                @continue
+                            @endif
+
+                            <div class="mb-4">
+                                <h4>{{ $action }}</h4>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <select
+                                            class="form-control tariff-type-select"
+                                            data-action="{{ $action }}">
+                                            <option
+                                                value="" {{ !$userTariffs->get($action) || $userTariffs->get($action)?->type === '' ? 'selected' : '' }}>
+                                                -не начислять-
+                                            </option>
+                                            <option
+                                                value="per_meter" {{ $userTariffs->get($action)?->type === 'per_meter' ? 'selected' : '' }}>
+                                                за пог.метр
+                                            </option>
+                                            <option
+                                                value="per_piece" {{ $userTariffs->get($action)?->type === 'per_piece' ? 'selected' : '' }}>
+                                                за штуку
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-9">
+                                        {{-- Таблица per_meter --}}
+                                        <div class="pricing-table-per-meter"
+                                             data-action="{{ $action }}"
+                                             style="display: {{ $userTariffs->get($action)?->type === 'per_meter' ? 'block' : 'none' }};">
+                                            <div class="table-responsive">
+                                                <table
+                                                    class="table table-bordered table-hover table-sm">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Материал</th>
+                                                        <th width="100">0-10
+                                                            п.м.
+                                                        </th>
+                                                        <th width="100">10-100
+                                                            п.м.
+                                                        </th>
+                                                        <th width="100">100-1000
+                                                            п.м.
+                                                        </th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach($materials as $material)
+                                                        <tr>
+                                                            <td>{{ $material->title }}</td>
+                                                            @php
+                                                                $ranges = ['0-10', '10-100', '100-1000'];
+                                                            @endphp
+                                                            @foreach($ranges as $range)
+                                                                @php
+                                                                    $tariff = $userTariffs->get($action)?->tariffs
+                                                                        ->where('range', $range)
+                                                                        ->where('material_id', $material->id)
+                                                                        ->first();
+                                                                @endphp
+                                                                <td>
+                                                                    <input
+                                                                        type="number"
+                                                                        class="form-control form-control-sm"
+                                                                        placeholder="0"
+                                                                        name="tariffs[{{ $action }}][per_meter][{{ $range }}][{{ $material->id }}]"
+                                                                        value="{{ $tariff?->value ?? '' }}">
+                                                                </td>
+                                                            @endforeach
+                                                        </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        {{-- Таблица per_piece --}}
+                                        <div class="pricing-table-per-piece"
+                                             data-action="{{ $action }}"
+                                             style="display: {{ $userTariffs->get($action)?->type === 'per_piece' ? 'block' : 'none' }};">
+                                            <div class="table-responsive">
+                                                <table
+                                                    class="table table-bordered table-hover table-sm">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Материал</th>
+                                                        @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
+                                                            <th width="70">{{ $width }}</th>
+                                                        @endforeach
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach($materials as $material)
+                                                        <tr>
+                                                            <td>{{ $material->title }}</td>
+                                                            @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
+                                                                @php
+                                                                    $tariff = $userTariffs->get($action)?->tariffs
+                                                                        ->where('width', $width)
+                                                                        ->where('material_id', $material->id)
+                                                                        ->first();
+                                                                @endphp
+                                                                <td>
+                                                                    <input
+                                                                        type="number"
+                                                                        class="form-control form-control-sm"
+                                                                        placeholder="0"
+                                                                        name="tariffs[{{ $action }}][per_piece][{{ $width }}][{{ $material->id }}]"
+                                                                        value="{{ $tariff?->value ?? '' }}">
+                                                                </td>
+                                                            @endforeach
+                                                        </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        {{-- Скрытые поля для типов (динамически) --}}
+                        @foreach($tariffActions as $action)
+                            @if($action !== 'Оклад')
+                                <input type="hidden"
+                                       name="tariffs[{{ $action }}][type]"
+                                       class="tariff-type-hidden"
+                                       data-action="{{ $action }}"
+                                       value="{{ $userTariffs->get($action)?->type ?? '' }}">
+                            @endif
+                        @endforeach
+
+                        <button type="submit" class="btn btn-primary">Сохранить
+                            тарифы
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @stop
@@ -387,4 +559,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="{{ asset('js/fullcalendar_by_admin.js') }}"></script>
     <script src="{{ asset('js/motivation_for_seamstress.js') }}"></script>
+
+    <script>
+        // Переключение таблиц тарифов
+        document.querySelectorAll('.tariff-type-select').forEach(select => {
+            select.addEventListener('change', function () {
+                const action = this.dataset.action;
+                const value = this.value;
+
+                // Находим скрытое поле для этого действия
+                const hiddenInput = document.querySelector(`.tariff-type-hidden[data-action="${action}"]`);
+                if (hiddenInput) {
+                    hiddenInput.value = value;
+                }
+
+                // Находим таблицы для этого действия
+                const perMeterTable = document.querySelector(`.pricing-table-per-meter[data-action="${action}"]`);
+                const perPieceTable = document.querySelector(`.pricing-table-per-piece[data-action="${action}"]`);
+
+                if (perMeterTable) perMeterTable.style.display = 'none';
+                if (perPieceTable) perPieceTable.style.display = 'none';
+
+                if (value === 'per_meter' && perMeterTable) {
+                    perMeterTable.style.display = 'block';
+                } else if (value === 'per_piece' && perPieceTable) {
+                    perPieceTable.style.display = 'block';
+                }
+            });
+        });
+    </script>
 @endpush

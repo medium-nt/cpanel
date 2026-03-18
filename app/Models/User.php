@@ -172,6 +172,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Material::class);
     }
 
+    public function userTariffs(): HasMany
+    {
+        return $this->hasMany(UserTariff::class);
+    }
+
     public function getShortNameAttribute(): string
     {
         $parts = explode(' ', $this->name);

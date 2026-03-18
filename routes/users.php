@@ -32,6 +32,10 @@ Route::prefix('/users')->group(function () {
         ->can('update', 'user')
         ->name('users.rate_update');
 
+    Route::put('/tariffs_update/{user}', [UsersController::class, 'tariffsUpdate'])
+        ->can('update', 'user')
+        ->name('users.tariffs_update');
+
     Route::delete('/delete/{user}', [UsersController::class, 'destroy'])
         ->can('delete', 'user')
         ->name('users.destroy');
