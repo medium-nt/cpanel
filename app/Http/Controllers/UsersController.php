@@ -67,6 +67,26 @@ class UsersController extends Controller
             return [$action => $userTariff];
         });
 
+        // Загружаем диапазоны для каждого действия из БД
+        $tariffRanges = [];
+        foreach ($actions as $action) {
+            if ($action === 'Оклад') {
+                continue;
+            }
+
+            $ranges = Tariff::query()
+                ->whereHas('userTariff', function ($q) use ($user, $action) {
+                    $q->where('user_id', $user->id)->where('action', $action);
+                })
+                ->whereNotNull('range')
+                ->pluck('range')
+                ->unique()
+                ->sort()
+                ->values();
+
+            $tariffRanges[$action] = $ranges;
+        }
+
         return view('users.edit', [
             'title' => 'Изменить пользователя',
             'user' => $user,
@@ -78,6 +98,7 @@ class UsersController extends Controller
             'rates' => UserService::getRateByUserId($user->id),
             'userTariffs' => $userTariffs,
             'tariffActions' => $actions,
+            'tariffRanges' => $tariffRanges,
         ]);
     }
 
@@ -256,7 +277,9 @@ class UsersController extends Controller
 
             // Создаём тарифы в зависимости от типа
             if ($type === 'per_meter') {
-                $ranges = ['0-10', '10-100', '100-1000'];
+                // Получаем диапазоны динамически из входящих данных
+                $ranges = array_keys($data['tariffs'][$action]['per_meter'] ?? []);
+
                 foreach ($ranges as $range) {
                     foreach ($data['tariffs'][$action]['per_meter'][$range] ?? [] as $materialId => $value) {
                         $value = is_numeric($value) ? floatval($value) : null;

@@ -357,8 +357,12 @@
                 </div>
             </div>
             @endif
+        </div>
+    </div>
 
-            {{-- Новая система тарифов --}}
+    {{-- Новая система тарифов --}}
+    <div class="row mt-4">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Тарифы</h3>
@@ -415,7 +419,7 @@
                                     </div>
 
                                     <div class="col-md-9">
-                                        {{-- Таблица per_meter --}}
+                                        {{-- Таблица per_meter с динамическими диапазонами --}}
                                         <div class="pricing-table-per-meter"
                                              data-action="{{ $action }}"
                                              style="display: {{ $userTariffs->get($action)?->type === 'per_meter' ? 'block' : 'none' }};">
@@ -425,25 +429,53 @@
                                                     <thead>
                                                     <tr>
                                                         <th>Материал</th>
-                                                        <th width="100">0-10
-                                                            п.м.
-                                                        </th>
-                                                        <th width="100">10-100
-                                                            п.м.
-                                                        </th>
-                                                        <th width="100">100-1000
-                                                            п.м.
+                                                        @php
+                                                            $actionRanges = $tariffRanges[$action] ?? collect();
+                                                        @endphp
+                                                        @foreach($actionRanges as $index => $range)
+                                                            @php
+                                                                $limit = \App\Helpers\TariffHelper::getRangeLimit($range);
+                                                            @endphp
+                                                            <th width="120"
+                                                                class="range-header"
+                                                                data-action="{{ $action }}">
+                                                                <div
+                                                                    class="d-flex align-items-center justify-content-between">
+                                                                    <span
+                                                                        class="mr-1">до</span>
+                                                                    <input
+                                                                        type="number"
+                                                                        class="form-control form-control-sm range-limit-input"
+                                                                        value="{{ $limit }}"
+                                                                        min="1"
+                                                                        data-action="{{ $action }}"
+                                                                        data-range="{{ $range }}"
+                                                                        data-index="{{ $index }}">
+                                                                    <button
+                                                                        type="button"
+                                                                        class="btn btn-sm btn-link text-danger p-0 ml-1"
+                                                                        onclick="removeRangeColumn('{{ $action }}', this)">
+                                                                        ×
+                                                                    </button>
+                                                                </div>
+                                                            </th>
+                                                        @endforeach
+                                                        {{-- Кнопка добавления --}}
+                                                        <th width="50">
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-sm btn-outline-primary"
+                                                                onclick="addRangeColumn('{{ $action }}')">
+                                                                +
+                                                            </button>
                                                         </th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
                                                     @foreach($materials as $material)
-                                                        <tr>
+                                                        <tr data-material-id="{{ $material->id }}">
                                                             <td>{{ $material->title }}</td>
-                                                            @php
-                                                                $ranges = ['0-10', '10-100', '100-1000'];
-                                                            @endphp
-                                                            @foreach($ranges as $range)
+                                                            @foreach($actionRanges as $range)
                                                                 @php
                                                                     $tariff = $userTariffs->get($action)?->tariffs
                                                                         ->where('range', $range)
@@ -459,6 +491,7 @@
                                                                         value="{{ $tariff?->value ?? '' }}">
                                                                 </td>
                                                             @endforeach
+                                                            <td></td>
                                                         </tr>
                                                     @endforeach
                                                     </tbody>
@@ -585,6 +618,274 @@
                 } else if (value === 'per_piece' && perPieceTable) {
                     perPieceTable.style.display = 'block';
                 }
+            });
+        });
+
+        // === Динамические диапазоны для per_meter ===
+
+        // Построение диапазонов из значений инпутов: [10, 100, 1000] → ['0-10', '10-100', '100-1000']
+        function buildRangesFromInputs(action) {
+            const inputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"]`);
+            const limits = Array.from(inputs)
+                .map(input => parseInt(input.value) || 0)
+                .filter(v => v > 0)
+                .sort((a, b) => a - b); // Сортировка по возрастанию
+
+            const ranges = [];
+            let prev = 0;
+            limits.forEach(limit => {
+                ranges.push(`${prev}-${limit}`);
+                prev = limit;
+            });
+            return ranges;
+        }
+
+        // Добавление новой колонки
+        function addRangeColumn(action) {
+            const table = document.querySelector(`.pricing-table-per-meter[data-action="${action}"] table`);
+            const theadRow = table.querySelector('thead tr');
+            const tbody = table.querySelector('tbody');
+
+            // Находим индекс для нового input
+            const existingInputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"]`);
+            const newIndex = existingInputs.length;
+
+            // Вставляем новую колонку перед кнопкой "+"
+            const addBtnTh = theadRow.lastElementChild;
+
+            // Новый th с input
+            const newTh = document.createElement('th');
+            newTh.width = '120';
+            newTh.className = 'range-header';
+            newTh.dataset.action = action;
+            newTh.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="mr-1">до</span>
+                    <input type="number"
+                           class="form-control form-control-sm range-limit-input"
+                           value=""
+                           min="1"
+                           placeholder="100"
+                           data-action="${action}"
+                           data-index="${newIndex}">
+                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ml-1"
+                            onclick="removeRangeColumn('${action}', this)">
+                        ×
+                    </button>
+                </div>
+            `;
+            theadRow.insertBefore(newTh, addBtnTh);
+
+            // Добавляем ячейки в каждую строку tbody
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const materialId = row.dataset.materialId;
+
+                const newTd = document.createElement('td');
+                newTd.innerHTML = `
+                    <input type="number"
+                           class="form-control form-control-sm"
+                           placeholder="0"
+                           name="tariffs[${action}][per_meter][__new__][${materialId}]"
+                           value="">
+                `;
+                row.insertBefore(newTd, row.lastElementChild);
+            });
+
+            // Фокус на новый input
+            newTh.querySelector('input').focus();
+
+            // Добавляем обработчики на новый input
+            const newInput = newTh.querySelector('input');
+            newInput.addEventListener('input', function () {
+                handleRangeInputChange(this);
+            });
+            newInput.addEventListener('change', function () {
+                handleRangeInputChange(this);
+            });
+        }
+
+        // Удаление колонки
+        function removeRangeColumn(action, btn) {
+            const table = btn.closest('table');
+            const th = btn.closest('th');
+            const columnIndex = Array.from(th.parentNode.children).indexOf(th);
+
+            // Сохраняем значения
+            saveInputValues(action);
+
+            // Удаляем th из thead
+            th.remove();
+
+            // Удаляем ячейки из tbody
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                if (row.children[columnIndex]) {
+                    row.children[columnIndex].remove();
+                }
+            });
+
+            // Обновляем name атрибуты
+            updateInputNames(action);
+        }
+
+        // Обработчик изменения input — обновить name атрибуты
+        function handleRangeInputChange(input) {
+            const action = input.dataset.action;
+
+            // Запоминаем активный элемент и его значение
+            const activeElement = document.activeElement;
+            const activeValue = activeElement?.value;
+
+            // Выполняем сортировку
+            sortColumns(action);
+            updateInputNames(action);
+
+            // Восстанавливаем фокус
+            if (activeValue !== undefined) {
+                // Пытаемся найти тот же input по значению
+                const inputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"]`);
+                inputs.forEach(inp => {
+                    if (inp.value === activeValue) {
+                        inp.focus();
+                    }
+                });
+            }
+        }
+
+        // Сортировка колонок по возрастанию значений в thead
+        function sortColumns(action) {
+            const table = document.querySelector(`.pricing-table-per-meter[data-action="${action}"] table`);
+            const theadRow = table.querySelector('thead tr');
+            const tbody = table.querySelector('tbody');
+
+            // Сохраняем значения ДО сортировки: {materialId_colIndex: value}
+            const rows = tbody.querySelectorAll('tr');
+            const savedValues = {};
+
+            rows.forEach(row => {
+                const materialId = row.dataset.materialId;
+                const inputs = row.querySelectorAll('input[name*="per_meter"]');
+                inputs.forEach((input, colIndex) => {
+                    const match = input.name.match(/per_meter\]\[([^\]]+)\]\[/);
+                    if (match) {
+                        const range = match[1];
+                        const key = `${materialId}_${colIndex}`;
+                        savedValues[key] = input.value;
+                    }
+                });
+            });
+
+            // Получаем все range-header th
+            const headers = Array.from(theadRow.querySelectorAll('.range-header'));
+            const buttonTh = theadRow.lastElementChild;
+
+            // Создаём массив пар [th, значение, оригинальный_индекс]
+            const headerData = headers.map((th, index) => {
+                const input = th.querySelector('.range-limit-input');
+                return {
+                    th: th,
+                    value: parseInt(input?.value) || 0,
+                    origIndex: index
+                };
+            });
+
+            // Сортируем по значению, запоминаем старые индексы
+            const sortedHeaders = [...headerData].sort((a, b) => a.value - b.value);
+            const newIndexMap = {}; // oldIndex -> newIndex
+            sortedHeaders.forEach((item, newIndex) => {
+                newIndexMap[item.origIndex] = newIndex;
+            });
+
+            // Обратный маппинг: newIndex -> oldIndex (для восстановления значений)
+            const oldIndexMap = {};
+            sortedHeaders.forEach((item, newIndex) => {
+                oldIndexMap[newIndex] = item.origIndex;
+            });
+
+            // Удаляем все header колонки из thead
+            headers.forEach(th => th.remove());
+
+            // Вставляем отсортированные заголовки
+            sortedHeaders.forEach(item => {
+                theadRow.insertBefore(item.th, buttonTh);
+            });
+
+            // Сортируем ячейки в tbody по новым индексам
+            rows.forEach(row => {
+                const materialId = row.dataset.materialId;
+                const cells = Array.from(row.children).slice(1, -1); // Все кроме первой и последней
+                const lastTd = row.lastElementChild;
+
+                // Создаём массив пар [td, oldIndex]
+                const cellData = cells.map((td, index) => ({
+                    td: td,
+                    oldIndex: index
+                }));
+
+                // Сортируем по newIndex
+                cellData.sort((a, b) => (newIndexMap[a.oldIndex] ?? 999) - (newIndexMap[b.oldIndex] ?? 999));
+
+                // Удаляем все ячейки кроме первой и последней
+                cells.forEach(td => td.remove());
+
+                // Вставляем отсортированные ячейки
+                cellData.forEach((item, newIndex) => {
+                    row.insertBefore(item.td, lastTd);
+                    // Восстанавливаем значение из старой позиции
+                    const oldIndex = item.oldIndex;
+                    const key = `${materialId}_${oldIndex}`;
+                    if (savedValues[key] !== undefined) {
+                        const input = item.td.querySelector('input');
+                        if (input) {
+                            input.value = savedValues[key];
+                        }
+                    }
+                });
+            });
+        }
+
+        // Обновление name атрибутов в tbody на основе текущих диапазонов
+        function updateInputNames(action) {
+            const tbody = document.querySelector(`.pricing-table-per-meter[data-action="${action}"] tbody`);
+            const rows = tbody.querySelectorAll('tr');
+
+            // Строим новые диапазоны (отсортированные)
+            const ranges = buildRangesFromInputs(action);
+
+            // Обновляем name атрибуты (значения уже на месте после sortColumns)
+            rows.forEach(row => {
+                const materialId = row.dataset.materialId;
+                const inputs = row.querySelectorAll('input[name*="per_meter"]');
+
+                inputs.forEach((input, index) => {
+                    if (ranges[index]) {
+                        input.name = `tariffs[${action}][per_meter][${ranges[index]}][${materialId}]`;
+                    }
+                });
+            });
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            // Сортируем колонки для всех видимых per_meter таблиц
+            document.querySelectorAll('.pricing-table-per-meter').forEach(container => {
+                if (container.style.display !== 'none') {
+                    const action = container.dataset.action;
+                    sortColumns(action);
+                    updateInputNames(action);
+                }
+            });
+
+            // Добавляем обработчики на все существующие range-limit-input
+            document.querySelectorAll('.range-limit-input').forEach(input => {
+                input.addEventListener('input', function () {
+                    handleRangeInputChange(this);
+                });
+                input.addEventListener('change', function () {
+                    handleRangeInputChange(this);
+                });
             });
         });
     </script>
