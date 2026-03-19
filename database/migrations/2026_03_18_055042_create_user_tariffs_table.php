@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('user_tariffs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('action')->default('Пошив');
-            $table->enum('type', ['fixed', 'per_meter', 'per_piece']);
+            $table->string('action')->default('');
+            $table->string('type')->default('');
             $table->boolean('is_bonus')->default(false);
             $table->timestamps();
         });
