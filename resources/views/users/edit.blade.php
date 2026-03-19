@@ -711,9 +711,6 @@
             const th = btn.closest('th');
             const columnIndex = Array.from(th.parentNode.children).indexOf(th);
 
-            // Сохраняем значения
-            saveInputValues(action);
-
             // Удаляем th из thead
             th.remove();
 
