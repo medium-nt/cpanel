@@ -486,6 +486,7 @@
                                                         class="pricing-table-salary mt-3"
                                                         data-action="{{ $action }}"
                                                         data-bonus-type="salary"
+                                                        data-type="per_meter"
                                                         style="display: {{ $userTariffsSalary->get($action)?->type === 'per_meter' ? 'block' : 'none' }};">
                                                         <div
                                                             class="table-responsive">
@@ -572,6 +573,7 @@
                                                         class="pricing-table-salary mt-3"
                                                         data-action="{{ $action }}"
                                                         data-bonus-type="salary"
+                                                        data-type="per_piece"
                                                         style="display: {{ $userTariffsSalary->get($action)?->type === 'per_piece' ? 'block' : 'none' }};">
                                                         <div
                                                             class="table-responsive">
@@ -656,6 +658,7 @@
                                                         class="pricing-table-bonus mt-3"
                                                         data-action="{{ $action }}"
                                                         data-bonus-type="bonus"
+                                                        data-type="per_meter"
                                                         style="display: {{ $userTariffsBonus->get($action)?->type === 'per_meter' ? 'block' : 'none' }};">
                                                         <div
                                                             class="table-responsive">
@@ -742,6 +745,7 @@
                                                         class="pricing-table-bonus mt-3"
                                                         data-action="{{ $action }}"
                                                         data-bonus-type="bonus"
+                                                        data-type="per_piece"
                                                         style="display: {{ $userTariffsBonus->get($action)?->type === 'per_piece' ? 'block' : 'none' }};">
                                                         <div
                                                             class="table-responsive">
@@ -884,19 +888,17 @@
                     hiddenInput.value = value;
                 }
 
-                // Находим таблицы для этого действия и типа
-                const perMeterTable = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-bonus-type="${bonusType}"]`);
-                const perPieceTable = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-bonus-type="${bonusType}"]`);
-
                 // Скрываем все таблицы для этого action и bonusType
                 document.querySelectorAll(`.pricing-table-${bonusType}[data-action="${action}"]`).forEach(table => {
                     table.style.display = 'none';
                 });
 
-                if (value === 'per_meter' && perMeterTable) {
-                    perMeterTable.style.display = 'block';
-                } else if (value === 'per_piece' && perPieceTable) {
-                    perPieceTable.style.display = 'block';
+                // Показываем нужную таблицу по data-type
+                if (value === 'per_meter' || value === 'per_piece') {
+                    const targetTable = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-type="${value}"]`);
+                    if (targetTable) {
+                        targetTable.style.display = 'block';
+                    }
                 }
             });
         });
