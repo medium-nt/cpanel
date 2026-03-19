@@ -21,6 +21,7 @@ class UserTariff extends Model
         'user_id',
         'action',
         'type',
+        'is_bonus',
     ];
 
     public function user(): BelongsTo

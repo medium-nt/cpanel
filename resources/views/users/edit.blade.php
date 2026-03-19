@@ -374,174 +374,420 @@
                         @method('PUT')
                         @csrf
 
-                        {{-- Раздел: Оклад за день (всегда отображается) --}}
-                        <h4>Оклад за день</h4>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <input type="number" class="form-control"
-                                       id="fixed_salary_per_day"
-                                       name="fixed_salary_per_day"
-                                       placeholder="0"
-                                       min="0"
-                                       step="0.01"
-                                       value="{{ $userTariffs->get('Оклад')?->tariffs->first()?->value ?? old('fixed_salary_per_day') }}">
+                        {{-- ============================================= --}}
+                        {{-- ОКЛАД --}}
+                        {{-- ============================================= --}}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title">Оклад</h5>
+                            </div>
+                            <div class="card-body">
+                                {{-- Зарплата --}}
+                                <div class="card mb-2">
+                                    <div class="card-header p-2 bg-light"
+                                         data-bs-toggle="collapse"
+                                         data-bs-target="#salary-oklad"
+                                         style="cursor: pointer;">
+                                        <h6 class="mb-0 d-flex justify-content-between align-items-center">
+                                            <span>Зарплата</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </h6>
+                                    </div>
+                                    <div id="salary-oklad" class="collapse">
+                                        <div class="card-body">
+                                            <input type="number"
+                                                   class="form-control"
+                                                   name="salary[fixed_salary_per_day]"
+                                                   placeholder="0"
+                                                   min="0"
+                                                   step="0.01"
+                                                   value="{{ $userTariffsSalary->get('Оклад')?->tariffs->first()?->value ?? old('salary.fixed_salary_per_day') }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Бонусы --}}
+                                <div class="card mb-2">
+                                    <div class="card-header p-2 bg-light"
+                                         data-bs-toggle="collapse"
+                                         data-bs-target="#bonus-oklad"
+                                         style="cursor: pointer;">
+                                        <h6 class="mb-0 d-flex justify-content-between align-items-center">
+                                            <span>Бонусы</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </h6>
+                                    </div>
+                                    <div id="bonus-oklad" class="collapse">
+                                        <div class="card-body">
+                                            <input type="number"
+                                                   class="form-control"
+                                                   name="bonus[fixed_salary_per_day]"
+                                                   placeholder="0"
+                                                   min="0"
+                                                   step="0.01"
+                                                   value="{{ $userTariffsBonus->get('Оклад')?->tariffs->first()?->value ?? old('bonus.fixed_salary_per_day') }}">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <hr>
-
-                        {{-- Динамический рендер действий --}}
+                        {{-- ============================================= --}}
+                        {{-- Динамический рендер действий с аккордеоном --}}
+                        {{-- ============================================= --}}
                         @foreach($tariffActions as $action)
                             @if($action === 'Оклад')
                                 @continue
                             @endif
 
-                            <div class="mb-4">
-                                <h4>{{ $action }}</h4>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <select
-                                            class="form-control tariff-type-select"
-                                            data-action="{{ $action }}">
-                                            <option
-                                                value="" {{ !$userTariffs->get($action) || $userTariffs->get($action)?->type === '' ? 'selected' : '' }}>
-                                                -не начислять-
-                                            </option>
-                                            <option
-                                                value="per_meter" {{ $userTariffs->get($action)?->type === 'per_meter' ? 'selected' : '' }}>
-                                                за пог.метр
-                                            </option>
-                                            <option
-                                                value="per_piece" {{ $userTariffs->get($action)?->type === 'per_piece' ? 'selected' : '' }}>
-                                                за штуку
-                                            </option>
-                                        </select>
+                                {{-- === ОДНА КАРТОЧКА НА ACTION С ВЛОЖЕННЫМИ АККОРДЕОНАМИ === --}}
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">{{ $action }}</h5>
+                                    </div>
+                                    <div class="card-body">
+
+                                        {{-- === ВЛОЖЕННЫЙ АККОРДЕОН: ЗАРПЛАТА === --}}
+                                        <div class="card mb-2">
+                                            <div
+                                                class="card-header p-2 bg-light"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#salary-{{ \Illuminate\Support\Str::slug($action) }}"
+                                                style="cursor: pointer;">
+                                                <h6 class="mb-0 d-flex justify-content-between align-items-center">
+                                                    <span>Зарплата</span>
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </h6>
+                                            </div>
+                                            <div
+                                                id="salary-{{ \Illuminate\Support\Str::slug($action) }}"
+                                                class="collapse">
+                                                <div class="card-body">
+                                                    <select
+                                                        class="form-control tariff-type-select"
+                                                        data-action="{{ $action }}"
+                                                        data-bonus-type="salary">
+                                                        <option
+                                                            value="" {{ !$userTariffsSalary->get($action) || $userTariffsSalary->get($action)?->type === '' ? 'selected' : '' }}>
+                                                            -не начислять-
+                                                        </option>
+                                                        <option
+                                                            value="per_meter" {{ $userTariffsSalary->get($action)?->type === 'per_meter' ? 'selected' : '' }}>
+                                                            за пог.метр
+                                                        </option>
+                                                        <option
+                                                            value="per_piece" {{ $userTariffsSalary->get($action)?->type === 'per_piece' ? 'selected' : '' }}>
+                                                            за штуку
+                                                        </option>
+                                                    </select>
+
+                                                    {{-- Таблица per_meter для Зарплаты --}}
+                                                    <div
+                                                        class="pricing-table-salary mt-3"
+                                                        data-action="{{ $action }}"
+                                                        data-bonus-type="salary"
+                                                        style="display: {{ $userTariffsSalary->get($action)?->type === 'per_meter' ? 'block' : 'none' }};">
+                                                        <div
+                                                            class="table-responsive">
+                                                            <table
+                                                                class="table table-bordered table-hover table-sm">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>
+                                                                        Материал
+                                                                    </th>
+                                                                    @php
+                                                                        $actionRanges = $tariffRangesSalary[$action] ?? collect();
+                                                                    @endphp
+                                                                    @foreach($actionRanges as $index => $range)
+                                                                        @php
+                                                                            $limit = \App\Helpers\TariffHelper::getRangeLimit($range);
+                                                                        @endphp
+                                                                        <th width="120"
+                                                                            class="range-header"
+                                                                            data-action="{{ $action }}"
+                                                                            data-bonus-type="salary">
+                                                                            <div
+                                                                                class="d-flex align-items-center justify-content-between">
+                                                                                <span
+                                                                                    class="mr-1">до</span>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    class="form-control form-control-sm range-limit-input"
+                                                                                    value="{{ $limit }}"
+                                                                                    min="1"
+                                                                                    data-action="{{ $action }}"
+                                                                                    data-bonus-type="salary"
+                                                                                    data-range="{{ $range }}"
+                                                                                    data-index="{{ $index }}">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    class="btn btn-sm btn-link text-danger p-0 ml-1"
+                                                                                    onclick="removeRangeColumn('{{ $action }}', 'salary', this)">
+                                                                                    ×
+                                                                                </button>
+                                                                            </div>
+                                                                        </th>
+                                                                    @endforeach
+                                                                    <th width="50">
+                                                                        <button
+                                                                            type="button"
+                                                                            class="btn btn-sm btn-outline-primary"
+                                                                            onclick="addRangeColumn('{{ $action }}', 'salary')">
+                                                                            +
+                                                                        </button>
+                                                                    </th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                @foreach($materials as $material)
+                                                                    <tr data-material-id="{{ $material->id }}">
+                                                                        <td>{{ $material->title }}</td>
+                                                                        @foreach($actionRanges as $range)
+                                                                            @php
+                                                                                $tariff = $userTariffsSalary->get($action)?->tariffs
+                                                                                    ->where('range', $range)
+                                                                                    ->where('material_id', $material->id)
+                                                                                    ->first();
+                                                                            @endphp
+                                                                            <td>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    class="form-control form-control-sm"
+                                                                                    placeholder="0"
+                                                                                    name="salary[tariffs][{{ $action }}][per_meter][{{ $range }}][{{ $material->id }}]"
+                                                                                    value="{{ $tariff?->value ?? '' }}">
+                                                                            </td>
+                                                                        @endforeach
+                                                                        <td></td>
+                                                                    </tr>
+                                                                @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Таблица per_piece для Зарплаты --}}
+                                                    <div
+                                                        class="pricing-table-salary mt-3"
+                                                        data-action="{{ $action }}"
+                                                        data-bonus-type="salary"
+                                                        style="display: {{ $userTariffsSalary->get($action)?->type === 'per_piece' ? 'block' : 'none' }};">
+                                                        <div
+                                                            class="table-responsive">
+                                                            <table
+                                                                class="table table-bordered table-hover table-sm">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>
+                                                                        Материал
+                                                                    </th>
+                                                                    @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
+                                                                        <th width="70">{{ $width }}</th>
+                                                                    @endforeach
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                @foreach($materials as $material)
+                                                                    <tr>
+                                                                        <td>{{ $material->title }}</td>
+                                                                        @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
+                                                                            @php
+                                                                                $tariff = $userTariffsSalary->get($action)?->tariffs
+                                                                                    ->where('width', $width)
+                                                                                    ->where('material_id', $material->id)
+                                                                                    ->first();
+                                                                            @endphp
+                                                                            <td>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    class="form-control form-control-sm"
+                                                                                    placeholder="0"
+                                                                                    name="salary[tariffs][{{ $action }}][per_piece][{{ $width }}][{{ $material->id }}]"
+                                                                                    value="{{ $tariff?->value ?? '' }}">
+                                                                            </td>
+                                                                        @endforeach
+                                                                    </tr>
+                                                                @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                     </div>
 
-                                    <div class="col-md-9">
-                                        {{-- Таблица per_meter с динамическими диапазонами --}}
-                                        <div class="pricing-table-per-meter"
-                                             data-action="{{ $action }}"
-                                             style="display: {{ $userTariffs->get($action)?->type === 'per_meter' ? 'block' : 'none' }};">
-                                            <div class="table-responsive">
-                                                <table
-                                                    class="table table-bordered table-hover table-sm">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>Материал</th>
-                                                        @php
-                                                            $actionRanges = $tariffRanges[$action] ?? collect();
-                                                        @endphp
-                                                        @foreach($actionRanges as $index => $range)
-                                                            @php
-                                                                $limit = \App\Helpers\TariffHelper::getRangeLimit($range);
-                                                            @endphp
-                                                            <th width="120"
-                                                                class="range-header"
-                                                                data-action="{{ $action }}">
-                                                                <div
-                                                                    class="d-flex align-items-center justify-content-between">
-                                                                    <span
-                                                                        class="mr-1">до</span>
-                                                                    <input
-                                                                        type="number"
-                                                                        class="form-control form-control-sm range-limit-input"
-                                                                        value="{{ $limit }}"
-                                                                        min="1"
-                                                                        data-action="{{ $action }}"
-                                                                        data-range="{{ $range }}"
-                                                                        data-index="{{ $index }}">
-                                                                    <button
-                                                                        type="button"
-                                                                        class="btn btn-sm btn-link text-danger p-0 ml-1"
-                                                                        onclick="removeRangeColumn('{{ $action }}', this)">
-                                                                        ×
-                                                                    </button>
-                                                                </div>
-                                                            </th>
-                                                        @endforeach
-                                                        {{-- Кнопка добавления --}}
-                                                        <th width="50">
-                                                            <button
-                                                                type="button"
-                                                                class="btn btn-sm btn-outline-primary"
-                                                                onclick="addRangeColumn('{{ $action }}')">
-                                                                +
-                                                            </button>
-                                                        </th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    @foreach($materials as $material)
-                                                        <tr data-material-id="{{ $material->id }}">
-                                                            <td>{{ $material->title }}</td>
-                                                            @foreach($actionRanges as $range)
-                                                                @php
-                                                                    $tariff = $userTariffs->get($action)?->tariffs
-                                                                        ->where('range', $range)
-                                                                        ->where('material_id', $material->id)
-                                                                        ->first();
-                                                                @endphp
-                                                                <td>
-                                                                    <input
-                                                                        type="number"
-                                                                        class="form-control form-control-sm"
-                                                                        placeholder="0"
-                                                                        name="tariffs[{{ $action }}][per_meter][{{ $range }}][{{ $material->id }}]"
-                                                                        value="{{ $tariff?->value ?? '' }}">
-                                                                </td>
-                                                            @endforeach
-                                                            <td></td>
-                                                        </tr>
-                                                    @endforeach
-                                                    </tbody>
-                                                </table>
+                                        {{-- === ВЛОЖЕННЫЙ АККОРДЕОН: БОНУСЫ === --}}
+                                        <div class="card mb-2">
+                                            <div
+                                                class="card-header p-2 bg-light"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#bonus-{{ \Illuminate\Support\Str::slug($action) }}"
+                                                style="cursor: pointer;">
+                                                <h6 class="mb-0 d-flex justify-content-between align-items-center">
+                                                    <span>Бонусы</span>
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </h6>
+                                            </div>
+                                            <div
+                                                id="bonus-{{ \Illuminate\Support\Str::slug($action) }}"
+                                                class="collapse">
+                                                <div class="card-body">
+                                                    <select
+                                                        class="form-control tariff-type-select"
+                                                        data-action="{{ $action }}"
+                                                        data-bonus-type="bonus">
+                                                        <option
+                                                            value="" {{ !$userTariffsBonus->get($action) || $userTariffsBonus->get($action)?->type === '' ? 'selected' : '' }}>
+                                                            -не начислять-
+                                                        </option>
+                                                        <option
+                                                            value="per_meter" {{ $userTariffsBonus->get($action)?->type === 'per_meter' ? 'selected' : '' }}>
+                                                            за пог.метр
+                                                        </option>
+                                                        <option
+                                                            value="per_piece" {{ $userTariffsBonus->get($action)?->type === 'per_piece' ? 'selected' : '' }}>
+                                                            за штуку
+                                                        </option>
+                                                    </select>
+
+                                                    {{-- Таблица per_meter для Бонусов --}}
+                                                    <div
+                                                        class="pricing-table-bonus mt-3"
+                                                        data-action="{{ $action }}"
+                                                        data-bonus-type="bonus"
+                                                        style="display: {{ $userTariffsBonus->get($action)?->type === 'per_meter' ? 'block' : 'none' }};">
+                                                        <div
+                                                            class="table-responsive">
+                                                            <table
+                                                                class="table table-bordered table-hover table-sm">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>
+                                                                        Материал
+                                                                    </th>
+                                                                    @php
+                                                                        $actionRanges = $tariffRangesBonus[$action] ?? collect();
+                                                                    @endphp
+                                                                    @foreach($actionRanges as $index => $range)
+                                                                        @php
+                                                                            $limit = \App\Helpers\TariffHelper::getRangeLimit($range);
+                                                                        @endphp
+                                                                        <th width="120"
+                                                                            class="range-header"
+                                                                            data-action="{{ $action }}"
+                                                                            data-bonus-type="bonus">
+                                                                            <div
+                                                                                class="d-flex align-items-center justify-content-between">
+                                                                                <span
+                                                                                    class="mr-1">до</span>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    class="form-control form-control-sm range-limit-input"
+                                                                                    value="{{ $limit }}"
+                                                                                    min="1"
+                                                                                    data-action="{{ $action }}"
+                                                                                    data-bonus-type="bonus"
+                                                                                    data-range="{{ $range }}"
+                                                                                    data-index="{{ $index }}">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    class="btn btn-sm btn-link text-danger p-0 ml-1"
+                                                                                    onclick="removeRangeColumn('{{ $action }}', 'bonus', this)">
+                                                                                    ×
+                                                                                </button>
+                                                                            </div>
+                                                                        </th>
+                                                                    @endforeach
+                                                                    <th width="50">
+                                                                        <button
+                                                                            type="button"
+                                                                            class="btn btn-sm btn-outline-primary"
+                                                                            onclick="addRangeColumn('{{ $action }}', 'bonus')">
+                                                                            +
+                                                                        </button>
+                                                                    </th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                @foreach($materials as $material)
+                                                                    <tr data-material-id="{{ $material->id }}">
+                                                                        <td>{{ $material->title }}</td>
+                                                                        @foreach($actionRanges as $range)
+                                                                            @php
+                                                                                $tariff = $userTariffsBonus->get($action)?->tariffs
+                                                                                    ->where('range', $range)
+                                                                                    ->where('material_id', $material->id)
+                                                                                    ->first();
+                                                                            @endphp
+                                                                            <td>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    class="form-control form-control-sm"
+                                                                                    placeholder="0"
+                                                                                    name="bonus[tariffs][{{ $action }}][per_meter][{{ $range }}][{{ $material->id }}]"
+                                                                                    value="{{ $tariff?->value ?? '' }}">
+                                                                            </td>
+                                                                        @endforeach
+                                                                        <td></td>
+                                                                    </tr>
+                                                                @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Таблица per_piece для Бонусов --}}
+                                                    <div
+                                                        class="pricing-table-bonus mt-3"
+                                                        data-action="{{ $action }}"
+                                                        data-bonus-type="bonus"
+                                                        style="display: {{ $userTariffsBonus->get($action)?->type === 'per_piece' ? 'block' : 'none' }};">
+                                                        <div
+                                                            class="table-responsive">
+                                                            <table
+                                                                class="table table-bordered table-hover table-sm">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>
+                                                                        Материал
+                                                                    </th>
+                                                                    @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
+                                                                        <th width="70">{{ $width }}</th>
+                                                                    @endforeach
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                @foreach($materials as $material)
+                                                                    <tr>
+                                                                        <td>{{ $material->title }}</td>
+                                                                        @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
+                                                                            @php
+                                                                                $tariff = $userTariffsBonus->get($action)?->tariffs
+                                                                                    ->where('width', $width)
+                                                                                    ->where('material_id', $material->id)
+                                                                                    ->first();
+                                                                            @endphp
+                                                                            <td>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    class="form-control form-control-sm"
+                                                                                    placeholder="0"
+                                                                                    name="bonus[tariffs][{{ $action }}][per_piece][{{ $width }}][{{ $material->id }}]"
+                                                                                    value="{{ $tariff?->value ?? '' }}">
+                                                                            </td>
+                                                                        @endforeach
+                                                                    </tr>
+                                                                @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {{-- Таблица per_piece --}}
-                                        <div class="pricing-table-per-piece"
-                                             data-action="{{ $action }}"
-                                             style="display: {{ $userTariffs->get($action)?->type === 'per_piece' ? 'block' : 'none' }};">
-                                            <div class="table-responsive">
-                                                <table
-                                                    class="table table-bordered table-hover table-sm">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>Материал</th>
-                                                        @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
-                                                            <th width="70">{{ $width }}</th>
-                                                        @endforeach
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    @foreach($materials as $material)
-                                                        <tr>
-                                                            <td>{{ $material->title }}</td>
-                                                            @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
-                                                                @php
-                                                                    $tariff = $userTariffs->get($action)?->tariffs
-                                                                        ->where('width', $width)
-                                                                        ->where('material_id', $material->id)
-                                                                        ->first();
-                                                                @endphp
-                                                                <td>
-                                                                    <input
-                                                                        type="number"
-                                                                        class="form-control form-control-sm"
-                                                                        placeholder="0"
-                                                                        name="tariffs[{{ $action }}][per_piece][{{ $width }}][{{ $material->id }}]"
-                                                                        value="{{ $tariff?->value ?? '' }}">
-                                                                </td>
-                                                            @endforeach
-                                                        </tr>
-                                                    @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
                                     </div>
-                                </div>
                             </div>
                         @endforeach
 
@@ -549,10 +795,17 @@
                         @foreach($tariffActions as $action)
                             @if($action !== 'Оклад')
                                 <input type="hidden"
-                                       name="tariffs[{{ $action }}][type]"
+                                       name="salary[tariffs][{{ $action }}][type]"
                                        class="tariff-type-hidden"
                                        data-action="{{ $action }}"
-                                       value="{{ $userTariffs->get($action)?->type ?? '' }}">
+                                       data-bonus-type="salary"
+                                       value="{{ $userTariffsSalary->get($action)?->type ?? '' }}">
+                                <input type="hidden"
+                                       name="bonus[tariffs][{{ $action }}][type]"
+                                       class="tariff-type-hidden"
+                                       data-action="{{ $action }}"
+                                       data-bonus-type="bonus"
+                                       value="{{ $userTariffsBonus->get($action)?->type ?? '' }}">
                             @endif
                         @endforeach
 
@@ -575,6 +828,30 @@
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
     <script>
+        // Инициализация Bootstrap collapse через jQuery
+        $(document).ready(function () {
+            $('.collapse').collapse({
+                toggle: false
+            });
+
+            // Обработчик клика на заголовки аккордеона
+            $('[data-bs-toggle="collapse"]').on('click', function () {
+                const $header = $(this);
+                const target = $header.attr('data-bs-target');
+                const $icon = $header.find('i');
+
+                $(target).collapse('toggle');
+
+                // Переключение иконки
+                $(target).on('shown.bs.collapse', function () {
+                    $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                });
+                $(target).on('hidden.bs.collapse', function () {
+                    $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+                });
+            });
+        });
+
         document.querySelectorAll('.choices').forEach(el => {
             new Choices(el, {
                 removeItemButton: true,
@@ -598,20 +875,23 @@
         document.querySelectorAll('.tariff-type-select').forEach(select => {
             select.addEventListener('change', function () {
                 const action = this.dataset.action;
+                const bonusType = this.dataset.bonusType;
                 const value = this.value;
 
                 // Находим скрытое поле для этого действия
-                const hiddenInput = document.querySelector(`.tariff-type-hidden[data-action="${action}"]`);
+                const hiddenInput = document.querySelector(`.tariff-type-hidden[data-action="${action}"][data-bonus-type="${bonusType}"]`);
                 if (hiddenInput) {
                     hiddenInput.value = value;
                 }
 
-                // Находим таблицы для этого действия
-                const perMeterTable = document.querySelector(`.pricing-table-per-meter[data-action="${action}"]`);
-                const perPieceTable = document.querySelector(`.pricing-table-per-piece[data-action="${action}"]`);
+                // Находим таблицы для этого действия и типа
+                const perMeterTable = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-bonus-type="${bonusType}"]`);
+                const perPieceTable = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-bonus-type="${bonusType}"]`);
 
-                if (perMeterTable) perMeterTable.style.display = 'none';
-                if (perPieceTable) perPieceTable.style.display = 'none';
+                // Скрываем все таблицы для этого action и bonusType
+                document.querySelectorAll(`.pricing-table-${bonusType}[data-action="${action}"]`).forEach(table => {
+                    table.style.display = 'none';
+                });
 
                 if (value === 'per_meter' && perMeterTable) {
                     perMeterTable.style.display = 'block';
@@ -624,8 +904,8 @@
         // === Динамические диапазоны для per_meter ===
 
         // Построение диапазонов из значений инпутов: [10, 100, 1000] → ['0-10', '10-100', '100-1000']
-        function buildRangesFromInputs(action) {
-            const inputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"]`);
+        function buildRangesFromInputs(action, bonusType) {
+            const inputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"][data-bonus-type="${bonusType}"]`);
             const limits = Array.from(inputs)
                 .map(input => parseInt(input.value) || 0)
                 .filter(v => v > 0)
@@ -641,13 +921,13 @@
         }
 
         // Добавление новой колонки
-        function addRangeColumn(action) {
-            const table = document.querySelector(`.pricing-table-per-meter[data-action="${action}"] table`);
+        function addRangeColumn(action, bonusType) {
+            const table = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-bonus-type="${bonusType}"] table`);
             const theadRow = table.querySelector('thead tr');
             const tbody = table.querySelector('tbody');
 
             // Находим индекс для нового input
-            const existingInputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"]`);
+            const existingInputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"][data-bonus-type="${bonusType}"]`);
             const newIndex = existingInputs.length;
 
             // Вставляем новую колонку перед кнопкой "+"
@@ -658,6 +938,7 @@
             newTh.width = '120';
             newTh.className = 'range-header';
             newTh.dataset.action = action;
+            newTh.dataset.bonusType = bonusType;
             newTh.innerHTML = `
                 <div class="d-flex align-items-center justify-content-between">
                     <span class="mr-1">до</span>
@@ -667,9 +948,10 @@
                            min="1"
                            placeholder="100"
                            data-action="${action}"
+                           data-bonus-type="${bonusType}"
                            data-index="${newIndex}">
                     <button type="button" class="btn btn-sm btn-link text-danger p-0 ml-1"
-                            onclick="removeRangeColumn('${action}', this)">
+                            onclick="removeRangeColumn('${action}', '${bonusType}', this)">
                         ×
                     </button>
                 </div>
@@ -686,7 +968,7 @@
                     <input type="number"
                            class="form-control form-control-sm"
                            placeholder="0"
-                           name="tariffs[${action}][per_meter][__new__][${materialId}]"
+                           name="${bonusType}[tariffs][${action}][per_meter][__new__][${materialId}]"
                            value="">
                 `;
                 row.insertBefore(newTd, row.lastElementChild);
@@ -706,7 +988,7 @@
         }
 
         // Удаление колонки
-        function removeRangeColumn(action, btn) {
+        function removeRangeColumn(action, bonusType, btn) {
             const table = btn.closest('table');
             const th = btn.closest('th');
             const columnIndex = Array.from(th.parentNode.children).indexOf(th);
@@ -724,25 +1006,26 @@
             });
 
             // Обновляем name атрибуты
-            updateInputNames(action);
+            updateInputNames(action, bonusType);
         }
 
         // Обработчик изменения input — обновить name атрибуты
         function handleRangeInputChange(input) {
             const action = input.dataset.action;
+            const bonusType = input.dataset.bonusType;
 
             // Запоминаем активный элемент и его значение
             const activeElement = document.activeElement;
             const activeValue = activeElement?.value;
 
             // Выполняем сортировку
-            sortColumns(action);
-            updateInputNames(action);
+            sortColumns(action, bonusType);
+            updateInputNames(action, bonusType);
 
             // Восстанавливаем фокус
             if (activeValue !== undefined) {
                 // Пытаемся найти тот же input по значению
-                const inputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"]`);
+                const inputs = document.querySelectorAll(`.range-limit-input[data-action="${action}"][data-bonus-type="${bonusType}"]`);
                 inputs.forEach(inp => {
                     if (inp.value === activeValue) {
                         inp.focus();
@@ -752,8 +1035,8 @@
         }
 
         // Сортировка колонок по возрастанию значений в thead
-        function sortColumns(action) {
-            const table = document.querySelector(`.pricing-table-per-meter[data-action="${action}"] table`);
+        function sortColumns(action, bonusType) {
+            const table = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-bonus-type="${bonusType}"] table`);
             const theadRow = table.querySelector('thead tr');
             const tbody = table.querySelector('tbody');
 
@@ -844,12 +1127,12 @@
         }
 
         // Обновление name атрибутов в tbody на основе текущих диапазонов
-        function updateInputNames(action) {
-            const tbody = document.querySelector(`.pricing-table-per-meter[data-action="${action}"] tbody`);
+        function updateInputNames(action, bonusType) {
+            const tbody = document.querySelector(`.pricing-table-${bonusType}[data-action="${action}"][data-bonus-type="${bonusType}"] tbody`);
             const rows = tbody.querySelectorAll('tr');
 
             // Строим новые диапазоны (отсортированные)
-            const ranges = buildRangesFromInputs(action);
+            const ranges = buildRangesFromInputs(action, bonusType);
 
             // Обновляем name атрибуты (значения уже на месте после sortColumns)
             rows.forEach(row => {
@@ -858,7 +1141,7 @@
 
                 inputs.forEach((input, index) => {
                     if (ranges[index]) {
-                        input.name = `tariffs[${action}][per_meter][${ranges[index]}][${materialId}]`;
+                        input.name = `${bonusType}[tariffs][${action}][per_meter][${ranges[index]}][${materialId}]`;
                     }
                 });
             });
@@ -866,12 +1149,13 @@
 
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function () {
-            // Сортируем колонки для всех видимых per_meter таблиц
-            document.querySelectorAll('.pricing-table-per-meter').forEach(container => {
+            // Сортируем колонки для всех видимых per_meter таблиц (salary и bonus)
+            document.querySelectorAll('.pricing-table-salary, .pricing-table-bonus').forEach(container => {
                 if (container.style.display !== 'none') {
                     const action = container.dataset.action;
-                    sortColumns(action);
-                    updateInputNames(action);
+                    const bonusType = container.dataset.bonusType;
+                    sortColumns(action, bonusType);
+                    updateInputNames(action, bonusType);
                 }
             });
 

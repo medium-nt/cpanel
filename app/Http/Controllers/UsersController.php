@@ -56,27 +56,40 @@ class UsersController extends Controller
 
         $actions = \App\Models\UserTariff::getActionsForRole($role);
 
-        $userTariffsCollection = $user->userTariffs()->with('tariffs')->get()->keyBy('action');
+        $userTariffsCollection = $user->userTariffs()->with('tariffs')->get();
 
-        $userTariffs = collect($actions)->mapWithKeys(function ($action) use ($userTariffsCollection) {
-            $userTariff = $userTariffsCollection->get($action);
+        // Разделяем тарифы на Зарплату и Бонусы
+        $userTariffsSalary = collect($actions)->mapWithKeys(function ($action) use ($userTariffsCollection) {
+            $userTariff = $userTariffsCollection->where('action', $action)->where('is_bonus', false)->first();
             if (! $userTariff) {
-                return [$action => new \App\Models\UserTariff(['action' => $action, 'type' => ''])];
+                return [$action => new \App\Models\UserTariff(['action' => $action, 'type' => '', 'is_bonus' => false])];
             }
 
             return [$action => $userTariff];
         });
 
-        // Загружаем диапазоны для каждого действия из БД
-        $tariffRanges = [];
+        $userTariffsBonus = collect($actions)->mapWithKeys(function ($action) use ($userTariffsCollection) {
+            $userTariff = $userTariffsCollection->where('action', $action)->where('is_bonus', true)->first();
+            if (! $userTariff) {
+                return [$action => new \App\Models\UserTariff(['action' => $action, 'type' => '', 'is_bonus' => true])];
+            }
+
+            return [$action => $userTariff];
+        });
+
+        // Загружаем диапазоны для каждого действия отдельно для ЗП и Бонусов
+        $tariffRangesSalary = [];
+        $tariffRangesBonus = [];
+
         foreach ($actions as $action) {
             if ($action === 'Оклад') {
                 continue;
             }
 
+            // Для Зарплаты
             $ranges = Tariff::query()
                 ->whereHas('userTariff', function ($q) use ($user, $action) {
-                    $q->where('user_id', $user->id)->where('action', $action);
+                    $q->where('user_id', $user->id)->where('action', $action)->where('is_bonus', false);
                 })
                 ->whereNotNull('range')
                 ->pluck('range')
@@ -84,7 +97,20 @@ class UsersController extends Controller
                 ->sort()
                 ->values();
 
-            $tariffRanges[$action] = $ranges;
+            $tariffRangesSalary[$action] = $ranges;
+
+            // Для Бонусов
+            $rangesBonus = Tariff::query()
+                ->whereHas('userTariff', function ($q) use ($user, $action) {
+                    $q->where('user_id', $user->id)->where('action', $action)->where('is_bonus', true);
+                })
+                ->whereNotNull('range')
+                ->pluck('range')
+                ->unique()
+                ->sort()
+                ->values();
+
+            $tariffRangesBonus[$action] = $rangesBonus;
         }
 
         return view('users.edit', [
@@ -96,9 +122,11 @@ class UsersController extends Controller
             'materials' => Material::query()->where('type_id', 1)->get(),
             'selectedMaterials' => $user->materials()->pluck('id')->toArray(),
             'rates' => UserService::getRateByUserId($user->id),
-            'userTariffs' => $userTariffs,
+            'userTariffsSalary' => $userTariffsSalary,
+            'userTariffsBonus' => $userTariffsBonus,
             'tariffActions' => $actions,
-            'tariffRanges' => $tariffRanges,
+            'tariffRangesSalary' => $tariffRangesSalary,
+            'tariffRangesBonus' => $tariffRangesBonus,
         ]);
     }
 
@@ -240,71 +268,78 @@ class UsersController extends Controller
         // Удаляем старые тарифы пользователя
         UserTariff::where('user_id', $user->id)->delete();
 
-        // Сохраняем оклад за день
-        if (isset($data['fixed_salary_per_day']) && $data['fixed_salary_per_day'] > 0) {
-            $userTariff = UserTariff::create([
-                'user_id' => $user->id,
-                'action' => 'Оклад',
-                'type' => 'fixed',
-            ]);
+        // Обрабатываем оба типа: salary и bonus
+        foreach (['salary', 'bonus'] as $bonusType) {
+            $isBonus = $bonusType === 'bonus';
 
-            Tariff::create([
-                'user_tariff_id' => $userTariff->id,
-                'material_id' => null,
-                'range' => null,
-                'width' => null,
-                'value' => $data['fixed_salary_per_day'],
-            ]);
-        }
+            // Сохраняем оклад
+            if (isset($data[$bonusType]['fixed_salary_per_day']) && $data[$bonusType]['fixed_salary_per_day'] > 0) {
+                $userTariff = UserTariff::create([
+                    'user_id' => $user->id,
+                    'action' => 'Оклад',
+                    'type' => 'fixed',
+                    'is_bonus' => $isBonus,
+                ]);
 
-        foreach ($actions as $action) {
-            if ($action === 'Оклад') {
-                continue;
+                Tariff::create([
+                    'user_tariff_id' => $userTariff->id,
+                    'material_id' => null,
+                    'range' => null,
+                    'width' => null,
+                    'value' => $data[$bonusType]['fixed_salary_per_day'],
+                ]);
             }
 
-            $type = $data['tariffs'][$action]['type'] ?? null;
+            foreach ($actions as $action) {
+                if ($action === 'Оклад') {
+                    continue;
+                }
 
-            if (! $type) {
-                continue; // Пропускаем, если "не начислять"
-            }
+                $type = $data[$bonusType]['tariffs'][$action]['type'] ?? null;
 
-            // Создаём UserTariff
-            $userTariff = UserTariff::create([
-                'user_id' => $user->id,
-                'action' => $action,
-                'type' => $type,
-            ]);
+                if (! $type) {
+                    continue; // Пропускаем, если "не начислять"
+                }
 
-            // Создаём тарифы в зависимости от типа
-            if ($type === 'per_meter') {
-                // Получаем диапазоны динамически из входящих данных
-                $ranges = array_keys($data['tariffs'][$action]['per_meter'] ?? []);
+                // Создаём UserTariff
+                $userTariff = UserTariff::create([
+                    'user_id' => $user->id,
+                    'action' => $action,
+                    'type' => $type,
+                    'is_bonus' => $isBonus,
+                ]);
 
-                foreach ($ranges as $range) {
-                    foreach ($data['tariffs'][$action]['per_meter'][$range] ?? [] as $materialId => $value) {
-                        $value = is_numeric($value) ? floatval($value) : null;
-                        if ($value !== null && $value > 0) {
-                            Tariff::create([
-                                'user_tariff_id' => $userTariff->id,
-                                'material_id' => $materialId,
-                                'range' => $range,
-                                'value' => $value,
-                            ]);
+                // Создаём тарифы в зависимости от типа
+                if ($type === 'per_meter') {
+                    // Получаем диапазоны динамически из входящих данных
+                    $ranges = array_keys($data[$bonusType]['tariffs'][$action]['per_meter'] ?? []);
+
+                    foreach ($ranges as $range) {
+                        foreach ($data[$bonusType]['tariffs'][$action]['per_meter'][$range] ?? [] as $materialId => $value) {
+                            $value = is_numeric($value) ? floatval($value) : null;
+                            if ($value !== null && $value > 0) {
+                                Tariff::create([
+                                    'user_tariff_id' => $userTariff->id,
+                                    'material_id' => $materialId,
+                                    'range' => $range,
+                                    'value' => $value,
+                                ]);
+                            }
                         }
                     }
-                }
-            } elseif ($type === 'per_piece') {
-                $widths = ['200', '300', '400', '500', '600', '700', '800'];
-                foreach ($widths as $width) {
-                    foreach ($data['tariffs'][$action]['per_piece'][$width] ?? [] as $materialId => $value) {
-                        $value = is_numeric($value) ? floatval($value) : null;
-                        if ($value !== null && $value > 0) {
-                            Tariff::create([
-                                'user_tariff_id' => $userTariff->id,
-                                'material_id' => $materialId,
-                                'width' => $width,
-                                'value' => $value,
-                            ]);
+                } elseif ($type === 'per_piece') {
+                    $widths = ['200', '300', '400', '500', '600', '700', '800'];
+                    foreach ($widths as $width) {
+                        foreach ($data[$bonusType]['tariffs'][$action]['per_piece'][$width] ?? [] as $materialId => $value) {
+                            $value = is_numeric($value) ? floatval($value) : null;
+                            if ($value !== null && $value > 0) {
+                                Tariff::create([
+                                    'user_tariff_id' => $userTariff->id,
+                                    'material_id' => $materialId,
+                                    'width' => $width,
+                                    'value' => $value,
+                                ]);
+                            }
                         }
                     }
                 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('action')->default('Пошив');
             $table->enum('type', ['fixed', 'per_meter', 'per_piece']);
+            $table->boolean('is_bonus')->default(false);
             $table->timestamps();
         });
     }

@@ -17,18 +17,28 @@ class TariffsUpdateRequest extends FormRequest
         $role = $this->route('user')->role->name;
         $actions = UserTariff::getActionsForRole($role);
 
-        $rules = [
-            'fixed_salary_per_day' => 'nullable|numeric|min:0',
-        ];
+        $rules = [];
 
+        // Правила для salary
+        $rules['salary.fixed_salary_per_day'] = 'nullable|numeric|min:0';
         foreach ($actions as $action) {
             if ($action === 'Оклад') {
                 continue;
             }
+            $rules["salary.tariffs.{$action}.type"] = 'nullable|in:fixed,per_meter,per_piece';
+            $rules["salary.tariffs.{$action}.per_meter"] = 'array';
+            $rules["salary.tariffs.{$action}.per_piece"] = 'array';
+        }
 
-            $rules["tariffs.{$action}.type"] = 'nullable|in:fixed,per_meter,per_piece';
-            $rules["tariffs.{$action}.per_meter"] = 'array';
-            $rules["tariffs.{$action}.per_piece"] = 'array';
+        // Правила для bonus
+        $rules['bonus.fixed_salary_per_day'] = 'nullable|numeric|min:0';
+        foreach ($actions as $action) {
+            if ($action === 'Оклад') {
+                continue;
+            }
+            $rules["bonus.tariffs.{$action}.type"] = 'nullable|in:fixed,per_meter,per_piece';
+            $rules["bonus.tariffs.{$action}.per_meter"] = 'array';
+            $rules["bonus.tariffs.{$action}.per_piece"] = 'array';
         }
 
         return $rules;
