@@ -36,15 +36,35 @@ Schedule::call(function () {
     TransactionService::activateHoldBonus();
 })->dailyAt('00:20');
 
-Schedule::call(function () {
-    TransactionService::accrualSalary('otk');
-    TransactionService::accrualSalary('driver');
-    TransactionService::accrualSalary('storekeeper');
-})->dailyAt('00:25');
+// === СТАРАЯ СИСТЕМА НАЧИСЛЕНИЙ (закомментирована) ===
+// Schedule::call(function () {
+//     TransactionService::accrualSalary('otk');
+//     TransactionService::accrualSalary('driver');
+//     TransactionService::accrualSalary('storekeeper');
+// })->dailyAt('00:25');
+//
+// Schedule::call(function () {
+//     TransactionService::accrualSeamstressesSalary();
+// })->dailyAt('00:35');
+//
+// Schedule::call(function () {
+//     TransactionService::accrualCuttersSalary();
+// })->dailyAt('00:45');
+//
+// Schedule::call(function () {
+//     TransactionService::accrualOtkSalary();
+// })->dailyAt('00:55');
 
-Schedule::call(function () {
-    TransactionService::accrualSeamstressesSalary();
-})->dailyAt('00:35');
+// === НОВАЯ СИСТЕМА НАЧИСЛЕНИЙ (на основе действий) ===
+
+// 00:30 — Оклад (для тех, у кого type=fixed_daily)
+Schedule::command('accrual:salary-daily')->dailyAt('00:30');
+
+// 00:35 — Пошив (sewing)
+Schedule::command('accrual:sewing')->dailyAt('00:35');
+
+// 00:40 — Закрой (cutting)
+Schedule::command('accrual:cutting')->dailyAt('00:40');
 
 Schedule::call(function () {
     TransactionService::accrualCuttersSalary();

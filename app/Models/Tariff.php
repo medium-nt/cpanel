@@ -15,9 +15,12 @@ class Tariff extends Model
         'value',
     ];
 
-    protected $casts = [
-        'value' => 'decimal:2',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'value' => 'decimal:2',
+        ];
+    }
 
     public function userTariff(): BelongsTo
     {
