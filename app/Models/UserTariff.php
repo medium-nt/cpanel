@@ -10,7 +10,7 @@ class UserTariff extends Model
 {
     public const ROLE_ACTIONS = [
         'storekeeper' => ['Сканировка'],
-        'seamstress' => ['Пошив'],
+        'seamstress' => ['Пошив', 'Стикеровка'],
         'cutter' => ['Закрой'],
         'otk' => ['Перепаковка', 'Стикеровка'],
     ];
