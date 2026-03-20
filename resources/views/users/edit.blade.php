@@ -504,7 +504,7 @@
                                                                         @php
                                                                             $limit = \App\Helpers\TariffHelper::getRangeLimit($range);
                                                                         @endphp
-                                                                        <th width="120"
+                                                                        <th style="min-width: 120px; max-width: 120px;"
                                                                             class="range-header"
                                                                             data-action="{{ $action }}"
                                                                             data-bonus-type="salary">
@@ -586,7 +586,7 @@
                                                                         Материал
                                                                     </th>
                                                                     @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
-                                                                        <th width="70">{{ $width }}</th>
+                                                                        <th style="min-width: 120px; max-width: 120px;">{{ $width }}</th>
                                                                     @endforeach
                                                                 </tr>
                                                                 </thead>
@@ -678,7 +678,7 @@
                                                                         @php
                                                                             $limit = \App\Helpers\TariffHelper::getRangeLimit($range);
                                                                         @endphp
-                                                                        <th width="120"
+                                                                        <th style="min-width: 120px; max-width: 120px;"
                                                                             class="range-header"
                                                                             data-action="{{ $action }}"
                                                                             data-bonus-type="bonus">
@@ -760,7 +760,7 @@
                                                                         Материал
                                                                     </th>
                                                                     @foreach(['200', '300', '400', '500', '600', '700', '800'] as $width)
-                                                                        <th width="70">{{ $width }}</th>
+                                                                        <th style="min-width: 120px; max-width: 120px;">{{ $width }}</th>
                                                                     @endforeach
                                                                 </tr>
                                                                 </thead>
