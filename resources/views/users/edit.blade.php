@@ -554,6 +554,7 @@
                                                                             <td>
                                                                                 <input
                                                                                     type="number"
+                                                                                    step="0.01"
                                                                                     class="form-control form-control-sm"
                                                                                     placeholder="0"
                                                                                     name="salary[tariffs][{{ $action }}][per_meter][{{ $range }}][{{ $material->id }}]"
@@ -603,6 +604,7 @@
                                                                             <td>
                                                                                 <input
                                                                                     type="number"
+                                                                                    step="0.01"
                                                                                     class="form-control form-control-sm"
                                                                                     placeholder="0"
                                                                                     name="salary[tariffs][{{ $action }}][per_piece][{{ $width }}][{{ $material->id }}]"
@@ -726,6 +728,7 @@
                                                                             <td>
                                                                                 <input
                                                                                     type="number"
+                                                                                    step="0.01"
                                                                                     class="form-control form-control-sm"
                                                                                     placeholder="0"
                                                                                     name="bonus[tariffs][{{ $action }}][per_meter][{{ $range }}][{{ $material->id }}]"
@@ -775,6 +778,7 @@
                                                                             <td>
                                                                                 <input
                                                                                     type="number"
+                                                                                    step="0.01"
                                                                                     class="form-control form-control-sm"
                                                                                     placeholder="0"
                                                                                     name="bonus[tariffs][{{ $action }}][per_piece][{{ $width }}][{{ $material->id }}]"
@@ -968,6 +972,7 @@
                 const newTd = document.createElement('td');
                 newTd.innerHTML = `
                     <input type="number"
+                           step="0.01"
                            class="form-control form-control-sm"
                            placeholder="0"
                            name="${bonusType}[tariffs][${action}][per_meter][__new__][${materialId}]"
