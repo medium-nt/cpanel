@@ -402,6 +402,16 @@ class ActionAccrualService
                 continue;
             }
 
+            // Проверка минимального количества действий для швеи, закройщика, ОТК
+            $actionCount = $this->getActionCount($user, $date);
+            if ($actionCount < 3) {
+                Log::channel('salary')->warning(
+                    "Пропуск начисления оклада для {$user->name} (id: {$user->id}). За {$date->format('d/m/Y')} выполнено действий: {$actionCount} (требуется минимум 3)."
+                );
+
+                continue;
+            }
+
             $russianAction = 'Оклад';
 
             // Находим ВСЕ user_tariff для оклада (и ЗП, и бонусы)
@@ -462,6 +472,30 @@ class ActionAccrualService
             // Лог с суммами
             $this->logSalaryDaily($user, $date, $salaryResults, $bonusResults, $test);
         }
+    }
+
+    /**
+     * Получить количество выполненных действий за дату
+     */
+    private function getActionCount(User $user, Carbon $date): int
+    {
+        $roleName = $user->role?->name;
+
+        return match ($roleName) {
+            'seamstress' => MarketplaceOrderItem::query()
+                ->where('seamstress_id', $user->id)
+                ->whereDate('completed_at', $date)
+                ->count(),
+            'cutter' => MarketplaceOrderItem::query()
+                ->where('cutter_id', $user->id)
+                ->whereDate('cutting_completed_at', $date)
+                ->count(),
+            'otk' => MarketplaceOrderItem::query()
+                ->where('otk_id', $user->id)
+                ->whereDate('packed_at', $date)
+                ->count(),
+            default => PHP_INT_MAX, // для остальных (storekeeper и др.) нет ограничений
+        };
     }
 
     /**
