@@ -283,10 +283,11 @@ class ActionAccrualService
         }
 
         $isBonus = $result['is_bonus'];
+        $widthMeters = ($item->item?->width ?? 0) / 100;
 
         Transaction::query()->create([
             'user_id' => $user->id,
-            'title' => $this->getTitle($item, $isBonus, $action),
+            'title' => $this->getTitle($item, $isBonus, $action, $widthMeters),
             'amount' => $result['amount'],
             'transaction_type' => 'out',
             'accrual_for_date' => $date->format('Y-m-d'),
@@ -320,13 +321,36 @@ class ActionAccrualService
     /**
      * Заголовок транзакции
      */
-    private function getTitle(MarketplaceOrderItem $item, bool $isBonus, string $action): string
+    private function getTitle(MarketplaceOrderItem $item, bool $isBonus, string $action, ?float $widthMeters = null): string
     {
         $orderId = $item->marketplaceOrder->order_id;
         $bonusPart = $isBonus ? ' (бонус)' : '';
         $russianAction = UserTariff::getRussianAction($action);
 
-        return "ЗП за заказ #{$orderId}{$bonusPart} ({$russianAction})";
+        $title = "ЗП за заказ #{$orderId}{$bonusPart} ({$russianAction})";
+
+        // Добавляем метры только если ширина передана и больше нуля
+        if ($widthMeters !== null && $widthMeters > 0) {
+            $formattedWidth = $this->formatMeters($widthMeters);
+            $title .= " - {$formattedWidth} п.м.";
+        }
+
+        return $title;
+    }
+
+    /**
+     * Форматировать метры для отображения в title
+     * Убирает insignificant trailing zeros (2.50 -> 2.5, 2.00 -> 2)
+     */
+    private function formatMeters(float $meters): string
+    {
+        $rounded = round($meters, 2);
+
+        if ($rounded == (int) $rounded) {
+            return (string) (int) $rounded;
+        }
+
+        return (string) $rounded;
     }
 
     /**

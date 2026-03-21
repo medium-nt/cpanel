@@ -159,7 +159,7 @@
                                     <td></td>
                                 @endif
                                 <td>{{ $transaction->title }} @if($transaction->user_id)
-                                        ({{ $transaction->user->name ?? '---' }}
+                                        ({{ $transaction->user->short_name ?? '---' }}
                                         )
                                     @endif</td>
                                 <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
