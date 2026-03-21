@@ -66,13 +66,14 @@ Schedule::command('accrual:sewing')->dailyAt('00:35');
 // 00:40 — Закрой (cutting)
 Schedule::command('accrual:cutting')->dailyAt('00:40');
 
-Schedule::call(function () {
-    TransactionService::accrualCuttersSalary();
-})->dailyAt('00:45');
+// 00:45 — Переупаковка (repacking)- TODO: продумать логику заново.
+// Schedule::command('accrual:repacking')->dailyAt('00:45');
 
-Schedule::call(function () {
-    TransactionService::accrualOtkSalary();
-})->dailyAt('00:55');
+// 00:50 — Стикеровка (sticking)
+Schedule::command('accrual:sticking')->dailyAt('00:50');
+
+// 00:55 — Сканировка (scanning) - TODO: логика не реализована
+// Schedule::command('accrual:scanning')->dailyAt('00:55');
 
 Schedule::call(function () {
     MarketplaceSupplyService::deleteOldVideos();
