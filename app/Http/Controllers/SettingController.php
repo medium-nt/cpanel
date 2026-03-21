@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\TgService;
-use App\Services\TransactionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -206,17 +205,5 @@ class SettingController extends Controller
         }
 
         exit;
-    }
-
-    public static function salary()
-    {
-        TransactionService::accrualOtkSalary(true);
-    }
-
-    public function tariffs()
-    {
-        return view('settings.tariffs', [
-            'title' => 'Тарифы сотрудников',
-        ]);
     }
 }

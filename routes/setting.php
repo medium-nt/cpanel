@@ -16,15 +16,7 @@ Route::prefix('/setting')->group(function () {
         ->can('update', Setting::class)
         ->name('setting.test');
 
-    Route::get('salary', [SettingController::class, 'salary'])
-        ->can('update', Setting::class)
-        ->name('setting.salary');
-
     Route::get('duplicates', [SettingController::class, 'duplicates'])
         ->can('update', Setting::class)
         ->name('setting.duplicates');
-
-    Route::get('tariffs', [SettingController::class, 'tariffs'])
-        ->can('viewAny', Setting::class)
-        ->name('setting.tariffs');
 });
