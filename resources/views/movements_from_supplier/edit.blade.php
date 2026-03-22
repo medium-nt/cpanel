@@ -72,9 +72,13 @@
                                 <input type="number"
                                        class="form-control"
                                        id="ordered_quantity"
-                                       step="1"
                                        value="{{ $item->quantity }}"
-                                       readonly>
+                                       name="quantity[]"
+                                       step="0.01"
+                                       @if($item->roll->status != 'in_storage')
+                                           readonly
+                                    @endif
+                                >
                             </div>
 
                             <div class="col-md-2 form-group">

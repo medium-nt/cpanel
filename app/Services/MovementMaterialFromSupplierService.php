@@ -99,6 +99,7 @@ class MovementMaterialFromSupplierService
     {
         $materialIds = $request->input('id', []);
         $prices = $request->input('price', []);
+        $quantities = $request->input('quantity', []);
 
         if (auth()->user()->isAdmin()) {
             $order->supplier_id = $request->supplier_id;
@@ -122,16 +123,31 @@ class MovementMaterialFromSupplierService
 
             $list = '';
             foreach ($materialIds as $key => $material_id) {
-                MovementMaterial::query()
-                    ->where('id', $material_id)
-                    ->update([
-                        'price' => $prices[$key],
-                    ]);
+                $movementMaterial = MovementMaterial::find($material_id);
+                $movementMaterialQuantity = $movementMaterial->quantity;
 
-                $movementMaterial = MovementMaterial::query()->find($material_id);
+                $textChangeQuantity = '';
+
+                if ($movementMaterial->quantity != $quantities[$key]) {
+                    $roll = Roll::find($movementMaterial->roll_id);
+
+                    if ($roll->status == 'in_storage') {
+                        $roll->initial_quantity = $quantities[$key];
+                        $roll->save();
+                        $movementMaterial->quantity = $quantities[$key];
+
+                        $textChangeQuantity = '(новое количество: '.$quantities[$key].') ';
+                    } else {
+                        $textChangeQuantity = '(количество не изменено, товар не на складе) ';
+                    }
+                }
+
+                $movementMaterial->price = $prices[$key];
+                $movementMaterial->save();
 
                 $list .= '• '.$movementMaterial->material->title.' '
-                    .$movementMaterial->quantity.' '
+                    .$movementMaterialQuantity.' '
+                    .$textChangeQuantity
                     .$movementMaterial->material->unit.' цена: '
                     .$movementMaterial->price.' '
                     ."\n";

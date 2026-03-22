@@ -21,6 +21,7 @@ Route::prefix('/movements_from_supplier')->group(function () {
         ->name('movements_from_supplier.edit');
 
     Route::put('/update/{order}', [MovementMaterialFromSupplierController::class, 'update'])
+        ->can('update', 'order')
         ->name('movements_from_supplier.update');
 
     Route::delete('/delete/{order}', [MovementMaterialFromSupplierController::class, 'destroy'])
