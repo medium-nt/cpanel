@@ -41,6 +41,7 @@ class WarehouseOfItemService
         }
 
         return $items
+            ->with(['item', 'shelf', 'marketplaceOrder'])
             ->select('marketplace_order_items.*', 'marketplace_items.title', 'marketplace_items.width', 'marketplace_items.height');
     }
 
