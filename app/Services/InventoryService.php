@@ -131,13 +131,16 @@ class InventoryService
             return self::materialsQuantityByWorkshopAggregate();
         }
 
+        if ($type === 'warehouse') {
+            return self::materialsQuantityByWarehouseAggregate();
+        }
+
         $materials = Material::all();
 
         $materialsQuantity = [];
         foreach ($materials as $material) {
             $quantity = 0;
             match ($type) {
-                'warehouse' => $quantity = self::materialInWarehouse($material->id),
                 'defect_warehouse' => $quantity = self::defectMaterialInWarehouse($material->id),
                 default => 0,
             };
@@ -219,6 +222,58 @@ class InventoryService
             $result[] = [
                 'material' => $row,
                 'quantity' => round($quantity, 2),
+            ];
+        }
+
+        return $result;
+    }
+
+    private static function materialsQuantityByWarehouseAggregate(): array
+    {
+        // quantity без фильтра даты (как materialInWarehouse)
+        $quantityData = Material::query()
+            ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
+            ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->select(
+                'materials.id',
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 1 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) -
+                    SUM(CASE WHEN orders.type_movement = 2 AND orders.status NOT IN (-1, 0) THEN movement_materials.quantity ELSE 0 END) -
+                    SUM(CASE WHEN orders.type_movement = 2 AND orders.status = 0 THEN movement_materials.quantity ELSE 0 END) as total_quantity
+                ')
+            )
+            ->groupBy('materials.id')
+            ->pluck('total_quantity', 'id');
+
+        // in_stock, out_stock, hold_out_stock с фильтром даты (как *_inStock методы)
+        $detailedData = Material::query()
+            ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
+            ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->select(
+                'materials.id',
+                'materials.title',
+                'materials.unit',
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 1 AND orders.status = 3 AND orders.created_at > "2025-12-18" THEN movement_materials.quantity ELSE 0 END) as in_stock
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 2 AND orders.status NOT IN (-1, 0) AND orders.created_at > "2025-12-18" THEN movement_materials.quantity ELSE 0 END) as out_stock
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 2 AND orders.status = 0 AND orders.created_at > "2025-12-18" THEN movement_materials.quantity ELSE 0 END) as hold_out_stock
+                ')
+            )
+            ->groupBy('materials.id', 'materials.title', 'materials.unit')
+            ->get();
+
+        $result = [];
+        foreach ($detailedData as $row) {
+            $result[] = [
+                'material' => $row,
+                'quantity' => round($quantityData[$row->id] ?? 0, 2),
+                'in_stock' => round($row->in_stock, 2),
+                'out_stock' => round($row->out_stock, 2),
+                'hold_out_stock' => round($row->hold_out_stock, 2),
             ];
         }
 
