@@ -127,6 +127,10 @@ class InventoryService
 
     public static function materialsQuantityBy(string $type): array
     {
+        if ($type === 'workhouse') {
+            return self::materialsQuantityByWorkshopAggregate();
+        }
+
         $materials = Material::all();
 
         $materialsQuantity = [];
@@ -134,7 +138,6 @@ class InventoryService
             $quantity = 0;
             match ($type) {
                 'warehouse' => $quantity = self::materialInWarehouse($material->id),
-                'workhouse' => $quantity = self::materialInWorkshop($material->id),
                 'defect_warehouse' => $quantity = self::defectMaterialInWarehouse($material->id),
                 default => 0,
             };
@@ -155,6 +158,71 @@ class InventoryService
         }
 
         return $materialsQuantity;
+    }
+
+    private static function materialsQuantityByWorkshopAggregate(): array
+    {
+        $data = Material::query()
+            ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
+            ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->select(
+                'materials.id',
+                'materials.title',
+                'materials.unit',
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 2 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as in_workshop
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 3 AND orders.status = 4 THEN movement_materials.quantity ELSE 0 END) as hold_workshop_to_items
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 3 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_workshop_to_items
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 0 THEN movement_materials.quantity ELSE 0 END) as hold_to_defect
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 1 THEN movement_materials.quantity ELSE 0 END) as approved_defect
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_to_defect
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 0 THEN movement_materials.quantity ELSE 0 END) as hold_to_write_off
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 1 THEN movement_materials.quantity ELSE 0 END) as approved_write_off
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_to_write_off
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 6 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as write_off
+                ')
+            )
+            ->groupBy('materials.id', 'materials.title', 'materials.unit')
+            ->get();
+
+        $result = [];
+        foreach ($data as $row) {
+            $quantity = $row->in_workshop
+                - $row->hold_workshop_to_items
+                - $row->out_workshop_to_items
+                - $row->hold_to_defect
+                - $row->approved_defect
+                - $row->out_to_defect
+                - $row->hold_to_write_off
+                - $row->approved_write_off
+                - $row->out_to_write_off
+                - $row->write_off;
+
+            $result[] = [
+                'material' => $row,
+                'quantity' => round($quantity, 2),
+            ];
+        }
+
+        return $result;
     }
 
     public function createInventory($request): bool
