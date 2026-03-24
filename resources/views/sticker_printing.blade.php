@@ -274,6 +274,9 @@
                                         </th>
                                         <th style="text-align: center" scope="col">Номер заказа</th>
                                         <th style="text-align: center" scope="col">Товар</th>
+                                        <th style="text-align: center"
+                                            scope="col">Кластер
+                                        </th>
                                         <th style="text-align: center" scope="col">Маркетплейс</th>
                                         <th style="text-align: center; width: 80px" scope="col"></th>
                                     </tr>
@@ -335,6 +338,9 @@
                                         </td>
                                         <td class="td_style">
                                             {{ $item->item->title }} - {{ $item->item->width / 100 }} х {{ $item->item->height }}
+                                        </td>
+                                        <td class="td_style">
+                                            {{ $item->marketplaceOrder->cluster }}
                                         </td>
                                         <td class="td_style">
                                             <img style="width: 80px;"
