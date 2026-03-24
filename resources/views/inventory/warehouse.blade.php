@@ -28,11 +28,6 @@
                                 <td>
                                     <span style="width: 100px; display: inline-block;">
                                         {{ $item['quantity'] }} {{ $item['material']->unit }} <br>
-                                        <small>
-                                        in: {{ $item['in_stock'] }} {{ $item['material']->unit }}<br>
-                                        hold: {{ $item['hold_out_stock'] }} {{ $item['material']->unit }}<br>
-                                        out: {{ $item['out_stock'] }} {{ $item['material']->unit }}
-                                        </small>
                                     </span>
                                 </td>
                                 <td>

@@ -152,9 +152,6 @@ class InventoryService
 
             $materialsQuantity[] = [
                 'material' => $material,
-                'in_stock' => self::materialInWarehouse_inStock($material->id),
-                'out_stock' => self::materialInWarehouse_outStock($material->id),
-                'hold_out_stock' => self::materialInWarehouse_holdOutStockNew($material->id),
                 'quantity' => $quantity,
                 'remnants' => $remnantsQuantity,
             ];
