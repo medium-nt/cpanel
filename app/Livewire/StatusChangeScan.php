@@ -159,7 +159,7 @@ class StatusChangeScan extends Component
             $toStatusName = StatusMovement::STATUSES[$this->toStatus] ?? "статус {$this->toStatus}";
             $itemsList = implode(', ', $changedItemIds);
 
-            Log::channel('erp')->info(
+            Log::channel('items')->info(
                 'Кладовщик '.auth()->user()->name.
                 " на странице '{$this->pageTitle}' отсканировал товары: {$itemsList}".
                 " (статус: {$toStatusName})"

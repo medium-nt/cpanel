@@ -195,7 +195,7 @@ class MarketplaceOrderItemService
                 TransactionService::penalizeUserForOrderCancellation($marketplaceOrderItem);
             }
 
-            Log::channel('erp')
+            Log::channel('items')
                 ->notice($logMessage);
 
             DB::commit();
@@ -205,7 +205,7 @@ class MarketplaceOrderItemService
 
             Log::error($e->getMessage());
 
-            Log::channel('erp')
+            Log::channel('orders')
                 ->error('Заказ № '.$marketplaceOrderItem->marketplaceOrder->order_id.' не удалось отменить!');
 
             return [
@@ -433,7 +433,7 @@ class MarketplaceOrderItemService
                 $maxStack = StackService::getMaxStackByUser($user->id)->max;
                 if ($maxStack >= $maxCountOrderItems) {
 
-                    Log::channel('erp')
+                    Log::channel('worker_limits')
                         ->error('СТЭК! Достигнут максимум заказов у закройщика '.$user->name.', id: '.$user->id.
                             '. Всего можно взять: '.$maxCountOrderItems.', текущее количество в работе (в стэке): '.$maxStack);
 
@@ -449,7 +449,7 @@ class MarketplaceOrderItemService
                 'message' => 'OK',
             ];
         } catch (\Exception $e) {
-            Log::channel('erp')
+            Log::channel('worker_limits')
                 ->error('Ошибка при проверке максимального количества заказов у пользователя '.
                     $user->id.': '.$e->getMessage());
 
@@ -626,7 +626,7 @@ class MarketplaceOrderItemService
     {
         /** @var MarketplaceOrderItem $marketplaceOrderItem */
         foreach (self::getFilteredItems() as $marketplaceOrderItem) {
-            Log::channel('erp')
+            Log::channel('items')
                 ->info(
                     'Проверяем возможность взятия заказа №'.$marketplaceOrderItem->id.
                     ' сотрудником '.auth()->user()->name
@@ -711,7 +711,7 @@ class MarketplaceOrderItemService
             );
         }
 
-        Log::channel('erp')->info($text);
+        Log::channel('items')->info($text);
     }
 
     private static function getFilteredItems(): Collection
@@ -823,7 +823,7 @@ class MarketplaceOrderItemService
         $marketplaceOrderItem->status = 13; // в сборке
         $marketplaceOrderItem->save();
 
-        Log::channel('erp')
+        Log::channel('items')
             ->info('Зарезервировали заказ '.$marketplaceOrder->id.' с товаром '.$marketplaceOrderItem->id);
     }
 
@@ -835,7 +835,7 @@ class MarketplaceOrderItemService
             'status' => 'returned',
         ]);
 
-        Log::channel('erp')
+        Log::channel('items')
             ->info('Заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.' сохранен в историю с товаром '
                 .$marketplaceOrderItem->id.' (значит этот заказ отмененный, раз товар на хранении)');
 
@@ -853,14 +853,14 @@ class MarketplaceOrderItemService
                 ->first();
 
             if (! $marketplaceOrderHistory) {
-                Log::channel('erp')
+                Log::channel('items')
                     ->error('В Истории нет заказа '.$selectedItem->marketplace_order_id.' по товару '.$selectedItem->id);
                 DB::rollBack();
 
                 return;
             }
 
-            Log::channel('erp')
+            Log::channel('items')
                 ->info('Для товара id '.$selectedItem->id.'Восстановлен заказ #'.$marketplaceOrderHistory->marketplace_order_id.
                     ' вместо текущего заказа #'.$selectedItem->marketplace_order_id);
 
@@ -874,7 +874,7 @@ class MarketplaceOrderItemService
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::channel('erp')->error('Ошибка при восстановлении заказа из истории: '.$e->getMessage(), [
+            Log::channel('items')->error('Ошибка при восстановлении заказа из истории: '.$e->getMessage(), [
                 'marketplace_order_item_id' => $selectedItem->id,
                 'marketplace_order_id' => $selectedItem->marketplace_order_id,
                 'trace' => $e->getTraceAsString(),
@@ -885,7 +885,7 @@ class MarketplaceOrderItemService
     //    private static function isReserved($marketplaceOrderItem): bool
     //    {
     //        if ($marketplaceOrderItem->status == 99) {
-    //            Log::channel('erp')
+    //            Log::channel('items')
     //                ->warning('Конкурентный доступ! Заказ '.$marketplaceOrderItem->id.' находится в резерве');
     //
     //            return true;
@@ -899,7 +899,7 @@ class MarketplaceOrderItemService
     //        $marketplaceOrderItem->status = 99;
     //        $marketplaceOrderItem->save();
     //
-    //        Log::channel('erp')
+    //        Log::channel('items')
     //            ->warning('Зарезервирован товар '.$marketplaceOrderItem->id);
     //    }
 
@@ -908,8 +908,8 @@ class MarketplaceOrderItemService
         $marketplaceOrderItem->status = ($marketplaceOrderItem->cutter_id) ? 8 : 0;
         $marketplaceOrderItem->save();
 
-        Log::channel('erp')
-            ->warning('Восстановлен резервированный товара '.$marketplaceOrderItem->id);
+        Log::channel('items')
+            ->warning('Восстановлен резервированный товар '.$marketplaceOrderItem->id);
     }
 
     private static function checkDailyLimit(User $user): array
@@ -923,7 +923,7 @@ class MarketplaceOrderItemService
         };
 
         if ($meters >= $dailyLimit) {
-            Log::channel('erp')
+            Log::channel('worker_limits')
                 ->error('Сотрудник '.$user->name.' достиг дневного лимита! Метраж (готовый и в работе): '.
                     $meters.', при лимите в '.$dailyLimit);
 
@@ -1008,7 +1008,7 @@ class MarketplaceOrderItemService
         }
 
         if ($maxRemainingMinutes > 0) {
-            Log::channel('erp')
+            Log::channel('worker_limits')
                 ->error('Сотрудник '.$user->name.
                     ' пытался взять заказ, но у него не окончен таймаут. Ждать еще '
                     .$maxRemainingMinutes.' минут');

@@ -186,12 +186,12 @@ class WarehouseOfItemController extends Controller
             ' передал товар #'.$marketplaceOrderItem->id.
             ' (заказ '.$marketplaceOrder->order_id.') на стикеровку';
 
-        Log::channel('erp')->info($text);
+        Log::channel('items')->info($text);
 
         $selectedMarketplaceOrderItem = $marketplaceOrder->items->first();
 
         if ($marketplaceOrderItem->id !== $selectedMarketplaceOrderItem->id) {
-            Log::channel('erp')
+            Log::channel('items')
                 ->info('Для заказа '.$orderId.' передан товар '.$marketplaceOrderItem->id.
                     ' вместо ранее выбранного '.$selectedMarketplaceOrderItem->id);
 
@@ -203,7 +203,7 @@ class WarehouseOfItemController extends Controller
                 $marketplaceOrderItem->save();
                 $selectedMarketplaceOrderItem->save();
 
-                Log::channel('erp')
+                Log::channel('orders')
                     ->info('Есть еще заказ с таким же товаром на сборке или стикеровке! '.
                         ' Поменяли местами товары в этих заказах. '.
                         ' В заказ: '.$marketplaceOrderItem->marketplace_order_id.
@@ -304,7 +304,7 @@ class WarehouseOfItemController extends Controller
             'marketplace_items' => implode(',', $marketplaceItems),
         ]);
 
-        Log::channel('erp')
+        Log::channel('items')
             ->info('Товары id: '.implode(', ', $marketplaceItems).
                 ' добавлены на хранение. Ссылка для печати стикеров: '.$route);
 
@@ -334,7 +334,7 @@ class WarehouseOfItemController extends Controller
         $marketplace_item->marketplaceOrder->status = 9;
         $marketplace_item->marketplaceOrder->save();
 
-        Log::channel('erp')
+        Log::channel('items')
             ->info('Товар id: '.$marketplace_item->id.' от заказа id:
             '.$marketplace_item->marketplaceOrder->id.' отправлен на осмотр в цех');
 

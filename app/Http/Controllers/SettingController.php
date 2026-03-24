@@ -51,7 +51,7 @@ class SettingController extends Controller
             Setting::query()->where('name', $name)->update(['value' => $value]);
         }
 
-        Log::channel('erp')->info('Настройки сохранены', [
+        Log::channel('system')->info('Настройки сохранены', [
             'data' => print_r($data, true),
         ]);
 

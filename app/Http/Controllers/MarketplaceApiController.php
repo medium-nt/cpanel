@@ -84,7 +84,7 @@ class MarketplaceApiController extends Controller
 
         $user = User::find(session('user_id'));
         if ($user) {
-            Log::channel('erp')
+            Log::channel('orders')
                 ->info('Стикер заказа '.$orderId.' был распечатан сотрудником '.$user->name);
         }
 
@@ -109,7 +109,7 @@ class MarketplaceApiController extends Controller
 
         $user = User::find(session('user_id'));
         if ($user) {
-            Log::channel('erp')
+            Log::channel('orders')
                 ->info('Стикер заказа '.$orderId.' был распечатан сотрудником '.$user->name);
         }
 

@@ -78,7 +78,8 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
-        Log::channel('erp')->notice(auth()->user()->name.' создал поставку для маркетплейса '.$marketplaceName.' (#'.$marketplaceSupply->id.').');
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' создал поставку для маркетплейса '.$marketplaceName.' (#'.$marketplaceSupply->id.').');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -146,7 +147,7 @@ class MarketplaceSupplyController extends Controller
                 ' не загрузил видео к поставке № '.$marketplace_supply->id.
                 '. Запросите видео у кладовщика и загрузите его самостоятельно.';
 
-            Log::channel('erp')
+            Log::channel('tg')
                 ->error('Отправили сообщение в ТГ админу: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
@@ -164,7 +165,8 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
-        Log::channel('erp')->notice(auth()->user()->name.' передал в отгрузку поставку #'.$marketplace_supply->id.' для маркетплейса '.$marketplaceName.'.');
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' передал в отгрузку поставку #'.$marketplace_supply->id.' для маркетплейса '.$marketplaceName.'.');
 
         return redirect()
             ->route('marketplace_supplies.index')
@@ -180,7 +182,7 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
-        Log::channel('erp')
+        Log::channel('marketplace_supplies')
             ->notice(auth()->user()->name.' сдал поставку #'.$marketplace_supply->id.' в маркетплейс '.$marketplaceName.'.');
 
         return redirect()
@@ -232,7 +234,7 @@ class MarketplaceSupplyController extends Controller
                 ->with('error', 'Не удалось обновить статусы заказов!');
         }
 
-        Log::channel('erp')
+        Log::channel('marketplace_supplies')
             ->notice(auth()->user()->name.' обновил статусы заказов для поставки #'.$marketplace_supply->id.'.');
 
         return redirect()
@@ -252,7 +254,7 @@ class MarketplaceSupplyController extends Controller
             'video' => null,
         ]);
 
-        Log::channel('erp')
+        Log::channel('marketplace_supplies')
             ->notice(auth()->user()->name.' удалил видео для поставки #'.$marketplace_supply->id.'.');
 
         return back()->with('success', 'Видео удалено!');
@@ -276,7 +278,7 @@ class MarketplaceSupplyController extends Controller
         ]);
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
-        Log::channel('erp')
+        Log::channel('marketplace_supplies')
             ->notice(auth()->user()->name.' Вручную закрыл поставку #'.$marketplace_supply->id.' в маркетплейс '.$marketplaceName.'.');
 
         return redirect()

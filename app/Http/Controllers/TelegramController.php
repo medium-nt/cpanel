@@ -12,15 +12,13 @@ class TelegramController extends Controller
 {
     protected $telegram;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function webhook(Request $request)
     {
         $update = $request->all();
 
-        Log::channel('tg_api')->info(json_encode($update));
+        Log::channel('tg')->info(json_encode($update));
 
         if (isset($update['message'])) {
             $message = $update['message'];
@@ -28,17 +26,17 @@ class TelegramController extends Controller
 
             $user = User::query()->where('tg_id', $tgId)->first();
 
-            if (!$user) {
+            if (! $user) {
                 TgService::sendMessage(
                     $tgId,
                     'Привет! Я бот компании Мегатюль. Для начала работы вы должны авторизоваться по этой ссылке: '
-                    . url()->route('profile', ['tg_id' => $tgId])
+                    .url()->route('profile', ['tg_id' => $tgId])
                 );
             } else {
                 TgService::sendMessage(
                     $tgId,
-                    'Привет, ' . $user->name . '! Вы уже авторизованы в системе как '
-                    . UserService::translateRoleName($user->role->name) .
+                    'Привет, '.$user->name.'! Вы уже авторизованы в системе как '
+                    .UserService::translateRoleName($user->role->name).
                     ' и теперь будете получать все уведомления системы через меня.'
                 );
             }

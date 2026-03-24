@@ -10,12 +10,12 @@ class TgService
 {
     public static function sendMessage($chatId, $message): void
     {
-        if (!$chatId) {
+        if (! $chatId) {
             return;
         }
 
         //  если development сервер, то отправляем сообщение в телеграм через guzzle.
-        if (!app()->environment('production')) {
+        if (! app()->environment('production')) {
             $client = new Client([
                 'verify' => false,
                 'timeout' => 30,
@@ -26,7 +26,7 @@ class TgService
                 ],
             ]);
 
-            $client->post('https://api.telegram.org/bot' . config('telegram.bots.mybot.token') . '/sendMessage', [
+            $client->post('https://api.telegram.org/bot'.config('telegram.bots.mybot.token').'/sendMessage', [
                 'form_params' => [
                     'chat_id' => $chatId,
                     'text' => $message,
@@ -39,8 +39,8 @@ class TgService
                     'text' => $message,
                 ]);
             } catch (\Throwable $e) {
-                Log::channel('tg_api')->error('chat_id: ' . $chatId);
-                Log::channel('tg_api')->error('Ошибка Telegram: ' . $e->getMessage());
+                Log::channel('tg')->error('chat_id: '.$chatId);
+                Log::channel('tg')->error('Ошибка Telegram: '.$e->getMessage());
             }
         }
     }

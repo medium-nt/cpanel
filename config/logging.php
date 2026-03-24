@@ -66,10 +66,53 @@ return [
             'days' => 30,
         ],
 
-        'tg_api' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/tg_api.log'),
+        'tg' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/tg.log'),
             'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'orders' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/orders.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'items' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/items.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'materials' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/materials.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'inventory' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/inventory.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'marketplace_supplies' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/marketplace_supplies.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'system' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/system.log'),
+            'level' => 'debug',
+            'days' => 30,
         ],
 
         'salary' => [
@@ -82,6 +125,13 @@ return [
         'work_shift' => [
             'driver' => 'daily',
             'path' => storage_path('logs/work_shift.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'worker_limits' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/worker_limits.log'),
             'level' => 'debug',
             'days' => 30,
         ],

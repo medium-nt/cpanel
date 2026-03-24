@@ -82,7 +82,7 @@ class UserService
             }
         }
 
-        Log::channel('erp')->notice('В ТГ отправлено сообщение сотрудникам: '.$text);
+        Log::channel('work_shift')->notice('В ТГ отправлено сообщение сотрудникам: '.$text);
     }
 
     public static function getMotivationByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection

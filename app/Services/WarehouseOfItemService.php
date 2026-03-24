@@ -86,7 +86,7 @@ class WarehouseOfItemService
                 'status' => 9,
             ]);
 
-        Log::channel('erp')
+        Log::channel('items')
             ->info('Товар с заказа '.$item->marketplace_order_id.' помещен на склад хранения на полку '.$shelfId);
     }
 

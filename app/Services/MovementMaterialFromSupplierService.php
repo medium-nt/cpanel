@@ -75,7 +75,7 @@ class MovementMaterialFromSupplierService
                 }
             }
 
-            Log::channel('erp')
+            Log::channel('materials')
                 ->notice('   Кладовщик '.auth()->user()->name.
                     ' добавил поступление материала на склад от поставщика '
                     .$order->supplier->title.' :'."\n".$list);
@@ -84,7 +84,7 @@ class MovementMaterialFromSupplierService
         } catch (Throwable $e) {
             DB::rollBack();
 
-            Log::channel('erp')
+            Log::channel('materials')
                 ->error('   Кладовщик '.auth()->user()->name.
                     ' не добавил поступление материала на склад от поставщика : '
                     .$e->getMessage());
@@ -153,7 +153,7 @@ class MovementMaterialFromSupplierService
                     ."\n";
             }
 
-            Log::channel('erp')
+            Log::channel('materials')
                 ->notice('   Админ '.auth()->user()->name.
                     ' одобрил поступление материала на склад от поставщика '
                     .$order->supplier->title.' :'."\n".$list);

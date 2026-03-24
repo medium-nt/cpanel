@@ -51,7 +51,7 @@ class SupplyOrderSearch extends Component
 
         $matches = MarketplaceOrder::query()
             ->where(function ($query) {
-                $query->where('order_id', 'like', '%' . $this->orderId . '%')
+                $query->where('order_id', 'like', '%'.$this->orderId.'%')
                     ->orWhere('part_b', $this->orderId)
                     ->orWhere('barcode', $this->orderId);
             })
@@ -104,7 +104,7 @@ class SupplyOrderSearch extends Component
     {
         $order = MarketplaceOrder::find($this->selectedOrderId);
 
-        if (!$order) {
+        if (! $order) {
             $this->message = 'Выбранный заказ не найден.';
             $this->messageType = 'error';
             $this->dispatch('orderError');
@@ -131,7 +131,8 @@ class SupplyOrderSearch extends Component
         $order->marketplace_status = MarketplaceApiService::getStatusOrder($order);
         $order->save();
 
-        Log::channel('erp')->notice('Заказ №' . $order->order_id . ' успешно добавлен в поставку.');
+        Log::channel('marketplace_supplies')
+            ->notice('Заказ №'.$order->order_id.' успешно добавлен в поставку.');
 
         $this->orderId = '';
         $this->selectedOrderId = null;

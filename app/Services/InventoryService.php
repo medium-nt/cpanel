@@ -313,13 +313,13 @@ class InventoryService
 
             DB::commit();
 
-            Log::channel('erp')
+            Log::channel('inventory')
                 ->info('Создана инвентаризация ID: '.$inventory->id.'
                 по полке: '.$request->inventory_shelf);
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            Log::channel('erp')
+            Log::channel('inventory')
                 ->error('Ошибка при создании инвентаризации: '.$th->getMessage());
 
             return false;

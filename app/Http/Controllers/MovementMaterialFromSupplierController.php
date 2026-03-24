@@ -103,7 +103,7 @@ class MovementMaterialFromSupplierController extends Controller
             $order->delete();
         });
 
-        Log::channel('erp')
+        Log::channel('materials')
             ->warning($text);
 
         return redirect()

@@ -167,7 +167,7 @@ class UsersController extends Controller
                 ' и теперь будете получать все уведомления системы через меня.'
             );
 
-            Log::channel('tg_api')
+            Log::channel('tg')
                 ->info(
                     'Сотрудник '.auth()->user()->name.' ('.auth()->user()->id.') подключился к боту с tg_id: '.$tgId
                 );
@@ -194,7 +194,7 @@ class UsersController extends Controller
             'tg_id' => null,
         ]);
 
-        Log::channel('tg_api')
+        Log::channel('tg')
             ->info(
                 'Сотрудник '.auth()->user()->name.' ('.auth()->user()->id.') отключился от бота.'
             );

@@ -45,7 +45,7 @@ class WriteOffRemnantService
 
                 $maxQuantity = InventoryService::remnantsMaterialInWarehouse($material_id);
 
-                if ((float)$quantities[$key] > $maxQuantity) {
+                if ((float) $quantities[$key] > $maxQuantity) {
                     DB::rollBack();
 
                     return back()->withErrors([
@@ -59,15 +59,15 @@ class WriteOffRemnantService
                     'quantity' => $quantities[$key],
                 ]);
 
-                $list .= '• ' . $movementMaterial->material->title . ' '
-                    . $movementMaterial->quantity . ' '
-                    . $movementMaterial->material->unit . ' '
-                    . "\n";
+                $list .= '• '.$movementMaterial->material->title.' '
+                    .$movementMaterial->quantity.' '
+                    .$movementMaterial->material->unit.' '
+                    ."\n";
             }
 
-            Log::channel('erp')
-                ->notice('   Кладовщик ' . auth()->user()->name .
-                    ' создал новое списание остатков:' . "\n" . $list);
+            Log::channel('materials')
+                ->notice('   Кладовщик '.auth()->user()->name.
+                    ' создал новое списание остатков:'."\n".$list);
 
             DB::commit();
         } catch (Throwable $e) {

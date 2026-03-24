@@ -23,12 +23,12 @@ class DefectMaterialService
 
         /** @var MovementMaterial $movementMaterial */
         $movementMaterial = $order->movementMaterials()->first();
-        $list = '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+        $list = '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
 
         switch ($request->status) {
             case '-1':
-                Log::channel('erp')
-                    ->notice('Админ отменил ' . $typeName . ' (#' . $order->id . '):' . "\n" . $list);
+                Log::channel('materials')
+                    ->notice('Админ отменил '.$typeName.' (#'.$order->id.'):'."\n".$list);
 
                 $return = [
                     'status' => 'error',
@@ -36,8 +36,8 @@ class DefectMaterialService
                 ];
                 break;
             case '1':
-                Log::channel('erp')
-                    ->notice('Админ одобрил ' . $typeName . ' (#' . $order->id . '):' . "\n" . $list);
+                Log::channel('materials')
+                    ->notice('Админ одобрил '.$typeName.' (#'.$order->id.'):'."\n".$list);
 
                 $return = [
                     'status' => 'success',
@@ -45,10 +45,10 @@ class DefectMaterialService
                 ];
                 break;
             case '3':
-                $text = 'Кладовщик ' . auth()->user()->name . ' забрал ' . $typeName . ' с производства:' . "\n" . $list;
+                $text = 'Кладовщик '.auth()->user()->name.' забрал '.$typeName.' с производства:'."\n".$list;
 
-                Log::channel('erp')
-                    ->notice('Отправляем сообщение в ТГ админу и работающим швеям: ' . $text);
+                Log::channel('tg')
+                    ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
                 TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -79,7 +79,7 @@ class DefectMaterialService
             $field = match (auth()->user()->role->name) {
                 'seamstress' => 'seamstress_id',
                 'cutter' => 'cutter_id',
-                default => throw new \Exception('Недопустимая роль: ' . auth()->user()->role->name),
+                default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 
             $order = Order::query()->create([
@@ -115,15 +115,15 @@ class DefectMaterialService
                     default => '---',
                 };
 
-                $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+                $list .= '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
             }
 
             DB::commit();
 
-            $text = 'Сотрудник ' . auth()->user()->name . ' указал ' . $typeName . ': ' . "\n" . $list;
+            $text = 'Сотрудник '.auth()->user()->name.' указал '.$typeName.': '."\n".$list;
 
-            Log::channel('erp')
-                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+            Log::channel('tg')
+                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
             SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
 

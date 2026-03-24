@@ -379,7 +379,7 @@ class StickerPrintingController extends Controller
 
         $text = 'Сотрудник '.$user->name.' указал брак: '."\n".$list;
 
-        Log::channel('erp')
+        Log::channel('tg')
             ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
         SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
@@ -572,7 +572,7 @@ class StickerPrintingController extends Controller
         $orderItem->status = 12;
         $orderItem->save();
 
-        Log::channel('erp')
+        Log::channel('items')
             ->info('Упаковщик '.session('user_id').' взял товар id: '.$orderItem->id.
                 ' от заказа '.$orderItem->marketplace_order_id.' на проверку');
 
@@ -643,7 +643,7 @@ class StickerPrintingController extends Controller
             'otk_id' => $user->id,
         ]);
 
-        Log::channel('erp')
+        Log::channel('items')
             ->info('Упаковщик '.session('user_id').' отправил товар id: '.$orderItem->id.
                 ' от заказа '.$orderItem->marketplace_order_id.' в брак');
 
@@ -684,13 +684,13 @@ class StickerPrintingController extends Controller
                 'packed_at' => now(),
             ]);
 
-            Log::channel('erp')
+            Log::channel('items')
                 ->info('Упаковщик '.session('user_id').' переупаковал товар id: '.$orderItem->id);
 
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
-            Log::channel('erp')->error('Ошибка при переупаковке товара: '.$e->getMessage());
+            Log::channel('items')->error('Ошибка при переупаковке товара: '.$e->getMessage());
 
             return redirect()
                 ->route('on_inspection')
@@ -704,15 +704,11 @@ class StickerPrintingController extends Controller
 
     public function processReplace(Request $request, MarketplaceOrderItem $orderItem, KioskService $kioskService): JsonResponse
     {
-        Log::channel('erp')->info('processReplace called', ['orderItemId' => $orderItem->id ?? null]);
-
         $user = User::find(session('user_id'));
 
         if (! $user || ! $user->isOtk()) {
             return response()->json(['success' => false, 'message' => 'Нет доступа'], 403);
         }
-
-        Log::channel('erp')->info('User OK', ['userId' => $user->id, 'request' => $request->all()]);
 
         $request->validate([
             'material_title' => 'required|string',
@@ -720,8 +716,6 @@ class StickerPrintingController extends Controller
             'height' => 'required|integer',
             'material_used' => 'required|in:nothing,flyer,bag,flyer-bag',
         ]);
-
-        Log::channel('erp')->info('Validation passed');
 
         try {
             DB::beginTransaction();
@@ -763,8 +757,9 @@ class StickerPrintingController extends Controller
                 'status' => 15,
                 'seamstress_id' => 0,
                 'cutter_id' => null,
-                'otk_id' => $user->id,
-                'packed_at' => now(),
+                'otk_id' => null,
+                'repacker_id' => $user->id,
+                'repacked_at' => now(),
                 'completed_at' => now()->startOfDay()->subDays(2),
                 'created_at' => Carbon::parse($marketplaceOrder->created_at),
             ]);
@@ -782,7 +777,7 @@ class StickerPrintingController extends Controller
 
             DB::commit();
 
-            Log::channel('erp')
+            Log::channel('items')
                 ->info('Упаковщик '.session('user_id').' подменил товар id: '.$orderItem->id.
                     ' (заказ '.$orderItem->marketplaceOrder->order_id.') на '.
                     $newOrderItem->id.' (заказ '.$marketplaceOrder->order_id.')');
@@ -795,7 +790,7 @@ class StickerPrintingController extends Controller
 
         } catch (Throwable $e) {
             DB::rollBack();
-            Log::channel('erp')->error('Ошибка при подмене товара: '.$e->getMessage());
+            Log::channel('items')->error('Ошибка при подмене товара: '.$e->getMessage());
 
             return response()->json(['success' => false, 'message' => 'Внутренняя ошибка'], 500);
         }

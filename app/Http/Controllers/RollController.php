@@ -97,7 +97,7 @@ class RollController extends Controller
 
         $roll->delete();
 
-        Log::channel('erp')
+        Log::channel('materials')
             ->notice('Рулон "'.$rollCode.'" удален сотрудником '.auth()->user()->name);
 
         return redirect()

@@ -78,7 +78,7 @@ class MovementMaterialToWorkshopService
 
             $text = 'Швея '.auth()->user()->name.' запросила: '."\n".$material.' x '.$quantity;
 
-            Log::channel('erp')
+            Log::channel('tg')
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
@@ -89,7 +89,7 @@ class MovementMaterialToWorkshopService
 
             DB::commit();
         } catch (Throwable $e) {
-            Log::channel('erp')
+            Log::channel('materials')
                 ->error($e->getMessage());
 
             DB::rollBack();
@@ -143,7 +143,7 @@ class MovementMaterialToWorkshopService
 
             $text = 'Кладовщик '.auth()->user()->name.' отгрузил материал на производство: '."\n".$list;
 
-            Log::channel('erp')
+            Log::channel('tg')
                 ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
@@ -156,7 +156,7 @@ class MovementMaterialToWorkshopService
         } catch (Throwable $e) {
             DB::rollBack();
 
-            Log::channel('erp')
+            Log::channel('materials')
                 ->error('Ошибка при сохранении отгрузки материала: '.$e->getMessage());
 
             return false;

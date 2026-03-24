@@ -48,7 +48,7 @@ class MovementDefectMaterialToSupplierService
 
                 $maxQuantity = InventoryService::defectMaterialInWarehouse($material_id);
 
-                if ((float)$quantities[$key] > $maxQuantity) {
+                if ((float) $quantities[$key] > $maxQuantity) {
                     DB::rollBack();
 
                     return back()->withErrors([
@@ -62,15 +62,15 @@ class MovementDefectMaterialToSupplierService
                     'quantity' => $quantities[$key],
                 ]);
 
-                $list .= '• ' . $movementMaterial->material->title . ' ' . $movementMaterial->quantity . ' ' . $movementMaterial->material->unit . "\n";
+                $list .= '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
             }
 
             $supplierName = Supplier::query()->find($request->supplier_id)->title;
 
-            $text = 'Кладовщик ' . auth()->user()->name . ' отгрузил возврат поставщику ' . $supplierName . ': ' . "\n" . $list;
+            $text = 'Кладовщик '.auth()->user()->name.' отгрузил возврат поставщику '.$supplierName.': '."\n".$list;
 
-            Log::channel('erp')
-                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: ' . $text);
+            Log::channel('tg')
+                ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
@@ -82,8 +82,8 @@ class MovementDefectMaterialToSupplierService
         } catch (Throwable $e) {
             DB::rollBack();
 
-            Log::channel('erp')
-                ->error('Ошибка при попытке создать отгрузку возврата поставщику: ' . $e->getMessage());
+            Log::channel('materials')
+                ->error('Ошибка при попытке создать отгрузку возврата поставщику: '.$e->getMessage());
 
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }

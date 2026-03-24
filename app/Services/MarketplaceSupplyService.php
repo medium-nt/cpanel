@@ -12,7 +12,7 @@ class MarketplaceSupplyService
 {
     public static function deleteOldVideos(): void
     {
-        Log::channel('erp')
+        Log::channel('system')
             ->info('Запускаем ежедневную очистку старых видео...');
 
         $video = MarketplaceSupply::query()
@@ -29,11 +29,11 @@ class MarketplaceSupplyService
                 'video' => null,
             ]);
 
-            Log::channel('erp')
+            Log::channel('system')
                 ->notice('Видео для поставки #'.$item->id.' удалено после 60 дней.');
         }
 
-        Log::channel('erp')
+        Log::channel('system')
             ->info('Очистка старых видео завершена.');
     }
 
@@ -47,7 +47,7 @@ class MarketplaceSupplyService
 
         $marketplaceSupply = MarketplaceSupply::find($marketplaceSupplyId);
 
-        Log::info("Чанк #{$index} / {$totalChunks} получен.");
+        Log::channel('system')->info("Чанк #{$index} / {$totalChunks} получен.");
 
         $fileName = $request->get('marketplace_supply_id').'.'.$file->getClientOriginalExtension();
         $chunkPath = "chunks/{$uuid}";
@@ -58,7 +58,7 @@ class MarketplaceSupplyService
         $savedChunks = Storage::files($chunkPath);
 
         if (count($savedChunks) == $totalChunks) {
-            Log::info('Все чанки получены. Начинаем сборку...');
+            Log::channel('system')->info('Все чанки получены. Начинаем сборку...');
 
             $finalPath = "videos/{$fileName}";
             $stream = fopen('php://temp', 'w+b');
@@ -70,7 +70,7 @@ class MarketplaceSupplyService
                     stream_copy_to_stream($chunkStream, $stream);
                     fclose($chunkStream);
                 } else {
-                    Log::warning("Пропущен чанк: {$chunkFile}");
+                    Log::channel('system')->warning("Пропущен чанк: {$chunkFile}");
                 }
             }
 
@@ -78,7 +78,7 @@ class MarketplaceSupplyService
             Storage::disk('public')->put($finalPath, $stream);
             fclose($stream);
 
-            Log::info("Видео собрано и сохранено: {$finalPath}");
+            Log::channel('system')->info("Видео собрано и сохранено: {$finalPath}");
 
             $marketplaceSupply->update([
                 'video' => $fileName,
@@ -86,7 +86,7 @@ class MarketplaceSupplyService
 
             if (Storage::exists($chunkPath)) {
                 Storage::deleteDirectory($chunkPath);
-                Log::info("Удалены чанки: {$chunkPath}");
+                Log::channel('system')->info("Удалены чанки: {$chunkPath}");
             }
 
             return response()->json([
@@ -102,7 +102,8 @@ class MarketplaceSupplyService
 
     public static function updateStatusSupply(): void
     {
-        Log::channel('erp')->info('Запуск обновления статусов поставок...');
+        Log::channel('marketplace_supplies')
+            ->info('Запуск обновления статусов поставок...');
 
         $supplies = MarketplaceSupply::query()
             ->where('status', 4)
@@ -116,7 +117,7 @@ class MarketplaceSupplyService
             };
 
             if (! $isUpdated) {
-                Log::channel('erp')
+                Log::channel('marketplace_supplies')
                     ->error('Не удалось обновить статус поставки #'.$supply->id);
 
                 continue;
@@ -132,13 +133,14 @@ class MarketplaceSupplyService
                     'completed_at' => now(),
                 ]);
 
-                Log::channel('erp')
+                Log::channel('marketplace_supplies')
                     ->info('Поставка #'.$supply->id.' закрыта, так как у всех товаров новый статус.');
             }
 
             $count++;
         }
 
-        Log::channel('erp')->info("Обновление статусов поставок завершено. Обработано: {$count}");
+        Log::channel('marketplace_supplies')
+            ->info("Обновление статусов поставок завершено. Обработано: {$count}");
     }
 }

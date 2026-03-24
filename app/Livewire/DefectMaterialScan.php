@@ -145,7 +145,7 @@ class DefectMaterialScan extends Component
 
             $text = 'Кладовщик '.auth()->user()->name.' забрал брак с производства:'."\n".$list;
 
-            Log::channel('erp')
+            Log::channel('tg')
                 ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);

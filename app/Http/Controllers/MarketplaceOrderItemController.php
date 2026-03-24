@@ -77,7 +77,7 @@ class MarketplaceOrderItemController extends Controller
         $text = 'Сотрудник '.$user->name.' (id: '.$user->id.') выполнил заказ '
             .$marketplaceOrderItem->marketplaceOrder->order_id.
             ' (товар #'.$marketplaceOrderItem->id.')';
-        Log::channel('erp')->notice($text);
+        Log::channel('items')->notice($text);
 
         return back()->with('success', 'Заказ успешно выполнен');
     }
@@ -100,7 +100,7 @@ class MarketplaceOrderItemController extends Controller
     public function labeling(Request $request, MarketplaceOrderItem $marketplaceOrderItem, MarketplaceOrderItemService $marketplaceOrderItemService)
     {
         if (! $marketplaceOrderItemService->checkTimeoutOrderItem($marketplaceOrderItem)) {
-            Log::channel('erp')
+            Log::channel('worker_limits')
                 ->error('Швея '.$marketplaceOrderItem->seamstress->name.
                     ' пыталась сдать заказ в стикеровку почти сразу после начала работы!');
 
@@ -135,7 +135,7 @@ class MarketplaceOrderItemController extends Controller
             ' ('.$marketplaceOrderItem->seamstress->id.') передала товар #'.$marketplaceOrderItem->id.
             ' (заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.') на стикеровку';
 
-        Log::channel('erp')->info($text);
+        Log::channel('items')->info($text);
 
         $marketplaceOrderItem->update([
             'status' => 5,
@@ -179,7 +179,7 @@ class MarketplaceOrderItemController extends Controller
         $text = 'Закройщик '.$marketplaceOrderItem->cutter->name.
             ' ('.$marketplaceOrderItem->cutter->id.') выполнил заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.
             ' (товар #'.$marketplaceOrderItem->id.')';
-        Log::channel('erp')->notice($text);
+        Log::channel('items')->notice($text);
 
         return back()->with('success', 'Заказ успешно выполнен');
     }

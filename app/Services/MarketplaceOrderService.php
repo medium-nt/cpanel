@@ -57,7 +57,7 @@ class MarketplaceOrderService
         } catch (Throwable $e) {
             DB::rollBack();
 
-            Log::channel('erp')
+            Log::channel('orders')
                 ->error($e->getMessage());
 
             return false;
@@ -85,7 +85,7 @@ class MarketplaceOrderService
 
         $marketplaceName = self::getMarketplaceName($request->marketplace_id);
 
-        Log::channel('erp')
+        Log::channel('orders')
             ->notice('Вручную добавлен новый заказ: '.$request->order_id.$orderIndex.' ('.$marketplaceName.')');
     }
 
@@ -169,7 +169,7 @@ class MarketplaceOrderService
             ->get();
 
         if ($orders->isNotEmpty()) {
-            Log::channel('erp')
+            Log::channel('marketplace_supplies')
                 ->error('При проверке статусов поставки найдены заказы со статусом отличным от '.$status, [
                     'orders' => $orders->pluck('marketplace_status', 'order_id')->toArray(),
                 ]);
