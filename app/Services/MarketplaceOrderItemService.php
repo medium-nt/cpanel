@@ -273,7 +273,7 @@ class MarketplaceOrderItemService
             ->sum('quantity');
     }
 
-    public static function getSeamstressesLargeSizeRating(array $dates): array
+    public static function getSeamstressesLargeSizeRatingOLD(array $dates): array
     {
         $seamstressesLargeSizeRating = [];
         $seamstresses = User::query()
@@ -291,6 +291,63 @@ class MarketplaceOrderItemService
         }
 
         return $seamstressesLargeSizeRating;
+    }
+
+    public static function getSeamstressesLargeSizeRating(array $dates): array
+    {
+        if (empty($dates)) {
+            return [];
+        }
+
+        $startDate = Carbon::parse($dates[0])->startOfDay();
+        $endDate = Carbon::parse(end($dates))->endOfDay();
+
+        // Один запрос для получения всех данных
+        $ratings = MarketplaceOrderItem::query()
+            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+            ->whereIn('marketplace_order_items.seamstress_id', function ($query) {
+                $query->select('id')
+                    ->from('users')
+                    ->where('role_id', '1')
+                    ->where('name', 'not like', '%Тест%');
+            })
+            ->where('marketplace_order_items.status', 3)
+            ->whereBetween('marketplace_order_items.completed_at', [$startDate, $endDate])
+            ->selectRaw('
+              marketplace_order_items.seamstress_id,
+              DATE(marketplace_order_items.completed_at) as date,
+              SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume,
+              SUM(marketplace_order_items.quantity) as total_quantity
+              ')
+            ->groupBy('marketplace_order_items.seamstress_id', 'date')
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->seamstress_id.'_'.$item->date;
+            });
+
+        // Формируем результат из полученных данных
+        $seamstresses = User::query()
+            ->where('role_id', '1')
+            ->where('name', 'not like', '%Тест%')
+            ->get()
+            ->keyBy('id');
+
+        $result = [];
+        foreach ($seamstresses as $seamstress) {
+            $result[$seamstress->id]['name'] = $seamstress->short_name;
+            foreach ($dates as $date) {
+                $key = $seamstress->id.'_'.$date;
+                $rating = $ratings->get($key);
+
+                if ($rating && $rating->total_quantity > 0) {
+                    $result[$seamstress->id][$date] = round($rating->total_volume / $rating->total_quantity, 1);
+                } else {
+                    $result[$seamstress->id][$date] = '0.0';
+                }
+            }
+        }
+
+        return $result;
     }
 
     public static function getDatesByLargeSizeRating($daysAgo): array
@@ -323,7 +380,7 @@ class MarketplaceOrderItemService
             : '0.0';
     }
 
-    public static function getRating(): Collection|\Illuminate\Support\Collection
+    public static function getRatingOLD(): Collection|\Illuminate\Support\Collection
     {
         return User::query()
             ->whereIn('role_id', [1, 4])
@@ -337,6 +394,92 @@ class MarketplaceOrderItemService
                 $user->setAttribute('ratingNow', MarketplaceOrderItemService::getRatingByDate($user, $endDate, $endDate));
                 $user->setAttribute('rating2week', MarketplaceOrderItemService::getRatingByDate($user, $startDate, $endDate));
                 $user->setAttribute('rating1month', MarketplaceOrderItemService::getRatingByDate($user, $startDate2, $endDate));
+
+                return $user;
+            });
+    }
+
+    public static function getRating(): Collection|\Illuminate\Support\Collection
+    {
+        $today = Carbon::now()->toDateString();
+        $twoWeeksAgo = Carbon::now()->subDays(14)->toDateString();
+        $oneMonthAgo = Carbon::now()->subMonth()->toDateString();
+
+        $userIds = User::query()
+            ->whereIn('role_id', [1, 4])
+            ->where('name', 'not like', '%Тест%')
+            ->pluck('id');
+
+        // Один запрос для всех рейтингов за сегодня
+        $ratingNow = MarketplaceOrderItem::query()
+            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+            ->whereIn('marketplace_order_items.seamstress_id', $userIds)
+            ->where('marketplace_order_items.status', 3)
+            ->whereDate('marketplace_order_items.completed_at', $today)
+            ->selectRaw('
+              marketplace_order_items.seamstress_id,
+              SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume,
+              SUM(marketplace_order_items.quantity) as total_quantity
+          ')
+            ->groupBy('marketplace_order_items.seamstress_id')
+            ->pluck('total_volume', 'seamstress_id');
+
+        // Один запрос за 2 недели
+        $rating2Week = MarketplaceOrderItem::query()
+            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+            ->whereIn('marketplace_order_items.seamstress_id', $userIds)
+            ->where('marketplace_order_items.status', 3)
+            ->whereBetween('marketplace_order_items.completed_at', [$twoWeeksAgo.' 00:00:00', $today.' 23:59:59'])
+            ->selectRaw('
+              marketplace_order_items.seamstress_id,
+              SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume,
+              SUM(marketplace_order_items.quantity) as total_quantity
+          ')
+            ->groupBy('marketplace_order_items.seamstress_id')
+            ->get()
+            ->keyBy('seamstress_id');
+
+        // Один запрос за месяц
+        $rating1Month = MarketplaceOrderItem::query()
+            ->join('marketplace_items', 'marketplace_items.id', '=', 'marketplace_order_items.marketplace_item_id')
+            ->whereIn('marketplace_order_items.seamstress_id', $userIds)
+            ->where('marketplace_order_items.status', 3)
+            ->whereBetween('marketplace_order_items.completed_at', [$oneMonthAgo.' 00:00:00', $today.' 23:59:59'])
+            ->selectRaw('
+              marketplace_order_items.seamstress_id,
+              SUM(marketplace_order_items.quantity * marketplace_items.width / 100) as total_volume,
+              SUM(marketplace_order_items.quantity) as total_quantity
+          ')
+            ->groupBy('marketplace_order_items.seamstress_id')
+            ->get()
+            ->keyBy('seamstress_id');
+
+        return User::query()
+            ->whereIn('role_id', [1, 4])
+            ->where('name', 'not like', '%Тест%')
+            ->get()
+            ->map(function (User $user) use ($ratingNow, $rating2Week, $rating1Month) {
+                // Рейтинг за сегодня
+                $now = $ratingNow->get($user->id);
+                $user->setAttribute('ratingNow', $now ? round($now, 1) : '0.0');
+
+                // Рейтинг за 2 недели
+                $data2Week = $rating2Week->get($user->id);
+                if ($data2Week && $data2Week->total_quantity > 0) {
+                    $user->setAttribute('rating2week', round($data2Week->total_volume / $data2Week->total_quantity,
+                        1));
+                } else {
+                    $user->setAttribute('rating2week', '0.0');
+                }
+
+                // Рейтинг за месяц
+                $data1Month = $rating1Month->get($user->id);
+                if ($data1Month && $data1Month->total_quantity > 0) {
+                    $user->setAttribute('rating1month', round($data1Month->total_volume / $data1Month->total_quantity,
+                        1));
+                } else {
+                    $user->setAttribute('rating1month', '0.0');
+                }
 
                 return $user;
             });

@@ -59,6 +59,7 @@ class HomeController extends Controller
             'seamstressesCurrentHoldBonus' => TransactionService::getSeamstressBalance('bonus', true),
             'pickupOrders' => MarketplaceOrderService::pickupOrders()->count(),
             'transactions' => Transaction::query()
+                ->with('user')
                 ->orderBy('created_at', 'desc')
                 ->whereNotNull('user_id')
                 ->where('transaction_type', 'in')
