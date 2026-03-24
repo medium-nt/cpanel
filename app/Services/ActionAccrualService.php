@@ -50,14 +50,16 @@ class ActionAccrualService
         $userIdField = match ($action) {
             'sewing' => 'seamstress_id',
             'cutting' => 'cutter_id',
-            'repacking', 'sticking' => 'otk_id',
+            'repacking' => 'repacker_id',
+            'sticking' => 'otk_id',
             default => null,
         };
 
         $dateField = match ($action) {
             'sewing' => 'completed_at',
             'cutting' => 'cutting_completed_at',
-            'repacking', 'sticking' => 'packed_at',
+            'repacking' => 'repacked_at',
+            'sticking' => 'packed_at',
             default => null,
         };
 

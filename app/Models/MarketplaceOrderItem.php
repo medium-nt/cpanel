@@ -27,8 +27,10 @@ class MarketplaceOrderItem extends Model
         'seamstress_id',
         'cutter_id',
         'otk_id',
+        'repacker_id',
         'cutting_completed_at',
         'packed_at',
+        'repacked_at',
         'completed_at',
         'created_at',
     ];
@@ -63,6 +65,11 @@ class MarketplaceOrderItem extends Model
     public function otk(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'otk_id')->withTrashed();
+    }
+
+    public function repacker(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'repacker_id')->withTrashed();
     }
 
     public function getStatusNameAttribute(): string

@@ -680,8 +680,8 @@ class StickerPrintingController extends Controller
 
             $orderItem->update([
                 'status' => 15,
-                'otk_id' => $user->id,
-                'packed_at' => now(),
+                'repacker_id' => $user->id,
+                'repacked_at' => now(),
             ]);
 
             Log::channel('items')
