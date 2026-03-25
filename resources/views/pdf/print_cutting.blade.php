@@ -62,17 +62,40 @@
             background: transparent !important;
         }
 
+        .col-qr {
+            width: 15%;
+            border: 1px solid #000 !important;
+            text-align: center;
+            vertical-align: middle;
+        }
+
         /* Вторая страница - крупные ячейки для разрезки */
         .page-large .dimensions {
             font-size: 20px;
         }
 
         .page-large .dimensions-span {
-            font-size: 36px;
+            font-size: 26px;
         }
 
         .page-large td {
             height: 80px;
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
+            justify-content: flex-start;
+        }
+
+        .qr-container > div:last-child {
+            flex: 1;
+        }
+
+        .page-large .qr-container .dimensions-span {
+            font-size: 24px;
         }
     </style>
 </head>
@@ -125,11 +148,23 @@
             @foreach($items->chunk(2) as $pair)
                 <tr>
                     @foreach($pair as $item)
+                        <td class="col-qr">
+                            @if(extension_loaded('imagick'))
+                                @php
+                                    $qrData = QrCode::format('png')->size(60)->generate($item->marketplaceOrder->order_id);
+                                @endphp
+                                <img
+                                    src="data:image/png;base64,{{ base64_encode($qrData) }}"
+                                    alt="QR" width="60" height="60">
+                            @else
+                                {{ $item->marketplaceOrder->order_id }}
+                            @endif
+                        </td>
                         <td class="dimensions">
-                        <span class="dimensions-span">
-                        {{ $material }}
-                            {{ $item->item->width }} × {{ $item->item->height }}<br>
-                        </span>
+                            <span class="dimensions-span">
+                                {{ $material }}
+                                {{ $item->item->width }} × {{ $item->item->height }}<br>
+                            </span>
                             {{ $item->marketplaceOrder->MarketplaceTitle }}
                             {{ $item->marketplaceOrder->order_id }}
                         </td>
@@ -137,6 +172,7 @@
 
                     @if($pair->count() < 2)
                         {{-- Если только один элемент в строке, добавим пустую ячейку --}}
+                        <td class="col-qr"></td>
                         <td class="dimensions"></td>
                     @endif
                 </tr>
