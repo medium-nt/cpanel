@@ -89,6 +89,7 @@
                         <th>Штрихкод хранения</th>
                         <th>Товар</th>
                         <th>Размер</th>
+                        <th>Переупаковщик</th>
                         <th>Действия</th>
                     </tr>
                     </thead>
@@ -98,7 +99,9 @@
                             <td>{{ $item->storage_barcode }}</td>
                             <td>{{ $item->item->title }}</td>
                             <td>{{ $item->item->width }}
-                                x {{ $item->item->height }}</td>
+                                x {{ $item->item->height }}
+                            </td>
+                            <td>{{ $item->repacker?->name }}</td>
                             <td>
                                 @if(isset($scannedItems[$item->id]))
                                     <button
