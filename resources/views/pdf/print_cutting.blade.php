@@ -148,18 +148,20 @@
             @foreach($items->chunk(2) as $pair)
                 <tr>
                     @foreach($pair as $item)
-                        <td class="col-qr">
-                            @if(extension_loaded('imagick'))
-                                @php
-                                    $qrData = QrCode::format('png')->size(60)->generate($item->marketplaceOrder->order_id);
-                                @endphp
-                                <img
-                                    src="data:image/png;base64,{{ base64_encode($qrData) }}"
-                                    alt="QR" width="60" height="60">
-                            @else
-                                {{ $item->marketplaceOrder->order_id }}
-                            @endif
-                        </td>
+                        @if($printQr)
+                            <td class="col-qr">
+                                @if(extension_loaded('imagick'))
+                                    @php
+                                        $qrData = QrCode::format('png')->size(60)->generate($item->marketplaceOrder->order_id);
+                                    @endphp
+                                    <img
+                                        src="data:image/png;base64,{{ base64_encode($qrData) }}"
+                                        alt="QR" width="60" height="60">
+                                @else
+                                    {{ $item->marketplaceOrder->order_id }}
+                                @endif
+                            </td>
+                        @endif
                         <td class="dimensions">
                             <span class="dimensions-span">
                                 {{ $material }}
@@ -172,7 +174,9 @@
 
                     @if($pair->count() < 2)
                         {{-- Если только один элемент в строке, добавим пустую ячейку --}}
+                        @if($printQr)
                         <td class="col-qr"></td>
+                        @endif
                         <td class="dimensions"></td>
                     @endif
                 </tr>

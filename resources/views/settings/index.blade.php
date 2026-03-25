@@ -326,6 +326,27 @@
 
                             <hr>
 
+                            <div class="row">
+                                <div class="form-group col-md-2">
+                                    <label for="title">QR-код в лиске
+                                        закройщика</label>
+                                    <select name="print_qr_cutting"
+                                            id="print_qr_cutting"
+                                            class="form-control">
+                                        <option
+                                            value="1" {{ $settings->print_qr_cutting == 1 ? 'selected' : '' }}>
+                                            Включен
+                                        </option>
+                                        <option
+                                            value="0" {{ $settings->print_qr_cutting == 0 ? 'selected' : '' }}>
+                                            Выключен
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr>
+
                             <button type="submit" class="btn btn-primary">Сохранить</button>
                         </form>
                     </div>

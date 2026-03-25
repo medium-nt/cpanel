@@ -126,5 +126,10 @@ class SettingsSeeder extends Seeder
             ['name' => 'timeout_800'],
             ['value' => '100']
         );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'print_qr_cutting'],
+            ['value' => '0']
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Models\Sku;
 use App\Models\User;
 use App\Services\MarketplaceApiService;
@@ -188,6 +189,7 @@ class MarketplaceOrderItemController extends Controller
     {
         $pdf = PDF::loadView('pdf.print_cutting', [
             'orders' => $service->getOrdersGroupedByMaterial(auth()->user()),
+            'printQr' => Setting::getValue('print_qr_cutting'),
         ]);
 
         return $pdf->setPaper('A4')
