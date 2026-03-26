@@ -488,14 +488,16 @@ class MarketplaceOrderItemService
     public static function getItemsForLabeling(Request $request): Collection
     {
         $items = MarketplaceOrderItem::query()
-            ->where('marketplace_order_items.status', '5')
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
             ->select('marketplace_order_items.*');
 
         // Если отсканирован order_id — фильтруем только по нему
         if ($request->filled('scan_order_id')) {
-            return $items->where('marketplace_orders.order_id', $request->scan_order_id)->get();
+            return $items
+                ->where('marketplace_orders.order_id', $request->scan_order_id)
+                ->whereIn('marketplace_order_items.status', [3, 5])
+                ->get();
         }
 
         if ($request->has('marketplace_id')) {
@@ -503,6 +505,7 @@ class MarketplaceOrderItemService
         }
 
         $items = $items
+            ->where('marketplace_order_items.status', '5')
             ->where('marketplace_items.title', $request->material ?? '')
             ->where('marketplace_items.height', $request->height ?? 0)
             ->where('marketplace_items.width', $request->width ?? 0);
