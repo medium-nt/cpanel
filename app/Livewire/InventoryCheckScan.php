@@ -99,7 +99,7 @@ class InventoryCheckScan extends Component
             return;
         }
 
-        if (!$this->selectedShelfId) {
+        if (! $this->selectedShelfId) {
             $this->setStatus('Сначала выбери полку в выпадающем списке.', 'error');
 
             return;
@@ -107,13 +107,13 @@ class InventoryCheckScan extends Component
 
         $item = MarketplaceOrderItem::where('storage_barcode', $code)->first();
 
-        if (!$item) {
+        if (! $item) {
             $this->setStatus("Неизвестный штрихкод: $code. Разрешено сканировать только стикеры хранения.", 'error');
 
             return;
         }
 
-        if (!in_array($item->status, [11, 12, 13, 14])) {
+        if (! in_array($item->status, [11, 12, 13, 14])) {
             $this->setStatus("Товар со штрихкодом: $code невозможно добавить в инвентаризацию, так как его текущий статус: \"$item->statusName\"", 'error');
 
             return;
@@ -124,7 +124,7 @@ class InventoryCheckScan extends Component
             ->where('marketplace_order_item_id', $item->id)
             ->first();
 
-        if (!$inventoryItem) {
+        if (! $inventoryItem) {
             /** добавляем в инвентаризацию */
             $inventoryItem = InventoryCheckItem::create([
                 'inventory_check_id' => $this->inventory->id,
@@ -153,7 +153,7 @@ class InventoryCheckScan extends Component
         $msg = "Товар со штрихкодом $code найден на полке: $currentCode";
 
         $this->setStatus(
-            $msg . ($isWrongShelf ? " (по системе на полке: $expectedCode)" : ''),
+            $msg.($isWrongShelf ? " (по системе на полке: $expectedCode)" : ''),
             $isWrongShelf ? 'warn' : 'ok'
         );
     }
@@ -206,7 +206,8 @@ class InventoryCheckScan extends Component
             /** @var MarketplaceOrderItem $orderItem */
             $orderItem = $item->marketplaceOrderItem;
             if ($orderItem->status === 11) {
-                $orderItem->status = 14;
+                $orderItem->status = 14; // помечаем как "утерян"
+                $orderItem->shelf_id = null; // убираем полку
                 $orderItem->save();
             }
         }
@@ -225,6 +226,7 @@ class InventoryCheckScan extends Component
             $orderItem = $item->marketplaceOrderItem;
             if ($orderItem->status === 14) {
                 $orderItem->status = 11;
+                $orderItem->shelf_id = $item->founded_shelf_id;
                 $orderItem->save();
             }
         }
@@ -254,13 +256,13 @@ class InventoryCheckScan extends Component
             ->where('id', $rowId)
             ->first();
 
-        if (!$inventoryItem) {
+        if (! $inventoryItem) {
             $this->setStatus("Строка инвентаризации #$rowId не найдена", 'error');
 
             return;
         }
 
-        if (!$inventoryItem->is_found) {
+        if (! $inventoryItem->is_found) {
             $this->setStatus('Эта позиция уже была снята с “найдено”.', 'warn');
 
             return;
