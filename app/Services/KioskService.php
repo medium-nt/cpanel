@@ -100,4 +100,20 @@ class KioskService
 
         return $query->get();
     }
+
+    public function hasPackagingMaterials(MarketplaceItem $item, string $materialUsed): bool
+    {
+        $consumptions = $item->consumption()->with('material')->get();
+        $filteredConsumptions = $this->filterConsumptionsByMaterialUsed($consumptions, $materialUsed);
+
+        foreach ($filteredConsumptions as $consumption) {
+            $inWorkshop = InventoryService::materialInWorkshop($consumption->material_id);
+
+            if ($inWorkshop < 1) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

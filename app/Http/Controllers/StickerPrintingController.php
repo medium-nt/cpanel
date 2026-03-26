@@ -667,6 +667,14 @@ class StickerPrintingController extends Controller
             'material_used.in' => 'Неверное значение',
         ]);
 
+        // проверить что материалы есть
+        if (! $kioskService->hasPackagingMaterials($orderItem->item, $request->material_used)) {
+            return redirect()
+                ->route('kiosk.item_card', ['item_id' => $orderItem->id, 'action' => 'repack'])
+                ->withInput()
+                ->with('error', 'Недостаточно материала в цехе для переупаковки');
+        }
+
         try {
             DB::beginTransaction();
 
@@ -717,24 +725,27 @@ class StickerPrintingController extends Controller
             'material_used' => 'required|in:nothing,flyer,bag,flyer-bag',
         ]);
 
+        // Находим существующий MarketplaceItem для проверки материалов
+        $item = MarketplaceItem::query()
+            ->where('title', $request->material_title)
+            ->where('width', $request->width)
+            ->where('height', $request->height)
+            ->first();
+
+        if (! $item) {
+            return response()->json(['success' => false, 'message' => 'Товар с такими параметрами не найден'], 404);
+        }
+
+        // Проверяем что материалы есть в цеху
+        if (! $kioskService->hasPackagingMaterials($item, $request->material_used)) {
+            return response()->json(['success' => false, 'message' => 'Недостаточно материала в цехе для подмены'], 400);
+        }
+
         try {
             DB::beginTransaction();
 
             // 1. Помечаем старый товар как "утерян" (статус 14)
             $orderItem->update(['status' => 14]);
-
-            // 2. Находим существующий MarketplaceItem
-            $item = MarketplaceItem::query()
-                ->where('title', $request->material_title)
-                ->where('width', $request->width)
-                ->where('height', $request->height)
-                ->first();
-
-            if (! $item) {
-                DB::rollBack();
-
-                return response()->json(['success' => false, 'message' => 'Товар с такими параметрами не найден'], 404);
-            }
 
             // 3. Создаём новый MarketplaceOrder (FBO)
             $marketplaceOrder = MarketplaceOrder::query()->create([

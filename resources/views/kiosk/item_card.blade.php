@@ -63,10 +63,21 @@
                                     <option value="" selected disabled>Выберите
                                         материал
                                     </option>
-                                    <option value="nothing">Ничего</option>
-                                    <option value="flyer">1 флайер</option>
-                                    <option value="bag">1 пакет</option>
-                                    <option value="flyer-bag">Флаер/пакет
+                                    <option value="nothing"
+                                            @if(old('material_used') === 'nothing') selected @endif>
+                                        Ничего
+                                    </option>
+                                    <option value="flyer"
+                                            @if(old('material_used') === 'flyer') selected @endif>
+                                        1 флайер
+                                    </option>
+                                    <option value="bag"
+                                            @if(old('material_used') === 'bag') selected @endif>
+                                        1 пакет
+                                    </option>
+                                    <option value="flyer-bag"
+                                            @if(old('material_used') === 'flyer-bag') selected @endif>
+                                        Флаер/пакет
                                     </option>
                                 </select>
                                 @error('material_used')
@@ -248,6 +259,26 @@
 <script src="{{ asset('js/printBarcode.js') }}"></script>
 <script
     src="{{ asset('js/kiosk/item-card.js') }}?v={{ filemtime(public_path('js/kiosk/item-card.js')) }}"></script>
+
+@if(session('error'))
+    <script>
+        $(document).ready(function () {
+            $('#alert').removeClass('d-none alert-success alert-warning').addClass('alert-danger');
+            $('#alert-title').text('Ошибка!');
+            $('#alert-message').text("{{ session('error') }}");
+        });
+    </script>
+@endif
+
+@if(session('success'))
+    <script>
+        $(document).ready(function () {
+            $('#alert').removeClass('d-none alert-danger alert-warning').addClass('alert-success');
+            $('#alert-title').text('Успешно!');
+            $('#alert-message').text("{{ session('success') }}");
+        });
+    </script>
+@endif
 
 </body>
 </html>
