@@ -257,10 +257,10 @@
                             </div>
                         </div>
 
-                        @if($isOtkOnShift && !$user->isOtk())
+                        @if($isOtkOnShift && !$user->isOtk() && !$user->isStorekeeper())
                             <div class="alert alert-danger">
                                 Самостоятельная стикеровка запрещена, на смене
-                                есть упаковщица!
+                                есть упаковщик!
                             </div>
                         @endif
 
@@ -317,17 +317,24 @@
 
                                     <tr>
                                         <td>
-                                            @if(!$isOtkOnShift || $user->isOtk())
-                                                <button
-                                                    onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }}, this)"
-                                                    class="btn btn-lg mr-2 d-flex align-items-center justify-content-center
-                                                    @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
-                                                    id="print_{{ $orderId }}">
-                                                    <i class="fas fa-barcode fa-2x barcode-icon"></i>
+                                            @if(!$isOtkOnShift || $user->isOtk() || $user->isStorekeeper())
+                                                @if($item->status == 3)
                                                     <span
-                                                        class="spinner-border spinner-border-sm d-none ms-0 print-spinner"
-                                                        role="status"></span>
-                                                </button>
+                                                        class="text-danger text-bold d-flex align-items-center">
+                                                        уже застикерован
+                                                    </span>
+                                                @else
+                                                    <button
+                                                        onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }}, this)"
+                                                        class="btn btn-lg mr-2 d-flex align-items-center justify-content-center
+                                                        @if($isPrinted) btn-outline-danger @else btn-outline-secondary @endif "
+                                                        id="print_{{ $orderId }}">
+                                                        <i class="fas fa-barcode fa-2x barcode-icon"></i>
+                                                        <span
+                                                            class="spinner-border spinner-border-sm d-none ms-0 print-spinner"
+                                                            role="status"></span>
+                                                    </button>
+                                                @endif
                                             @endif
                                         </td>
                                         <td class="td_style">
@@ -348,7 +355,7 @@
                                                  alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                         </td>
                                         <td class="td_style">
-                                            @if(!$isOtkOnShift || $user->isOtk())
+                                            @if(!$isOtkOnShift || $user->isOtk() || $user->isStorekeeper())
                                             <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
                                                   method="POST">
                                                 @csrf
