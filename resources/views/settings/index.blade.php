@@ -328,7 +328,7 @@
 
                             <div class="row">
                                 <div class="form-group col-md-2">
-                                    <label for="title">QR-код в лиске
+                                    <label for="title">QR-код на листе
                                         закройщика</label>
                                     <select name="print_qr_cutting"
                                             id="print_qr_cutting"
