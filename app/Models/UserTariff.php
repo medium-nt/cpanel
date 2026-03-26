@@ -22,7 +22,7 @@ class UserTariff extends Model
     public const ACTION_SALARY_DAILY = 'salary_daily';
 
     public const ROLE_ACTIONS = [
-        'storekeeper' => ['Сканировка'],
+        'storekeeper' => ['Сканировка', 'Стикеровка'],
         'seamstress' => ['Пошив', 'Стикеровка'],
         'cutter' => ['Закрой'],
         'otk' => ['Перепаковка', 'Стикеровка'],
