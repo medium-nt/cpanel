@@ -12,5 +12,8 @@ function updatePageWithQueryParam(selectElement) {
         urlParams.append(paramName, paramValue);
     }
 
+    // Удаляем scan_order_id при выборе фильтров
+    urlParams.delete('scan_order_id');
+
     window.location.assign(`${window.location.origin}${window.location.pathname}?${urlParams}`);
 }

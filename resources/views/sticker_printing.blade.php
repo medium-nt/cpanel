@@ -421,6 +421,35 @@
         <?php } ?>
     </script>
 
+    <script>
+        const actionUrl = '{{ route('sticker_printing') }}';
+        const userId = '{{ request()->get('user_id') }}';
+
+        let buffer = '';
+        let lastTime = Date.now();
+
+        document.addEventListener('keypress', e => {
+            const now = Date.now();
+
+            // если пауза — считаем, что начался новый скан
+            if (now - lastTime > 200) {
+                buffer = '';
+            }
+            lastTime = now;
+
+            if (e.key === 'Enter') {
+                let url = actionUrl + '?scan_order_id=' + encodeURIComponent(buffer);
+                if (userId) {
+                    url += '&user_id=' + userId;
+                }
+                window.location.href = url;
+                buffer = '';
+            } else {
+                buffer += e.key;
+            }
+        });
+    </script>
+
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
     <script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>

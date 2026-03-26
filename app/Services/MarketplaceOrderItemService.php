@@ -493,6 +493,11 @@ class MarketplaceOrderItemService
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
             ->select('marketplace_order_items.*');
 
+        // Если отсканирован order_id — фильтруем только по нему
+        if ($request->filled('scan_order_id')) {
+            return $items->where('marketplace_orders.order_id', $request->scan_order_id)->get();
+        }
+
         if ($request->has('marketplace_id')) {
             $items = $items->where('marketplace_orders.marketplace_id', $request->marketplace_id);
         }
