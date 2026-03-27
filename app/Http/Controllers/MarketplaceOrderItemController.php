@@ -79,7 +79,17 @@ class MarketplaceOrderItemController extends Controller
             ' (товар #'.$marketplaceOrderItem->id.')';
         Log::channel('items')->notice($text);
 
-        return back()->with('success', 'Заказ успешно выполнен');
+        // собираем новый url для редиректа
+        $parsed = parse_url(url()->previous());
+
+        $query = [];
+        parse_str($parsed['query'] ?? '', $query);
+
+        unset($query['scan_order_id']);
+
+        $newUrl = $parsed['path'].(count($query) ? '?'.http_build_query($query) : '');
+
+        return redirect($newUrl)->with('success', 'Заказ успешно выполнен');
     }
 
     public function cancel(Request $request, MarketplaceOrderItem $marketplaceOrderItem)

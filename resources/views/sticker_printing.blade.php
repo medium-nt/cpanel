@@ -399,17 +399,24 @@
                                         </td>
                                         <td class="td_style">
                                             @if(!$isOtkOnShift || $user->isOtk() || $user->isStorekeeper())
-                                            <form action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
-                                                  method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-success ml-auto"
-                                                        style=" @if(!$isPrinted) display:none !important;" @endif
-                                                        id="submit_{{ $orderId }}"
-                                                        onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">
-                                                    <i class="fas fa-check fa-2x"></i>
-                                                </button>
-                                            </form>
+                                                @if($item->status == 5)
+                                                    <form
+                                                        action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit"
+                                                                class="btn btn-success ml-auto"
+                                                                style=" @if(!$isPrinted) display:none !important;"
+                                                                @endif
+                                                                id="submit_{{ $orderId }}"
+                                                                onclick="return confirm('Вы уверены, что распечатали и наклеили стикер?')">
+                                                            <i class="fas fa-check fa-2x"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span>---</span>
+                                                @endif
                                             @endif
                                         </td>
                                     </tr>
