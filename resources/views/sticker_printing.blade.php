@@ -41,6 +41,37 @@
             input.invisible-text {
                 caret-color: #000;
             }
+
+            .table-loading-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(255, 255, 255, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10;
+            }
+
+            .table-loading-spinner {
+                width: 50px;
+                height: 50px;
+                border: 5px solid #f3f3f3;
+                border-top: 5px solid #007bff;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
         </style>
     </head>
     <body>
@@ -68,8 +99,7 @@
                                         class="form-control form-control-lg"
                                         onchange="updatePageWithQueryParam(this)"
                                         required>
-                                    <option value="" selected disabled>Выберите
-                                        материал
+                                    <option value="" selected disabled>Материал
                                     </option>
                                     <option value="Бамбук"
                                             @if(request()->get('material') == 'Бамбук') selected @endif>
@@ -107,8 +137,7 @@
                                         class="form-control form-control-lg"
                                         onchange="updatePageWithQueryParam(this)"
                                         required>
-                                    <option value="" selected disabled>Выберите
-                                        ширину
+                                    <option value="" selected disabled>Ширина
                                     </option>
                                     <option value="200"
                                             @if(request()->get('width') == 200) selected @endif>
@@ -146,8 +175,7 @@
                                         class="form-control form-control-lg"
                                         onchange="updatePageWithQueryParam(this)"
                                         required>
-                                    <option value="" selected disabled>Выберите
-                                        высоту
+                                    <option value="" selected disabled>Высота
                                     </option>
                                     <option value="220"
                                             @if(request()->get('height') == 220) selected @endif>
@@ -224,7 +252,7 @@
                                             onchange="updatePageWithQueryParam(this)"
                                             required>
                                         <option value="" selected disabled>
-                                            Выберите швею
+                                            Швея
                                         </option>
                                         @foreach($seamstresses as $seamstress)
                                             <option
@@ -236,14 +264,14 @@
                                 </div>
                             @endif
 
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-2">
                                 <select name="marketplace_id"
                                         id="marketplace_id"
                                         class="form-control form-control-lg"
                                         onchange="updatePageWithQueryParam(this)"
                                         required>
-                                    <option value="" selected disabled>Выбрать
-                                        маркетплейс
+                                    <option value="" selected disabled>
+                                        Маркетплейс
                                     </option>
                                     <option value="1"
                                             @if(request()->get('marketplace_id') == 1) selected @endif>
@@ -255,6 +283,16 @@
                                     </option>
                                 </select>
                             </div>
+
+                            @if(request()->get('scan_order_id'))
+                                <div class="form-group col-md-2">
+                                    <input class="form-control form-control-lg"
+                                           type="text" name="isOtkOnShift"
+                                           style="font-size: 14px;"
+                                           value="{{ request()->get('scan_order_id') }}"
+                                           readonly>
+                                </div>
+                            @endif
                         </div>
 
                         @if($isOtkOnShift && !$user->isOtk() && !$user->isStorekeeper())
@@ -264,7 +302,12 @@
                             </div>
                         @endif
 
-                        <div class="table-responsive">
+                        <div class="table-responsive"
+                             style="position: relative;">
+                            <div class="table-loading-overlay"
+                                 id="tableLoadingOverlay">
+                                <div class="table-loading-spinner"></div>
+                            </div>
                             <table class="table table-hover table-bordered">
                                 <thead class="thead-dark">
                                     <tr>
@@ -286,7 +329,7 @@
                                 <iframe id="printFrame"
                                         style="display:none"></iframe>
 
-                                @foreach ($items as $item)
+                                @forelse ($items as $item)
                                     @php
                                         $isPrinted = $item->marketplaceOrder->is_printed;
                                         $orderId = $item->marketplaceOrder->order_id;
@@ -370,7 +413,14 @@
                                             @endif
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="7"
+                                            class="text-center td_style">
+                                            Не найдено
+                                        </td>
+                                    </tr>
+                                @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -396,6 +446,10 @@
     <script>
         $(document).ready(function() {
             localStorage.removeItem('orderId');
+
+            setTimeout(function () {
+                $('#tableLoadingOverlay').fadeOut(300);
+            }, 500);
         });
 
         function setupModalFocus(modalId, inputId) {
