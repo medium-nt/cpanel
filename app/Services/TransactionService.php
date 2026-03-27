@@ -5,17 +5,19 @@ namespace App\Services;
 use App\Http\Requests\CreateTransactionRequest;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Motivation;
-use App\Models\Rate;
-use App\Models\Schedule;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+// use App\Models\Rate;
+// use App\Models\Schedule;
+
+// use Illuminate\Database\Eloquent\Collection;
 
 class TransactionService
 {
@@ -52,60 +54,60 @@ class TransactionService
         return true;
     }
 
-    public static function accrualSalary(string $roleKey): void
-    {
-        $roles = [
-            'otk' => ['method' => 'isOtk', 'label' => 'сотрудника ОКТ'],
-            'driver' => ['method' => 'isDriver', 'label' => 'водителя'],
-            'storekeeper' => ['method' => 'isStorekeeper', 'label' => 'кладовщика'],
-        ];
-
-        if (! isset($roles[$roleKey])) {
-            return;
-        }
-
-        $role = $roles[$roleKey];
-
-        $workers = Schedule::query()
-            ->where('date', Carbon::now()->subDay()->format('Y-m-d'))
-            ->get();
-
-        foreach ($workers as $worker) {
-            $user = $worker->user;
-
-            if ($user?->role && $user->{$role['method']}()) {
-
-                $accrualForDate = Carbon::parse($worker->date);
-
-                // если есть зарплата за смену, то ее начисляем
-                if ($user->salary_rate > 0) {
-                    // НО если упаковщик не сделал ни одной упаковку за смену, то ему не начисляем
-                    if ($user->isOtk() && $user->marketplaceOrderItems->count() === 0) {
-                        Log::channel('salary')->warning(
-                            "Зарплата не начислена для {$role['label']} {$user->name}! Сотрудник не сделал ни одной упаковки за смену."
-                        );
-                    } else {
-                        Transaction::query()->create([
-                            'user_id' => $user->id,
-                            'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
-                            'accrual_for_date' => $accrualForDate->format('Y-m-d'),
-                            'amount' => $user->salary_rate,
-                            'transaction_type' => 'out',
-                            'status' => 1,
-                        ]);
-
-                        Log::channel('salary')->info(
-                            "Добавили зарплату в размере {$user->salary_rate} рублей для {$role['label']} {$user->name}"
-                        );
-                    }
-                } else {
-                    Log::channel('salary')->error(
-                        "В карточке {$user->name} {$role['label']} не указана зарплата за смену. Начисление зарплаты не производится."
-                    );
-                }
-            }
-        }
-    }
+    //    public static function accrualSalary(string $roleKey): void
+    //    {
+    //        $roles = [
+    //            'otk' => ['method' => 'isOtk', 'label' => 'сотрудника ОКТ'],
+    //            'driver' => ['method' => 'isDriver', 'label' => 'водителя'],
+    //            'storekeeper' => ['method' => 'isStorekeeper', 'label' => 'кладовщика'],
+    //        ];
+    //
+    //        if (! isset($roles[$roleKey])) {
+    //            return;
+    //        }
+    //
+    //        $role = $roles[$roleKey];
+    //
+    //        $workers = Schedule::query()
+    //            ->where('date', Carbon::now()->subDay()->format('Y-m-d'))
+    //            ->get();
+    //
+    //        foreach ($workers as $worker) {
+    //            $user = $worker->user;
+    //
+    //            if ($user?->role && $user->{$role['method']}()) {
+    //
+    //                $accrualForDate = Carbon::parse($worker->date);
+    //
+    //                // если есть зарплата за смену, то ее начисляем
+    //                if ($user->salary_rate > 0) {
+    //                    // НО если упаковщик не сделал ни одной упаковку за смену, то ему не начисляем
+    //                    if ($user->isOtk() && $user->marketplaceOrderItems->count() === 0) {
+    //                        Log::channel('salary')->warning(
+    //                            "Зарплата не начислена для {$role['label']} {$user->name}! Сотрудник не сделал ни одной упаковки за смену."
+    //                        );
+    //                    } else {
+    //                        Transaction::query()->create([
+    //                            'user_id' => $user->id,
+    //                            'title' => 'Зарплата за '.$accrualForDate->format('d/m/Y'),
+    //                            'accrual_for_date' => $accrualForDate->format('Y-m-d'),
+    //                            'amount' => $user->salary_rate,
+    //                            'transaction_type' => 'out',
+    //                            'status' => 1,
+    //                        ]);
+    //
+    //                        Log::channel('salary')->info(
+    //                            "Добавили зарплату в размере {$user->salary_rate} рублей для {$role['label']} {$user->name}"
+    //                        );
+    //                    }
+    //                } else {
+    //                    Log::channel('salary')->error(
+    //                        "В карточке {$user->name} {$role['label']} не указана зарплата за смену. Начисление зарплаты не производится."
+    //                    );
+    //                }
+    //            }
+    //        }
+    //    }
 
     private static function addTransaction(?User $user, $amount, $transaction_type, $title, $accrual_for_date, $type, bool $isBonus): void
     {
@@ -219,41 +221,41 @@ class TransactionService
         return $transactions;
     }
 
-    public static function accrualSeamstressesSalary($test = false): void
-    {
-        // Выбрать всех швей. По каждой швее выбрать все заказы выполненные за вчера
-        $seamstresses = self::getSeamstressesWithOrders();
+    //    public static function accrualSeamstressesSalary($test = false): void
+    //    {
+    //        // Выбрать всех швей. По каждой швее выбрать все заказы выполненные за вчера
+    //        $seamstresses = self::getSeamstressesWithOrders();
+    //
+    //        foreach ($seamstresses as $seamstress) {
+    //            self::processAccrual($seamstress, $test);
+    //        }
+    //
+    //        dd('end');
+    //    }
 
-        foreach ($seamstresses as $seamstress) {
-            self::processAccrual($seamstress, $test);
-        }
+    //    public static function accrualCuttersSalary($test = false): void
+    //    {
+    //        // Выбрать всех закройщиков. По каждому закройщику выбрать все заказы выполненные за вчера
+    //        $cutters = self::getCuttersWithOrders();
+    //
+    //        foreach ($cutters as $cutter) {
+    //            self::processAccrual($cutter, $test);
+    //        }
+    //
+    //        dd('end');
+    //    }
 
-        dd('end');
-    }
-
-    public static function accrualCuttersSalary($test = false): void
-    {
-        // Выбрать всех закройщиков. По каждому закройщику выбрать все заказы выполненные за вчера
-        $cutters = self::getCuttersWithOrders();
-
-        foreach ($cutters as $cutter) {
-            self::processAccrual($cutter, $test);
-        }
-
-        dd('end');
-    }
-
-    public static function accrualOtkSalary($test = false): void
-    {
-        // Выбрать всех упаковщиков. По каждому упаковщику выбрать все заказы выполненные за вчера
-        $otks = self::getPackagesWithOrders();
-
-        foreach ($otks as $otk) {
-            self::processAccrual($otk, $test);
-        }
-
-        dd('end');
-    }
+    //    public static function accrualOtkSalary($test = false): void
+    //    {
+    //        // Выбрать всех упаковщиков. По каждому упаковщику выбрать все заказы выполненные за вчера
+    //        $otks = self::getPackagesWithOrders();
+    //
+    //        foreach ($otks as $otk) {
+    //            self::processAccrual($otk, $test);
+    //        }
+    //
+    //        dd('end');
+    //    }
 
     public static function getLastPayouts(?User $user, int $count, bool $isBonus = false): array|\Illuminate\Support\Collection
     {
@@ -449,230 +451,230 @@ class TransactionService
             ->value($value) ?? 0;
     }
 
-    private static function getSeamstressesWithOrders(): Collection
-    {
-        return User::query()
-            ->whereHas('role', fn ($q) => $q->where('name', 'seamstress'))
-            ->with([
-                'marketplaceOrderItems' => fn ($q) => $q
-                    ->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))
-                    ->orderBy('completed_at')
-                    ->with('item')])
-            ->get();
-    }
+    //    private static function getSeamstressesWithOrders(): Collection
+    //    {
+    //        return User::query()
+    //            ->whereHas('role', fn ($q) => $q->where('name', 'seamstress'))
+    //            ->with([
+    //                'marketplaceOrderItems' => fn ($q) => $q
+    //                    ->whereDate('completed_at', Carbon::yesterday()->format('Y-m-d'))
+    //                    ->orderBy('completed_at')
+    //                    ->with('item')])
+    //            ->get();
+    //    }
 
-    private static function getCuttersWithOrders(): Collection
-    {
-        return User::query()
-            ->whereHas('role', fn ($q) => $q->where('name', 'cutter'))
-            ->with([
-                'marketplaceOrderItemsByCutter' => fn ($q) => $q
-                    ->whereDate('cutting_completed_at', Carbon::yesterday()->format('Y-m-d'))
-                    ->orderBy('cutting_completed_at')
-                    ->with('item')])
-            ->get();
-    }
+    //    private static function getCuttersWithOrders(): Collection
+    //    {
+    //        return User::query()
+    //            ->whereHas('role', fn ($q) => $q->where('name', 'cutter'))
+    //            ->with([
+    //                'marketplaceOrderItemsByCutter' => fn ($q) => $q
+    //                    ->whereDate('cutting_completed_at', Carbon::yesterday()->format('Y-m-d'))
+    //                    ->orderBy('cutting_completed_at')
+    //                    ->with('item')])
+    //            ->get();
+    //    }
 
-    private static function getPackagesWithOrders(): Collection
-    {
-        return User::query()
-            ->whereHas('role', fn ($q) => $q->where('name', 'otk'))
-            ->with([
-                'marketplaceOrderItemsByOtk' => fn ($q) => $q
-                    ->whereDate('packed_at', Carbon::yesterday()->format('Y-m-d'))
-                    ->orderBy('packed_at')
-                    ->with('item')])
-            ->get();
-    }
+    //    private static function getPackagesWithOrders(): Collection
+    //    {
+    //        return User::query()
+    //            ->whereHas('role', fn ($q) => $q->where('name', 'otk'))
+    //            ->with([
+    //                'marketplaceOrderItemsByOtk' => fn ($q) => $q
+    //                    ->whereDate('packed_at', Carbon::yesterday()->format('Y-m-d'))
+    //                    ->orderBy('packed_at')
+    //                    ->with('item')])
+    //            ->get();
+    //    }
 
-    private static function processAccrual(User $user, bool $test): void
-    {
-        switch ($user->role->name) {
-            case 'seamstress':
-                $roleName = 'Швея';
-                $marketplaceOrderItem = $user->marketplaceOrderItems;
-                break;
-            case 'cutter':
-                $roleName = 'Закройщик';
-                $marketplaceOrderItem = $user->marketplaceOrderItemsByCutter;
-                break;
-            case 'otk':
-                $roleName = 'Сотрудник ОТК';
-                $marketplaceOrderItem = $user->marketplaceOrderItemsByOtk;
-                break;
-            default:
-                $roleName = '---';
-                $marketplaceOrderItem = [];
-                break;
-        }
+    //    private static function processAccrual(User $user, bool $test): void
+    //    {
+    //        switch ($user->role->name) {
+    //            case 'seamstress':
+    //                $roleName = 'Швея';
+    //                $marketplaceOrderItem = $user->marketplaceOrderItems;
+    //                break;
+    //            case 'cutter':
+    //                $roleName = 'Закройщик';
+    //                $marketplaceOrderItem = $user->marketplaceOrderItemsByCutter;
+    //                break;
+    //            case 'otk':
+    //                $roleName = 'Сотрудник ОТК';
+    //                $marketplaceOrderItem = $user->marketplaceOrderItemsByOtk;
+    //                break;
+    //            default:
+    //                $roleName = '---';
+    //                $marketplaceOrderItem = [];
+    //                break;
+    //        }
+    //
+    //        echo "<b>$roleName: $user->name</b><br>";
+    //
+    //        if ($user->isOtk() && $user->salary_rate > 0) {
+    //            $text = 'По метражу зарплата не начисляется, так как у сотрудника '
+    //                .$user->name.' установлена дневная ставка: '.$user->salary_rate.' руб.';
+    //
+    //            Log::channel('salary')->info($text);
+    //            echo $text.'<br>';
+    //
+    //            return;
+    //        }
+    //
+    //        $motivations = Motivation::query()
+    //            ->where('user_id', $user->id)
+    //            ->get();
+    //
+    //        $result = [
+    //            'allSalary' => 0,
+    //            'allBonus' => 0,
+    //            'allWidth' => 0,
+    //        ];
+    //
+    //        foreach ($marketplaceOrderItem as $marketplaceOrderItems) {
+    //            // Проходим по каждому товару и начисляем зп и бонусы за них
+    //            $result['allWidth'] += ($marketplaceOrderItems->item->width ?? 0) / 100;
+    //            $result = self::processAccrualMotivationAndSalary($user, $marketplaceOrderItems, $motivations, $result, $test);
+    //        }
+    //
+    //        $totalWidth = $marketplaceOrderItem
+    //            ->sum(fn ($marketplaceOrderItems) => $marketplaceOrderItems->item->width ?? 0) / 100;
+    //
+    //        echo "Всего: $totalWidth м, зп: {$result['allSalary']} руб., бонус: {$result['allBonus']} баллов.<br>";
+    //
+    //        echo '<br>';
+    //        echo '-----------------------------------------------------------------<br>';
+    //        echo '<br>';
+    //    }
 
-        echo "<b>$roleName: $user->name</b><br>";
+    //    private static function processAccrualMotivationAndSalary(User $user, MarketplaceOrderItem $marketplaceOrderItems, Collection $motivations, array $result, bool $test): array
+    //    {
+    //        $orderId = $marketplaceOrderItems->marketplaceOrder->order_id;
+    //        $width = ($marketplaceOrderItems->item->width ?? 0) / 100;
+    //
+    //        $previousAllWidth = $result['allWidth'] - $width;
+    //        $previousResultDetails = self::getCompensationDetails($motivations, $previousAllWidth, $user, $marketplaceOrderItems);
+    //        $previousMotivationBonus = $previousResultDetails['nowMotivationBonus'];
+    //
+    //        $resultDetails = self::getCompensationDetails($motivations, $result['allWidth'], $user, $marketplaceOrderItems);
+    //        $nowMotivationBonus = $resultDetails['nowMotivationBonus'];
+    //        $salary = $resultDetails['salary'];
+    //
+    //        if ($salary == 0) {
+    //            Log::channel('salary')
+    //                ->error('Внимание! В системе нет данных о ЗП для сотрудника '.$user->name.' ( id - '.$user->id.')'.
+    //                    ' по товару '.$marketplaceOrderItems->item->title);
+    //        }
+    //
+    //        switch ($user->role->name) {
+    //            case 'seamstress':
+    //                $accrualForDate = $marketplaceOrderItems->completed_at;
+    //                $roleName = 'Швея';
+    //                break;
+    //            case 'cutter':
+    //                $accrualForDate = $marketplaceOrderItems->cutting_completed_at;
+    //                $roleName = 'Закройщик';
+    //                break;
+    //            case 'otk':
+    //                $accrualForDate = $marketplaceOrderItems->packed_at;
+    //                $roleName = 'Сотрудник ОТК';
+    //                break;
+    //            default:
+    //                $accrualForDate = null;
+    //                $roleName = 'НЕТ РОЛИ';
+    //                break;
+    //        }
+    //
+    //        $bonus = 0;
+    //        if ($nowMotivationBonus > 0) {
+    //            if ($previousMotivationBonus != $nowMotivationBonus) {
+    //                //  разделить размер между ДО и ПОСЛЕ
+    //                $widthAfter = $result['allWidth'] - $resultDetails['from'];
+    //                $widthBefore = $width - $widthAfter;
+    //
+    //                $bonus = $widthBefore * $previousMotivationBonus + $widthAfter * $nowMotivationBonus;
+    //            } else {
+    //                $bonus = $width * $nowMotivationBonus;
+    //            }
+    //
+    //            if (! $test) {
+    //                self::addTransaction(
+    //                    $user,
+    //                    $bonus,
+    //                    'out',
+    //                    "Бонус за заказ #$orderId",
+    //                    $accrualForDate,
+    //                    'bonus',
+    //                    true,
+    //                );
+    //            }
+    //        }
+    //
+    //        if (! $test) {
+    //            self::addTransaction(
+    //                $user,
+    //                $salary,
+    //                'out',
+    //                "ЗП за заказ #$orderId",
+    //                $accrualForDate,
+    //                'salary',
+    //                false,
+    //            );
+    //
+    //            Log::channel('salary')
+    //                ->info("$roleName: $user->name. Начисляем З/П $salary руб. и бонус $bonus баллов за заказ #$orderId, ширина: $width м.");
+    //        }
+    //
+    //        echo "<br>- Заказ #$marketplaceOrderItems->id ($orderId), ширина: $width м. ";
+    //        echo " ЗП за заказ: $salary руб., бонус: $bonus баллов.<br>";
+    //
+    //        return [
+    //            'allSalary' => $result['allSalary'] + $salary,
+    //            'allBonus' => $result['allBonus'] + $bonus,
+    //            'allWidth' => $result['allWidth'],
+    //        ];
+    //    }
 
-        if ($user->isOtk() && $user->salary_rate > 0) {
-            $text = 'По метражу зарплата не начисляется, так как у сотрудника '
-                .$user->name.' установлена дневная ставка: '.$user->salary_rate.' руб.';
-
-            Log::channel('salary')->info($text);
-            echo $text.'<br>';
-
-            return;
-        }
-
-        $motivations = Motivation::query()
-            ->where('user_id', $user->id)
-            ->get();
-
-        $result = [
-            'allSalary' => 0,
-            'allBonus' => 0,
-            'allWidth' => 0,
-        ];
-
-        foreach ($marketplaceOrderItem as $marketplaceOrderItems) {
-            // Проходим по каждому товару и начисляем зп и бонусы за них
-            $result['allWidth'] += ($marketplaceOrderItems->item->width ?? 0) / 100;
-            $result = self::processAccrualMotivationAndSalary($user, $marketplaceOrderItems, $motivations, $result, $test);
-        }
-
-        $totalWidth = $marketplaceOrderItem
-            ->sum(fn ($marketplaceOrderItems) => $marketplaceOrderItems->item->width ?? 0) / 100;
-
-        echo "Всего: $totalWidth м, зп: {$result['allSalary']} руб., бонус: {$result['allBonus']} баллов.<br>";
-
-        echo '<br>';
-        echo '-----------------------------------------------------------------<br>';
-        echo '<br>';
-    }
-
-    private static function processAccrualMotivationAndSalary(User $user, MarketplaceOrderItem $marketplaceOrderItems, Collection $motivations, array $result, bool $test): array
-    {
-        $orderId = $marketplaceOrderItems->marketplaceOrder->order_id;
-        $width = ($marketplaceOrderItems->item->width ?? 0) / 100;
-
-        $previousAllWidth = $result['allWidth'] - $width;
-        $previousResultDetails = self::getCompensationDetails($motivations, $previousAllWidth, $user, $marketplaceOrderItems);
-        $previousMotivationBonus = $previousResultDetails['nowMotivationBonus'];
-
-        $resultDetails = self::getCompensationDetails($motivations, $result['allWidth'], $user, $marketplaceOrderItems);
-        $nowMotivationBonus = $resultDetails['nowMotivationBonus'];
-        $salary = $resultDetails['salary'];
-
-        if ($salary == 0) {
-            Log::channel('salary')
-                ->error('Внимание! В системе нет данных о ЗП для сотрудника '.$user->name.' ( id - '.$user->id.')'.
-                    ' по товару '.$marketplaceOrderItems->item->title);
-        }
-
-        switch ($user->role->name) {
-            case 'seamstress':
-                $accrualForDate = $marketplaceOrderItems->completed_at;
-                $roleName = 'Швея';
-                break;
-            case 'cutter':
-                $accrualForDate = $marketplaceOrderItems->cutting_completed_at;
-                $roleName = 'Закройщик';
-                break;
-            case 'otk':
-                $accrualForDate = $marketplaceOrderItems->packed_at;
-                $roleName = 'Сотрудник ОТК';
-                break;
-            default:
-                $accrualForDate = null;
-                $roleName = 'НЕТ РОЛИ';
-                break;
-        }
-
-        $bonus = 0;
-        if ($nowMotivationBonus > 0) {
-            if ($previousMotivationBonus != $nowMotivationBonus) {
-                //  разделить размер между ДО и ПОСЛЕ
-                $widthAfter = $result['allWidth'] - $resultDetails['from'];
-                $widthBefore = $width - $widthAfter;
-
-                $bonus = $widthBefore * $previousMotivationBonus + $widthAfter * $nowMotivationBonus;
-            } else {
-                $bonus = $width * $nowMotivationBonus;
-            }
-
-            if (! $test) {
-                self::addTransaction(
-                    $user,
-                    $bonus,
-                    'out',
-                    "Бонус за заказ #$orderId",
-                    $accrualForDate,
-                    'bonus',
-                    true,
-                );
-            }
-        }
-
-        if (! $test) {
-            self::addTransaction(
-                $user,
-                $salary,
-                'out',
-                "ЗП за заказ #$orderId",
-                $accrualForDate,
-                'salary',
-                false,
-            );
-
-            Log::channel('salary')
-                ->info("$roleName: $user->name. Начисляем З/П $salary руб. и бонус $bonus баллов за заказ #$orderId, ширина: $width м.");
-        }
-
-        echo "<br>- Заказ #$marketplaceOrderItems->id ($orderId), ширина: $width м. ";
-        echo " ЗП за заказ: $salary руб., бонус: $bonus баллов.<br>";
-
-        return [
-            'allSalary' => $result['allSalary'] + $salary,
-            'allBonus' => $result['allBonus'] + $bonus,
-            'allWidth' => $result['allWidth'],
-        ];
-    }
-
-    public static function getCompensationDetails(Collection $motivations, int $allWidth, User $user, MarketplaceOrderItem $marketplaceOrderItems): array
-    {
-        $motivationBonus = $motivations
-            ->where('from', '<=', $allWidth)
-            ->where('to', '>', $allWidth)
-            ->first();
-
-        $consumption = $marketplaceOrderItems->item->consumption()
-            ->whereHas('material', fn ($q) => $q->where('type_id', 1))
-            ->first();
-
-        $salaryRate = Rate::query()
-            ->where('user_id', $user->id)
-            ->where('material_id', $consumption?->material->id)
-            ->first();
-
-        if ($user->isCutter()) {
-            $nowMotivationBonus = $motivationBonus->cutter_bonus ?? 0;
-            $salary = $salaryRate->cutter_rate ?? 0;
-        } elseif ($user->isSeamstress()) {
-            if ($user->is_cutter) {
-                $nowMotivationBonus = $motivationBonus->bonus ?? 0;
-                $salary = $salaryRate->rate ?? 0;
-            } else {
-                $nowMotivationBonus = $motivationBonus->not_cutter_bonus ?? 0;
-                $salary = $salaryRate->not_cutter_rate ?? 0;
-            }
-        } elseif ($user->isOtk()) {
-            $nowMotivationBonus = 0;
-            $salary = $salaryRate->rate ?? 0;
-        } else {
-            $nowMotivationBonus = 0;
-            $salary = 0;
-        }
-
-        return [
-            'nowMotivationBonus' => $nowMotivationBonus,
-            'from' => $motivationBonus->from ?? 0,
-            'salary' => $salary * $marketplaceOrderItems->item->width / 100,
-        ];
-    }
+    //    public static function getCompensationDetails(Collection $motivations, int $allWidth, User $user, MarketplaceOrderItem $marketplaceOrderItems): array
+    //    {
+    //        $motivationBonus = $motivations
+    //            ->where('from', '<=', $allWidth)
+    //            ->where('to', '>', $allWidth)
+    //            ->first();
+    //
+    //        $consumption = $marketplaceOrderItems->item->consumption()
+    //            ->whereHas('material', fn ($q) => $q->where('type_id', 1))
+    //            ->first();
+    //
+    //        $salaryRate = Rate::query()
+    //            ->where('user_id', $user->id)
+    //            ->where('material_id', $consumption?->material->id)
+    //            ->first();
+    //
+    //        if ($user->isCutter()) {
+    //            $nowMotivationBonus = $motivationBonus->cutter_bonus ?? 0;
+    //            $salary = $salaryRate->cutter_rate ?? 0;
+    //        } elseif ($user->isSeamstress()) {
+    //            if ($user->is_cutter) {
+    //                $nowMotivationBonus = $motivationBonus->bonus ?? 0;
+    //                $salary = $salaryRate->rate ?? 0;
+    //            } else {
+    //                $nowMotivationBonus = $motivationBonus->not_cutter_bonus ?? 0;
+    //                $salary = $salaryRate->not_cutter_rate ?? 0;
+    //            }
+    //        } elseif ($user->isOtk()) {
+    //            $nowMotivationBonus = 0;
+    //            $salary = $salaryRate->rate ?? 0;
+    //        } else {
+    //            $nowMotivationBonus = 0;
+    //            $salary = 0;
+    //        }
+    //
+    //        return [
+    //            'nowMotivationBonus' => $nowMotivationBonus,
+    //            'from' => $motivationBonus->from ?? 0,
+    //            'salary' => $salary * $marketplaceOrderItems->item->width / 100,
+    //        ];
+    //    }
 
     public static function penalizeUserForOrderCancellation(MarketplaceOrderItem $marketplaceOrderItem): void
     {
