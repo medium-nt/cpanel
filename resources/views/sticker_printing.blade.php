@@ -93,7 +93,7 @@
                     <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            @if($user?->isStorekeeper() || $user?->isAdmin())
+                            {{--                            @if($user?->isStorekeeper() || $user?->isAdmin())--}}
                                 <div class="form-group col-md-2">
                                     <select name="material"
                                             id="material"
@@ -283,7 +283,7 @@
                                         </option>
                                     </select>
                                 </div>
-                            @endif
+                            {{--                            @endif--}}
 
                             @if(request()->get('scan_order_id'))
                                 <div class="form-group col-md-2">
