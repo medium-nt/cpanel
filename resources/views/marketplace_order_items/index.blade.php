@@ -148,7 +148,7 @@
                        class="btn btn-link">Новые</a>
                 @endif
 
-                @if(auth()->user()->isCutter() || auth()->user()->isAdmin())
+                @if(auth()->user()->isCutter() || auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'cutting',
                     'user_id' => request('user_id'),
@@ -163,7 +163,7 @@
                    class="btn btn-link">На раскрое</a>
                 @endif
 
-                @if(auth()->user()->isCutter() || auth()->user()->isAdmin() || auth()->user()->isOtk())
+                @if(auth()->user()->isCutter() || auth()->user()->isAdmin() || auth()->user()->isOtk() || auth()->user()->isStorekeeper())
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'cut',
                     'user_id' => request('user_id'),
@@ -206,7 +206,6 @@
                 ]) }}"
                    class="btn btn-link">Стикеровка</a>
 
-                @if(!auth()->user()->isOtk())
                 <a href="{{ route('marketplace_order_items.index', [
                     'status' => 'done',
                     'user_id' => request('user_id'),
@@ -219,7 +218,6 @@
                     'height' => request('height')
                 ]) }}"
                    class="btn btn-link">Готовые</a>
-                @endif
             </div>
         </div>
 
