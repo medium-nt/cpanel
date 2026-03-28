@@ -93,158 +93,160 @@
                     <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="form-group col-md-2">
-                                <select name="material"
-                                        id="material"
-                                        class="form-control form-control-lg"
-                                        onchange="updatePageWithQueryParam(this)"
-                                        required>
-                                    <option value="" selected disabled>Материал
-                                    </option>
-                                    <option value="Бамбук"
-                                            @if(request()->get('material') == 'Бамбук') selected @endif>
-                                        Бамбук
-                                    </option>
-                                    <option value="Вуаль"
-                                            @if(request()->get('material') == 'Вуаль') selected @endif>
-                                        Вуаль
-                                    </option>
-                                    <option value="Лен"
-                                            @if(request()->get('material') == 'Лен') selected @endif>
-                                        Лен
-                                    </option>
-                                    <option value="Молния"
-                                            @if(request()->get('material') == 'Молния') selected @endif>
-                                        Молния
-                                    </option>
-                                    <option value="Мрамор"
-                                            @if(request()->get('material') == 'Мрамор') selected @endif>
-                                        Мрамор
-                                    </option>
-                                    <option value="Сетка"
-                                            @if(request()->get('material') == 'Сетка') selected @endif>
-                                        Сетка
-                                    </option>
-                                    <option value="Шифон"
-                                            @if(request()->get('material') == 'Шифон') selected @endif>
-                                        Шифон
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-2">
-                                <select name="width"
-                                        id="width"
-                                        class="form-control form-control-lg"
-                                        onchange="updatePageWithQueryParam(this)"
-                                        required>
-                                    <option value="" selected disabled>Ширина
-                                    </option>
-                                    <option value="200"
-                                            @if(request()->get('width') == 200) selected @endif>
-                                        200
-                                    </option>
-                                    <option value="300"
-                                            @if(request()->get('width') == 300) selected @endif>
-                                        300
-                                    </option>
-                                    <option value="400"
-                                            @if(request()->get('width') == 400) selected @endif>
-                                        400
-                                    </option>
-                                    <option value="500"
-                                            @if(request()->get('width') == 500) selected @endif>
-                                        500
-                                    </option>
-                                    <option value="600"
-                                            @if(request()->get('width') == 600) selected @endif>
-                                        600
-                                    </option>
-                                    <option value="700"
-                                            @if(request()->get('width') == 700) selected @endif>
-                                        700
-                                    </option>
-                                    <option value="800"
-                                            @if(request()->get('width') == 800) selected @endif>
-                                        800
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-2">
-                                <select name="height"
-                                        id="height"
-                                        class="form-control form-control-lg"
-                                        onchange="updatePageWithQueryParam(this)"
-                                        required>
-                                    <option value="" selected disabled>Высота
-                                    </option>
-                                    <option value="220"
-                                            @if(request()->get('height') == 220) selected @endif>
-                                        220
-                                    </option>
-                                    <option value="225"
-                                            @if(request()->get('height') == 225) selected @endif>
-                                        225
-                                    </option>
-                                    <option value="230"
-                                            @if(request()->get('height') == 230) selected @endif>
-                                        230
-                                    </option>
-                                    <option value="235"
-                                            @if(request()->get('height') == 235) selected @endif>
-                                        235
-                                    </option>
-                                    <option value="240"
-                                            @if(request()->get('height') == 240) selected @endif>
-                                        240
-                                    </option>
-                                    <option value="245"
-                                            @if(request()->get('height') == 245) selected @endif>
-                                        245
-                                    </option>
-                                    <option value="250"
-                                            @if(request()->get('height') == 250) selected @endif>
-                                        250
-                                    </option>
-                                    <option value="255"
-                                            @if(request()->get('height') == 255) selected @endif>
-                                        255
-                                    </option>
-                                    <option value="260"
-                                            @if(request()->get('height') == 260) selected @endif>
-                                        260
-                                    </option>
-                                    <option value="265"
-                                            @if(request()->get('height') == 265) selected @endif>
-                                        265
-                                    </option>
-                                    <option value="270"
-                                            @if(request()->get('height') == 270) selected @endif>
-                                        270
-                                    </option>
-                                    <option value="275"
-                                            @if(request()->get('height') == 275) selected @endif>
-                                        275
-                                    </option>
-                                    <option value="280"
-                                            @if(request()->get('height') == 280) selected @endif>
-                                        280
-                                    </option>
-                                    <option value="285"
-                                            @if(request()->get('height') == 285) selected @endif>
-                                        285
-                                    </option>
-                                    <option value="290"
-                                            @if(request()->get('height') == 290) selected @endif>
-                                        290
-                                    </option>
-                                    <option value="295"
-                                            @if(request()->get('height') == 295) selected @endif>
-                                        295
-                                    </option>
-                                </select>
-                            </div>
-
-                            @if($user?->isOtk())
+                            @if($user?->isStorekeeper() || $user?->isAdmin())
+                                <div class="form-group col-md-2">
+                                    <select name="material"
+                                            id="material"
+                                            class="form-control form-control-lg"
+                                            onchange="updatePageWithQueryParam(this)"
+                                            required>
+                                        <option value="" selected disabled>
+                                            Материал
+                                        </option>
+                                        <option value="Бамбук"
+                                                @if(request()->get('material') == 'Бамбук') selected @endif>
+                                            Бамбук
+                                        </option>
+                                        <option value="Вуаль"
+                                                @if(request()->get('material') == 'Вуаль') selected @endif>
+                                            Вуаль
+                                        </option>
+                                        <option value="Лен"
+                                                @if(request()->get('material') == 'Лен') selected @endif>
+                                            Лен
+                                        </option>
+                                        <option value="Молния"
+                                                @if(request()->get('material') == 'Молния') selected @endif>
+                                            Молния
+                                        </option>
+                                        <option value="Мрамор"
+                                                @if(request()->get('material') == 'Мрамор') selected @endif>
+                                            Мрамор
+                                        </option>
+                                        <option value="Сетка"
+                                                @if(request()->get('material') == 'Сетка') selected @endif>
+                                            Сетка
+                                        </option>
+                                        <option value="Шифон"
+                                                @if(request()->get('material') == 'Шифон') selected @endif>
+                                            Шифон
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <select name="width"
+                                            id="width"
+                                            class="form-control form-control-lg"
+                                            onchange="updatePageWithQueryParam(this)"
+                                            required>
+                                        <option value="" selected disabled>
+                                            Ширина
+                                        </option>
+                                        <option value="200"
+                                                @if(request()->get('width') == 200) selected @endif>
+                                            200
+                                        </option>
+                                        <option value="300"
+                                                @if(request()->get('width') == 300) selected @endif>
+                                            300
+                                        </option>
+                                        <option value="400"
+                                                @if(request()->get('width') == 400) selected @endif>
+                                            400
+                                        </option>
+                                        <option value="500"
+                                                @if(request()->get('width') == 500) selected @endif>
+                                            500
+                                        </option>
+                                        <option value="600"
+                                                @if(request()->get('width') == 600) selected @endif>
+                                            600
+                                        </option>
+                                        <option value="700"
+                                                @if(request()->get('width') == 700) selected @endif>
+                                            700
+                                        </option>
+                                        <option value="800"
+                                                @if(request()->get('width') == 800) selected @endif>
+                                            800
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <select name="height"
+                                            id="height"
+                                            class="form-control form-control-lg"
+                                            onchange="updatePageWithQueryParam(this)"
+                                            required>
+                                        <option value="" selected disabled>
+                                            Высота
+                                        </option>
+                                        <option value="220"
+                                                @if(request()->get('height') == 220) selected @endif>
+                                            220
+                                        </option>
+                                        <option value="225"
+                                                @if(request()->get('height') == 225) selected @endif>
+                                            225
+                                        </option>
+                                        <option value="230"
+                                                @if(request()->get('height') == 230) selected @endif>
+                                            230
+                                        </option>
+                                        <option value="235"
+                                                @if(request()->get('height') == 235) selected @endif>
+                                            235
+                                        </option>
+                                        <option value="240"
+                                                @if(request()->get('height') == 240) selected @endif>
+                                            240
+                                        </option>
+                                        <option value="245"
+                                                @if(request()->get('height') == 245) selected @endif>
+                                            245
+                                        </option>
+                                        <option value="250"
+                                                @if(request()->get('height') == 250) selected @endif>
+                                            250
+                                        </option>
+                                        <option value="255"
+                                                @if(request()->get('height') == 255) selected @endif>
+                                            255
+                                        </option>
+                                        <option value="260"
+                                                @if(request()->get('height') == 260) selected @endif>
+                                            260
+                                        </option>
+                                        <option value="265"
+                                                @if(request()->get('height') == 265) selected @endif>
+                                            265
+                                        </option>
+                                        <option value="270"
+                                                @if(request()->get('height') == 270) selected @endif>
+                                            270
+                                        </option>
+                                        <option value="275"
+                                                @if(request()->get('height') == 275) selected @endif>
+                                            275
+                                        </option>
+                                        <option value="280"
+                                                @if(request()->get('height') == 280) selected @endif>
+                                            280
+                                        </option>
+                                        <option value="285"
+                                                @if(request()->get('height') == 285) selected @endif>
+                                            285
+                                        </option>
+                                        <option value="290"
+                                                @if(request()->get('height') == 290) selected @endif>
+                                            290
+                                        </option>
+                                        <option value="295"
+                                                @if(request()->get('height') == 295) selected @endif>
+                                            295
+                                        </option>
+                                    </select>
+                                </div>
                                 <div class="form-group col-md-2">
                                     <select name="seamstress_id"
                                             id="seamstress_id"
@@ -262,27 +264,26 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="form-group col-md-2">
+                                    <select name="marketplace_id"
+                                            id="marketplace_id"
+                                            class="form-control form-control-lg"
+                                            onchange="updatePageWithQueryParam(this)"
+                                            required>
+                                        <option value="" selected disabled>
+                                            Маркетплейс
+                                        </option>
+                                        <option value="1"
+                                                @if(request()->get('marketplace_id') == 1) selected @endif>
+                                            OZON
+                                        </option>
+                                        <option value="2"
+                                                @if(request()->get('marketplace_id') == 2) selected @endif>
+                                            WB
+                                        </option>
+                                    </select>
+                                </div>
                             @endif
-
-                            <div class="form-group col-md-2">
-                                <select name="marketplace_id"
-                                        id="marketplace_id"
-                                        class="form-control form-control-lg"
-                                        onchange="updatePageWithQueryParam(this)"
-                                        required>
-                                    <option value="" selected disabled>
-                                        Маркетплейс
-                                    </option>
-                                    <option value="1"
-                                            @if(request()->get('marketplace_id') == 1) selected @endif>
-                                        OZON
-                                    </option>
-                                    <option value="2"
-                                            @if(request()->get('marketplace_id') == 2) selected @endif>
-                                        WB
-                                    </option>
-                                </select>
-                            </div>
 
                             @if(request()->get('scan_order_id'))
                                 <div class="form-group col-md-2">
