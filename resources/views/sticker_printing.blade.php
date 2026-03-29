@@ -93,7 +93,7 @@
                     <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            {{--                            @if($user?->isStorekeeper() || $user?->isAdmin())--}}
+                            @if($canUseFilter)
                                 <div class="form-group col-md-2">
                                     <select name="material"
                                             id="material"
@@ -247,6 +247,7 @@
                                         </option>
                                     </select>
                                 </div>
+                                @if(!$user->isSeamstress())
                                 <div class="form-group col-md-2">
                                     <select name="seamstress_id"
                                             id="seamstress_id"
@@ -264,6 +265,7 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                @endif
                                 <div class="form-group col-md-2">
                                     <select name="marketplace_id"
                                             id="marketplace_id"
@@ -283,20 +285,20 @@
                                         </option>
                                     </select>
                                 </div>
-                            {{--                            @endif--}}
+                            @endif
 
                             @if(request()->get('scan_order_id'))
                                 <div class="form-group col-md-2">
                                     <input class="form-control form-control-lg"
-                                           type="text" name="isOtkOnShift"
-                                           style="font-size: 14px;"
                                            value="{{ request()->get('scan_order_id') }}"
+                                           style="font-size: 14px;"
+                                           type="text"
                                            readonly>
                                 </div>
                             @endif
                         </div>
 
-                        @if($isOtkOnShift && !$user->isOtk() && !$user->isStorekeeper())
+                        @if($isOtkOnShift && !$user->isOtk() && !$user->isStorekeeper() && !$user->isAdmin())
                             <div class="alert alert-danger">
                                 Самостоятельная стикеровка запрещена, на смене
                                 есть упаковщик!
@@ -361,13 +363,13 @@
 
                                     <tr>
                                         <td>
-                                            @if(!$isOtkOnShift || $user->isOtk() || $user->isStorekeeper())
-                                                @if($item->status == 3)
-                                                    <span
-                                                        class="text-danger text-bold d-flex align-items-center">
-                                                        уже застикерован
-                                                    </span>
-                                                @else
+                                            @if($item->status == 3)
+                                                <span
+                                                    class="text-danger text-bold d-flex align-items-center">
+                                                    уже застикерован
+                                                </span>
+                                            @else
+                                                @if($canSticking)
                                                     <button
                                                         onclick="printBarcode('/{{ $route }}?marketplaceOrderId={{ $item->marketplaceOrder->order_id }}', {{ $isPrinted ? 'true' : 'false' }}, this)"
                                                         class="btn btn-lg mr-2 d-flex align-items-center justify-content-center
@@ -399,7 +401,7 @@
                                                  alt="{{ $item->marketplaceOrder->marketplace_name }}">
                                         </td>
                                         <td class="td_style">
-                                            @if(!$isOtkOnShift || $user->isOtk() || $user->isStorekeeper())
+                                            @if($canSticking)
                                                 @if($item->status == 5)
                                                     <form
                                                         action="{{ route('marketplace_order_items.done', ['marketplace_order_item' => $item->id]) }}"

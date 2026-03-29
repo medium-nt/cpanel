@@ -343,6 +343,48 @@
                                         </option>
                                     </select>
                                 </div>
+
+                                <div class="form-group col-md-2">
+                                    <label for="sticking_otk">Стикеровка
+                                        упаковщиком</label>
+                                    <select name="sticking_otk"
+                                            id="sticking_otk"
+                                            class="form-control">
+                                        <option
+                                            value="qr" {{ $settings->sticking_otk == 'qr' ? 'selected' : '' }}>
+                                            Сканером по QR-коду
+                                        </option>
+                                        <option
+                                            value="filter" {{ $settings->sticking_otk == 'filter' ? 'selected' : '' }}>
+                                            В ручную по фильтру
+                                        </option>
+                                        <option
+                                            value="disabled" {{ $settings->sticking_otk == 'disabled' ? 'selected' : '' }}>
+                                            Запрещена
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label for="sticking_seamstress">Стикеровка
+                                        швеей</label>
+                                    <select name="sticking_seamstress"
+                                            id="sticking_seamstress"
+                                            class="form-control">
+                                        <option
+                                            value="qr" {{ $settings->sticking_seamstress == 'qr' ? 'selected' : '' }}>
+                                            Сканером по QR-коду
+                                        </option>
+                                        <option
+                                            value="filter" {{ $settings->sticking_seamstress == 'filter' ? 'selected' : '' }}>
+                                            В ручную по фильтру
+                                        </option>
+                                        <option
+                                            value="disabled" {{ $settings->sticking_seamstress == 'disabled' ? 'selected' : '' }}>
+                                            Запрещена
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
 
                             <hr>

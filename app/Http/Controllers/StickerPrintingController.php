@@ -49,6 +49,8 @@ class StickerPrintingController extends Controller
                 ->where('name', 'not like', '%Тест%')
                 ->orderBy('name')
                 ->get(),
+            'canUseFilter' => KioskService::canUseFilter($user),
+            'canSticking' => KioskService::canSticking($user),
         ]);
     }
 

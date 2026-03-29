@@ -131,5 +131,15 @@ class SettingsSeeder extends Seeder
             ['name' => 'print_qr_cutting'],
             ['value' => '0']
         );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'sticking_otk'],
+            ['value' => 'disabled']
+        );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'sticking_seamstress'],
+            ['value' => 'disabled']
+        );
     }
 }

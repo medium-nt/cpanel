@@ -6,6 +6,7 @@ use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -115,5 +116,52 @@ class KioskService
         }
 
         return true;
+    }
+
+    public static function canUseFilter(User $user): bool
+    {
+        if ($user->isAdmin() || $user->isStorekeeper()) {
+            return true;
+        }
+
+        if ($user->isOtk()) {
+            if (Setting::getValue('sticking_otk') === 'filter') {
+                return true;
+            }
+        }
+
+        if ($user->isSeamstress()) {
+            if (Setting::getValue('sticking_seamstress') === 'filter') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function canSticking(User $user): bool
+    {
+        if ($user->isAdmin() || $user->isStorekeeper()) {
+            return true;
+        }
+
+        if ($user->isOtk()) {
+            if (Setting::getValue('sticking_otk') !== 'disabled') {
+                return true;
+            }
+        }
+
+        $isOtkOnShift = User::query()
+            ->where('role_id', 5)
+            ->where('shift_is_open', true)
+            ->exists();
+
+        if ($user->isSeamstress() && ! $isOtkOnShift) {
+            if (Setting::getValue('sticking_seamstress') !== 'disabled') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
