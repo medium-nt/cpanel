@@ -167,8 +167,16 @@
                                 {{ $material }}
                                 {{ $item->item->width }} × {{ $item->item->height }}<br>
                             </span>
-                            {{ $item->marketplaceOrder->MarketplaceTitle }}
-                            {{ $item->marketplaceOrder->order_id }}
+                            <span
+                                style="float: left; margin-left: 5px; margin-top: 10px; font-size: 14px">
+                                {{ $item->marketplaceOrder->MarketplaceTitle }}
+                                {{ $item->marketplaceOrder->order_id }}
+                            </span>
+                            <span
+                                style="float: right; margin-top: 10px; font-weight: bold; font-size: 14px">
+                                ID: {{ $item->cutter->id ?? '-' }}
+                            </span>
+                            <div style="clear: both"></div>
                         </td>
                     @endforeach
 

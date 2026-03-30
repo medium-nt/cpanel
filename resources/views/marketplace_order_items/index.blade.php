@@ -576,7 +576,8 @@
                                 <br>
                                 @isset($item->cutter_id)
                                     <small>Кроил:
-                                        <b>{{ $item->cutter->shortName ?? '' }}</b>
+                                        <b>{{ $item->cutter->shortName ?? '' }}
+                                            (ID: {{ $item->cutter_id }})</b>
                                     </small>
                                     <br>
                                 @endisset
