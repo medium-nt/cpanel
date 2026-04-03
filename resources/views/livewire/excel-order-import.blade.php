@@ -206,9 +206,9 @@
                                            class="form-control form-control-sm"
                                            wire:change="updateRowQuantity({{ $rowIndex }}, $event.target.value)">
                                 </td>
-                                <td>
+                                <td wire:ignore>
                                     <select
-                                        class="form-control form-control-sm item-select2 select2"
+                                        class="form-control form-control-sm item-select2"
                                         wire:change="updateRowCluster({{ $rowIndex }}, $event.target.value)">
                                         <option value="">---</option>
                                         @foreach(($row['marketplace_id'] == 1 ? \App\Livewire\ExcelOrderImport::CLUSTERS_OZON : \App\Livewire\ExcelOrderImport::CLUSTERS_WB) as $cluster)
@@ -219,17 +219,20 @@
                                 </td>
                                 <td>
                                     @if($row['error'])
-                                        <select
-                                            class="form-control form-control-sm item-select2"
-                                            wire:change="updateRowItem({{ $rowIndex }}, $event.target.value)">
-                                            <option value="">-- Выберите товар
-                                                --
-                                            </option>
-                                            @foreach($allItems as $item)
-                                                <option
-                                                    value="{{ $item['id'] }}">{{ $item['title'] }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div wire:ignore>
+                                            <select
+                                                class="form-control form-control-sm item-select2"
+                                                wire:change="updateRowItem({{ $rowIndex }}, $event.target.value)">
+                                                <option value="">-- Выберите
+                                                    товар
+                                                    --
+                                                </option>
+                                                @foreach($allItems as $item)
+                                                    <option
+                                                        value="{{ $item['id'] }}">{{ $item['title'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                         <small
                                             class="text-danger">{{ $row['error'] }}</small>
                                     @else
@@ -290,33 +293,31 @@
     @push('js')
         <script
             src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    @endpush
+            <script>
+                function initItemSelect2() {
+                    document.querySelectorAll('.item-select2').forEach(function (el) {
+                        if (el.classList.contains('select2-hidden-accessible')) return;
+                        $(el).select2({
+                            width: '100%',
+                            dropdownAutoWidth: true,
+                            placeholder: '-- Выберите --',
+                        });
 
-    <script>
-        function initItemSelect2() {
-            document.querySelectorAll('.item-select2').forEach(function (el) {
-                if (el.classList.contains('select2-hidden-accessible')) return;
-                $(el).select2({
-                    width: '100%',
-                    dropdownAutoWidth: true,
-                    placeholder: '-- Выберите товар --',
-                    allowClear: true,
+                        $(el).on('select2:select', function (e) {
+                            const value = e.params.data.id;
+                            $(el).val(value);
+                            el.dispatchEvent(new Event('change', {bubbles: true}));
+                        });
+                    });
+                }
+
+                document.addEventListener('livewire:init', function () {
+                    Livewire.hook('commit', function ({succeed}) {
+                        succeed(function () {
+                            setTimeout(initItemSelect2, 100);
+                        });
+                    });
                 });
-
-                $(el).on('select2:select', function (e) {
-                    const value = e.params.data.id;
-                    $(el).val(value);
-                    el.dispatchEvent(new Event('change', {bubbles: true}));
-                });
-            });
-        }
-
-        document.addEventListener('livewire:init', function () {
-            Livewire.hook('element.updated', function (el, component) {
-                setTimeout(initItemSelect2, 50);
-            });
-        });
-
-        setTimeout(initItemSelect2, 100);
-    </script>
+            </script>
+        @endpush
 </div>
