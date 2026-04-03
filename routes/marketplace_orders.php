@@ -12,6 +12,10 @@ Route::prefix('/marketplace_orders')->group(function () {
         ->can('create', MarketplaceOrder::class)
         ->name('marketplace_orders.create');
 
+    Route::get('/import-excel', [MarketplaceOrderController::class, 'importExcel'])
+        ->can('create', MarketplaceOrder::class)
+        ->name('marketplace_orders.import_excel');
+
     Route::post('/store', [MarketplaceOrderController::class, 'store'])
         ->can('create', MarketplaceOrder::class)
         ->name('marketplace_orders.store');

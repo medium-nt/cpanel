@@ -153,6 +153,13 @@ class MarketplaceOrderController extends Controller
             ->with('success', 'Заказ удален.');
     }
 
+    public function importExcel()
+    {
+        return view('marketplace_orders.import_excel', [
+            'title' => 'Добавить заказ через Excel',
+        ]);
+    }
+
     public function remove(MarketplaceOrder $marketplace_order)
     {
         $marketplace_supply = $marketplace_order->supply->id;
