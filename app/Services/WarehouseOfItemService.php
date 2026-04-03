@@ -186,6 +186,9 @@ class WarehouseOfItemService
             'on_inspection' => MarketplaceOrderItem::query()
                 ->where('status', 12) // На проверке
                 ->count(),
+            'returns' => MarketplaceOrderItem::query()
+                ->where('status', 10) // Готовые к осмотру
+                ->count(),
             'inspected' => MarketplaceOrderItem::query()
                 ->where('status', 15) // Осмотрено
                 ->count(),

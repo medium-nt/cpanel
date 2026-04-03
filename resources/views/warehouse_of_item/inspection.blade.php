@@ -7,6 +7,23 @@
     <div class="col-md-12">
         {{-- Статистические виджеты --}}
         <div class="row mb-4">
+            {{-- Готовые к осмотру --}}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <a href="{{ route('warehouse_of_item.new_refunds') }}"
+                   class="link-black">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-secondary">
+                            <i class="fas fa-boxes"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Переданные на осмотр в цех</span>
+                            <span
+                                class="info-box-number">{{ $stats['returns'] }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
             {{-- На осмотре --}}
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <a href="{{ route('warehouse_of_item.new_refunds') }}"
@@ -16,7 +33,8 @@
                             <i class="fas fa-search"></i>
                         </span>
                         <div class="info-box-content">
-                            <span class="info-box-text">На осмотре в цехе</span>
+                            <span
+                                class="info-box-text">На осмотре у упаковщиц</span>
                             <span
                                 class="info-box-number">{{ $stats['on_inspection'] }}</span>
                         </div>
