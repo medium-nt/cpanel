@@ -217,7 +217,7 @@
                     </div>
                 </div>
 
-                <div style="max-height: 70vh; overflow-y: auto;">
+                <div class="table-responsive">
                     <table class="table table-bordered table-sm">
                         <thead class="thead-light"
                                style="position: sticky; top: 0; z-index: 1;">
