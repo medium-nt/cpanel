@@ -1000,9 +1000,9 @@ class MarketplaceApiService
         $length = mb_strlen($order->cluster);
 
         if ($length > 25) {
-            $fontSizeCluster = 5;
+            $fontSizeCluster = 4;
         } elseif ($length > 18) {
-            $fontSizeCluster = 8;
+            $fontSizeCluster = 7;
         } else {
             $fontSizeCluster = 10;
         }
