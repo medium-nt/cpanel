@@ -99,8 +99,8 @@ class ExcelOrderImportService
     /**
      * Create FBO orders from validated rows.
      * Each row creates N separate orders (N = quantity).
-     * Order ID format: FBO-{MARKETPLACE}-{DDMM}-{DAILY_SEQ}-{IMPORT_SEQ}
-     * Example: FBO-OZON-0204-0001-1
+     * Order ID format: {MARKETPLACE}-{DDMM}-{DAILY_SEQ}-{IMPORT_SEQ}
+     * Example: OZ-0204-0001-1
      *
      * @param  array<int, array{item_id: int, quantity: int, cluster: string|null, marketplace_id: int, sku_raw: string}>  $rows
      * @return int Number of orders created
@@ -121,10 +121,10 @@ class ExcelOrderImportService
                 $quantity = max((int) $row['quantity'], 1);
                 $cluster = $row['cluster'] ?? null;
                 $marketplaceId = $row['marketplace_id'];
-                $marketplaceName = $marketplaceId == 1 ? 'OZON' : 'WB';
+                $marketplaceName = $marketplaceId == 1 ? 'OZ' : 'WB';
 
                 for ($i = 1; $i <= $quantity; $i++) {
-                    $orderId = sprintf('FBO-%s-%s-%d-%d', $marketplaceName, $dateStr, $dailySeq, $importSeq++);
+                    $orderId = sprintf('%s-%s-%d-%d', $marketplaceName, $dateStr, $dailySeq, $importSeq++);
 
                     $marketplaceOrder = MarketplaceOrder::query()->create([
                         'order_id' => $orderId,
@@ -159,12 +159,12 @@ class ExcelOrderImportService
 
     /**
      * Determine the next daily sequence number for orders.
-     * Looks at existing orders matching FBO-{MARKETPLACE}-{DDMM}-{SEQ}-%.
+     * Looks at existing orders matching {MARKETPLACE}-{DDMM}-{SEQ}-%.
      */
     private static function getNextDailySequence(string $dateStr): int
     {
         $lastOrder = MarketplaceOrder::query()
-            ->where('order_id', 'LIKE', 'FBO-%-'.$dateStr.'-%')
+            ->where('order_id', 'LIKE', '%-'.$dateStr.'-%')
             ->orderByDesc('id')
             ->first();
 
