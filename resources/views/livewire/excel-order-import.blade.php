@@ -177,6 +177,45 @@
                     </div>
                 </div>
 
+                <div class="row align-items-end mb-3 p-2 bg-light rounded">
+                    <div class="col-12 mb-2 mb-md-0 col-md-auto">
+                        <strong>Выбор маркетплейса и кластера:</strong>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <select wire:model.live="globalMarketplace"
+                                class="form-control form-control-sm">
+                            <option value="0">-- Маркетплейс --</option>
+                            <option value="1">OZON</option>
+                            <option value="2">WB</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <select id="global-cluster-select"
+                                class="form-control form-control-sm"
+                                wire:change="$set('globalCluster', $event.target.value)"
+                                @if(!$globalMarketplace) disabled @endif>
+                            <option value="">-- Выберите кластер --</option>
+                            @if($globalMarketplace == 1)
+                                @foreach(\App\Livewire\ExcelOrderImport::CLUSTERS_OZON as $cluster)
+                                    <option
+                                        value="{{ $cluster }}">{{ $cluster }}</option>
+                                @endforeach
+                            @elseif($globalMarketplace == 2)
+                                @foreach(\App\Livewire\ExcelOrderImport::CLUSTERS_WB as $cluster)
+                                    <option
+                                        value="{{ $cluster }}">{{ $cluster }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-auto mt-2 mt-md-0">
+                        <button type="button"
+                                class="btn btn-sm btn-primary"
+                                wire:click="setClusterForAll">
+                            Применить ко всем
+                        </button>
+                    </div>
+                </div>
 
                 <div style="max-height: 70vh; overflow-y: auto;">
                     <table class="table table-bordered table-sm">
@@ -206,9 +245,9 @@
                                            class="form-control form-control-sm"
                                            wire:change="updateRowQuantity({{ $rowIndex }}, $event.target.value)">
                                 </td>
-                                <td wire:ignore>
+                                <td>
                                     <select
-                                        class="form-control form-control-sm item-select2"
+                                        class="form-control form-control-sm cluster-select2"
                                         wire:change="updateRowCluster({{ $rowIndex }}, $event.target.value)">
                                         <option value="">---</option>
                                         @foreach(($row['marketplace_id'] == 1 ? \App\Livewire\ExcelOrderImport::CLUSTERS_OZON : \App\Livewire\ExcelOrderImport::CLUSTERS_WB) as $cluster)
@@ -307,10 +346,52 @@
                     });
                 }
 
+                function initClusterSelect2() {
+                    document.querySelectorAll('.cluster-select2').forEach(function (el) {
+                        if (el.classList.contains('select2-hidden-accessible')) {
+                            $(el).select2('destroy');
+                        }
+                        $(el).select2({
+                            width: '100%',
+                            dropdownAutoWidth: true,
+                            placeholder: '---',
+                        });
+
+                        $(el).on('select2:select', function (e) {
+                            const value = e.params.data.id;
+                            $(el).val(value);
+                            el.dispatchEvent(new Event('change', {bubbles: true}));
+                        });
+                    });
+                }
+
+                function initGlobalClusterSelect() {
+                    var el = document.getElementById('global-cluster-select');
+                    if (!el) return;
+                    if (el.classList.contains('select2-hidden-accessible')) {
+                        $(el).select2('destroy');
+                    }
+                    $(el).select2({
+                        width: '100%',
+                        dropdownAutoWidth: true,
+                        placeholder: '-- Выберите кластер --',
+                    });
+
+                    $(el).on('select2:select', function (e) {
+                        const value = e.params.data.id;
+                        $(el).val(value);
+                        el.dispatchEvent(new Event('change', {bubbles: true}));
+                    });
+                }
+
                 document.addEventListener('livewire:init', function () {
                     Livewire.hook('commit', function ({succeed}) {
                         succeed(function () {
-                            setTimeout(initItemSelect2, 100);
+                            setTimeout(function () {
+                                initItemSelect2();
+                                initClusterSelect2();
+                                initGlobalClusterSelect();
+                            }, 100);
                         });
                     });
                 });

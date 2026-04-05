@@ -34,6 +34,10 @@ class ExcelOrderImport extends Component
 
     public string $errorMessage = '';
 
+    public string $globalCluster = '';
+
+    public int $globalMarketplace = 0;
+
     /** @var array<int, array{id: int, title: string}> */
     public array $allItems = [];
 
@@ -121,6 +125,22 @@ class ExcelOrderImport extends Component
     {
         if (isset($this->processedRows[$rowIndex])) {
             $this->processedRows[$rowIndex]['cluster'] = $value;
+        }
+    }
+
+    public function updatedGlobalMarketplace(): void
+    {
+        $this->globalCluster = '';
+    }
+
+    public function setClusterForAll(): void
+    {
+        if ($this->globalCluster === '') {
+            return;
+        }
+
+        foreach ($this->processedRows as $i => $row) {
+            $this->processedRows[$i]['cluster'] = $this->globalCluster;
         }
     }
 
