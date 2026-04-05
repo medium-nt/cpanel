@@ -218,26 +218,22 @@
                                     </select>
                                 </td>
                                 <td>
+                                    <div wire:ignore>
+                                        <select
+                                            class="form-control form-control-sm item-select2"
+                                            wire:change="updateRowItem({{ $rowIndex }}, $event.target.value)">
+                                            <option value="">-- Выберите товар
+                                                --
+                                            </option>
+                                            @foreach($allItems as $item)
+                                                <option
+                                                    value="{{ $item['id'] }}" {{ ($row['item_id'] ?? null) == $item['id'] ? 'selected' : '' }}>{{ $item['title'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     @if($row['error'])
-                                        <div wire:ignore>
-                                            <select
-                                                class="form-control form-control-sm item-select2"
-                                                wire:change="updateRowItem({{ $rowIndex }}, $event.target.value)">
-                                                <option value="">-- Выберите
-                                                    товар
-                                                    --
-                                                </option>
-                                                @foreach($allItems as $item)
-                                                    <option
-                                                        value="{{ $item['id'] }}">{{ $item['title'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
                                         <small
                                             class="text-danger">{{ $row['error'] }}</small>
-                                    @else
-                                        <span
-                                            class="text-success">{{ $row['item_title'] }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $row['sku_raw'] }}</td>
