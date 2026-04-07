@@ -2352,6 +2352,7 @@ class MarketplaceApiService
 
             $clusters = $response->json('clusters') ?? [];
             $added = 0;
+            $apiNames = [];
 
             foreach ($clusters as $cluster) {
                 $clusterName = $cluster['name'] ?? '';
@@ -2363,6 +2364,8 @@ class MarketplaceApiService
                         if (empty($warehouseName)) {
                             continue;
                         }
+
+                        $apiNames[] = $warehouseName;
 
                         $created = MarketplaceWarehouse::query()->firstOrCreate(
                             [
@@ -2381,8 +2384,13 @@ class MarketplaceApiService
                 }
             }
 
+            $deleted = MarketplaceWarehouse::query()
+                ->where('marketplace_id', 1)
+                ->whereNotIn('name', $apiNames)
+                ->delete();
+
             Log::channel('marketplace_api')
-                ->info("Синхронизация складов OZON завершена. Добавлено: {$added}");
+                ->info("Синхронизация складов OZON завершена. Добавлено: {$added}, удалено: {$deleted}");
 
             return $added;
         } catch (Throwable $e) {
@@ -2417,6 +2425,7 @@ class MarketplaceApiService
 
             $offices = $response->json() ?? [];
             $added = 0;
+            $apiNames = [];
 
             foreach ($offices as $office) {
                 $officeName = $office['name'] ?? '';
@@ -2424,6 +2433,8 @@ class MarketplaceApiService
                 if (empty($officeName)) {
                     continue;
                 }
+
+                $apiNames[] = $officeName;
 
                 $created = MarketplaceWarehouse::query()->firstOrCreate(
                     [
@@ -2440,8 +2451,13 @@ class MarketplaceApiService
                 }
             }
 
+            $deleted = MarketplaceWarehouse::query()
+                ->where('marketplace_id', 2)
+                ->whereNotIn('name', $apiNames)
+                ->delete();
+
             Log::channel('marketplace_api')
-                ->info("Синхронизация складов WB завершена. Добавлено: {$added}");
+                ->info("Синхронизация складов WB завершена. Добавлено: {$added}, удалено: {$deleted}");
 
             return $added;
         } catch (Throwable $e) {
