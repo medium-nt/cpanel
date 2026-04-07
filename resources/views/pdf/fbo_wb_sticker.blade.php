@@ -104,12 +104,13 @@
             {{ $item->width }} x {{ $item->height }}
         </b>
     </div>
-    <div class="text">Страна: {{ $country }}</div>
-    <div class="text">Бренд: МЕГАТЮЛЬ
+    <div class="text">Страна: {{ $country }}
         <span
             style="float:right; margin-right: 5px; font-weight: bold; font-size: {{ $fontSizeCluster }}px">
             {{ $order->cluster }}
         </span>
+    </div>
+    <div class="text">Бренд: МЕГАТЮЛЬ
     </div>
 
     <div class="footer">
