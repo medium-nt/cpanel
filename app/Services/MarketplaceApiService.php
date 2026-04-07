@@ -6,6 +6,7 @@ use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
+use App\Models\MarketplaceWarehouse;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\ProductSticker;
@@ -2323,6 +2324,132 @@ class MarketplaceApiService
                 'returns' => [],
                 'has_next' => false,
             ];
+        }
+    }
+
+    /**
+     * Загружает склады OZON из API и добавляет в БД те, которых еще нет.
+     */
+    public static function syncWarehousesOzon(): int
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/cluster/list', [
+                    'cluster_type' => 'CLUSTER_TYPE_OZON',
+                ]);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка получения кластеров/складов из Ozon',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return 0;
+            }
+
+            $clusters = $response->json('clusters') ?? [];
+            $added = 0;
+
+            foreach ($clusters as $cluster) {
+                $clusterName = $cluster['name'] ?? '';
+
+                foreach ($cluster['logistic_clusters'] ?? [] as $logisticCluster) {
+                    foreach ($logisticCluster['warehouses'] ?? [] as $warehouse) {
+                        $warehouseName = $warehouse['name'] ?? '';
+
+                        if (empty($warehouseName)) {
+                            continue;
+                        }
+
+                        $created = MarketplaceWarehouse::query()->firstOrCreate(
+                            [
+                                'name' => $warehouseName,
+                                'marketplace_id' => 1,
+                            ],
+                            [
+                                'cluster' => $clusterName,
+                            ]
+                        );
+
+                        if ($created->wasRecentlyCreated) {
+                            $added++;
+                        }
+                    }
+                }
+            }
+
+            Log::channel('marketplace_api')
+                ->info("Синхронизация складов OZON завершена. Добавлено: {$added}");
+
+            return $added;
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при синхронизации складов OZON: '.$e->getMessage()
+            );
+
+            return 0;
+        }
+    }
+
+    /**
+     * Загружает склады WB из API и добавляет в БД те, которых еще нет.
+     */
+    public static function syncWarehousesWb(): int
+    {
+        try {
+            $response = self::wbRequest()
+                ->get('https://marketplace-api.wildberries.ru/api/v3/offices');
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'ВНИМАНИЕ! Ошибка получения складов из WB',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return 0;
+            }
+
+            $offices = $response->json() ?? [];
+            $added = 0;
+
+            foreach ($offices as $office) {
+                $officeName = $office['name'] ?? '';
+
+                if (empty($officeName)) {
+                    continue;
+                }
+
+                $created = MarketplaceWarehouse::query()->firstOrCreate(
+                    [
+                        'name' => $officeName,
+                        'marketplace_id' => 2,
+                    ],
+                    [
+                        'cluster' => $office['federalDistrict'] ?? '',
+                    ]
+                );
+
+                if ($created->wasRecentlyCreated) {
+                    $added++;
+                }
+            }
+
+            Log::channel('marketplace_api')
+                ->info("Синхронизация складов WB завершена. Добавлено: {$added}");
+
+            return $added;
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при синхронизации складов WB: '.$e->getMessage()
+            );
+
+            return 0;
         }
     }
 }
