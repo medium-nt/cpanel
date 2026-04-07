@@ -194,18 +194,11 @@
                                 class="form-control form-control-sm"
                                 wire:change="$set('globalCluster', $event.target.value)"
                                 @if(!$globalMarketplace) disabled @endif>
-                            <option value="">-- Выберите кластер --</option>
-                            @if($globalMarketplace == 1)
-                                @foreach(\App\Livewire\ExcelOrderImport::CLUSTERS_OZON as $cluster)
-                                    <option
-                                        value="{{ $cluster }}">{{ $cluster }}</option>
-                                @endforeach
-                            @elseif($globalMarketplace == 2)
-                                @foreach(\App\Livewire\ExcelOrderImport::CLUSTERS_WB as $cluster)
-                                    <option
-                                        value="{{ $cluster }}">{{ $cluster }}</option>
-                                @endforeach
-                            @endif
+                            <option value="">-- Выберите склад --</option>
+                            @foreach($warehouses[$globalMarketplace] ?? [] as $name => $label)
+                                <option
+                                    value="{{ $name }}" {{ $globalCluster === (string) $name ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-12 col-md-auto mt-2 mt-md-0">
@@ -250,9 +243,9 @@
                                         class="form-control form-control-sm cluster-select2"
                                         wire:change="updateRowCluster({{ $rowIndex }}, $event.target.value)">
                                         <option value="">---</option>
-                                        @foreach(($row['marketplace_id'] == 1 ? \App\Livewire\ExcelOrderImport::CLUSTERS_OZON : \App\Livewire\ExcelOrderImport::CLUSTERS_WB) as $cluster)
+                                        @foreach($warehouses[$row['marketplace_id']] ?? [] as $name => $label)
                                             <option
-                                                value="{{ $cluster }}" {{ $row['cluster'] === $cluster ? 'selected' : '' }}>{{ $cluster }}</option>
+                                                value="{{ $name }}" {{ $row['cluster'] === (string) $name ? 'selected' : '' }}>{{ $label }}</option>
                                         @endforeach
                                     </select>
                                 </td>

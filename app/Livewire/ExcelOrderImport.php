@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\MarketplaceItem;
+use App\Models\MarketplaceWarehouse;
 use App\Services\ExcelOrderImportService;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -41,23 +42,8 @@ class ExcelOrderImport extends Component
     /** @var array<int, array{id: int, title: string}> */
     public array $allItems = [];
 
-    public const CLUSTERS_OZON = [
-        'Алматы', 'Астана', 'Беларусь', 'Воронеж', 'Дальний Восток',
-        'Екатеринбург', 'Казань', 'Калининград', 'Краснодар', 'Красноярск',
-        'Махачкала', 'Москва, МО и Дальние регионы', 'Невинномысск',
-        'Новосибирск', 'Омск', 'Оренбург', 'Пермь', 'Ростов',
-        'Самара', 'Санкт-Петербург и СЗО', 'Саратов', 'Тверь', 'Тюмень',
-        'Уфа', 'Ярославль',
-    ];
-
-    public const CLUSTERS_WB = [
-        'Алексин (Тула)', 'Владимир (Воршинское)', 'Волгоград',
-        'Екатеринбург (Испытателей)', 'Екатеринбург (Перспективный)',
-        'Казань', 'Коледино', 'Котовск', 'Краснодар', 'Невинномысск',
-        'Нижний Новгород', 'Новосибирск(Петухова)', 'Рязань',
-        'Самара (Новосемейкино)', 'Санкт-Петербург(Уткина Заводь)',
-        'Санкт-Петербург(Шушары)', 'Сарапул', 'Электросталь',
-    ];
+    /** @var array<int, array<int, string>> Склады, сгруппированные по marketplace_id */
+    public array $warehouses = [];
 
     public function mount(): void
     {
@@ -68,6 +54,13 @@ class ExcelOrderImport extends Component
                 'id' => $item->id,
                 'title' => "{$item->title} {$item->width}x{$item->height}",
             ])
+            ->toArray();
+
+        $this->warehouses = MarketplaceWarehouse::query()
+            ->orderBy('name')
+            ->get()
+            ->groupBy('marketplace_id')
+            ->map(fn ($group) => $group->pluck('name', 'name')->toArray())
             ->toArray();
     }
 
