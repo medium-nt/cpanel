@@ -558,6 +558,9 @@ class MarketplaceOrderItemService
         ];
     }
 
+    /**
+     * Проверка заполнения стэка заказов.
+     */
     private static function checkMaxStack(User $user): array
     {
         try {
@@ -611,6 +614,9 @@ class MarketplaceOrderItemService
         }
     }
 
+    /**
+     * Проверка наличия материалов в работе.
+     */
     private static function hasMaterialsInWorkshop($marketplaceOrderItem): bool
     {
         $marketplaceItem = $marketplaceOrderItem->item()->first();
@@ -641,6 +647,9 @@ class MarketplaceOrderItemService
         return true;
     }
 
+    /**
+     * Назначение заказа сотруднику.
+     */
     private static function assignOrderToUser($marketplaceOrderItem): array
     {
         try {
@@ -754,18 +763,22 @@ class MarketplaceOrderItemService
     {
         $user = auth()->user();
 
+        // Проверка расписания
         if (! self::checkSchedule()['success']) {
             return self::checkSchedule();
         }
 
+        // Проверка стэка заказов
         if (! self::checkMaxStack($user)['success']) {
             return self::checkMaxStack($user);
         }
 
+        // Проверка дневного лимита
         if (! self::checkDailyLimit($user)['success']) {
             return self::checkDailyLimit($user);
         }
 
+        // Проверка таймаута (взять новый заказ сразу после старого)
         if (! self::checkTimeout($user)['success']) {
             return self::checkTimeout($user);
         }
@@ -843,6 +856,9 @@ class MarketplaceOrderItemService
         ];
     }
 
+    /**
+     * Пытаемся взять заказ.
+     */
     protected static function tryProcessItem($marketplaceOrderItem): array
     {
         $item = $marketplaceOrderItem->item()->first();
@@ -866,6 +882,9 @@ class MarketplaceOrderItemService
         return self::assignOrderToUser($marketplaceOrderItem);
     }
 
+    /**
+     * Отправка уведомления о недостатке материала в цехе.
+     */
     protected static function notifyNoMaterials($item): void
     {
         $text = sprintf(
@@ -974,6 +993,9 @@ class MarketplaceOrderItemService
             ->get();
     }
 
+    /**
+     * Проверка возможности использования материала этим сотрудником.
+     */
     private static function canUseMaterial(MarketplaceOrderItem $marketplaceOrderItem): bool
     {
         $clothConsumptions = $marketplaceOrderItem->item->consumption
@@ -1111,6 +1133,9 @@ class MarketplaceOrderItemService
             ->warning('Восстановлен резервированный товар '.$marketplaceOrderItem->id);
     }
 
+    /**
+     * Проверка дневного лимита сотрудника.
+     */
     private static function checkDailyLimit(User $user): array
     {
         $meters = self::getMetersTodayByUser($user) / 100;
