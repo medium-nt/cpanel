@@ -406,8 +406,20 @@
                         </a>
 
                         <a href="{{ route('marketplace_api.checkSkuz') }}"
-                           class="btn btn-outline-primary mb-3">
+                           class="btn btn-outline-primary mb-3 mr-3">
                             Проверить наличие всех skuz в системе
+                        </a>
+
+                        <a href="{{ route('setting.syncWarehousesOzon') }}"
+                           class="btn btn-outline-info mb-3 mr-3"
+                           onclick="return confirm('Обновить склады OZON из API?')">
+                            Обновить склады OZON
+                        </a>
+
+                        <a href="{{ route('setting.syncWarehousesWb') }}"
+                           class="btn btn-outline-info mb-3"
+                           onclick="return confirm('Обновить склады WB из API?')">
+                            Обновить склады WB
                         </a>
 
                     </div>

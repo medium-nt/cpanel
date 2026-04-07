@@ -83,6 +83,11 @@ Schedule::call(function () {
     MarketplaceSupplyService::updateStatusSupply();
 })->dailyAt('02:00');
 
+Schedule::call(function () {
+    MarketplaceApiService::syncWarehousesOzon();
+    MarketplaceApiService::syncWarehousesWb();
+})->weeklyOn(1, '03:00');
+
 Schedule::command('queue:work --stop-when-empty')
     ->everyMinute()->withoutOverlapping()
     ->sendOutputTo(storage_path('logs/queue.log'));

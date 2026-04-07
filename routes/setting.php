@@ -19,4 +19,12 @@ Route::prefix('/setting')->group(function () {
     Route::get('duplicates', [SettingController::class, 'duplicates'])
         ->can('update', Setting::class)
         ->name('setting.duplicates');
+
+    Route::get('sync-warehouses-ozon', [SettingController::class, 'syncWarehousesOzon'])
+        ->can('update', Setting::class)
+        ->name('setting.syncWarehousesOzon');
+
+    Route::get('sync-warehouses-wb', [SettingController::class, 'syncWarehousesWb'])
+        ->can('update', Setting::class)
+        ->name('setting.syncWarehousesWb');
 });

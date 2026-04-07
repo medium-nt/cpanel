@@ -6,6 +6,7 @@ use App\Http\Requests\SaveSettingRequest;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\MarketplaceApiService;
 use App\Services\TgService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -87,6 +88,22 @@ class SettingController extends Controller
             dd('Is test server');
         }
         dd('Is no development server');
+    }
+
+    public function syncWarehousesOzon()
+    {
+        $added = MarketplaceApiService::syncWarehousesOzon();
+
+        return redirect()->route('setting.index')
+            ->with('success', "Склады OZON обновлены. Добавлено: {$added}");
+    }
+
+    public function syncWarehousesWb()
+    {
+        $added = MarketplaceApiService::syncWarehousesWb();
+
+        return redirect()->route('setting.index')
+            ->with('success', "Склады WB обновлены. Добавлено: {$added}");
     }
 
     public static function duplicates()
