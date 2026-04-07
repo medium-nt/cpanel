@@ -773,6 +773,54 @@ class MarketplaceOrderItemService
         return self::processAvailableItems();
     }
 
+    public static function fillEntireStack(): array
+    {
+        $user = auth()->user();
+
+        if (! self::checkSchedule()['success']) {
+            return self::checkSchedule();
+        }
+
+        $taken = 0;
+
+        while (true) {
+            $stackCheck = self::checkMaxStack($user);
+            if (! $stackCheck['success']) {
+                $lastError = $stackCheck['message'];
+                break;
+            }
+
+            $limitCheck = self::checkDailyLimit($user);
+            if (! $limitCheck['success']) {
+                $lastError = $limitCheck['message'];
+                break;
+            }
+
+            $result = self::processAvailableItems();
+            if (! $result['success']) {
+                $lastError = $result['message'];
+                break;
+            }
+
+            $taken++;
+        }
+
+        if ($taken > 0) {
+            return [
+                'success' => true,
+                'message' => "Получено заказов: {$taken}",
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $lastError,
+        ];
+    }
+
+    /**
+     * Проверка возможности взятия заказов.
+     */
     protected static function processAvailableItems(): array
     {
         /** @var MarketplaceOrderItem $marketplaceOrderItem */

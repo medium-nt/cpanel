@@ -269,6 +269,11 @@
                 <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                    class="btn btn-primary mb-3 getNewOrderItem">Получить новый
                     заказ</a>
+                    @if(auth()->user()->isCutter())
+                        <a href="{{ route('marketplace_order_items.fillEntireStack') }}"
+                           class="btn btn-success mb-3 fillEntireStack">Взять
+                            весь стек</a>
+                    @endif
                     @if(auth()->user()->is_cutter || auth()->user()->isCutter())
                         <a href="{{ route('marketplace_order_items.printCutting') }}"
                            target="_blank"
@@ -539,14 +544,20 @@
                     <div class="card-body text-center">
                         @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
                             <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
-                               class="btn btn-primary getNewOrderItem">Получить
+                               class="btn btn-primary getNewOrderItem mb-2 mr-1">Получить
                                 новый заказ</a>
+                            @if(auth()->user()->isCutter())
+                                <br>
+                                <a href="{{ route('marketplace_order_items.fillEntireStack') }}"
+                                   class="btn btn-success fillEntireStack mb-2">Взять
+                                    весь стек</a>
+                            @endif
                         @endif
 
                             @if(auth()->user()->is_cutter || auth()->user()->isCutter())
                             <a href="{{ route('marketplace_order_items.printCutting') }}"
                                target="_blank"
-                               class="btn btn-outline-secondary ml-3"><i
+                               class="btn btn-outline-secondary mb-2 ml-2"><i
                                     class="fas fa-print"></i></a>
                         @endif
                     </div>
@@ -785,6 +796,12 @@
                 button.next('.saving').remove();
                 button.after('<span class="saving"><i class="fas fa-spinner fa-2x fa-pulse mr-1"></i>Еще немного...</span>');
             }, 10000);
+        });
+
+        $('.fillEntireStack').on('click', function () {
+            var button = $(this);
+            button.hide();
+            button.after('<span class="saving"><i class="fas fa-spinner fa-2x fa-pulse mr-1"></i>Заполняем стек...</span>');
         });
     </script>
 @endpush

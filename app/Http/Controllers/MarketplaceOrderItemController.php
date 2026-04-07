@@ -170,6 +170,21 @@ class MarketplaceOrderItemController extends Controller
             ->with('error', $result['message']);
     }
 
+    public function fillEntireStack()
+    {
+        $result = MarketplaceOrderItemService::fillEntireStack();
+
+        if ($result['success']) {
+            return redirect()
+                ->route('marketplace_order_items.index')
+                ->with('success', $result['message']);
+        }
+
+        return redirect()
+            ->route('marketplace_order_items.index')
+            ->with('error', $result['message']);
+    }
+
     public function completeCutting(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
         Order::query()
