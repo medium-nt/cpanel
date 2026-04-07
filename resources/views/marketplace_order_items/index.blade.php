@@ -799,6 +799,10 @@
         });
 
         $('.fillEntireStack').on('click', function () {
+            if (!confirm('Уверены что успеете сделать все заказы? Отмена только со штрафом!')) {
+                return false;
+            }
+
             var button = $(this);
             button.hide();
             button.after('<span class="saving"><i class="fas fa-spinner fa-2x fa-pulse mr-1"></i>Заполняем стек...</span>');
