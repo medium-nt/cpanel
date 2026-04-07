@@ -5,6 +5,11 @@
 @section('subtitle', $title)
 @section('content_header_title', $title)
 
+@push('css')
+    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}"
+          rel="stylesheet"/>
+@endpush
+
 {{-- Content body: main page content --}}
 
 @section('content_body')
@@ -150,6 +155,7 @@
 
                 // Генерируем HTML для новой строки
                 newRow.innerHTML = `
+                    <hr class="only-on-smartphone">
                     <div class="row mb-2">
                         <div class="col-md-8 form-group">
                             <div class="input-group-append d-flex justify-content-end">
@@ -159,6 +165,7 @@
                             </div>
                         </div>
                         <div class="col-md-2 form-group">
+                            <label class="only-on-smartphone">шт./п.м.</label>
                             <input type="number"
                                class="form-control quantity-input"
                                name="quantity[${materialRowIndex}]"
@@ -167,6 +174,7 @@
                                      required>
                         </div>
                         <div class="col-md-2 form-group">
+                            <label class="only-on-smartphone">Рулонов</label>
                             <div class="input-group">
                                 <input type="number"
                                      class="form-control rolls-input"
