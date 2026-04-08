@@ -24,8 +24,8 @@
                 </div>
                 <div class="form-group mt-3">
                     <small class="text-muted">
-                        Файл должен содержать колонки: артикул/SKU, количество,
-                        штрихкод/баркод (опционально), кластер (опционально).
+                        Файл должен содержать колонки: артикул, количество,
+                        штрихкод/баркод.
                         Максимум 10 МБ. Поддерживаются форматы xlsx, xls, csv.
                     </small>
                 </div>
@@ -62,7 +62,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Артикул / SKU <span
+                            <label>Артикул<span
                                     class="text-danger">*</span></label>
                             <select wire:model="columnMap.sku"
                                     class="form-control">
@@ -95,23 +95,9 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Штрихкод / Баркод</label>
+                            <label>Штрихкод / Баркод <span
+                                    class="text-danger">*</span></label>
                             <select wire:model="columnMap.barcode"
-                                    class="form-control">
-                                <option value="">-- Не выбрано (использовать
-                                    артикул) --
-                                </option>
-                                @foreach($fileHeaders as $index => $header)
-                                    <option
-                                        value="{{ $index }}">{{ $header }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Кластер</label>
-                            <select wire:model="columnMap.cluster"
                                     class="form-control">
                                 <option value="">-- Не выбрано --</option>
                                 @foreach($fileHeaders as $index => $header)
@@ -201,13 +187,6 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-auto mt-2 mt-md-0">
-                        <button type="button"
-                                class="btn btn-sm btn-primary"
-                                wire:click="setClusterForAll">
-                            Применить ко всем
-                        </button>
-                    </div>
                 </div>
 
                 <div class="table-responsive">
@@ -218,10 +197,8 @@
                             <th style="width: 30px;">#</th>
                             <th>Штрихкод</th>
                             <th style="width: 80px;">Кол-во</th>
-                            <th>Кластер</th>
                             <th>Товар</th>
                             <th>SKU</th>
-                            <th>Маркетплейс</th>
                             <th style="width: 80px;">Действие</th>
                         </tr>
                         </thead>
@@ -237,17 +214,6 @@
                                            step="1"
                                            class="form-control form-control-sm"
                                            wire:change="updateRowQuantity({{ $rowIndex }}, $event.target.value)">
-                                </td>
-                                <td>
-                                    <select
-                                        class="form-control form-control-sm cluster-select2"
-                                        wire:change="updateRowCluster({{ $rowIndex }}, $event.target.value)">
-                                        <option value="">---</option>
-                                        @foreach($warehouses[$row['marketplace_id']] ?? [] as $name => $label)
-                                            <option
-                                                value="{{ $name }}" {{ $row['cluster'] === (string) $name ? 'selected' : '' }}>{{ $label }}</option>
-                                        @endforeach
-                                    </select>
                                 </td>
                                 <td>
                                     <div wire:ignore>
@@ -270,9 +236,6 @@
                                 </td>
                                 <td>{{ $row['sku_raw'] }}</td>
                                 <td>
-                                    {{ $row['marketplace_id'] == 1 ? 'OZON' : 'WB' }}
-                                </td>
-                                <td>
                                     <button type="button"
                                             class="btn btn-danger btn-sm"
                                             wire:click="removeRow({{ $rowIndex }})"
@@ -288,7 +251,8 @@
             </div>
             <div class="card-footer">
                 <button type="button" class="btn btn-success" wire:click="save"
-                        wire:loading.attr="disabled">
+                        wire:loading.attr="disabled"
+                        @if(!$globalMarketplace || !$globalCluster) disabled @endif>
                     <span wire:loading.remove>Сохранить заказы</span>
                     <span wire:loading>Сохранение...</span>
                 </button>
@@ -339,25 +303,6 @@
                     });
                 }
 
-                function initClusterSelect2() {
-                    document.querySelectorAll('.cluster-select2').forEach(function (el) {
-                        if (el.classList.contains('select2-hidden-accessible')) {
-                            $(el).select2('destroy');
-                        }
-                        $(el).select2({
-                            width: '100%',
-                            dropdownAutoWidth: true,
-                            placeholder: '---',
-                        });
-
-                        $(el).on('select2:select', function (e) {
-                            const value = e.params.data.id;
-                            $(el).val(value);
-                            el.dispatchEvent(new Event('change', {bubbles: true}));
-                        });
-                    });
-                }
-
                 function initGlobalClusterSelect() {
                     var el = document.getElementById('global-cluster-select');
                     if (!el) return;
@@ -382,7 +327,6 @@
                         succeed(function () {
                             setTimeout(function () {
                                 initItemSelect2();
-                                initClusterSelect2();
                                 initGlobalClusterSelect();
                             }, 100);
                         });

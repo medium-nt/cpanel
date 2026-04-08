@@ -45,9 +45,8 @@ class ExcelOrderImportService
 
     /**
      * Match a SKU/barcode value to a MarketplaceItem via the Sku model.
-     * Strips "OZN" prefix if present and determines marketplace_id.
      *
-     * @return array{item_id: int|null, marketplace_id: int, error: string|null, item_title: string|null}
+     * @return array{item_id: int|null, error: string|null, item_title: string|null}
      */
     public static function matchRow(string $skuValue): array
     {
@@ -56,20 +55,15 @@ class ExcelOrderImportService
         if ($skuValue === '') {
             return [
                 'item_id' => null,
-                'marketplace_id' => 1,
                 'error' => 'Пустое значение',
                 'item_title' => null,
             ];
         }
 
-        $marketplaceId = 1;
         $cleanValue = $skuValue;
 
         if (mb_strtoupper(mb_substr($skuValue, 0, 3)) === 'OZN') {
             $cleanValue = mb_substr($skuValue, 3);
-            $marketplaceId = 1;
-        } else {
-            $marketplaceId = 2;
         }
 
         $cleanValue = trim($cleanValue);
@@ -79,7 +73,6 @@ class ExcelOrderImportService
         if ($sku === null) {
             return [
                 'item_id' => null,
-                'marketplace_id' => $marketplaceId,
                 'error' => 'SKU не найден: '.$cleanValue,
                 'item_title' => null,
             ];
@@ -90,7 +83,6 @@ class ExcelOrderImportService
 
         return [
             'item_id' => $sku->item_id,
-            'marketplace_id' => $marketplaceId,
             'error' => null,
             'item_title' => $itemTitle,
         ];
@@ -102,26 +94,24 @@ class ExcelOrderImportService
      * Order ID format: {MARKETPLACE}-{DDMM}-{DAILY_SEQ}-{IMPORT_SEQ}
      * Example: OZ-0204-0001-1
      *
-     * @param  array<int, array{item_id: int, quantity: int, cluster: string|null, marketplace_id: int, sku_raw: string}>  $rows
+     * @param  array<int, array{item_id: int, quantity: int, sku_raw: string}>  $rows
      * @return int Number of orders created
      *
      * @throws Throwable
      */
-    public static function createOrders(array $rows): int
+    public static function createOrders(array $rows, int $marketplaceId, string $cluster): int
     {
         $dateStr = now()->format('dm');
         $dailySeq = self::getNextDailySequence($dateStr);
         $importSeq = 1;
         $createdCount = 0;
+        $marketplaceName = $marketplaceId == 1 ? 'OZ' : 'WB';
 
         DB::beginTransaction();
         try {
             foreach ($rows as $row) {
                 $itemId = $row['item_id'];
                 $quantity = max((int) $row['quantity'], 1);
-                $cluster = $row['cluster'] ?? null;
-                $marketplaceId = $row['marketplace_id'];
-                $marketplaceName = $marketplaceId == 1 ? 'OZ' : 'WB';
 
                 for ($i = 1; $i <= $quantity; $i++) {
                     $orderId = sprintf('%s-%s-%d-%d', $marketplaceName, $dateStr, $dailySeq, $importSeq++);

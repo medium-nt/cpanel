@@ -24,7 +24,6 @@ class ExcelOrderImport extends Component
         'sku' => '',
         'quantity' => '',
         'barcode' => '',
-        'cluster' => '',
     ];
 
     public array $rows = [];
@@ -98,9 +97,11 @@ class ExcelOrderImport extends Component
         $this->validate([
             'columnMap.sku' => 'required',
             'columnMap.quantity' => 'required',
+            'columnMap.barcode' => 'required',
         ], [
             'columnMap.sku.required' => 'Выберите колонку для артикула/SKU',
             'columnMap.quantity.required' => 'Выберите колонку для количества',
+            'columnMap.barcode.required' => 'Выберите колонку для штрихкода/баркода',
         ]);
 
         $this->processRows();
@@ -114,27 +115,9 @@ class ExcelOrderImport extends Component
         }
     }
 
-    public function updateRowCluster(int $rowIndex, string $value): void
-    {
-        if (isset($this->processedRows[$rowIndex])) {
-            $this->processedRows[$rowIndex]['cluster'] = $value;
-        }
-    }
-
     public function updatedGlobalMarketplace(): void
     {
         $this->globalCluster = '';
-    }
-
-    public function setClusterForAll(): void
-    {
-        if ($this->globalCluster === '') {
-            return;
-        }
-
-        foreach ($this->processedRows as $i => $row) {
-            $this->processedRows[$i]['cluster'] = $this->globalCluster;
-        }
     }
 
     public function updateRowItem(int $rowIndex, int $itemId): void
@@ -159,6 +142,12 @@ class ExcelOrderImport extends Component
 
     public function save(): void
     {
+        if (! $this->globalMarketplace || ! $this->globalCluster) {
+            $this->errorMessage = 'Выберите маркетплейс и склад перед сохранением.';
+
+            return;
+        }
+
         $validRows = array_filter($this->processedRows, fn ($r) => $r['item_id'] !== null);
         $errorRows = array_filter($this->processedRows, fn ($r) => $r['item_id'] === null);
 
@@ -176,7 +165,9 @@ class ExcelOrderImport extends Component
 
         try {
             $this->createdCount = ExcelOrderImportService::createOrders(
-                array_values($validRows)
+                array_values($validRows),
+                $this->globalMarketplace,
+                $this->globalCluster,
             );
             $this->step = 4;
         } catch (Throwable $e) {
@@ -197,14 +188,12 @@ class ExcelOrderImport extends Component
             'sku' => ['артикул', 'sku', 'article', 'арт.', 'арт', 'артикул продавца'],
             'quantity' => ['количество', 'кол-во', 'кол.', 'кол', 'qty', 'quantity', 'шт', 'шт.'],
             'barcode' => ['штрихкод', 'баркод', 'barcode', 'шк', 'штрих-код'],
-            'cluster' => ['кластер', 'cluster', 'склад'],
         ];
 
         $containsPatterns = [
             'sku' => ['артикул', 'sku'],
             'quantity' => ['кол', 'qty'],
             'barcode' => ['баркод', 'штрихкод', 'barcode'],
-            'cluster' => ['кластер', 'cluster'],
         ];
 
         foreach ($this->fileHeaders as $index => $header) {
@@ -237,12 +226,10 @@ class ExcelOrderImport extends Component
             $skuCol = (int) $this->columnMap['sku'];
             $qtyCol = (int) $this->columnMap['quantity'];
             $barcodeCol = $this->columnMap['barcode'] !== '' ? (int) $this->columnMap['barcode'] : null;
-            $clusterCol = $this->columnMap['cluster'] !== '' ? (int) $this->columnMap['cluster'] : null;
 
             $skuValue = trim((string) ($row[$skuCol] ?? ''));
             $qtyValue = (int) ($row[$qtyCol] ?? 1);
             $barcodeValue = $barcodeCol !== null ? trim((string) ($row[$barcodeCol] ?? '')) : '';
-            $clusterValue = $clusterCol !== null ? trim((string) ($row[$clusterCol] ?? '')) : '';
 
             $matchValue = $barcodeValue ?: $skuValue;
             $match = ExcelOrderImportService::matchRow($matchValue);
@@ -252,9 +239,7 @@ class ExcelOrderImport extends Component
                 'sku_raw' => $skuValue,
                 'barcode_raw' => $barcodeValue,
                 'quantity' => max($qtyValue, 1),
-                'cluster' => $clusterValue,
                 'item_id' => $match['item_id'],
-                'marketplace_id' => $match['marketplace_id'],
                 'item_title' => $match['item_title'],
                 'error' => $match['error'],
             ];
