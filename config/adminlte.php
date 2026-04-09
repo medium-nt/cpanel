@@ -443,6 +443,23 @@ return [
             'icon' => 'fas fa-fw fa-coins',
         ],
         [
+            'text' => 'shifts',
+            'icon' => 'fas fa-fw fa-clock',
+            'can' => 'is-admin',
+            'submenu' => [
+                [
+                    'text' => 'shifts_list',
+                    'url' => 'megatulle/shifts',
+                    'icon' => 'fas fa-fw fa-users',
+                ],
+                [
+                    'text' => 'shift_schedule',
+                    'url' => 'megatulle/shift-schedule',
+                    'icon' => 'fas fa-fw fa-calendar',
+                ],
+            ],
+        ],
+        [
             'text' => 'settings',
             'icon' => 'fas fa-fw fa-cog',
             'can' => 'is-storekeeper-or-admin',

@@ -53,4 +53,7 @@ return [
     'ozon-returns' => 'Получение возвратов',
     'ozon_returns_products' => 'Возвраты OZON',
     'barcode_search' => 'Поиск по штрихкоду',
+    'shifts' => 'Смены',
+    'shifts_list' => 'Список смен',
+    'shift_schedule' => 'Календарь смен',
 ];
