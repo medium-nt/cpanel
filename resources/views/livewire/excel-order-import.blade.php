@@ -60,11 +60,11 @@
                     автоматически.</p>
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
-                            <label>Артикул<span
+                            <label>Штрихкод / Баркод <span
                                     class="text-danger">*</span></label>
-                            <select wire:model="columnMap.sku"
+                            <select wire:model="columnMap.barcode"
                                     class="form-control">
                                 <option value="">-- Не выбрано --</option>
                                 @foreach($fileHeaders as $index => $header)
@@ -72,11 +72,9 @@
                                         value="{{ $index }}">{{ $header }}</option>
                                 @endforeach
                             </select>
-                            @error('columnMap.sku') <span
-                                class="text-danger">{{ $message }}</span> @enderror
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label>Количество <span class="text-danger">*</span></label>
                             <select wire:model="columnMap.quantity"
@@ -91,13 +89,11 @@
                                 class="text-danger">{{ $message }}</span> @enderror
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
-                            <label>Штрихкод / Баркод <span
+                            <label>Артикул<span
                                     class="text-danger">*</span></label>
-                            <select wire:model="columnMap.barcode"
+                            <select wire:model="columnMap.sku"
                                     class="form-control">
                                 <option value="">-- Не выбрано --</option>
                                 @foreach($fileHeaders as $index => $header)
@@ -105,6 +101,8 @@
                                         value="{{ $index }}">{{ $header }}</option>
                                 @endforeach
                             </select>
+                            @error('columnMap.sku') <span
+                                class="text-danger">{{ $message }}</span> @enderror
                         </div>
                     </div>
                 </div>
