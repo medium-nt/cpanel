@@ -80,10 +80,25 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">SKU</h3>
+                            <h3 class="card-title">SKU / Артикул</h3>
                         </div>
 
                         <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="article">Артикул</label>
+                                        <input type="text"
+                                               class="form-control @error('article') is-invalid @enderror"
+                                               id="article"
+                                               name="article"
+                                               placeholder="len2_250"
+                                               value="{{ old('article') }}"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">

@@ -21,9 +21,8 @@ class ExcelOrderImport extends Component
     public array $fileHeaders = [];
 
     public array $columnMap = [
-        'sku' => '',
+        'article' => '',
         'quantity' => '',
-        'barcode' => '',
     ];
 
     public array $rows = [];
@@ -95,13 +94,11 @@ class ExcelOrderImport extends Component
     public function confirmMapping(): void
     {
         $this->validate([
-            'columnMap.sku' => 'required',
+            'columnMap.article' => 'required',
             'columnMap.quantity' => 'required',
-            'columnMap.barcode' => 'required',
         ], [
-            'columnMap.sku.required' => 'Выберите колонку для артикула/SKU',
+            'columnMap.article.required' => 'Выберите колонку для артикула',
             'columnMap.quantity.required' => 'Выберите колонку для количества',
-            'columnMap.barcode.required' => 'Выберите колонку для штрихкода/баркода',
         ]);
 
         $this->processRows();
@@ -185,15 +182,13 @@ class ExcelOrderImport extends Component
     private function autoDetectColumnMapping(): void
     {
         $exactPatterns = [
-            'sku' => ['артикул', 'sku', 'article', 'арт.', 'арт', 'артикул продавца'],
+            'article' => ['артикул', 'article', 'арт.', 'арт', 'sku'],
             'quantity' => ['количество', 'кол-во', 'кол.', 'кол', 'qty', 'quantity', 'шт', 'шт.'],
-            'barcode' => ['штрихкод', 'баркод', 'barcode', 'шк', 'штрих-код'],
         ];
 
         $containsPatterns = [
-            'sku' => ['артикул', 'sku'],
+            'article' => ['артикул', 'article', 'sku'],
             'quantity' => ['кол', 'qty'],
-            'barcode' => ['баркод', 'штрихкод', 'barcode'],
         ];
 
         foreach ($this->fileHeaders as $index => $header) {
@@ -203,15 +198,11 @@ class ExcelOrderImport extends Component
                     $this->columnMap[$field] = (string) $index;
                 }
             }
-            if (empty($this->columnMap['sku']) || empty($this->columnMap['barcode'])) {
-                foreach ($containsPatterns as $field => $keywords) {
-                    if (empty($this->columnMap[$field])) {
-                        foreach ($keywords as $keyword) {
-                            if (str_contains($h, $keyword)) {
-                                $this->columnMap[$field] = (string) $index;
-                                break;
-                            }
-                        }
+            if (empty($this->columnMap['article'])) {
+                foreach ($containsPatterns['article'] as $keyword) {
+                    if (str_contains($h, $keyword)) {
+                        $this->columnMap['article'] = (string) $index;
+                        break;
                     }
                 }
             }
@@ -223,21 +214,17 @@ class ExcelOrderImport extends Component
         $this->processedRows = [];
 
         foreach ($this->rows as $rowIndex => $row) {
-            $skuCol = (int) $this->columnMap['sku'];
+            $articleCol = (int) $this->columnMap['article'];
             $qtyCol = (int) $this->columnMap['quantity'];
-            $barcodeCol = $this->columnMap['barcode'] !== '' ? (int) $this->columnMap['barcode'] : null;
 
-            $skuValue = trim((string) ($row[$skuCol] ?? ''));
+            $articleValue = trim((string) ($row[$articleCol] ?? ''));
             $qtyValue = (int) ($row[$qtyCol] ?? 1);
-            $barcodeValue = $barcodeCol !== null ? trim((string) ($row[$barcodeCol] ?? '')) : '';
 
-            $matchValue = $barcodeValue ?: $skuValue;
-            $match = ExcelOrderImportService::matchRow($matchValue);
+            $match = ExcelOrderImportService::matchRow($articleValue);
 
             $this->processedRows[] = [
                 'index' => $rowIndex,
-                'sku_raw' => $skuValue,
-                'barcode_raw' => $barcodeValue,
+                'article_raw' => $articleValue,
                 'quantity' => max($qtyValue, 1),
                 'item_id' => $match['item_id'],
                 'item_title' => $match['item_title'],

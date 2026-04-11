@@ -14,6 +14,7 @@ class MarketplaceItem extends Model
     use HasFactory;
 
     protected $fillable = [
+        'article',
         'title',
         'width',
         'height',

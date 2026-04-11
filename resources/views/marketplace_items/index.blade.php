@@ -46,6 +46,7 @@
                             <th scope="col">Название</th>
                             <th scope="col">Ширина</th>
                             <th scope="col">Высота</th>
+                            <th scope="col">Артикул</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -56,6 +57,7 @@
                                 <td>{{ $item->title }}</td>
                                 <td>{{ $item->width }}</td>
                                 <td>{{ $item->height }}</td>
+                                <td>{{ $item->article }}</td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">

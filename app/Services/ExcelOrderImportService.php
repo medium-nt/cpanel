@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
-use App\Models\Sku;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -44,15 +43,15 @@ class ExcelOrderImportService
     }
 
     /**
-     * Match a SKU/barcode value to a MarketplaceItem via the Sku model.
+     * Match an article value to a MarketplaceItem.
      *
      * @return array{item_id: int|null, error: string|null, item_title: string|null}
      */
-    public static function matchRow(string $skuValue): array
+    public static function matchRow(string $articleValue): array
     {
-        $skuValue = trim((string) $skuValue);
+        $articleValue = trim((string) $articleValue);
 
-        if ($skuValue === '') {
+        if ($articleValue === '') {
             return [
                 'item_id' => null,
                 'error' => 'Пустое значение',
@@ -60,29 +59,20 @@ class ExcelOrderImportService
             ];
         }
 
-        $cleanValue = $skuValue;
+        $item = MarketplaceItem::query()->where('article', $articleValue)->first();
 
-        if (mb_strtoupper(mb_substr($skuValue, 0, 3)) === 'OZN') {
-            $cleanValue = mb_substr($skuValue, 3);
-        }
-
-        $cleanValue = trim($cleanValue);
-
-        $sku = Sku::query()->where('sku', $cleanValue)->first();
-
-        if ($sku === null) {
+        if ($item === null) {
             return [
                 'item_id' => null,
-                'error' => 'SKU не найден: '.$cleanValue,
+                'error' => 'Товар не найден по артикулу: '.$articleValue,
                 'item_title' => null,
             ];
         }
 
-        $item = MarketplaceItem::query()->find($sku->item_id);
-        $itemTitle = $item ? "{$item->title} {$item->width}x{$item->height}" : null;
+        $itemTitle = "{$item->article} — {$item->title} {$item->width}x{$item->height}";
 
         return [
-            'item_id' => $sku->item_id,
+            'item_id' => $item->id,
             'error' => null,
             'item_title' => $itemTitle,
         ];

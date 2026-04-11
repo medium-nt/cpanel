@@ -24,8 +24,7 @@
                 </div>
                 <div class="form-group mt-3">
                     <small class="text-muted">
-                        Файл должен содержать колонки: артикул, количество,
-                        штрихкод/баркод.
+                        Файл должен содержать колонки: артикул, количество.
                         Максимум 10 МБ. Поддерживаются форматы xlsx, xls, csv.
                     </small>
                 </div>
@@ -62,9 +61,9 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Артикул<span
+                            <label>Артикул <span
                                     class="text-danger">*</span></label>
-                            <select wire:model="columnMap.sku"
+                            <select wire:model="columnMap.article"
                                     class="form-control">
                                 <option value="">-- Не выбрано --</option>
                                 @foreach($fileHeaders as $index => $header)
@@ -72,7 +71,7 @@
                                         value="{{ $index }}">{{ $header }}</option>
                                 @endforeach
                             </select>
-                            @error('columnMap.sku') <span
+                            @error('columnMap.article') <span
                                 class="text-danger">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -89,22 +88,6 @@
                             </select>
                             @error('columnMap.quantity') <span
                                 class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Штрихкод / Баркод <span
-                                    class="text-danger">*</span></label>
-                            <select wire:model="columnMap.barcode"
-                                    class="form-control">
-                                <option value="">-- Не выбрано --</option>
-                                @foreach($fileHeaders as $index => $header)
-                                    <option
-                                        value="{{ $index }}">{{ $header }}</option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
                 </div>
@@ -195,10 +178,9 @@
                                style="position: sticky; top: 0; z-index: 1;">
                         <tr>
                             <th style="width: 30px;">#</th>
-                            <th>Штрихкод</th>
+                            <th>Артикул</th>
                             <th style="width: 80px;">Кол-во</th>
                             <th>Товар</th>
-                            <th>SKU</th>
                             <th style="width: 80px;">Действие</th>
                         </tr>
                         </thead>
@@ -206,7 +188,7 @@
                         @foreach($processedRows as $rowIndex => $row)
                             <tr class="{{ $row['error'] ? 'table-danger' : '' }}">
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $row['barcode_raw'] }}</td>
+                                <td>{{ $row['article_raw'] }}</td>
                                 <td>
                                     <input type="number"
                                            value="{{ $row['quantity'] }}"
@@ -234,7 +216,6 @@
                                             class="text-danger">{{ $row['error'] }}</small>
                                     @endif
                                 </td>
-                                <td>{{ $row['sku_raw'] }}</td>
                                 <td>
                                     <button type="button"
                                             class="btn btn-danger btn-sm"

@@ -23,16 +23,24 @@ class SaveMarketplaceItemRequest extends FormRequest
      */
     public function rules()
     {
+        $articleRule = 'required|string|unique:marketplace_items,article';
+
+        if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
+            $id = $this->route('marketplace_item')?->id;
+            $articleRule .= ','.$id;
+        }
+
         return [
+            'article' => $articleRule,
             'title' => 'required|string|min:2|max:255',
             'width' => 'required|integer',
             'height' => 'required|integer',
             'ozon_sku' => 'nullable|string|min:3',
             'wb_sku' => 'nullable|string|min:3',
-            'material_id.*.required' => 'Материал обязателен.',      // Всегда требуется
-            'material_id.*.exists' => 'Материал не найден.',         // Проверяем существование
-            'quantity.*.required' => 'Количество обязательно.',      // Всегда требуется
-            'quantity.*.min' => 'Количество должно быть больше или равно нулю.',  // Разрешаем ноль
+            'material_id.*.required' => 'Материал обязателен.',
+            'material_id.*.exists' => 'Материал не найден.',
+            'quantity.*.required' => 'Количество обязательно.',
+            'quantity.*.min' => 'Количество должно быть больше или равно нулю.',
         ];
     }
 
@@ -44,6 +52,8 @@ class SaveMarketplaceItemRequest extends FormRequest
     public function messages()
     {
         return [
+            'article.required' => 'Артикул обязателен.',
+            'article.unique' => 'Такой артикул уже существует.',
             'title.required' => 'Название обязательно.',
             'title.min' => 'Название должно содержать минимум :min символов.',
             'title.max' => 'Название должно содержать максимум :max символов.',
