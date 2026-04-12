@@ -133,15 +133,16 @@ class StickerPrintingController extends Controller
 
             ScheduleService::closeWorkShift($user);
         } else {
-            if (! ShiftService::canWorkToday($user)) {
-                Log::channel('work_shift')
-                    ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
-                        'пытался открыть смену, но его смена сегодня не работает.');
-
-                return redirect()
-                    ->route('opening_closing_shifts')
-                    ->with('error', 'Ваша смена сегодня не работает!');
-            }
+            // TEMP: заблокировано на проде
+            // if (! ShiftService::canWorkToday($user)) {
+            //     Log::channel('work_shift')
+            //         ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
+            //             'пытался открыть смену, но его смена сегодня не работает.');
+            //
+            //     return redirect()
+            //         ->route('opening_closing_shifts')
+            //         ->with('error', 'Ваша смена сегодня не работает!');
+            // }
 
             if (UserService::isSecondShiftOpeningToday($user)) {
                 Log::channel('work_shift')

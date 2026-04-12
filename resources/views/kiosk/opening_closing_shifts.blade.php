@@ -38,6 +38,7 @@
                         <h2 class="mb-5">Приветствую, {{ $user->name }}!</h2>
                         @if(!$user->shift_is_open)
                             @if($user->closed_work_shift == '00:00:00')
+                                {{-- TEMP: заблокировано на проде
                                 @php
                                     $canWorkToday = \App\Services\ShiftService::canWorkToday($user);
                                 @endphp
@@ -47,6 +48,7 @@
                                         работает.
                                     </h4>
                                 @else
+                                --}}
                                     <h4>
                                         Ваша смена начинается
                                         в: {{ Carbon\Carbon::parse($user->start_work_shift)->format('H:i') }}
@@ -72,7 +74,9 @@
                                        href="{{ route('open_close_work_shift', ['user_id' => $user->id, 'barcode' => '1-'.$user->id.'-1']) }}">
                                         Открыть смену
                                     </a>
+                                {{-- TEMP: end block
                                 @endif
+                                --}}
                             @else
                                 <h4>
                                     Работа на сегодня закончена.<br>
