@@ -17,6 +17,7 @@ use App\Services\KioskService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\ScheduleService;
+use App\Services\ShiftService;
 use App\Services\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -132,6 +133,16 @@ class StickerPrintingController extends Controller
 
             ScheduleService::closeWorkShift($user);
         } else {
+            if (! ShiftService::canWorkToday($user)) {
+                Log::channel('work_shift')
+                    ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
+                        'пытался открыть смену, но его смена сегодня не работает.');
+
+                return redirect()
+                    ->route('opening_closing_shifts')
+                    ->with('error', 'Ваша смена сегодня не работает!');
+            }
+
             if (UserService::isSecondShiftOpeningToday($user)) {
                 Log::channel('work_shift')
                     ->error('Внимание! Сотрудник '.$selectedUser->name.' ('.$selectedUser->id.') '.
@@ -146,7 +157,7 @@ class StickerPrintingController extends Controller
 
             $user->shift_is_open = true;
             $user->actual_start_work_shift = now()->format('H:i');
-            ScheduleService::openWorkShift($user);
+            ScheduleService::openWorkShift($user, ShiftService::getUserShift($user));
         }
 
         $user->save();
@@ -174,7 +185,7 @@ class StickerPrintingController extends Controller
             $user->closed_work_shift = now()->format('H:i');
             ScheduleService::closeWorkShift($user);
         } else {
-            ScheduleService::openWorkShift($user);
+            ScheduleService::openWorkShift($user, ShiftService::getUserShift($user));
         }
 
         $user->shift_is_open = ! $user->shift_is_open;

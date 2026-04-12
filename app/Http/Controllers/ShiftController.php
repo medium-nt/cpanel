@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Shift;
+use App\Models\User;
+use App\Services\ShiftService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+
+class ShiftController extends Controller
+{
+    public function index(): View
+    {
+        $shifts = Shift::withCount('users')->with('rolls')->get();
+
+        return view('shifts.index', compact('shifts'));
+    }
+
+    public function create(): View
+    {
+        return view('shifts.create');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        Shift::create([
+            'name' => $validated['name'],
+            'status' => Shift::STATUS_ACTIVE,
+        ]);
+
+        return redirect()->route('shifts.index')->with('success', 'Смена создана');
+    }
+
+    public function show(Shift $shift): View
+    {
+        $shift->load(['rolls.material', 'users.role']);
+
+        $employees = $shift->getCurrentUsers();
+        $incoming = $shift->getIncomingUsers();
+        $outgoing = $shift->getOutgoingUsers();
+        $history = $shift->getUsersHistory();
+
+        return view('shifts.show', compact('shift', 'employees', 'incoming', 'outgoing', 'history'));
+    }
+
+    public function update(Request $request, Shift $shift): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $shift->update($validated);
+
+        return redirect()->route('shifts.show', $shift)->with('success', 'Смена обновлена');
+    }
+
+    public function destroy(Shift $shift): RedirectResponse
+    {
+        $shift->update(['status' => Shift::STATUS_INACTIVE]);
+
+        return redirect()->route('shifts.index')->with('success', 'Смена деактивирована');
+    }
+
+    public function attachUser(Request $request, Shift $shift): RedirectResponse
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $shift->users()->attach($validated['user_id'], [
+            'effective_from' => now()->toDateString(),
+        ]);
+
+        return redirect()->route('shifts.show', $shift)->with('success', 'Сотрудник добавлен');
+    }
+
+    public function detachUser(Shift $shift, User $user): RedirectResponse
+    {
+        $shift->users()->wherePivot('user_id', $user->id)->detach();
+
+        return redirect()->route('shifts.show', $shift)->with('success', 'Сотрудник удалён из смены');
+    }
+
+    public function destroyRecord(Shift $shift, int $recordId): RedirectResponse
+    {
+        DB::table('shift_user')->where('id', $recordId)->delete();
+
+        return redirect()->route('shifts.show', $shift)->with('success', 'Запись удалена');
+    }
+
+    public function transferUser(Request $request, Shift $shift, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'new_shift_id' => 'required|exists:shifts,id',
+            'effective_from' => 'required|date|after:today',
+        ]);
+
+        $newShift = Shift::findOrFail($validated['new_shift_id']);
+        ShiftService::transferEmployee($user, $newShift, $validated['effective_from']);
+
+        return redirect()->route('shifts.show', $shift)->with('success', 'Перевод сотрудника запланирован');
+    }
+
+    public function searchUsers(Request $request): JsonResponse
+    {
+        $query = $request->get('q', '');
+
+        $users = User::query()
+            ->whereIn('role_id', function ($q) {
+                $q->select('id')->from('roles')
+                    ->whereIn('name', ['seamstress', 'cutter', 'otk']);
+            })
+            ->whereDoesntHave('shifts')
+            ->when($query, function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%");
+            })
+            ->orderBy('name')
+            ->limit(20)
+            ->get(['id', 'name']);
+
+        return response()->json($users);
+    }
+
+    public function scheduleIndex(Request $request): View
+    {
+        $shifts = Shift::active()->get();
+
+        $month = $request->input('month', now()->month);
+        $year = $request->input('year', now()->year);
+
+        $currentDate = Carbon::createFromDate($year, $month, 1);
+        $prevMonth = $currentDate->copy()->subMonth();
+        $nextMonth = $currentDate->copy()->addMonth();
+
+        return view('shift-schedule.index', compact('shifts', 'currentDate', 'prevMonth', 'nextMonth'));
+    }
+
+    public function scheduleStore(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'dates' => 'required|array',
+            'dates.*.date' => 'required|date',
+            'dates.*.shift_id' => 'nullable|exists:shifts,id',
+        ]);
+
+        $data = [];
+        foreach ($validated['dates'] as $entry) {
+            if ($entry['shift_id']) {
+                $data[$entry['date']] = $entry['shift_id'];
+            }
+        }
+
+        ShiftService::fillSchedule($data);
+
+        return redirect()->route('shift-schedule.index', [
+            'month' => $request->input('month', now()->month),
+            'year' => $request->input('year', now()->year),
+        ])->with('success', 'Календарь обновлён');
+    }
+}

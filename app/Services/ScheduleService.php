@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Schedule;
 use App\Models\Setting;
+use App\Models\Shift;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -45,7 +46,7 @@ class ScheduleService
 
     public static function isEnabledSchedule(): bool
     {
-        return (bool)Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
+        return (bool) Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
     }
 
     public static function getStartWorkDay(): string
@@ -74,13 +75,16 @@ class ScheduleService
 
     public static function isBeforeStartWorkDay(User $user): bool
     {
-        return !$user->shift_is_open && $user->closed_work_shift === '00:00:00';
+        return ! $user->shift_is_open && $user->closed_work_shift === '00:00:00';
     }
 
-    public static function openWorkShift(User $user): void
+    public static function openWorkShift(User $user, ?Shift $shift = null): void
     {
         $schedule = self::getSchedule($user);
         $schedule->shift_opened_time = Carbon::now()->toTimeString();
+        if ($shift) {
+            $schedule->shift_id = $shift->id;
+        }
         $schedule->save();
     }
 
@@ -100,7 +104,7 @@ class ScheduleService
             ->where('date', $today)
             ->first();
 
-        if (!$schedule) {
+        if (! $schedule) {
             $schedule = new Schedule;
             $schedule->user_id = $user->id;
             $schedule->date = $today;

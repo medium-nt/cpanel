@@ -15,6 +15,7 @@ class Roll extends Model
     protected $table = 'rolls';
 
     protected $fillable = [
+        'shift_id',
         'roll_code',
         'material_id',
         'status',
@@ -43,6 +44,11 @@ class Roll extends Model
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
+    }
+
+    public function shift(): BelongsTo
+    {
+        return $this->belongsTo(Shift::class);
     }
 
     public function movementMaterialsNotFromSuppler(): HasMany

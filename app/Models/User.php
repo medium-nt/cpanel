@@ -172,6 +172,21 @@ class User extends Authenticatable
         return $this->belongsToMany(Material::class);
     }
 
+    public function shifts(): BelongsToMany
+    {
+        return $this->belongsToMany(Shift::class, 'shift_user')
+            ->withPivot('effective_from')
+            ->withTimestamps();
+    }
+
+    public function currentShift(): ?Shift
+    {
+        return $this->shifts()
+            ->wherePivot('effective_from', '<=', Carbon::today()->toDateString())
+            ->orderByPivot('effective_from', 'desc')
+            ->first();
+    }
+
     public function userTariffs(): HasMany
     {
         return $this->hasMany(UserTariff::class);
