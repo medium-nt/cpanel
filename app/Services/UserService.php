@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Material;
-use App\Models\Motivation;
-use App\Models\Rate;
 use App\Models\Schedule;
 use App\Models\Setting;
 use App\Models\Transaction;
@@ -85,13 +82,6 @@ class UserService
         Log::channel('work_shift')->notice('В ТГ отправлено сообщение сотрудникам: '.$text);
     }
 
-    public static function getMotivationByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
-    {
-        return Motivation::query()
-            ->where('user_id', $id)
-            ->get();
-    }
-
     public static function hasUnpaidSalary(User $user): bool
     {
         return Transaction::query()
@@ -100,23 +90,12 @@ class UserService
             ->exists();
     }
 
-    public static function getRateByUserId(mixed $id): \Illuminate\Database\Eloquent\Collection
-    {
-        return Material::query()
-            ->where('type_id', 1)
-            ->with(['rates' => function ($query) use ($id) {
-                $query->where('user_id', $id);
-            }])
-            ->get();
-    }
-
     public static function saved(Request $request, User $user): bool
     {
         $rules = [
             'name' => 'required|string|min:2|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'sometimes|nullable|string|min:8|max:50',
-            'salary_rate' => 'sometimes|nullable|numeric',
             'password' => 'nullable|confirmed|string|min:6',
             'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',
             'orders_priority' => 'string|in:all,fbo,fbo_200',
@@ -268,25 +247,5 @@ class UserService
             ->whereDate('date', now()->toDateString())
             ->where('shift_opened_time', '!=', '00:00:00')
             ->exists();
-    }
-
-    public function updateUserMaterialRates(User $user, Request $request): void
-    {
-        $materialIds = UserService::getRateByUserId($user->id)
-            ->pluck('id');
-
-        foreach ($materialIds as $materialId) {
-            Rate::updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'material_id' => $materialId,
-                ],
-                [
-                    'rate' => $request->rate[$materialId] ?? 0,
-                    'not_cutter_rate' => $request->not_cutter_rate[$materialId] ?? 0,
-                    'cutter_rate' => $request->cutter_rate[$materialId] ?? 0,
-                ]
-            );
-        }
     }
 }

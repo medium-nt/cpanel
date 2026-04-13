@@ -24,14 +24,6 @@ Route::prefix('/users')->group(function () {
         ->can('update', 'user')
         ->name('users.update');
 
-    Route::put('/motivation_update/{user}', [UsersController::class, 'motivationUpdate'])
-        ->can('update', 'user')
-        ->name('users.motivation_update');
-
-    Route::put('/rate_update/{user}', [UsersController::class, 'rateUpdate'])
-        ->can('update', 'user')
-        ->name('users.rate_update');
-
     Route::put('/tariffs_update/{user}', [UsersController::class, 'tariffsUpdate'])
         ->can('update', 'user')
         ->name('users.tariffs_update');

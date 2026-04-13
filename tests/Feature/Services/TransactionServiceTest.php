@@ -4,7 +4,6 @@ namespace Tests\Feature\Services;
 
 use App\Http\Requests\CreateTransactionRequest;
 use App\Models\Role;
-use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\TransactionService;
@@ -40,15 +39,12 @@ class TransactionServiceTest extends TestCase
         $this->admin = User::factory()->create(['role_id' => $adminRole->id]);
         $this->seamstress = User::factory()->create([
             'role_id' => $seamstressRole->id,
-            'salary_rate' => 1500,
         ]);
         $this->storekeeper = User::factory()->create([
             'role_id' => $storekeeperRole->id,
-            'salary_rate' => 1200,
         ]);
         $this->otk = User::factory()->create([
             'role_id' => $otkRole->id,
-            'salary_rate' => 1300,
         ]);
     }
 
@@ -172,56 +168,6 @@ class TransactionServiceTest extends TestCase
         $result = TransactionService::store($request);
 
         $this->assertFalse($result);
-    }
-
-    #[Test]
-    public function it_can_accrual_storekeeper_salary()
-    {
-        // Create schedule for yesterday
-        Schedule::factory()->create([
-            'user_id' => $this->storekeeper->id,
-            'date' => Carbon::yesterday()->toDateString(),
-        ]);
-
-        Log::shouldReceive('channel')->with('salary')->andReturnSelf();
-        Log::shouldReceive('info')->once()->with(
-            "Добавили зарплату в размере 1200 рублей для кладовщика {$this->storekeeper->name}"
-        );
-
-        TransactionService::accrualSalary('storekeeper');
-
-        $this->assertDatabaseHas('transactions', [
-            'user_id' => $this->storekeeper->id,
-            'amount' => 1200,
-            'transaction_type' => 'out',
-            'title' => 'Зарплата за '.Carbon::yesterday()->format('d/m/Y'),
-            'status' => 1,
-        ]);
-    }
-
-    #[Test]
-    public function it_can_accrual_otk_salary()
-    {
-        // Create schedule for yesterday
-        Schedule::factory()->create([
-            'user_id' => $this->otk->id,
-            'date' => Carbon::yesterday()->toDateString(),
-        ]);
-
-        Log::shouldReceive('channel')->with('salary')->andReturnSelf();
-        Log::shouldReceive('info')->once()->with(
-            "Добавили зарплату в размере 1300 рублей для сотрудника ОКТ {$this->otk->name}"
-        );
-
-        TransactionService::accrualSalary('otk');
-
-        $this->assertDatabaseHas('transactions', [
-            'user_id' => $this->otk->id,
-            'amount' => 1300,
-            'transaction_type' => 'out',
-            'title' => 'Зарплата за '.Carbon::yesterday()->format('d/m/Y'),
-            'status' => 1,
-        ]);
     }
 
     #[Test]

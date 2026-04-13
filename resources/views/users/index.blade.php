@@ -29,7 +29,6 @@
                             <th scope="col">Имя</th>
                             <th scope="col">Роль</th>
                             <th scope="col">Email / Телефон</th>
-                            <th scope="col">Ставка</th>
                             <th scope="col">Создан</th>
                             <th scope="col">Обновлен</th>
                             <th scope="col">Действия</th>
@@ -49,7 +48,6 @@
                                 <td>{{ $user->role ? UserService::translateRoleName($user->role->name) : 'Не указана' }}</td>
                                 <td>{{ $user->email }} <br> {{ $user->phone }}
                                 </td>
-                                <td>{{ $user->salary_rate }}</td>
                                 <td>{{ $user->created_date }}</td>
                                 <td>{{ $user->updated_date }}</td>
                                 <td>

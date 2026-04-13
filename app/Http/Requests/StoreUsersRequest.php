@@ -27,7 +27,6 @@ class StoreUsersRequest extends FormRequest
             'phone' => 'sometimes|string|min:8|max:50',
             'password' => 'required|confirmed|min:6|string',
             'role_id' => 'required|integer|exists:roles,id',
-            'salary_rate' => 'required|numeric|min:0',
         ];
     }
 
@@ -48,9 +47,6 @@ class StoreUsersRequest extends FormRequest
             'password.confirmed' => 'Поля "Пароль" и "Подтверждение пароля" должны совпадать',
             'role_id.required' => 'Поле "Роль" обязательно для заполнения',
             'role_id.in' => 'Указана неизвестная роль для пользователя',
-            'salary_rate.required' => 'Поле "Ставка" обязательно для заполнения',
-            'salary_rate.numeric' => 'Поле "Ставка" должно быть числом',
-            'salary_rate.min' => 'Поле "Ставка" должно быть не менее 0',
         ];
     }
 }

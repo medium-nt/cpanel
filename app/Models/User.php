@@ -39,7 +39,6 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_cutter',
-        'salary_rate',
         'avatar',
         'tg_id',
         'orders_priority',
@@ -70,7 +69,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'salary_rate' => 'float',
         ];
     }
 

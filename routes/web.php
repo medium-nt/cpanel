@@ -80,7 +80,6 @@ Route::prefix('megatulle')
         require base_path('routes/barcode_search.php');
         require base_path('routes/material_consumption.php');
         require base_path('routes/defect_materials.php');
-        //        require base_path('routes/salary.php');
         require base_path('routes/movements_by_marketplace_order.php');
         require base_path('routes/schedule.php');
         require base_path('routes/movements_defect_to_supplier.php');

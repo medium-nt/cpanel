@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MotivationUpdateUsersRequest;
-use App\Http\Requests\RateUpdateUsersRequest;
 use App\Http\Requests\StoreUsersRequest;
 use App\Http\Requests\TariffsUpdateRequest;
 use App\Models\Material;
-use App\Models\Motivation;
 use App\Models\Tariff;
 use App\Models\User;
 use App\Models\UserTariff;
@@ -117,11 +114,9 @@ class UsersController extends Controller
             'title' => 'Изменить пользователя',
             'user' => $user,
             'events' => ScheduleService::getScheduleByUserId($user->id),
-            'motivations' => UserService::getMotivationByUserId($user->id),
             'isBeforeStartWorkDay' => ScheduleService::isBeforeStartWorkDay($user),
             'materials' => Material::query()->where('type_id', 1)->get(),
             'selectedMaterials' => $user->materials()->pluck('id')->toArray(),
-            'rates' => UserService::getRateByUserId($user->id),
             'userTariffsSalary' => $userTariffsSalary,
             'userTariffsBonus' => $userTariffsBonus,
             'tariffActions' => $actions,
@@ -216,39 +211,6 @@ class UsersController extends Controller
         Auth::login($user);
 
         return redirect('/home');
-    }
-
-    public function motivationUpdate(MotivationUpdateUsersRequest $request, User $user)
-    {
-        Motivation::query()->where('user_id', $user->id)->delete();
-
-        foreach ($request->from as $key => $value) {
-            if ($request->to[$key]) {
-                Motivation::query()->create(
-                    [
-                        'user_id' => $user->id,
-                        'from' => $request->from[$key],
-                        'to' => $request->to[$key],
-                        'bonus' => $request->bonus[$key] ?? 0,
-                        'not_cutter_bonus' => $request->not_cutter_bonus[$key] ?? 0,
-                        'cutter_bonus' => $request->cutter_bonus[$key] ?? 0,
-                    ]
-                );
-            }
-        }
-
-        return redirect()
-            ->route('users.edit', ['user' => $user->id])
-            ->with('success', 'Изменения в таблице мотивации сохранены.');
-    }
-
-    public function rateUpdate(RateUpdateUsersRequest $request, User $user, UserService $userService)
-    {
-        $userService->updateUserMaterialRates($user, $request);
-
-        return redirect()
-            ->route('users.edit', ['user' => $user->id])
-            ->with('success', 'Изменения в таблице зарплат сохранены.');
     }
 
     public function getBarcode(User $user)

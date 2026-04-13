@@ -36,25 +36,6 @@ Schedule::call(function () {
     TransactionService::activateHoldBonus();
 })->dailyAt('00:20');
 
-// === СТАРАЯ СИСТЕМА НАЧИСЛЕНИЙ (закомментирована) ===
-// Schedule::call(function () {
-//     TransactionService::accrualSalary('otk');
-//     TransactionService::accrualSalary('driver');
-//     TransactionService::accrualSalary('storekeeper');
-// })->dailyAt('00:25');
-//
-// Schedule::call(function () {
-//     TransactionService::accrualSeamstressesSalary();
-// })->dailyAt('00:35');
-//
-// Schedule::call(function () {
-//     TransactionService::accrualCuttersSalary();
-// })->dailyAt('00:45');
-//
-// Schedule::call(function () {
-//     TransactionService::accrualOtkSalary();
-// })->dailyAt('00:55');
-
 // === НОВАЯ СИСТЕМА НАЧИСЛЕНИЙ (на основе действий) ===
 
 // 00:30 — Оклад (для тех, у кого type=fixed_daily)

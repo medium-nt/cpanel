@@ -196,7 +196,7 @@ class UserTest extends TestCase
     {
         $fillable = [
             'name', 'email', 'phone', 'password', 'role_id', 'is_cutter',
-            'salary_rate', 'avatar', 'tg_id', 'orders_priority',
+            'avatar', 'tg_id', 'orders_priority',
             'shift_is_open', 'start_work_shift', 'duration_work_shift',
             'max_late_minutes', 'is_show_finance',
         ];
@@ -222,15 +222,6 @@ class UserTest extends TestCase
         $userWithoutPhone = User::factory()->create(['phone' => null]);
 
         $this->assertNull($userWithoutPhone->phone);
-    }
-
-    #[Test]
-    public function salary_rate_defaults_to_zero()
-    {
-        // Test that salary_rate can be set and retrieved correctly
-        $user = User::factory()->create(['salary_rate' => 0]);
-
-        $this->assertEquals(0, $user->salary_rate);
     }
 
     #[Test]

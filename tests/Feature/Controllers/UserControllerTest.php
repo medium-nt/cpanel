@@ -71,7 +71,6 @@ class UserControllerTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role_id' => $role->id,
-            'salary_rate' => 1500,
             'is_cutter' => false,
         ];
 
@@ -84,7 +83,6 @@ class UserControllerTest extends TestCase
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'role_id' => $role->id,
-            'salary_rate' => 1500,
         ]);
     }
 
@@ -249,28 +247,6 @@ class UserControllerTest extends TestCase
     }
 
     #[Test]
-    public function user_salary_rate_is_stored_correctly()
-    {
-        $this->actingAs($this->admin);
-
-        $userData = [
-            'name' => 'Paid Worker',
-            'email' => 'worker@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-            'role_id' => Role::firstOrCreate(['name' => 'seamstress'])->id,
-            'salary_rate' => 1750.50,
-        ];
-
-        $response = $this->post(route('users.store'), $userData);
-
-        $response->assertRedirect(route('users.index'));
-        $this->assertDatabaseHas('users', [
-            'salary_rate' => 1750.50,
-        ]);
-    }
-
-    #[Test]
     public function user_role_is_correctly_assigned()
     {
         $this->actingAs($this->admin);
@@ -283,7 +259,6 @@ class UserControllerTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role_id' => $cutterRole->id,
-            'salary_rate' => 50.50,
         ];
 
         $response = $this->post(route('users.store'), $userData);

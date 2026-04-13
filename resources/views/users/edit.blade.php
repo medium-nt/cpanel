@@ -57,19 +57,6 @@
                                    name="password_confirmation" placeholder="Подтверждение пароля">
                         </div>
 
-                        @if($user->isStorekeeper() || $user->isOtk() || $user->isDriver())
-                        <div class="form-group">
-                            <label for="salary_rate">Ставка (за день)</label>
-                            <input type="number" step="1" min="0"
-                                   class="form-control @error('salary_rate') is-invalid @enderror"
-                                   id="salary_rate"
-                                   name="salary_rate"
-                                   placeholder=""
-                                   value="{{ $user->salary_rate }}"
-                                   required>
-                        </div>
-                        @endif
-
                         <div class="form-group">
                             <label for="avatar">Аватар</label>
                             <div class="row">
@@ -198,165 +185,6 @@
                     ></div>
                 </div>
             </div>
-
-            @if($user->isSeamstress() || $user->isCutter())
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Таблица мотивации</h3>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('users.motivation_update', ['user' => $user->id]) }}"
-                          method="POST">
-                        @method('PUT')
-                        @csrf
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th colspan="2" class="text-center">Объем в день (метров)</th>
-                                <th colspan="2" class="text-center">Бонусы за метр</th>
-                            </tr>
-                            <tr>
-                                <th class="text-center">От</th>
-                                <th class="text-center">До</th>
-                                @if($user->isSeamstress())
-                                <th class="text-center">с закроем</th>
-                                <th class="text-center">без кроя</th>
-                                @endif
-                                @if($user->isCutter())
-                                <th class="text-center">закройщик</th>
-                                @endif
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @for($i = 0; $i < 6; $i++)
-                                @php
-                                    $motivation = $motivations[$i] ?? null;
-                                @endphp
-
-                                <tr>
-                                    <td>
-                                        <input type="number" class="form-control"
-                                               id="from_{{$i}}" name="from[]"
-                                               value="@if($i == 0){{ 0 }}@else{{ old('from')[$i] ?? $motivation?->from ?? $previous_to ?? '' }}@endif"
-                                               readonly>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control"
-                                               id="to_{{$i}}" name="to[]"
-                                               value="{{ old('to')[$i] ?? $motivation?->to ?? '' }}">
-                                    </td>
-                                    @if($user->isSeamstress())
-                                    <td>
-                                        <input type="number" class="form-control"
-                                               id="bonus_{{$i}}" name="bonus[]"
-                                               value="{{ old('bonus')[$i] ?? $motivation?->bonus ?? '' }}">
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control"
-                                               id="not_cutter_bonus_{{$i}}" name="not_cutter_bonus[]"
-                                               value="{{ old('not_cutter_bonus')[$i] ?? $motivation?->not_cutter_bonus ?? '' }}">
-                                    </td>
-                                    @endif
-                                    @if($user->isCutter())
-                                        <td>
-                                            <input type="number" class="form-control"
-                                                   id="cutter_bonus_{{$i}}" name="cutter_bonus[]"
-                                                   value="{{ old('cutter_bonus')[$i] ?? $motivation?->cutter_bonus ?? '' }}">
-                                        </td>
-                                    @endif
-                                </tr>
-                                @php
-                                    $previous_to = old('to')[$i] ?? $motivation?->to ?? '';
-                                @endphp
-                            @endfor
-                            </tbody>
-                        </table>
-
-                        <button type="submit" class="btn btn-primary" id="saveMotivation">Сохранить</button>
-                    </form>
-                </div>
-            </div>
-            @endif
-
-            @if($user->isSeamstress() || $user->isCutter() || $user->isOtk())
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Таблица зарплаты</h3>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('users.rate_update', ['user' => $user->id]) }}"
-                          method="POST">
-                        @method('PUT')
-                        @csrf
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th class="text-center"></th>
-                                <th colspan="2" class="text-center">Оплата</th>
-                            </tr>
-                            <tr>
-                                <th class="text-center">Материал</th>
-                                @if($user->isSeamstress())
-                                <th class="text-center">с закроем</th>
-                                <th class="text-center">без кроя</th>
-                                @endif
-                                @if($user->isCutter())
-                                <th class="text-center">закройщик</th>
-                                @endif
-                                @if($user->isOtk())
-                                    <th class="text-center">упаковка</th>
-                                @endif
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($rates as $rate)
-                                <tr>
-                                    <td class="text-center align-middle">
-                                        {{ $rate->title }}
-                                    </td>
-                                    @if($user->isSeamstress())
-                                        <td>
-                                            <input type="number"
-                                                   class="form-control"
-                                                   id="rate_{{$rate->id}}"
-                                                   name="rate[{{$rate->id}}]"
-                                                   value="{{ old('rate')[$i] ?? $rate->rates->first()->rate ?? '' }}">
-                                        </td>
-                                        <td>
-                                            <input type="number"
-                                                   class="form-control"
-                                                   id="not_cutter_rate_{{$rate->id}}"
-                                                   name="not_cutter_rate[{{$rate->id}}]"
-                                                   value="{{ old('not_cutter_rate')[$i] ?? $rate->rates->first()->not_cutter_rate ?? '' }}">
-                                        </td>
-                                    @endif
-                                    @if($user->isCutter())
-                                        <td>
-                                            <input type="number" class="form-control"
-                                                   id="cutter_rate_{{$rate->id}}"
-                                                   name="cutter_rate[{{$rate->id}}]"
-                                                   value="{{ old('cutter_rate')[$i] ?? $rate->rates->first()->cutter_rate ?? '' }}">
-                                        </td>
-                                    @endif
-                                    @if($user->isOtk())
-                                        <td>
-                                            <input type="number"
-                                                   class="form-control"
-                                                   id="rate_{{$rate->id}}"
-                                                   name="rate[{{$rate->id}}]"
-                                                   value="{{ $rate->rates->first()->rate ?? '' }}">
-                                        </td>
-                                    @endif
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-
-                        <button type="submit" class="btn btn-primary" id="saveMotivation">Сохранить</button>
-                    </form>
-                </div>
-            </div>
-            @endif
         </div>
     </div>
 
@@ -876,7 +704,6 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="{{ asset('js/fullcalendar_by_admin.js') }}"></script>
-    <script src="{{ asset('js/motivation_for_seamstress.js') }}"></script>
 
     <script>
         // Переключение таблиц тарифов
