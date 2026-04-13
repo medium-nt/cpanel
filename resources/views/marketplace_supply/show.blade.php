@@ -102,18 +102,26 @@
 
             <div class="card">
                 <div class="card-body">
+                    @if($supply->status == 4 || $supply->status == 3)
+                        <a href="{{ route('marketplace_supplies.get_barcode', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-primary mr-3 mb-2">Получить штрихкод
+                            поставки</a>
+                    @endif
+
                     @if($supply->status == 4)
-                    @if($supply->marketplace_id == 1)
-                    <a href="{{ route('marketplace_supplies.get_docs', ['marketplace_supply' => $supply]) }}"
-                       class="btn btn-primary mr-3 mb-2">Получить документы</a>
+                        @if($supply->marketplace_id == 1)
+                            <a href="{{ route('marketplace_supplies.get_docs', ['marketplace_supply' => $supply]) }}"
+                               class="btn btn-primary mr-3 mb-2">Получить
+                                документы</a>
+                        @endif
+
+                        <a href="{{ route('marketplace_supplies.done', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-success mr-3 mb-2"
+                           onclick="return confirm('Вы уверены что поставка отгружена?')">
+                            Поставка отгружена в маркетплейс
+                        </a>
                     @endif
 
-                    <a href="{{ route('marketplace_supplies.get_barcode', ['marketplace_supply' => $supply]) }}"
-                       class="btn btn-primary mr-3 mb-2">Получить штрихкод поставки</a>
-
-                    <a href="{{ route('marketplace_supplies.done', ['marketplace_supply' => $supply]) }}"
-                       class="btn btn-success mr-3 mb-2" onclick="return confirm('Вы уверены что поставка отгружена?')">Поставка отгружена в маркетплейс</a>
-                    @endif
                     <a href="{{ route('marketplace_supplies.update_status_orders', ['marketplace_supply' => $supply]) }}"
                        class="btn btn-outline-primary mb-2">Обновить статусы
                         заказов</a>
