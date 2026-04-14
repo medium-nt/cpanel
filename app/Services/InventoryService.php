@@ -7,6 +7,7 @@ use App\Models\InventoryCheckItem;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Material;
 use App\Models\MovementMaterial;
+use App\Models\Roll;
 use Illuminate\Support\Facades\DB;
 use Log;
 
@@ -203,6 +204,12 @@ class InventoryService
             ->groupBy('materials.id', 'materials.title', 'materials.unit')
             ->get();
 
+        $rollsCount = Roll::query()
+            ->where('status', Roll::STATUS_IN_WORKSHOP)
+            ->select('material_id', DB::raw('COUNT(*) as rolls_count'))
+            ->groupBy('material_id')
+            ->pluck('rolls_count', 'material_id');
+
         $result = [];
         foreach ($data as $row) {
             $quantity = $row->in_workshop
@@ -219,6 +226,7 @@ class InventoryService
             $result[] = [
                 'material' => $row,
                 'quantity' => round($quantity, 2),
+                'rolls_count' => $rollsCount[$row->id] ?? 0,
             ];
         }
 
@@ -263,6 +271,12 @@ class InventoryService
             ->groupBy('materials.id', 'materials.title', 'materials.unit')
             ->get();
 
+        $rollsCount = Roll::query()
+            ->where('status', Roll::STATUS_IN_STORAGE)
+            ->select('material_id', DB::raw('COUNT(*) as rolls_count'))
+            ->groupBy('material_id')
+            ->pluck('rolls_count', 'material_id');
+
         $result = [];
         foreach ($detailedData as $row) {
             $result[] = [
@@ -271,6 +285,7 @@ class InventoryService
                 'in_stock' => round($row->in_stock, 2),
                 'out_stock' => round($row->out_stock, 2),
                 'hold_out_stock' => round($row->hold_out_stock, 2),
+                'rolls_count' => $rollsCount[$row->id] ?? 0,
             ];
         }
 

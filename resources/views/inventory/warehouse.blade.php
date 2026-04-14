@@ -18,6 +18,7 @@
                         <tr>
                             <th scope="col">Материал</th>
                             <th scope="col">Кол-во</th>
+                            <th scope="col">Рулоны</th>
                             <th scope="col">Статус</th>
                         </tr>
                         </thead>
@@ -30,6 +31,7 @@
                                         {{ $item['quantity'] }} {{ $item['material']->unit }} <br>
                                     </span>
                                 </td>
+                                <td>{{ $item['rolls_count'] }} шт.</td>
                                 <td>
                                     @if($item['quantity'] <= 300)
                                         <span class="badge badge-danger">
