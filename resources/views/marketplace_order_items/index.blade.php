@@ -330,7 +330,8 @@
                                 $allCalcWidth += $item->item->width * $item->quantity;
                                 $allCount += $item->quantity;
                             @endphp
-                            <tr>
+                            <tr style="cursor: pointer"
+                                onclick="window.location='{{ route('marketplace_order_items.show', $item->id) }}'">
                                 <td style="text-align: center">{{ $item->id }}</td>
                                 <td style="text-align: center"><span
                                         class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
@@ -565,6 +566,8 @@
             </div>
             @foreach ($items as $item)
                 <div class="col-md-4">
+                    <a href="{{ route('marketplace_order_items.show', $item->id) }}"
+                       style="text-decoration: none; color: inherit;">
                     <div class="card">
                         <div class="position-relative">
                             <div class="ribbon-wrapper ribbon-lg">
@@ -759,6 +762,7 @@
                             </div>
                         </div>
                     </div>
+                    </a>
                 </div>
             @endforeach
 

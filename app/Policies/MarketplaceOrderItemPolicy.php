@@ -15,6 +15,11 @@ class MarketplaceOrderItemPolicy
         return true;
     }
 
+    public function view(User $user): bool
+    {
+        return true;
+    }
+
     public function getNew(User $user): bool
     {
         return $user->isSeamstress() || $user->isCutter();

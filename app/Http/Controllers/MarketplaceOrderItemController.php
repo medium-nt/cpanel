@@ -53,6 +53,28 @@ class MarketplaceOrderItemController extends Controller
         ]);
     }
 
+    public function show(MarketplaceOrderItem $marketplaceOrderItem)
+    {
+        $marketplaceOrderItem->load([
+            'marketplaceOrder',
+            'item.consumption.material',
+            'seamstress',
+            'cutter',
+            'otk',
+            'repacker',
+            'shelf',
+            'history',
+        ]);
+
+        $bonus = TransactionService::getBonusForTodayOrdersByUsers();
+
+        return view('marketplace_order_items.show', [
+            'title' => 'Карточка товара #'.$marketplaceOrderItem->id,
+            'item' => $marketplaceOrderItem,
+            'bonus' => $bonus,
+        ]);
+    }
+
     public function done(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
         Order::where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
