@@ -33,6 +33,11 @@ class Material extends Model
         return $this->belongsTo(TypeMaterial::class);
     }
 
+    public function rolls(): HasMany
+    {
+        return $this->hasMany(Roll::class);
+    }
+
     public function movementMaterials(): HasMany
     {
         return $this->hasMany(MovementMaterial::class);

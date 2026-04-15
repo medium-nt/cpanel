@@ -20,6 +20,101 @@
                 </div>
             </div>
             <div class="card-body">
+                <form id="itemActionForm">
+                    @csrf
+
+                    {{-- Кнопки действий --}}
+                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isAdmin())
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card card-outline card-dark">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Действия</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <input type="hidden" name="_method"
+                                               value="PUT">
+                                        <div class="btn-group" role="group">
+                                            @switch($item->status)
+                                                @case(4)
+                                                    @if(auth()->user()->isSeamstress())
+                                                        <button type="submit"
+                                                                class="btn btn-success mr-2"
+                                                                onclick="submitAction('{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что заказ выполнен?')">
+                                                            <i class="far fa-sticky-note mr-1"></i>
+                                                            На стикеровку
+                                                        </button>
+                                                    @endif
+
+                                                    <button type="submit"
+                                                            class="btn btn-danger mr-2"
+                                                            @if(auth()->user()->isAdmin())
+                                                                onclick="submitAction('{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что хотите снять товар со швеи?')"
+                                                            @elseif(auth()->user()->isSeamstress())
+                                                                onclick="submitAction('{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
+                                                        @endif
+                                                    >
+                                                        <i class="fas fa-times mr-1"></i>
+                                                        Отменить
+                                                    </button>
+
+                                                    @if($bonus > 0 && auth()->user()->isSeamstress())
+                                                        <span
+                                                            class="badge border border-warning text-dark p-2"
+                                                            style="font-size: 18px;">
+                                                        <b>+ {{ $bonus * $item->item->width / 100 }}</b>
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    </span>
+                                                    @endif
+                                                    @break
+                                                @case(5)
+                                                    @if(auth()->user()->isAdmin())
+                                                        <button type="submit"
+                                                                class="btn btn-danger"
+                                                                onclick="submitAction('{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что хотите снять товар со стикеровки?')">
+                                                            <i class="fas fa-times mr-1"></i>
+                                                            Отменить
+                                                        </button>
+                                                    @endif
+                                                    @break
+                                                @case(7)
+                                                    @if(auth()->user()->isCutter())
+                                                        <button type="submit"
+                                                                class="btn btn-success mr-2"
+                                                                onclick="submitAction('{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что заказ выполнен?')">
+                                                            <i class="far fa-sticky-note mr-1"></i>
+                                                            Сдать раскроенное
+                                                        </button>
+                                                    @endif
+
+                                                    <button type="submit"
+                                                            class="btn btn-danger mr-2"
+                                                            @if(auth()->user()->isAdmin())
+                                                                onclick="submitAction('{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что хотите снять товар с закроя?')"
+                                                            @elseif(auth()->user()->isCutter())
+                                                                onclick="submitAction('{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
+                                                        @endif
+                                                    >
+                                                        <i class="fas fa-times mr-1"></i>
+                                                        Отменить
+                                                    </button>
+
+                                                    @if($bonus > 0 && auth()->user()->isCutter())
+                                                        <span
+                                                            class="badge border border-warning text-dark p-2"
+                                                            style="font-size: 18px;">
+                                                        <b>+ {{ $bonus * $item->item->width / 100 }}</b>
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    </span>
+                                                    @endif
+                                                    @break
+                                            @endswitch
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                 <div class="row">
                     {{-- Информация о товаре --}}
@@ -93,21 +188,44 @@
                             <div class="card-body">
                                 @php
                                     $consumptions = $item->item->consumption;
+                                    $showRolls = auth()->user()->isCutter() || auth()->user()->isSeamstress();
+
                                     if (auth()->user()->isCutter()) {
                                         $consumptions = $consumptions->filter(fn($c) => $c->material->type_id == 1);
                                     }
                                 @endphp
                                 @if($consumptions->isNotEmpty())
-                                    <table class="table table-bordered">
-                                        <tbody>
-                                        @foreach($consumptions as $c)
-                                            <tr>
-                                                <td>{{ $c->material->title }}</td>
-                                                <td>{{ $c->quantity }} {{ $c->material->unit }}</td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
+                                    @foreach($consumptions as $c)
+                                        <div class="border rounded p-2 mb-2">
+                                            <div
+                                                class="d-flex justify-content-between mb-1">
+                                                <b>{{ $c->material->title }}</b>
+                                                <span>{{ $c->quantity }} {{ $c->material->unit }}</span>
+                                            </div>
+                                            @if($showRolls)
+                                                @php
+                                                    $rolls = $c->material->rolls
+                                                        ->where('status', \App\Models\Roll::STATUS_IN_WORKSHOP);
+                                                @endphp
+                                                <select
+                                                    name="roll_id[{{ $c->material_id }}]"
+                                                    class="form-control form-control-sm">
+                                                    <option value="">Выберите
+                                                        рулон
+                                                    </option>
+                                                    @foreach($rolls as $roll)
+                                                        <option
+                                                            value="{{ $roll->id }}">
+                                                            Рулон
+                                                            #{{ $roll->roll_code }}
+                                                            (ост. {{ $roll->current_quantity }} {{ $c->material->unit }}
+                                                            )
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 @else
                                     <p class="text-muted text-center">Материалы
                                         не указаны</p>
@@ -320,124 +438,7 @@
                     </div>
                 @endif
 
-                {{-- Кнопки действий --}}
-                @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isAdmin())
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card card-outline card-dark">
-                                <div class="card-header">
-                                    <h3 class="card-title">Действия</h3>
-                                </div>
-                                <div class="card-body">
-                                    <div class="btn-group" role="group">
-                                        @switch($item->status)
-                                            @case(4)
-                                                @if(auth()->user()->isSeamstress())
-                                                    <form
-                                                        action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
-                                                        method="POST"
-                                                        class="mr-2">
-                                                        @csrf @method('PUT')
-                                                        <button type="submit"
-                                                                class="btn btn-success"
-                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                            <i class="far fa-sticky-note mr-1"></i>
-                                                            На стикеровку
-                                                        </button>
-                                                    </form>
-                                                @endif
-
-                                                <form
-                                                    action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                    method="POST" class="mr-2">
-                                                    @csrf @method('PUT')
-                                                    <button type="submit"
-                                                            class="btn btn-danger"
-                                                            @if(auth()->user()->isAdmin())
-                                                                onclick="return confirm('Вы уверены что хотите снять товар со швеи?')"
-                                                            @elseif(auth()->user()->isSeamstress())
-                                                                onclick="return confirm('Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
-                                                        @endif
-                                                    >
-                                                        <i class="fas fa-times mr-1"></i>
-                                                        Отменить
-                                                    </button>
-                                                </form>
-
-                                                @if($bonus > 0 && auth()->user()->isSeamstress())
-                                                    <span
-                                                        class="badge border border-warning text-dark p-2"
-                                                        style="font-size: 18px;">
-                                                        <b>+ {{ $bonus * $item->item->width / 100 }}</b>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                    </span>
-                                                @endif
-                                                @break
-                                            @case(5)
-                                                @if(auth()->user()->isAdmin())
-                                                    <form
-                                                        action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                        method="POST">
-                                                        @csrf @method('PUT')
-                                                        <button type="submit"
-                                                                class="btn btn-danger"
-                                                                onclick="return confirm('Вы уверены что хотите снять товар со стикеровки?')">
-                                                            <i class="fas fa-times mr-1"></i>
-                                                            Отменить
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                                @break
-                                            @case(7)
-                                                @if(auth()->user()->isCutter())
-                                                    <form
-                                                        action="{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}"
-                                                        method="POST"
-                                                        class="mr-2">
-                                                        @csrf @method('PUT')
-                                                        <button type="submit"
-                                                                class="btn btn-success"
-                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                            <i class="far fa-sticky-note mr-1"></i>
-                                                            Сдать раскроенное
-                                                        </button>
-                                                    </form>
-                                                @endif
-
-                                                <form
-                                                    action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                    method="POST" class="mr-2">
-                                                    @csrf @method('PUT')
-                                                    <button type="submit"
-                                                            class="btn btn-danger"
-                                                            @if(auth()->user()->isAdmin())
-                                                                onclick="return confirm('Вы уверены что хотите снять товар с закроя?')"
-                                                            @elseif(auth()->user()->isCutter())
-                                                                onclick="return confirm('Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
-                                                        @endif
-                                                    >
-                                                        <i class="fas fa-times mr-1"></i>
-                                                        Отменить
-                                                    </button>
-                                                </form>
-
-                                                @if($bonus > 0 && auth()->user()->isCutter())
-                                                    <span
-                                                        class="badge border border-warning text-dark p-2"
-                                                        style="font-size: 18px;">
-                                                        <b>+ {{ $bonus * $item->item->width / 100 }}</b>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                    </span>
-                                                @endif
-                                                @break
-                                        @endswitch
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
+                </form>
             </div>
         </div>
     </div>
@@ -445,4 +446,18 @@
 
 @push('css')
     <link href="{{ asset('css/badges.css') }}" rel="stylesheet"/>
+@endpush
+
+@push('js')
+    <script>
+        function submitAction(action, message) {
+            if (!confirm(message)) {
+                event.preventDefault();
+                return;
+            }
+            var form = document.getElementById('itemActionForm');
+            form.action = action;
+            form.method = 'POST';
+        }
+    </script>
 @endpush

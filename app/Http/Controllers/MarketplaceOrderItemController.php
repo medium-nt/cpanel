@@ -57,7 +57,7 @@ class MarketplaceOrderItemController extends Controller
     {
         $marketplaceOrderItem->load([
             'marketplaceOrder',
-            'item.consumption.material',
+            'item.consumption.material.rolls',
             'seamstress',
             'cutter',
             'otk',
