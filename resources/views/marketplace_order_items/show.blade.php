@@ -38,12 +38,21 @@
                                             @switch($item->status)
                                                 @case(4)
                                                     @if(auth()->user()->isSeamstress())
-                                                        <button type="submit"
-                                                                class="btn btn-success mr-2"
+                                                        <div
+                                                            class="d-inline-block"
+                                                            style="position: relative;">
+                                                            <button
+                                                                type="submit"
+                                                                class="btn btn-success mr-2 action-btn"
                                                                 onclick="submitAction('{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что заказ выполнен?')">
-                                                            <i class="far fa-sticky-note mr-1"></i>
-                                                            На стикеровку
-                                                        </button>
+                                                                <i class="far fa-sticky-note mr-1"></i>
+                                                                На стикеровку
+                                                            </button>
+                                                            <small
+                                                                class="text-danger rolls-hint"
+                                                                style="font-size: 11px; position: absolute; bottom: -18px; left: 0; white-space: nowrap;">Укажите
+                                                                рулоны</small>
+                                                        </div>
                                                     @endif
 
                                                     <button type="submit"
@@ -79,12 +88,22 @@
                                                     @break
                                                 @case(7)
                                                     @if(auth()->user()->isCutter())
-                                                        <button type="submit"
-                                                                class="btn btn-success mr-2"
+                                                        <div
+                                                            class="d-inline-block"
+                                                            style="position: relative;">
+                                                            <button
+                                                                type="submit"
+                                                                class="btn btn-success mr-2 action-btn"
                                                                 onclick="submitAction('{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что заказ выполнен?')">
-                                                            <i class="far fa-sticky-note mr-1"></i>
-                                                            Сдать раскроенное
-                                                        </button>
+                                                                <i class="far fa-sticky-note mr-1"></i>
+                                                                Сдать
+                                                                раскроенное
+                                                            </button>
+                                                            <small
+                                                                class="text-danger rolls-hint"
+                                                                style="font-size: 11px; position: absolute; bottom: -18px; left: 0; white-space: nowrap;">Укажите
+                                                                рулоны</small>
+                                                        </div>
                                                     @endif
 
                                                     <button type="submit"
@@ -117,43 +136,19 @@
                     @endif
 
                 <div class="row">
-                    {{-- Информация о товаре --}}
+                    {{-- Информация --}}
                     <div class="col-md-4">
                         <div class="card card-outline card-info">
                             <div class="card-header">
-                                <h3 class="card-title">Информация о товаре</h3>
+                                <h3 class="card-title">Информация</h3>
                             </div>
                             <div class="card-body">
                                 <table class="table table-bordered">
                                     <tr>
-                                        <th style="width: 200px">Название</th>
-                                        <td>{{ $item->item->title }}</td>
+                                        <th>Товар</th>
+                                        <td>{{ $item->item->title }} {{ $item->item->width }}
+                                            х{{ $item->item->height }}</td>
                                     </tr>
-                                    <tr>
-                                        <th>Артикул</th>
-                                        <td>{{ $item->item->article ?? '---' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Ширина</th>
-                                        <td>{{ $item->item->width }} см</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Высота</th>
-                                        <td>{{ $item->item->height }} см</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Информация о заказе --}}
-                    <div class="col-md-4">
-                        <div class="card card-outline card-primary">
-                            <div class="card-header">
-                                <h3 class="card-title">Заказ</h3>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-bordered">
                                     <tr>
                                         <th>Номер заказа</th>
                                         <td>{{ $item->marketplaceOrder->order_id }}</td>
@@ -187,10 +182,12 @@
                             </div>
                             <div class="card-body">
                                 @php
+                                    $user = auth()->user();
                                     $consumptions = $item->item->consumption;
-                                    $showRolls = auth()->user()->isCutter() || auth()->user()->isSeamstress();
+                                    $showRolls = $user->isCutter() || $user->isSeamstress() || $user->isAdmin() || $user->isStorekeeper();
+                                    $rollsDisabled = $user->isAdmin() || $user->isStorekeeper() || !in_array($item->status, [4, 7]);
 
-                                    if (auth()->user()->isCutter()) {
+                                    if ($user->isCutter()) {
                                         $consumptions = $consumptions->filter(fn($c) => $c->material->type_id == 1);
                                     }
                                 @endphp
@@ -209,13 +206,15 @@
                                                 @endphp
                                                 <select
                                                     name="roll_id[{{ $c->material_id }}]"
-                                                    class="form-control form-control-sm">
+                                                    class="form-control form-control-sm"
+                                                    @if($rollsDisabled) disabled @endif>
                                                     <option value="">Выберите
                                                         рулон
                                                     </option>
                                                     @foreach($rolls as $roll)
                                                         <option
-                                                            value="{{ $roll->id }}">
+                                                            value="{{ $roll->id }}"
+                                                            {{ ($assignedRolls[$c->material_id] ?? null) == $roll->id ? 'selected' : '' }}>
                                                             Рулон
                                                             #{{ $roll->roll_code }}
                                                             (ост. {{ $roll->current_quantity }} {{ $c->material->unit }}
@@ -233,71 +232,16 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    {{-- Сотрудники --}}
-                    <div class="col-md-6">
-                        <div class="card card-outline card-success">
-                            <div class="card-header">
-                                <h3 class="card-title">Сотрудники</h3>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-bordered">
-                                    @if($item->cutter_id)
-                                        <tr>
-                                            <th style="width: 150px">Закройщик
-                                            </th>
-                                            <td>{{ $item->cutter?->name }}
-                                                (ID: {{ $item->cutter_id }})
-                                            </td>
-                                        </tr>
-                                    @endif
-                                    @if($item->seamstress_id)
-                                        <tr>
-                                            <th>Швея</th>
-                                            <td>{{ $item->seamstress?->name }}
-                                                (ID: {{ $item->seamstress_id }})
-                                            </td>
-                                        </tr>
-                                    @endif
-                                    @if($item->otk_id)
-                                        <tr>
-                                            <th>Упаковщик</th>
-                                            <td>{{ $item->otk?->name }}
-                                                (ID: {{ $item->otk_id }})
-                                            </td>
-                                        </tr>
-                                    @endif
-                                    @if($item->repacker_id)
-                                        <tr>
-                                            <th>Переупаковщик</th>
-                                            <td>{{ $item->repacker?->name }}
-                                                (ID: {{ $item->repacker_id }})
-                                            </td>
-                                        </tr>
-                                    @endif
-                                    @if(!$item->cutter_id && !$item->seamstress_id && !$item->otk_id && !$item->repacker_id)
-                                        <tr>
-                                            <td colspan="2"
-                                                class="text-center text-muted">
-                                                Сотрудники не назначены
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </table>
-                            </div>
-                        </div>
-                    </div>
 
                     {{-- Таймлайн --}}
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="card card-outline card-warning">
                             <div class="card-header">
                                 <h3 class="card-title">Таймлайн</h3>
                             </div>
-                            <div class="card-body">
-                                <div class="timeline">
+                            <div class="card-body p-2">
+                                <div class="timeline"
+                                     style="margin-bottom: 0; padding-top: 0;">
                                     @php
                                         $events = collect();
 
@@ -402,6 +346,65 @@
                     </div>
                 </div>
 
+                    <div class="row">
+                        {{-- Сотрудники --}}
+                        <div class="col-md-6">
+                            <div class="card card-outline card-success">
+                                <div class="card-header">
+                                    <h3 class="card-title">Сотрудники</h3>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered">
+                                        @if($item->cutter_id)
+                                            <tr>
+                                                <th style="width: 150px">
+                                                    Закройщик
+                                                </th>
+                                                <td>{{ $item->cutter?->name }}
+                                                    (ID: {{ $item->cutter_id }})
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @if($item->seamstress_id)
+                                            <tr>
+                                                <th>Швея</th>
+                                                <td>{{ $item->seamstress?->name }}
+                                                    (ID: {{ $item->seamstress_id }}
+                                                    )
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @if($item->otk_id)
+                                            <tr>
+                                                <th>Упаковщик</th>
+                                                <td>{{ $item->otk?->name }}
+                                                    (ID: {{ $item->otk_id }})
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @if($item->repacker_id)
+                                            <tr>
+                                                <th>Переупаковщик</th>
+                                                <td>{{ $item->repacker?->name }}
+                                                    (ID: {{ $item->repacker_id }}
+                                                    )
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @if(!$item->cutter_id && !$item->seamstress_id && !$item->otk_id && !$item->repacker_id)
+                                            <tr>
+                                                <td colspan="2"
+                                                    class="text-center text-muted">
+                                                    Сотрудники не назначены
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 {{-- История --}}
                 @if($item->history->isNotEmpty())
                     <div class="row">
@@ -459,5 +462,35 @@
             form.action = action;
             form.method = 'POST';
         }
+
+        function checkAllRollsSelected() {
+            var selects = document.querySelectorAll('select[name^="roll_id["]');
+            var actionButtons = document.querySelectorAll('.action-btn');
+            var hints = document.querySelectorAll('.rolls-hint');
+
+            if (selects.length === 0) {
+                return;
+            }
+
+            var allSelected = true;
+            selects.forEach(function (select) {
+                if (!select.value) {
+                    allSelected = false;
+                }
+            });
+
+            actionButtons.forEach(function (btn) {
+                btn.disabled = !allSelected;
+            });
+
+            hints.forEach(function (hint) {
+                hint.style.display = allSelected ? 'none' : 'block';
+            });
+        }
+
+        checkAllRollsSelected();
+        document.querySelectorAll('select[name^="roll_id["]').forEach(function (select) {
+            select.addEventListener('change', checkAllRollsSelected);
+        });
     </script>
 @endpush
