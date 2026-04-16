@@ -2403,13 +2403,13 @@ class MarketplaceApiService
     }
 
     /**
-     * Загружает склады WB из API и добавляет в БД те, которых еще нет.
+     * Загружает склады WB из supplies API и добавляет в БД те, которых еще нет.
      */
     public static function syncWarehousesWb(): int
     {
         try {
             $response = self::wbRequest()
-                ->get('https://marketplace-api.wildberries.ru/api/v3/offices');
+                ->get('https://supplies-api.wildberries.ru/api/v1/warehouses');
 
             if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
@@ -2423,26 +2423,26 @@ class MarketplaceApiService
                 return 0;
             }
 
-            $offices = $response->json() ?? [];
+            $warehouses = $response->json() ?? [];
             $added = 0;
             $apiNames = [];
 
-            foreach ($offices as $office) {
-                $officeName = $office['name'] ?? '';
+            foreach ($warehouses as $warehouse) {
+                $warehouseName = $warehouse['name'] ?? '';
 
-                if (empty($officeName)) {
+                if (empty($warehouseName)) {
                     continue;
                 }
 
-                $apiNames[] = $officeName;
+                $apiNames[] = $warehouseName;
 
                 $created = MarketplaceWarehouse::query()->firstOrCreate(
                     [
-                        'name' => $officeName,
+                        'name' => $warehouseName,
                         'marketplace_id' => 2,
                     ],
                     [
-                        'cluster' => $office['federalDistrict'] ?? '',
+                        'cluster' => '',
                     ]
                 );
 
