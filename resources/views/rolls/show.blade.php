@@ -48,6 +48,7 @@
                             <th scope="col">#</th>
                             <th scope="col">Название</th>
                             <th scope="col">шт./п.м.</th>
+                            <th scope="col">На что</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -56,6 +57,17 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $movementMaterial['material']->title }}</td>
                                 <td>{{ $movementMaterial['quantity'] }}</td>
+                                <td>
+                                    @php
+                                        $order = $movementMaterial->order;
+                                        $type = $order?->type_movement;
+                                    @endphp
+                                    @if($type == 3 && $order?->marketplaceOrder)
+                                        Заказ {{ $order->marketplaceOrder->order_id }}
+                                    @else
+                                        {{ \App\Models\TypeMovement::TYPES[$type] ?? '—' }}
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

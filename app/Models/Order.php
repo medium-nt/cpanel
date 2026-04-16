@@ -69,6 +69,11 @@ class Order extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function marketplaceOrder(): BelongsTo
+    {
+        return $this->belongsTo(MarketplaceOrder::class);
+    }
+
     public function getUpdatedDateAttribute(): string
     {
         return $this->updated_at->format('d/m/Y');
