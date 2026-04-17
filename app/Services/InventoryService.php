@@ -8,6 +8,7 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Roll;
+use App\Models\Shift;
 use Illuminate\Support\Facades\DB;
 use Log;
 
@@ -231,6 +232,112 @@ class InventoryService
         }
 
         return $result;
+    }
+
+    /**
+     * Получить количество материала на производстве, сгруппированное по сменам.
+     *
+     * @return array{shifts: \Illuminate\Support\Collection, materials: array}
+     */
+    public static function materialsQuantityByWorkshopPerShift(): array
+    {
+        $shifts = Shift::query()->active()->get();
+
+        $data = Material::query()
+            ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
+            ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->leftJoin('shifts', 'orders.shift_id', '=', 'shifts.id')
+            ->select(
+                'materials.id',
+                'materials.title',
+                'materials.unit',
+                'orders.shift_id',
+                'shifts.name as shift_name',
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 2 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as in_workshop
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 3 AND orders.status = 4 THEN movement_materials.quantity ELSE 0 END) as hold_workshop_to_items
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 3 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_workshop_to_items
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 0 THEN movement_materials.quantity ELSE 0 END) as hold_to_defect
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 1 THEN movement_materials.quantity ELSE 0 END) as approved_defect
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_to_defect
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 0 THEN movement_materials.quantity ELSE 0 END) as hold_to_write_off
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 1 THEN movement_materials.quantity ELSE 0 END) as approved_write_off
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_to_write_off
+                '),
+                DB::raw('
+                    SUM(CASE WHEN orders.type_movement = 6 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as write_off
+                ')
+            )
+            ->groupBy('materials.id', 'materials.title', 'materials.unit', 'orders.shift_id', 'shifts.name')
+            ->get();
+
+        $rollsCount = Roll::query()
+            ->where('rolls.status', Roll::STATUS_IN_WORKSHOP)
+            ->join('movement_materials', 'movement_materials.roll_id', '=', 'rolls.id')
+            ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->where('orders.type_movement', 2)
+            ->where('orders.status', 3)
+            ->select('rolls.material_id', 'rolls.shift_id', DB::raw('COUNT(*) as rolls_count'))
+            ->groupBy('rolls.material_id', 'rolls.shift_id')
+            ->get()
+            ->groupBy('material_id');
+
+        $result = [];
+        foreach ($data as $row) {
+            $materialId = $row->id;
+            $shiftId = $row->shift_id;
+
+            if (! isset($result[$materialId])) {
+                $result[$materialId] = [
+                    'material' => (object) ['id' => $row->id, 'title' => $row->title, 'unit' => $row->unit],
+                    'per_shift' => [],
+                    'total_quantity' => 0,
+                    'total_rolls' => 0,
+                ];
+            }
+
+            $quantity = $row->in_workshop
+                - $row->hold_workshop_to_items
+                - $row->out_workshop_to_items
+                - $row->hold_to_defect
+                - $row->approved_defect
+                - $row->out_to_defect
+                - $row->hold_to_write_off
+                - $row->approved_write_off
+                - $row->out_to_write_off
+                - $row->write_off;
+
+            $roundedQuantity = round($quantity, 2);
+            $shiftRolls = $rollsCount->get($materialId)?->firstWhere('shift_id', $shiftId)?->rolls_count ?? 0;
+
+            $result[$materialId]['per_shift'][$shiftId] = [
+                'quantity' => $roundedQuantity,
+                'rolls_count' => $shiftRolls,
+            ];
+            $result[$materialId]['total_quantity'] += $roundedQuantity;
+            $result[$materialId]['total_rolls'] += $shiftRolls;
+        }
+
+        return [
+            'shifts' => $shifts,
+            'materials' => array_values($result),
+        ];
     }
 
     private static function materialsQuantityByWarehouseAggregate(): array

@@ -19,9 +19,12 @@ class InventoryController extends Controller
 
     public function byWorkshop()
     {
+        $data = InventoryService::materialsQuantityByWorkshopPerShift();
+
         return view('inventory.workshop', [
             'title' => 'Материал на производстве',
-            'materials' => InventoryService::materialsQuantityBy('workhouse'),
+            'shifts' => $data['shifts'],
+            'materials' => $data['materials'],
         ]);
     }
 
@@ -48,7 +51,7 @@ class InventoryController extends Controller
         $status = $labels[$inventory->status];
 
         return view('inventory.show', [
-            'title' => 'Инвентаризация №' . $inventory->id . ' (' . $status . ')',
+            'title' => 'Инвентаризация №'.$inventory->id.' ('.$status.')',
             'inventory' => $inventory,
             'items' => $inventory->items,
         ]);
@@ -64,7 +67,7 @@ class InventoryController extends Controller
 
     public function store(StoreInventoryRequest $request, InventoryService $inventoryService)
     {
-        if (!$inventoryService->createInventory($request)) {
+        if (! $inventoryService->createInventory($request)) {
             return back()
                 ->with('error', 'Ошибка! Инвентаризация не создана');
         }

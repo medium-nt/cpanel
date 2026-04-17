@@ -142,6 +142,7 @@ class MovementMaterialToWorkshopService
 
                 $roll->update([
                     'status' => Roll::STATUS_IN_WORKSHOP,
+                    'shift_id' => $order->shift_id,
                 ]);
 
                 $movementMaterial = MovementMaterial::query()
