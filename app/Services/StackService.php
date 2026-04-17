@@ -37,6 +37,23 @@ class StackService
     {
         $stack = Stack::query()->where('seamstress_id', $seamstressId)->first();
 
+        if ($stack->stack <= 0) {
+            Log::channel('work_shift')->warning(
+                'Попытка уменьшить стек до отрицательного значения. '
+                .'seamstress_id: '.$seamstressId
+                .', текущий stack: '.$stack->stack
+            );
+
+            $stack->stack = 0;
+            $stack->save();
+
+            if ($stack->max != 0) {
+                self::resetMaxStackToZero($seamstressId);
+            }
+
+            return;
+        }
+
         $stack->stack = $stack->stack - 1;
         $stack->save();
 
