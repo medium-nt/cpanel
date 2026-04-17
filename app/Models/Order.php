@@ -15,6 +15,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
+        'shift_id',
         'type_movement',
         'status',
         'supplier_id',
@@ -57,6 +58,11 @@ class Order extends Model
     public function cutter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cutter_id');
+    }
+
+    public function shift(): BelongsTo
+    {
+        return $this->belongsTo(Shift::class);
     }
 
     public function movementMaterials(): hasMany

@@ -39,8 +39,8 @@ class HomeController extends Controller
             'marketplaceOrderItemInWork' => MarketplaceOrderItemService::toWork(),
             'marketplaceOrderItemInCutting' => MarketplaceOrderItemService::toCutting(),
             'urgentMarketplaceOrderItem' => MarketplaceOrderItemService::urgent(),
-            'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements(),
-            'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(),
+            'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements(auth()->user()),
+            'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(auth()->user()),
             'stickeredMarketplaceOrderItem' => MovementMaterialToWorkshopService::getStickeredMarketplaceOrderItem(),
             'employees' => User::query()
                 ->where('name', 'not like', '%Тест%')

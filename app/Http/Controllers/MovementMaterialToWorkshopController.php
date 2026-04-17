@@ -8,6 +8,7 @@ use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\Material;
 use App\Models\Order;
 use App\Services\MovementMaterialToWorkshopService;
+use App\Services\ShiftService;
 use App\Services\TgService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ class MovementMaterialToWorkshopController extends Controller
 {
     public function index(Request $request)
     {
-        $paginatedOrders = MovementMaterialToWorkshopService::getOrdersByStatus($request->status)
+        $paginatedOrders = MovementMaterialToWorkshopService::getOrdersByStatus($request->status, auth()->user())
+            ->with(['shift', 'movementMaterials.material'])
             ->latest()
             ->paginate(10);
 
@@ -94,6 +96,15 @@ class MovementMaterialToWorkshopController extends Controller
 
     public function save_receive(Request $request, Order $order)
     {
+        $user = auth()->user();
+
+        if (in_array($user->role?->name, ShiftService::SHIFT_ROLES)) {
+            $userShift = $user->currentShift();
+            if ($userShift && $order->shift_id && $order->shift_id !== $userShift->id) {
+                abort(403, 'Этот заказ принадлежит другой смене.');
+            }
+        }
+
         $order->update([
             'status' => 3,
             'completed_at' => now(),

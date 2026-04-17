@@ -9,6 +9,7 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,10 @@ use Throwable;
 
 class MovementMaterialToWorkshopService
 {
-    public static function getOrdersByStatus($requestStatus)
+    /**
+     * Получить заказы по статусу с фильтрацией по смене.
+     */
+    public static function getOrdersByStatus($requestStatus, ?User $user = null)
     {
         $status = [0, 2];
 
@@ -25,9 +29,13 @@ class MovementMaterialToWorkshopService
             default => $status,
         };
 
-        return Order::query()
+        $query = Order::query()
             ->where('type_movement', 2)
             ->whereIn('status', $status);
+
+        self::applyShiftFilter($query, $user);
+
+        return $query;
     }
 
     public static function store(StoreMovementMaterialToWorkshopRequest $request): bool|RedirectResponse
@@ -59,6 +67,7 @@ class MovementMaterialToWorkshopService
                     'type_movement' => 2,
                     'status' => 0,
                     'comment' => $request->comment,
+                    'shift_id' => auth()->user()->currentShift()?->id,
                 ]);
 
                 foreach ($materialIds as $key => $material_id) {
@@ -212,20 +221,47 @@ class MovementMaterialToWorkshopService
         return true;
     }
 
-    public static function getCountNotShippedMovements(): int
+    /**
+     * Количество неотгруженных заказов с учётом смены.
+     */
+    public static function getCountNotShippedMovements(?User $user = null): int
     {
-        return Order::query()
+        $query = Order::query()
             ->where('type_movement', 2)
-            ->where('status', 0)
-            ->count();
+            ->where('status', 0);
+
+        self::applyShiftFilter($query, $user);
+
+        return $query->count();
     }
 
-    public static function getCountNotReceivedMovements(): int
+    /**
+     * Количество непринятых заказов с учётом смены.
+     */
+    public static function getCountNotReceivedMovements(?User $user = null): int
     {
-        return Order::query()
+        $query = Order::query()
             ->where('type_movement', 2)
-            ->where('status', 2)
-            ->count();
+            ->where('status', 2);
+
+        self::applyShiftFilter($query, $user);
+
+        return $query->count();
+    }
+
+    /**
+     * Применить фильтр по смене для швей, закройщиков и ОТК.
+     */
+    private static function applyShiftFilter($query, ?User $user = null)
+    {
+        if ($user && in_array($user->role?->name, ShiftService::SHIFT_ROLES)) {
+            $userShift = $user->currentShift();
+            if ($userShift) {
+                $query->where('shift_id', $userShift->id);
+            }
+        }
+
+        return $query;
     }
 
     public static function getStickeredMarketplaceOrderItem(): int

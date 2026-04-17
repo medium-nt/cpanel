@@ -12,7 +12,7 @@ class ShiftService
     /**
      * Роли, которые работают по сменам (привязаны к бригаде и календарю).
      */
-    private const SHIFT_ROLES = ['seamstress', 'cutter', 'otk'];
+    public const SHIFT_ROLES = ['seamstress', 'cutter', 'otk'];
 
     /**
      * Получить смену сотрудника на сегодня (по shift_user effective_from).

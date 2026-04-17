@@ -35,6 +35,11 @@
                                     {{ $order->status_name }}
                                 </span>
 
+                                @if($order->shift)
+                                    <span
+                                        class="mx-1 badge badge-info">{{ $order->shift->name }}</span>
+                                @endif
+
                                 <div class="mt-3">
                                     @foreach($order->movementMaterials as $material)
                                         <li>
@@ -105,6 +110,7 @@
                             <th scope="col" style="white-space: nowrap;">запрошено / отгружено</th>
                             <th scope="col">Комментарии</th>
                             <th scope="col">Статус </th>
+                            <th scope="col">Смена</th>
                             <th scope="col">Заказ создан</th>
                             <th scope="col">Получено</th>
                             <th scope="col"></th>
@@ -131,6 +137,12 @@
                                 </td>
                                 <td>{{ $order->comment }}</td>
                                 <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
+                                <td>
+                                    @if($order->shift)
+                                        <span
+                                            class="badge badge-info">{{ $order->shift->name }}</span>
+                                    @endif
+                                </td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @if($order->status == '3' && $order->completed_at)
