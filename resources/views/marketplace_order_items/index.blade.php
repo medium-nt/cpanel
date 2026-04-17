@@ -330,8 +330,7 @@
                                 $allCalcWidth += $item->item->width * $item->quantity;
                                 $allCount += $item->quantity;
                             @endphp
-                            <tr style="cursor: pointer"
-                                onclick="window.location='{{ route('marketplace_order_items.show', $item->id) }}'">
+                            <tr>
                                 <td style="text-align: center">{{ $item->id }}</td>
                                 <td style="text-align: center"><span
                                         class="badge {{ $item->status_color }}"> {{ $item->status_name }}</span>
@@ -393,120 +392,11 @@
                                 </td>
                                 <td style="text-align: center">{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
 
-                                <td style="width: 100px">
-                                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isAdmin())
-                                        <div class="btn-group" role="group">
-                                            @switch($item->status)
-                                                @case(4)
-                                                    @if(auth()->user()->isSeamstress())
-                                                        <form
-                                                            action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <button
-                                                                type="submit"
-                                                                class="btn btn-success mr-3"
-                                                                title="На стикеровку"
-                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                                <i class="far fa-sticky-note"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-
-                                                    <form
-                                                        action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button
-                                                            type="submit"
-                                                            title="Отменить заказ"
-                                                            class="btn btn-danger mr-3"
-                                                            @if(auth()->user()->isAdmin())
-                                                                onclick="return confirm('Вы уверены что хотите снять товар со швеи?')"
-                                                            @elseif(auth()->user()->isSeamstress())
-                                                                onclick="return confirm('Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
-                                                            @endif
-                                                        >
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
-
-                                                    @if($bonus > 0 && auth()->user()->isSeamstress())
-                                                        <span
-                                                            class="badge border border-warning text-dark p-2"
-                                                            style="font-size: 20px;">
-                                                                <b>+ {{ $bonus * $item->item->width / 100 }}</b>
-                                                            <i class="fas fa-star text-warning"></i>
-                                                        </span>
-                                                    @endif
-                                                    @break
-                                                @case(5)
-                                                    @if(auth()->user()->isAdmin())
-                                                        <form
-                                                            action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <button
-                                                                type="submit"
-                                                                class="btn btn-danger mr-1"
-                                                                title="Отменить заказ"
-                                                                onclick="return confirm('Вы уверены что хотите снять товар со швеи?')">
-                                                                <i class="fas fa-times"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                        @break
-                                                @case(7)
-                                                    @if(auth()->user()->isCutter())
-                                                        <form
-                                                            action="{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <button
-                                                                type="submit"
-                                                                class="btn btn-success mr-3"
-                                                                title="Сдать откроенное"
-                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                                <i class="far fa-sticky-note"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-
-                                                    <form
-                                                        action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit"
-                                                                class="btn btn-danger mr-3"
-                                                                title="Отменить заказ"
-                                                                @if(auth()->user()->isAdmin())
-                                                                    onclick="return confirm('Вы уверены что хотите снять товар с закроя?')"
-                                                                @elseif(auth()->user()->isCutter())
-                                                                    onclick="return confirm('Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
-                                                            @endif
-                                                        >
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
-
-                                                    @if($bonus > 0 && auth()->user()->isCutter())
-                                                        <span
-                                                            class="badge border border-warning text-dark p-2"
-                                                            style="font-size: 20px;">
-                                                            <b>+ {{ $bonus * $item->item->width / 100 }}</b>
-                                                            <i class="fas fa-star text-warning"></i>
-                                                        </span>
-                                                    @endif
-
-                                                    @break
-                                            @endswitch
-                                        </div>
-                                    @endif
+                                <td style="white-space: nowrap; text-align: center">
+                                    <a href="{{ route('marketplace_order_items.show', $item->id) }}"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye mr-1"></i>Просмотр
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -566,8 +456,6 @@
             </div>
             @foreach ($items as $item)
                 <div class="col-md-4">
-                    <a href="{{ route('marketplace_order_items.show', $item->id) }}"
-                       style="text-decoration: none; color: inherit;">
                     <div class="card">
                         <div class="position-relative">
                             <div class="ribbon-wrapper ribbon-lg">
@@ -629,140 +517,13 @@
                                     </badge>
                                 </div>
 
-                                @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isAdmin())
-                                    <div class="btn-group" role="group">
-                                    @switch($item->status)
-                                        @case(4)
-                                                @if(auth()->user()->isSeamstress())
-                                                    <form
-                                                        action="{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit"
-                                                                class="btn btn-success mr-3"
-                                                                title="На стикеровку"
-                                                                onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                            <i class="far fa-sticky-note"></i>
-                                                            На стикеровку
-                                                        </button>
-                                                    </form>
-                                                @endif
-
-                                                <form
-                                                    action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit"
-                                                            class="btn btn-danger mr-3"
-                                                            title="Отменить заказ"
-                                                            @if(auth()->user()->isAdmin())
-                                                                onclick="return confirm('Вы уверены что хотите снять товар со швеи?')"
-                                                            @elseif(auth()->user()->isSeamstress())
-                                                                onclick="return confirm('Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
-                                                        @endif
-                                                    >
-                                                        <i class="fas fa-times"></i>
-
-                                                    </button>
-                                                </form>
-
-                                                @if($bonus > 0 && auth()->user()->isSeamstress())
-                                                    <span
-                                                        class="badge border border-warning text-dark p-2"
-                                                        style="font-size: 20px;">
-                                                        <b>+ {{ $bonus * $item->item->width / 100 }}</b> <i
-                                                            class="fas fa-star text-warning"></i>
-                                                    </span>
-                                                @endif
-
-                                            @break
-                                        @case(5)
-                                                @if(auth()->user()->isAdmin())
-                                                    <form
-                                                        action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit"
-                                                                class="btn btn-danger mr-1"
-                                                                title="Отменить заказ"
-                                                                onclick="return confirm('Вы уверены что хотите снять товар со швеи?')">
-                                                            <i class="fas fa-times"></i>
-                                                            Отменить заказ
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            @break
-                                        @case(7)
-                                            @if(auth()->user()->isCutter())
-                                                <form
-                                                    action="{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit"
-                                                            class="btn btn-success mr-3"
-                                                            title="Сдать откроенное"
-                                                            onclick="return confirm('Вы уверены что заказ выполнен?')">
-                                                        <i class="far fa-sticky-note"></i>
-                                                        Сдать работу
-                                                    </button>
-                                                </form>
-                                            @endif
-
-                                                <form
-                                                    action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit"
-                                                            class="btn btn-danger mr-3"
-                                                            title="Отменить заказ"
-                                                            @if(auth()->user()->isAdmin())
-                                                                onclick="return confirm('Вы уверены что хотите снять товар с закроя?')"
-                                                            @elseif(auth()->user()->isCutter())
-                                                                onclick="return confirm('Вы уверены что хотите отказаться от заказа? Вам будет начислен штраф')"
-                                                        @endif
-                                                    >
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </form>
-
-                                                @if($bonus > 0 && auth()->user()->isCutter())
-                                                    <span
-                                                        class="badge border border-warning text-dark p-2"
-                                                        style="font-size: 20px;">
-                                                                <b>+ {{ $bonus * $item->item->width / 100 }}</b> <i
-                                                            class="fas fa-star text-warning"></i>
-                                                            </span>
-                                            @endif
-
-                                            @break
-                                        @case(3)
-                                                {{--<div class="btn-group" role="group">--}}
-                                                {{--    @if(auth()->user()->isAdmin())--}}
-                                                {{--        <form action="{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}"--}}
-                                                {{--              method="POST">--}}
-                                                {{--            @csrf--}}
-                                                {{--            @method('PUT')--}}
-                                                {{--            <button type="submit" class="btn btn-danger mr-1"--}}
-                                                {{--                    title="Отменить заказ"--}}
-                                                {{--                    onclick="return confirm('Вы уверены что хотите отменить уже выполненный заказа?')">--}}
-                                                {{--                <i class="fas fa-times"></i> Отменить заказ--}}
-                                                {{--            </button>--}}
-                                                {{--        </form>--}}
-                                                {{--    @endif--}}
-                                                {{--</div>--}}
-                                            @break
-                                    @endswitch
-                                    </div>
-                                @endif
+                                <a href="{{ route('marketplace_order_items.show', $item->id) }}"
+                                   class="btn btn-primary btn-block mt-2">
+                                    <i class="fas fa-eye mr-1"></i>Просмотр
+                                </a>
                             </div>
                         </div>
                     </div>
-                    </a>
                 </div>
             @endforeach
 
