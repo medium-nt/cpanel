@@ -203,6 +203,13 @@
                                                 @php
                                                     $rolls = $c->material->rolls
                                                         ->where('status', \App\Models\Roll::STATUS_IN_WORKSHOP);
+
+                                                    if (!$user->isAdmin() && !$user->isStorekeeper()) {
+                                                        $shiftId = $user->currentShift()?->id;
+                                                        if ($shiftId) {
+                                                            $rolls = $rolls->where('shift_id', $shiftId);
+                                                        }
+                                                    }
                                                 @endphp
                                                 <select
                                                     name="roll_id[{{ $c->material_id }}]"
