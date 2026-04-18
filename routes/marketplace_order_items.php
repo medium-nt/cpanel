@@ -8,10 +8,6 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->can('viewAny', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.index');
 
-    Route::get('/{marketplace_order_item}', [MarketplaceOrderItemController::class, 'show'])
-        ->can('view', MarketplaceOrderItem::class)
-        ->name('marketplace_order_items.show');
-
     Route::get('/get_new', [MarketplaceOrderItemController::class, 'getNewOrderItem'])
         ->can('getNew', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.getNewOrderItem');
@@ -35,4 +31,8 @@ Route::prefix('/marketplace_order_items')->group(function () {
     Route::get('/print_cutting', [MarketplaceOrderItemController::class, 'printCutting'])
         ->can('printA4', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.printCutting');
+
+    Route::get('/{marketplace_order_item}', [MarketplaceOrderItemController::class, 'show'])
+        ->can('view', MarketplaceOrderItem::class)
+        ->name('marketplace_order_items.show');
 });
