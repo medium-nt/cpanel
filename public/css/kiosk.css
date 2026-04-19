@@ -83,6 +83,11 @@ html, body {
     color: white;
 }
 
+.btn-kiosk-gray {
+    background-color: #9ca3af;
+    color: white;
+}
+
 /* Табы навигации для киоска */
 .nav-tabs .nav-link {
     border: none;
