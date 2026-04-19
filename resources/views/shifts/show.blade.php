@@ -138,6 +138,7 @@
                             сотрудники</h3>
                     </div>
                     <div class="card-body">
+                        <div class="table-responsive">
                         <table class="table table-hover table-bordered">
                             <thead class="thead-dark">
                             <tr>
@@ -164,6 +165,7 @@
                             @endforeach
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -177,6 +179,7 @@
                             сотрудники</h3>
                     </div>
                     <div class="card-body">
+                        <div class="table-responsive">
                         <table class="table table-hover table-bordered">
                             <thead class="thead-dark">
                             <tr>
@@ -199,6 +202,7 @@
                             @endforeach
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -211,6 +215,7 @@
                             История перемещений</h3>
                     </div>
                     <div class="card-body">
+                        <div class="table-responsive">
                         <table
                             class="table table-hover table-bordered table-sm">
                             <thead class="thead-dark">
@@ -266,6 +271,7 @@
                             @endforeach
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             @endif
