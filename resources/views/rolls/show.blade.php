@@ -28,17 +28,45 @@
                         </form>
                     @endif
                 </div>
-                Рулон: {{ $roll->roll_code }} <br>
-                Материал: {{ $roll->material->title }}<br>
-                Начальное
-                количество: {{ $roll->initial_quantity }} {{ $roll->material->unit }}
-                <br>
+
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Материал</th>
+                        <td>{{ $roll->material->title }}</td>
+                    </tr>
+                    <tr>
+                        <th>Статус</th>
+                        <td><span
+                                class="badge {{ $roll->status_color }}"> {{ $roll->status_name }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Начальное количество</th>
+                        <td>{{ $roll->initial_quantity }} {{ $roll->material->unit }}</td>
+                    </tr>
+                    <tr>
+                        <th>Текущий остаток (по системе)</th>
+                        <td class="font-weight-bold">{{ $roll->current_quantity }} {{ $roll->material->unit }}</td>
+                    </tr>
+                    @if($roll->shortage_quantity > 0 || $roll->status === \App\Models\Roll::STATUS_COMPLETED)
+                        <tr class="table-warning">
+                            <th>Недостача</th>
+                            <td class="font-weight-bold text-danger">{{ $roll->shortage_quantity }} {{ $roll->material->unit }}</td>
+                        </tr>
+                    @endif
+                    @if($roll->completed_at)
+                        <tr>
+                            <th>Дата завершения</th>
+                            <td>{{ \Carbon\Carbon::parse($roll->completed_at)->format('d/m/Y H:i') }}</td>
+                        </tr>
+                    @endif
+                </table>
             </div>
         </div>
 
         <div class="card only-on-desktop">
             <div class="card-header">
-                <h3 class="card-title">Расход</h3>
+                <h3 class="card-title">История движений</h3>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -46,16 +74,32 @@
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Название</th>
-                            <th scope="col">шт./п.м.</th>
+                            <th scope="col">Дата</th>
+                            <th scope="col">Кол-во</th>
+                            <th scope="col">На что</th>
+                            <th scope="col">Тип движения</th>
+                            <th scope="col">Комментарий</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach ($roll->movementMaterialsNotFromSuppler as $movementMaterial)
+                            @php
+                                $order = $movementMaterial->order;
+                                $type = $order?->type_movement;
+                            @endphp
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $movementMaterial['material']->title }}</td>
+                                <td>{{ $order?->created_at?->format('d/m/Y H:i') }}</td>
                                 <td>{{ $movementMaterial['quantity'] }}</td>
+                                <td>
+                                    @if($type == 3 && $order?->marketplaceOrder)
+                                        Заказ {{ $order->marketplaceOrder->order_id }}
+                                    @else
+                                        {{ \App\Models\TypeMovement::TYPES[$type] ?? '—' }}
+                                    @endif
+                                </td>
+                                <td>{{ $order?->type_movement_name ?? '—' }}</td>
+                                <td>{{ $order?->comment }}</td>
                             </tr>
                         @endforeach
                         </tbody>
@@ -66,4 +110,3 @@
         </div>
     </div>
 @stop
-

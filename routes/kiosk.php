@@ -25,6 +25,11 @@ Route::prefix('/kiosk')->group(function () {
     Route::get('api/roll/{roll_code}', [StickerPrintingController::class, 'getRollByCode'])
         ->name('kiosk.api.roll');
 
+    Route::get('rolls', [StickerPrintingController::class, 'rolls'])
+        ->name('kiosk.rolls');
+    Route::post('rolls/complete', [StickerPrintingController::class, 'completeRoll'])
+        ->name('kiosk.complete-roll');
+
     Route::get('returns', [StickerPrintingController::class, 'returns'])
         ->name('returns');
 

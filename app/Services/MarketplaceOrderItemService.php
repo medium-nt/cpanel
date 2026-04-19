@@ -8,6 +8,7 @@ use App\Models\MarketplaceOrderHistory;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\Sku;
 use App\Models\User;
@@ -632,14 +633,42 @@ class MarketplaceOrderItemService
         $user = auth()->user();
         $quantityOrderItem = $marketplaceOrderItem->quantity;
 
+        $shift = $user->currentShift();
+        $shiftUserIds = $shift ? $shift->getCurrentUsers()->pluck('id') : collect();
+
         foreach ($materialConsumptions as $materialConsumption) {
             if ($user->seamstressNotCut() && $materialConsumption->material->type_id == 1) {
                 continue;
             }
 
-            $materialInWorkhouse = InventoryService::materialInWorkshop($materialConsumption->material_id);
+            // Сумма текущих остатков рулонов смены в цехе
+            // current_quantity = initial_quantity − уже использовано (MovementMaterial с roll_id)
+            $availableInShift = Roll::query()
+                ->where('material_id', $materialConsumption->material_id)
+                ->where('status', Roll::STATUS_IN_WORKSHOP)
+                ->when($shift, fn ($q) => $q->where('shift_id', $shift->id))
+                ->get()
+                ->sum('current_quantity');
 
-            if ($materialInWorkhouse < $materialConsumption->quantity * $quantityOrderItem) {
+            // Захолдировано: MovementMaterial без roll_id для пользователей этой смены
+            $holdByShift = 0;
+            if ($shift) {
+                $holdByShift = MovementMaterial::query()
+                    ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+                    ->where('movement_materials.material_id', $materialConsumption->material_id)
+                    ->whereNull('movement_materials.roll_id')
+                    ->where('orders.type_movement', 3)
+                    ->where('orders.status', 4)
+                    ->where(function ($q) use ($shiftUserIds) {
+                        $q->whereIn('orders.seamstress_id', $shiftUserIds)
+                            ->orWhereIn('orders.cutter_id', $shiftUserIds);
+                    })
+                    ->sum('movement_materials.quantity');
+            }
+
+            $materialInShift = $availableInShift - $holdByShift;
+
+            if ($materialInShift < $materialConsumption->quantity * $quantityOrderItem) {
                 return false;
             }
         }

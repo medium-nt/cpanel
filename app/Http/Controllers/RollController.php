@@ -35,7 +35,9 @@ class RollController extends Controller
     {
         return view('rolls.show', [
             'title' => 'Рулон '.$roll->roll_code,
-            'roll' => Roll::find($roll->id),
+            'roll' => Roll::query()
+                ->with(['material', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
+                ->find($roll->id),
             'canDelete' => $roll->status == 'in_storage',
         ]);
     }

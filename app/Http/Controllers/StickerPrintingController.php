@@ -431,6 +431,70 @@ class StickerPrintingController extends Controller
         ]);
     }
 
+    /**
+     * Отображение страницы работы с рулонами в киоске.
+     */
+    public function rolls(Request $request)
+    {
+        $user = User::find(session('user_id'));
+
+        if (! $user) {
+            return redirect()->route('kiosk');
+        }
+
+        $roll = null;
+
+        if ($request->filled('roll')) {
+            $roll = Roll::query()
+                ->with(['material', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
+                ->where('roll_code', $request->roll)
+                ->first();
+        }
+
+        return view('kiosk.rolls', [
+            'title' => 'Работа с рулонами',
+            'userId' => session('user_id'),
+            'roll' => $roll,
+        ]);
+    }
+
+    /**
+     * Завершает рулон: меняет статус на completed, записывает недостачу.
+     */
+    public function completeRoll(Request $request)
+    {
+        $request->validate([
+            'roll_id' => 'required|exists:rolls,id',
+            'actual_remaining' => 'required|numeric|min:0',
+        ]);
+
+        $roll = Roll::find($request->roll_id);
+
+        if ($roll->status !== Roll::STATUS_IN_WORKSHOP) {
+            return redirect()
+                ->route('kiosk.rolls')
+                ->with('error', 'Рулон нельзя завершить. Статус: '.$roll->status_name);
+        }
+
+        $shortage = round($roll->current_quantity - $request->actual_remaining, 2);
+
+        $roll->update([
+            'status' => Roll::STATUS_COMPLETED,
+            'completed_at' => now(),
+            'shortage_quantity' => $shortage,
+        ]);
+
+        $userName = User::find(session('user_id'))?->name ?? 'неизвестный';
+
+        Log::channel('materials')
+            ->notice('Рулон "'.$roll->roll_code.'" завершен сотрудником '.$userName
+                .'. Недостача: '.$shortage.' '.$roll->material->unit);
+
+        return redirect()
+            ->route('kiosk.rolls')
+            ->with('success', 'Рулон '.$roll->roll_code.' успешно завершен');
+    }
+
     public function printSticker(Order $order)
     {
         $pdf = PDF::loadView('pdf.defect_sticker', [

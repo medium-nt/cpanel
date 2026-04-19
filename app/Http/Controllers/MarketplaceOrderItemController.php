@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrderItem;
+use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\Sku;
@@ -50,6 +51,37 @@ class MarketplaceOrderItemController extends Controller
             'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
             'widthMaterials' => MarketplaceItemService::getAllWidthMaterials(),
             'heightMaterials' => MarketplaceItemService::getAllHeightMaterials(),
+        ]);
+    }
+
+    public function show(MarketplaceOrderItem $marketplaceOrderItem)
+    {
+        $marketplaceOrderItem->load([
+            'marketplaceOrder',
+            'item.consumption.material.rolls',
+            'seamstress',
+            'cutter',
+            'otk',
+            'repacker',
+            'shelf',
+            'history',
+        ]);
+
+        $bonus = TransactionService::getBonusForTodayOrdersByUsers();
+
+        $assignedRolls = MovementMaterial::query()
+            ->whereHas('order', function ($query) use ($marketplaceOrderItem) {
+                $query->where('type_movement', 3)
+                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id);
+            })
+            ->whereNotNull('roll_id')
+            ->pluck('roll_id', 'material_id');
+
+        return view('marketplace_order_items.show', [
+            'title' => 'Карточка товара #'.$marketplaceOrderItem->id,
+            'item' => $marketplaceOrderItem,
+            'bonus' => $bonus,
+            'assignedRolls' => $assignedRolls,
         ]);
     }
 
@@ -152,6 +184,8 @@ class MarketplaceOrderItemController extends Controller
             'completed_at' => now(),
         ]);
 
+        $this->updateRollIds($request, $marketplaceOrderItem);
+
         return redirect()->route('marketplace_order_items.index')
             ->with('success', 'Заказ передан на стикеровку');
     }
@@ -206,6 +240,8 @@ class MarketplaceOrderItemController extends Controller
             ' (товар #'.$marketplaceOrderItem->id.')';
         Log::channel('items')->notice($text);
 
+        $this->updateRollIds($request, $marketplaceOrderItem);
+
         return back()->with('success', 'Заказ успешно выполнен');
     }
 
@@ -218,5 +254,32 @@ class MarketplaceOrderItemController extends Controller
 
         return $pdf->setPaper('A4')
             ->download('cutting.pdf');
+    }
+
+    private function updateRollIds(Request $request, MarketplaceOrderItem $marketplaceOrderItem): void
+    {
+        $rollIds = $request->input('roll_id', []);
+
+        if (empty($rollIds)) {
+            return;
+        }
+
+        $writeOffOrder = Order::query()
+            ->where('type_movement', 3)
+            ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+            ->first();
+
+        if (! $writeOffOrder) {
+            return;
+        }
+
+        foreach ($rollIds as $materialId => $rollId) {
+            if ($rollId) {
+                MovementMaterial::query()
+                    ->where('order_id', $writeOffOrder->id)
+                    ->where('material_id', $materialId)
+                    ->update(['roll_id' => $rollId]);
+            }
+        }
     }
 }

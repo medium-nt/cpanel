@@ -58,13 +58,12 @@
                                class="btn-kiosk btn-kiosk-purple">Работа с
                                 возвратами</a>
                         @endif
-                        {{--                        <a href="#" class="btn-kiosk btn-kiosk-yellow">Работа с--}}
-                        {{--                            рулонами</a>--}}
-                        {{--                        <a href="#" class="btn-kiosk btn-kiosk-red">Работа с--}}
-                        {{--                            возвратами</a>--}}
+                        <a href="{{ route('kiosk.rolls') }}"
+                           class="btn-kiosk btn-kiosk-yellow">Работа с
+                            рулонами</a>
                     @endif
                     <a href="{{ route('product_stickers') }}"
-                       class="btn-kiosk btn-kiosk-yellow">Печать стикеров
+                       class="btn-kiosk btn-kiosk-gray">Печать стикеров
                         товара</a>
                 </div>
             @else
