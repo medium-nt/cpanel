@@ -732,6 +732,7 @@ class MarketplaceOrderItemService
             $order = Order::query()->create([
                 'type_movement' => 3,
                 'status' => 4,
+                'shift_id' => auth()->user()->currentShift()?->id,
                 $field => auth()->user()->id,
                 'comment' => 'По заказу No: '.$marketplaceOrderItem->marketplaceOrder->order_id,
                 'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id,
