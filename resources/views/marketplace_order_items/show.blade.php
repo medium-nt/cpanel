@@ -34,29 +34,30 @@
                                     <div class="card-body">
                                         <input type="hidden" name="_method"
                                                value="PUT">
-                                        <div class="btn-group" role="group">
+                                        <div
+                                            class="d-flex flex-wrap align-items-start"
+                                            role="group">
                                             @switch($item->status)
                                                 @case(4)
                                                     @if(auth()->user()->isSeamstress())
-                                                        <div
-                                                            class="d-inline-block"
-                                                            style="position: relative;">
+                                                        <div class="mb-2 mr-2"
+                                                             style="position: relative; padding-bottom: 18px;">
                                                             <button
                                                                 type="submit"
-                                                                class="btn btn-success mr-2 action-btn"
+                                                                class="btn btn-success action-btn"
                                                                 onclick="submitAction('{{ route('marketplace_order_items.labeling', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что заказ выполнен?')">
                                                                 <i class="far fa-sticky-note mr-1"></i>
                                                                 На стикеровку
                                                             </button>
                                                             <small
                                                                 class="text-danger rolls-hint"
-                                                                style="font-size: 11px; position: absolute; bottom: -18px; left: 0; white-space: nowrap;">Укажите
+                                                                style="font-size: 11px; position: absolute; bottom: 0; left: 0; white-space: nowrap;">Укажите
                                                                 рулоны</small>
                                                         </div>
                                                     @endif
 
                                                     <button type="submit"
-                                                            class="btn btn-danger mr-2"
+                                                            class="btn btn-danger mr-2 mb-2"
                                                             @if(auth()->user()->isAdmin())
                                                                 onclick="submitAction('{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что хотите снять товар со швеи?')"
                                                             @elseif(auth()->user()->isSeamstress())
@@ -88,12 +89,11 @@
                                                     @break
                                                 @case(7)
                                                     @if(auth()->user()->isCutter())
-                                                        <div
-                                                            class="d-inline-block"
-                                                            style="position: relative;">
+                                                        <div class="mb-2 mr-2"
+                                                             style="position: relative; padding-bottom: 18px;">
                                                             <button
                                                                 type="submit"
-                                                                class="btn btn-success mr-2 action-btn"
+                                                                class="btn btn-success action-btn"
                                                                 onclick="submitAction('{{ route('marketplace_order_items.completeCutting', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что заказ выполнен?')">
                                                                 <i class="far fa-sticky-note mr-1"></i>
                                                                 Сдать
@@ -101,13 +101,13 @@
                                                             </button>
                                                             <small
                                                                 class="text-danger rolls-hint"
-                                                                style="font-size: 11px; position: absolute; bottom: -18px; left: 0; white-space: nowrap;">Укажите
+                                                                style="font-size: 11px; position: absolute; bottom: 0; left: 0; white-space: nowrap;">Укажите
                                                                 рулоны</small>
                                                         </div>
                                                     @endif
 
                                                     <button type="submit"
-                                                            class="btn btn-danger mr-2"
+                                                            class="btn btn-danger mr-2 mb-2"
                                                             @if(auth()->user()->isAdmin())
                                                                 onclick="submitAction('{{ route('marketplace_order_items.cancel', ['marketplace_order_item' => $item->id]) }}', 'Вы уверены что хотите снять товар с закроя?')"
                                                             @elseif(auth()->user()->isCutter())
@@ -189,6 +189,10 @@
 
                                     if ($user->isCutter()) {
                                         $consumptions = $consumptions->filter(fn($c) => $c->material->type_id == 1);
+                                    } elseif ($user->canSeamstressCut()) {
+                                        $consumptions = $consumptions->filter(fn($c) => in_array($c->material->type_id, [1, 2]));
+                                    } elseif ($user->seamstressNotCut()) {
+                                        $consumptions = $consumptions->filter(fn($c) => $c->material->type_id == 2);
                                     }
                                 @endphp
                                 @if($consumptions->isNotEmpty())
