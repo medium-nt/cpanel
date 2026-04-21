@@ -214,6 +214,8 @@
                                                             $rolls = $rolls->where('shift_id', $shiftId);
                                                         }
                                                     }
+
+                                                    $rolls = $rolls->filter(fn($roll) => $roll->current_quantity >= $c->quantity);
                                                 @endphp
                                                 <select
                                                     name="roll_id[{{ $c->material_id }}]"
