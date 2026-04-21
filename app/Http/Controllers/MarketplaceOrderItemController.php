@@ -264,19 +264,19 @@ class MarketplaceOrderItemController extends Controller
             return;
         }
 
-        $writeOffOrder = Order::query()
+        $writeOffOrderIds = Order::query()
             ->where('type_movement', 3)
             ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
-            ->first();
+            ->pluck('id');
 
-        if (! $writeOffOrder) {
+        if ($writeOffOrderIds->isEmpty()) {
             return;
         }
 
         foreach ($rollIds as $materialId => $rollId) {
             if ($rollId) {
                 MovementMaterial::query()
-                    ->where('order_id', $writeOffOrder->id)
+                    ->whereIn('order_id', $writeOffOrderIds)
                     ->where('material_id', $materialId)
                     ->update(['roll_id' => $rollId]);
             }
