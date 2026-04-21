@@ -40,6 +40,12 @@
                                 class="badge {{ $roll->status_color }}"> {{ $roll->status_name }}</span>
                         </td>
                     </tr>
+                    @if($roll->shift)
+                        <tr>
+                            <th>Смена</th>
+                            <td>{{ $roll->shift->name }}</td>
+                        </tr>
+                    @endif
                     <tr>
                         <th>Начальное количество</th>
                         <td>{{ $roll->initial_quantity }} {{ $roll->material->unit }}</td>
