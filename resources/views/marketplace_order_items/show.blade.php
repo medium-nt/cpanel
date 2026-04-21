@@ -215,7 +215,15 @@
                                                         }
                                                     }
 
-                                                    $rolls = $rolls->filter(fn($roll) => $roll->current_quantity >= $c->quantity);
+                                                    $assignedRollId = $assignedRolls[$c->material_id] ?? null;
+                                                    $rolls = $rolls->filter(fn($roll) => $roll->current_quantity >= $c->quantity || $roll->id == $assignedRollId);
+
+                                                    if ($assignedRollId && !$rolls->contains('id', $assignedRollId)) {
+                                                        $assignedRoll = $c->material->rolls->firstWhere('id', $assignedRollId);
+                                                        if ($assignedRoll) {
+                                                            $rolls->push($assignedRoll);
+                                                        }
+                                                    }
                                                 @endphp
                                                 <select
                                                     name="roll_id[{{ $c->material_id }}]"
