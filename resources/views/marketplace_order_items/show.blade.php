@@ -147,7 +147,7 @@
                                     <tr>
                                         <th>Товар</th>
                                         <td>{{ $item->item->title }} {{ $item->item->width }}
-                                            х{{ $item->item->height }}</td>
+                                            х {{ $item->item->height }}</td>
                                     </tr>
                                     <tr>
                                         <th>Номер заказа</th>
