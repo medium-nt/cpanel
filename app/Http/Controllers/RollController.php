@@ -16,6 +16,7 @@ class RollController extends Controller
             'title' => 'Рулоны',
             'materials' => Material::all(),
             'rolls' => Roll::query()
+                ->with(['material', 'shift'])
                 ->when(request('status'), function ($query, $status) {
                     return $query->where('status', $status);
                 })

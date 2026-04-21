@@ -82,6 +82,7 @@
                             <th scope="col">Статус</th>
                             <th scope="col">Штрихкод</th>
                             <th scope="col">Материал</th>
+                            <th scope="col">Смена</th>
                             <th scope="col">шт./п.м.</th>
                             <th scope="col">Создан</th>
                             <th scope="col"></th>
@@ -97,6 +98,7 @@
                                 </td>
                                 <td>{{ $roll->roll_code }}</td>
                                 <td>{{ $roll->material->title }}</td>
+                                <td>{{ $roll->shift?->name ?? '—' }}</td>
                                 <td>{{ $roll->current_quantity }}
                                     из {{ $roll->initial_quantity }}</td>
                                 <td>{{ now()->parse($roll->created_at)->format('d/m/Y H:i') }}</td>
