@@ -19,7 +19,7 @@ class RollService
      * Возвращает базовый Builder для незакрытых рулонов с малым остатком.
      * Можно дальше цеплять ->with(), ->orderBy(), ->paginate() и т.д.
      */
-    public static function lowMaterialRollsQuery(?int $shiftId = null): Builder
+    public static function lowMaterialRollsQuery(?int $shiftId = null, ?int $typeId = null): Builder
     {
         $usedSub = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
@@ -29,6 +29,7 @@ class RollService
 
         $query = Roll::query()
             ->leftJoinSub($usedSub, 'used', 'rolls.id', '=', 'used.roll_id')
+            ->join('materials', 'materials.id', '=', 'rolls.material_id')
             ->where('rolls.status', Roll::STATUS_IN_WORKSHOP)
             ->whereRaw('(rolls.initial_quantity - COALESCE(used.total_used, 0)) <= ?', [self::LOW_MATERIAL_THRESHOLD])
             ->select('rolls.*', DB::raw('(rolls.initial_quantity - COALESCE(used.total_used, 0)) as computed_quantity'))
@@ -36,6 +37,10 @@ class RollService
 
         if ($shiftId !== null) {
             $query->where('rolls.shift_id', $shiftId);
+        }
+
+        if ($typeId !== null) {
+            $query->where('materials.type_id', $typeId);
         }
 
         return $query;
@@ -48,9 +53,9 @@ class RollService
      * @param  int|null  $shiftId  Если передан — фильтрует по смене.
      * @return Collection<Roll>
      */
-    public static function getLowMaterialRolls(?int $shiftId = null): Collection
+    public static function getLowMaterialRolls(?int $shiftId = null, ?int $typeId = null): Collection
     {
-        return self::lowMaterialRollsQuery($shiftId)
+        return self::lowMaterialRollsQuery($shiftId, $typeId)
             ->orderBy('computed_quantity', 'asc')
             ->get();
     }
@@ -58,8 +63,8 @@ class RollService
     /**
      * Возвращает количество незакрытых рулонов с малым остатком.
      */
-    public static function getLowMaterialRollsCount(?int $shiftId = null): int
+    public static function getLowMaterialRollsCount(?int $shiftId = null, ?int $typeId = null): int
     {
-        return self::lowMaterialRollsQuery($shiftId)->count();
+        return self::lowMaterialRollsQuery($shiftId, $typeId)->count();
     }
 }

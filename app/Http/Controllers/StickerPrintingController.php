@@ -452,8 +452,14 @@ class StickerPrintingController extends Controller
                 ->first();
         }
 
+        $typeId = match (true) {
+            $user->isSeamstress() => 2,
+            $user->isCutter() => 1,
+            default => null,
+        };
+
         $lowMaterialRolls = $roll === null
-            ? RollService::getLowMaterialRolls($user->currentShift()?->id)
+            ? RollService::getLowMaterialRolls($user->currentShift()?->id, $typeId)
             : null;
 
         return view('kiosk.rolls', [
