@@ -143,6 +143,7 @@
                                 <h3 class="card-title">Информация</h3>
                             </div>
                             <div class="card-body">
+                                <div class="table-responsive">
                                 <table class="table table-bordered">
                                     <tr>
                                         <th>Товар</th>
@@ -170,6 +171,7 @@
                                         <td>{{ $item->marketplaceOrder->cluster ?? '---' }}</td>
                                     </tr>
                                 </table>
+                                </div>
                             </div>
                         </div>
                     </div>
