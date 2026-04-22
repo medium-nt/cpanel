@@ -146,6 +146,24 @@
                             </a>
                         </div>
                     @endif
+
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                        <div
+                            class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                            <a href="{{ route('rolls.index') }}"
+                               class="link-black">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger"><i
+                                            class="fas fa-exclamation-triangle"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Рулонов с малым остатком</span>
+                                        <span
+                                            class="info-box-number">{{ $lowMaterialRollsCount }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    @endif
             </div>
         </div>
     </div>

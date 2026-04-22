@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use App\Models\Order;
 use App\Models\Roll;
+use App\Services\RollService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 
@@ -15,11 +16,14 @@ class RollController extends Controller
         return view('rolls.index', [
             'title' => 'Рулоны',
             'materials' => Material::all(),
-            'rolls' => Roll::query()
-                ->with(['material', 'shift'])
-                ->when(request('status'), function ($query, $status) {
-                    return $query->where('status', $status);
-                })
+            'rolls' => (request('status') === 'unclosed'
+                ? RollService::lowMaterialRollsQuery()->with('shift')
+                : Roll::query()
+                    ->with(['material', 'shift'])
+                    ->when(request('status'), function ($query, $status) {
+                        return $query->where('status', $status);
+                    })
+            )
                 ->when(request('search'), function ($query, $search) {
                     return $query->where('roll_code', 'like', '%'.$search.'%');
                 })

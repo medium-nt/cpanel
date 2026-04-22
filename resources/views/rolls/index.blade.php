@@ -20,6 +20,10 @@
                                 onchange="updatePageWithQueryParam(this)"
                                 required>
                             <option value="all" selected>Все</option>
+                            <option value="unclosed"
+                                    @if(request()->get('status') == 'unclosed') selected @endif>
+                                Не закрытые
+                            </option>
                             <option value="in_storage"
                                     @if(request()->get('status') == 'in_storage') selected @endif>
                                 На складе
@@ -99,8 +103,13 @@
                                 <td>{{ $roll->roll_code }}</td>
                                 <td>{{ $roll->material->title }}</td>
                                 <td>{{ $roll->shift?->name ?? '—' }}</td>
-                                <td>{{ $roll->current_quantity }}
-                                    из {{ $roll->initial_quantity }}</td>
+                                <td>
+                                    <span
+                                        @if($roll->current_quantity <= 5) class="text-danger font-weight-bold" @endif>
+                                        {{ $roll->current_quantity }}
+                                    </span>
+                                    из {{ $roll->initial_quantity }}
+                                </td>
                                 <td>{{ now()->parse($roll->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <a href="{{ route('rolls.show', $roll->id) }}"

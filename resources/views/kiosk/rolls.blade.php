@@ -205,6 +205,53 @@
                     </div>
                 </div>
             @else
+                @if($lowMaterialRolls && $lowMaterialRolls->isNotEmpty())
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Рулонов с малым
+                                остатком: {{ $lowMaterialRolls->count() }}
+                            </h4>
+                        </div>
+                        <div class="card-body p-0">
+                            <table
+                                class="table table-hover table-bordered mb-0">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th>Код</th>
+                                    <th>Материал</th>
+                                    <th>Остаток</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($lowMaterialRolls as $lowRoll)
+                                    <tr class="table-danger">
+                                        <td class="font-weight-bold">{{ $lowRoll->roll_code }}</td>
+                                        <td>{{ $lowRoll->material->title }}</td>
+                                        <td>
+                                            <span
+                                                class="font-weight-bold text-danger">
+                                                {{ $lowRoll->computed_quantity }}
+                                            </span>
+                                            / {{ $lowRoll->initial_quantity }}
+                                            {{ $lowRoll->material->unit }}
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('kiosk.rolls', ['roll' => $lowRoll->roll_code]) }}"
+                                               class="btn btn-sm btn-danger">
+                                                Завершить
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="alert alert-default-info text-center mt-3">
                     <h3>Отсканируйте штрих-код рулона</h3>
                 </div>

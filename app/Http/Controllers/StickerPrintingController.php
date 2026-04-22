@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Services\KioskService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
+use App\Services\RollService;
 use App\Services\ScheduleService;
 use App\Services\ShiftService;
 use App\Services\UserService;
@@ -451,10 +452,15 @@ class StickerPrintingController extends Controller
                 ->first();
         }
 
+        $lowMaterialRolls = $roll === null
+            ? RollService::getLowMaterialRolls($user->currentShift()?->id)
+            : null;
+
         return view('kiosk.rolls', [
             'title' => 'Работа с рулонами',
             'userId' => session('user_id'),
             'roll' => $roll,
+            'lowMaterialRolls' => $lowMaterialRolls,
         ]);
     }
 

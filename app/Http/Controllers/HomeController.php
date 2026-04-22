@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\MarketplaceOrderService;
 use App\Services\MovementMaterialToWorkshopService;
+use App\Services\RollService;
 use App\Services\ScheduleService;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
@@ -58,6 +59,7 @@ class HomeController extends Controller
             'seamstressesCurrentBonus' => TransactionService::getSeamstressBalance('bonus'),
             'seamstressesCurrentHoldBonus' => TransactionService::getSeamstressBalance('bonus', true),
             'pickupOrders' => MarketplaceOrderService::pickupOrders()->count(),
+            'lowMaterialRollsCount' => RollService::getLowMaterialRollsCount(),
             'transactions' => Transaction::query()
                 ->with('user')
                 ->orderBy('created_at', 'desc')
