@@ -447,7 +447,7 @@ class StickerPrintingController extends Controller
 
         if ($request->filled('roll')) {
             $roll = Roll::query()
-                ->with(['material', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
+                ->with(['material', 'completedBy', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
                 ->where('roll_code', $request->roll)
                 ->first();
         }
@@ -493,6 +493,7 @@ class StickerPrintingController extends Controller
         $roll->update([
             'status' => Roll::STATUS_COMPLETED,
             'completed_at' => now(),
+            'completed_by' => session('user_id'),
             'shortage_quantity' => $shortage,
         ]);
 

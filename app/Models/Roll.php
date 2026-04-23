@@ -22,6 +22,7 @@ class Roll extends Model
         'initial_quantity',
         'shortage_quantity',
         'completed_at',
+        'completed_by',
         'is_printed',
     ];
 
@@ -49,6 +50,14 @@ class Roll extends Model
     public function shift(): BelongsTo
     {
         return $this->belongsTo(Shift::class);
+    }
+
+    /**
+     * Сотрудник, закрывший рулон.
+     */
+    public function completedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'completed_by');
     }
 
     public function movementMaterialsNotFromSuppler(): HasMany

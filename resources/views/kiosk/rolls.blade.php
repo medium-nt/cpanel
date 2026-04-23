@@ -143,6 +143,10 @@
                                     <div
                                         class="alert alert-secondary text-center mt-3">
                                         <h4>Рулон уже завершен</h4>
+                                        @if($roll->completedBy)
+                                            <h5>
+                                                Закрыл(а): {{ $roll->completedBy->name }}</h5>
+                                        @endif
                                     </div>
                                 @else
                                     <div

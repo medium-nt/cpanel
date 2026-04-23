@@ -65,6 +65,12 @@
                             <th>Дата завершения</th>
                             <td>{{ \Carbon\Carbon::parse($roll->completed_at)->format('d/m/Y H:i') }}</td>
                         </tr>
+                        @if($roll->completedBy)
+                            <tr>
+                                <th>Закрыл(а)</th>
+                                <td>{{ $roll->completedBy->name }}</td>
+                            </tr>
+                        @endif
                     @endif
                 </table>
             </div>
