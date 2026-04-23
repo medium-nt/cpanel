@@ -89,6 +89,7 @@
                             <th scope="col">Смена</th>
                             <th scope="col">шт./п.м.</th>
                             <th scope="col">Создан</th>
+                            <th scope="col">Завершен</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -112,6 +113,13 @@
                                 </td>
                                 <td>{{ now()->parse($roll->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>
+                                    @if($roll->completed_at)
+                                        {{ now()->parse($roll->completed_at)->format('d/m/Y H:i') }}
+                                    @else
+                                        {{ '—' }}
+                                    @endif
+                                </td>
+                                <td>
                                     <a href="{{ route('rolls.show', $roll->id) }}"
                                        class="btn btn-primary mt-1">
                                         Подробнее
@@ -123,7 +131,6 @@
                                         mx-1 mt-1">
                                         <i class="fas fa-barcode"></i>
                                     </a>
-
                                 </td>
                             </tr>
                         @endforeach
