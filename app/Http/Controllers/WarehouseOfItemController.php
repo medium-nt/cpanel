@@ -24,6 +24,10 @@ class WarehouseOfItemController extends Controller
 {
     public function index(Request $request, WarehouseOfItemService $warehouseOfItemService)
     {
+        if (auth()->user()->isManager()) {
+            $request->merge(['status' => 11]);
+        }
+
         $filteredItems = $warehouseOfItemService->getFiltered($request);
 
         return view('warehouse_of_item.index', [

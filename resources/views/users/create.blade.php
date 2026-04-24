@@ -109,6 +109,10 @@
                                     @if(old('role_id') == 6) selected @endif>
                                 Водитель
                             </option>
+                            <option value="7"
+                                    @if(old('role_id') == 7) selected @endif>
+                                Менеджер маркетплейса
+                            </option>
                         </select>
                     </div>
 

@@ -158,6 +158,14 @@ class User extends Authenticatable
         return $this->role?->name === 'driver';
     }
 
+    /**
+     * Проверяет, является ли пользователь менеджером маркетплейса.
+     */
+    public function isManager(): bool
+    {
+        return $this->role?->name === 'manager';
+    }
+
     public function getEndWorkShiftAttribute(): Carbon
     {
         $interval = CarbonInterval::createFromFormat('H:i:s', $this->duration_work_shift);

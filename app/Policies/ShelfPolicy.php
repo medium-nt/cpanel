@@ -11,7 +11,7 @@ class ShelfPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 
     /**

@@ -9,7 +9,7 @@ class MarketplaceOrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 
     public function view(User $user, MarketplaceOrder $marketplaceOrder): bool
@@ -19,7 +19,7 @@ class MarketplaceOrderPolicy
 
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->isManager();
     }
 
     public function update(User $user, MarketplaceOrder $marketplaceOrder): bool

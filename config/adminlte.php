@@ -437,6 +437,18 @@ return [
             ],
         ],
         [
+            'text' => 'warehouse_of_item',
+            'url' => 'megatulle/warehouse_of_item',
+            'icon' => 'fas fa-fw fa-boxes',
+            'can' => 'is-manager',
+        ],
+        [
+            'text' => 'marketplace_orders',
+            'url' => 'megatulle/marketplace_orders',
+            'icon' => 'fas fa-fw fa-cart-arrow-down',
+            'can' => 'is-manager',
+        ],
+        [
             'text' => 'transactions',
             'url' => 'megatulle/transactions',
             'can' => 'is-show-finance',

@@ -24,6 +24,7 @@ class UserService
             'cutter' => $roleName = 'Закройщик',
             'otk' => $roleName = 'Сотрудник ОТК',
             'driver' => $roleName = 'Водитель',
+            'manager' => $roleName = 'Менеджер маркетплейса',
             default => $roleName,
         };
 

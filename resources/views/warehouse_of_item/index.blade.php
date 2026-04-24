@@ -12,6 +12,7 @@
         <div class="card-body">
             <form action="{{ route('warehouse_of_item.index') }}" method="get">
                 <div class="row">
+                    @if(!auth()->user()->isManager())
                     <div class="col-md-3 mb-3">
                         <select name="status" id="status" class="form-control"
                                 onchange="updatePageWithQueryParam(this)">
@@ -42,6 +43,7 @@
                             </option>
                         </select>
                     </div>
+                    @endif
                     <div class="col-md-3 mb-3">
                         <select name="material" id="material"
                                 class="form-control"
@@ -90,8 +92,10 @@
     <div class="card">
         <div class="card-body">
 
+            @if(!auth()->user()->isManager())
             <a href="{{ route('warehouse_of_item.new_refunds') }}"
                class="btn btn-success mr-3 mb-3">Принять новые возвраты</a>
+            @endif
 
             @if(auth()->user()->isAdmin())
             <a href="{{ route('warehouse_of_item.add_group') }}"
@@ -99,13 +103,15 @@
                 группой</a>
             @endif
 
+            @if(!auth()->user()->isManager())
             <a href="{{ route('warehouse_of_item.to_pick_list') }}"
                class="btn btn-primary mr-3 mb-3">Товары к подбору</a>
 
             <a href="{{ route('warehouse_of_item.shelf_change') }}"
                class="btn btn-warning mr-3 mb-3">Смена полки</a>
+            @endif
 
-            @if(auth()->user()->isAdmin() && request()->get('status') == 11)
+            @if(auth()->user()->isManager() || (auth()->user()->isAdmin() && request()->get('status') == 11))
                 @php
                     $exportQuery = collect(request()->query())->only(['status', 'material', 'width', 'height', 'shelf']);
                 @endphp

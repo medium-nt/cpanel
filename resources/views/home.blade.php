@@ -8,6 +8,7 @@
 {{-- Content body: main page content --}}
 
 @section('content_body')
+    @if(!auth()->user()->isManager())
     <div class="card">
         <div class="card-body">
             <div class="row">
@@ -167,6 +168,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     @if(auth()->user()->isAdmin())
         <div class="card">

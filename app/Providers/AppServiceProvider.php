@@ -68,5 +68,13 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('is-show-finance', function (User $user) {
             return $user->is_show_finance;
         });
+
+        Gate::define('is-manager', function (User $user) {
+            return $user->isManager();
+        });
+
+        Gate::define('is-admin-or-manager', function (User $user) {
+            return $user->isAdmin() || $user->isManager();
+        });
     }
 }
