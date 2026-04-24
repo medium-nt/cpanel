@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WarehouseOfItemService
 {
@@ -18,6 +21,18 @@ class WarehouseOfItemService
         $items = MarketplaceOrderItem::query()
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
 
+        $items = $this->applyFilters($items, $request);
+
+        return $items
+            ->with(['item', 'shelf', 'marketplaceOrder'])
+            ->select('marketplace_order_items.*', 'marketplace_items.title', 'marketplace_items.width', 'marketplace_items.height');
+    }
+
+    /**
+     * Применяет фильтры к запросу товаров склада.
+     */
+    private function applyFilters(Builder $items, Request $request): Builder
+    {
         if ($request->has('status')) {
             $items = $items->where('marketplace_order_items.status', $request->status);
         } else {
@@ -40,9 +55,70 @@ class WarehouseOfItemService
             $items = $items->where('marketplace_order_items.shelf_id', $request->shelf);
         }
 
-        return $items
-            ->with(['item', 'shelf', 'marketplaceOrder'])
-            ->select('marketplace_order_items.*', 'marketplace_items.title', 'marketplace_items.width', 'marketplace_items.height');
+        return $items;
+    }
+
+    /**
+     * Экспортирует отфильтрованные товары склада в Excel (.xlsx) с группировкой по материалу, ширине и длине.
+     */
+    public function exportExcel(Request $request): StreamedResponse
+    {
+        $items = MarketplaceOrderItem::query()
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id');
+
+        $items = $this->applyFilters($items, $request);
+
+        $grouped = $items
+            ->selectRaw(
+                'marketplace_items.article, '
+                .'marketplace_items.title, '
+                .'marketplace_items.width, '
+                .'marketplace_items.height, '
+                .'SUM(marketplace_order_items.quantity) as total_quantity'
+            )
+            ->groupBy([
+                'marketplace_items.article',
+                'marketplace_items.title',
+                'marketplace_items.width',
+                'marketplace_items.height',
+            ])
+            ->orderBy('marketplace_items.title')
+            ->orderBy('marketplace_items.width')
+            ->orderBy('marketplace_items.height')
+            ->get();
+
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'Артикул');
+        $sheet->setCellValue('B1', 'Имя');
+        $sheet->setCellValue('C1', 'Количество');
+
+        $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $row = 2;
+        foreach ($grouped as $item) {
+            $sheet->setCellValue('A'.$row, $item->article);
+            $sheet->setCellValue('B'.$row, $item->title.' '.$item->width.'x'.$item->height);
+            $sheet->setCellValue('C'.$row, $item->total_quantity);
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(
+            callback: function () use ($writer) {
+                $writer->save('php://output');
+            },
+            name: 'warehouse_storage_'.now()->format('Y-m-d_H-i-s').'.xlsx',
+            headers: [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+        );
     }
 
     public function getStorageBarcode(MarketplaceOrderItem $marketplace_item): string

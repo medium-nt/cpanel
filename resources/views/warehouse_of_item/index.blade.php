@@ -105,6 +105,16 @@
             <a href="{{ route('warehouse_of_item.shelf_change') }}"
                class="btn btn-warning mr-3 mb-3">Смена полки</a>
 
+            @if(auth()->user()->isAdmin() && request()->get('status') == 11)
+                @php
+                    $exportQuery = collect(request()->query())->only(['status', 'material', 'width', 'height', 'shelf']);
+                @endphp
+                <a href="{{ route('warehouse_of_item.export', $exportQuery->toArray()) }}"
+                   class="btn btn-outline-info mr-3 mb-3">
+                    <i class="fas fa-file-excel"></i> Экспорт в Excel
+                </a>
+            @endif
+
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">
                     <thead class="thead-dark">

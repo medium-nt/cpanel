@@ -37,6 +37,17 @@ class WarehouseOfItemController extends Controller
         ]);
     }
 
+    public function exportExcel(Request $request, WarehouseOfItemService $warehouseOfItemService)
+    {
+        if ($request->status != 11) {
+            return redirect()
+                ->route('warehouse_of_item.index')
+                ->with('error', 'Экспорт доступен только для статуса "На хранении"');
+        }
+
+        return $warehouseOfItemService->exportExcel($request);
+    }
+
     public function inspection(WarehouseOfItemService $warehouseOfItemService): View
     {
         $stats = $warehouseOfItemService->getInspectionStats();

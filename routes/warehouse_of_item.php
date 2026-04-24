@@ -8,6 +8,10 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('viewAny', Shelf::class)
         ->name('warehouse_of_item.index');
 
+    Route::get('/export', [WarehouseOfItemController::class, 'exportExcel'])
+        ->can('viewAny', Shelf::class)
+        ->name('warehouse_of_item.export');
+
     Route::get('/new_refunds', [WarehouseOfItemController::class, 'newRefunds'])
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.new_refunds');
