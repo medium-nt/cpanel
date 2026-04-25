@@ -32,18 +32,33 @@
                             заказ через Excel
                         </a>
                     @endif
-
-                        <a href="{{ route('marketplace_orders.index', ['status' => 0, 'marketplace_id' => request('marketplace_id'), 'fulfillment_type' => request('fulfillment_type'), 'cluster' => request('cluster')]) }}"
-                       class="btn btn-link mr-3 mb-3">Новые заказы</a>
-
-                        <a href="{{ route('marketplace_orders.index', ['status' => 6, 'marketplace_id' => request('marketplace_id'), 'fulfillment_type' => request('fulfillment_type'), 'cluster' => request('cluster')]) }}"
-                       class="btn btn-link mr-3 mb-3">На поставку</a>
-
-                        <a href="{{ route('marketplace_orders.index', ['status' => 3, 'marketplace_id' => request('marketplace_id'), 'fulfillment_type' => request('fulfillment_type'), 'cluster' => request('cluster')]) }}"
-                           class="btn btn-link mr-3 mb-3">Выполненные</a>
                 </div>
 
                 <div class="row">
+                    <div class="form-group col-md-2">
+                        <select name="status"
+                                id="status"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option
+                                value="0" {{ request('status') == '0' || !request()->has('status') ? 'selected' : '' }}>
+                                Новые заказы
+                            </option>
+                            <option
+                                value="6" {{ request('status') == '6' ? 'selected' : '' }}>
+                                На поставку
+                            </option>
+                            <option
+                                value="3" {{ request('status') == '3' ? 'selected' : '' }}>
+                                Выполненные
+                            </option>
+                            <option
+                                value="9" {{ request('status') == '9' ? 'selected' : '' }}>
+                                Возврат
+                            </option>
+                        </select>
+                    </div>
                     <div class="form-group col-md-2">
                         <select name="marketplace_id"
                                 id="marketplace_id"
