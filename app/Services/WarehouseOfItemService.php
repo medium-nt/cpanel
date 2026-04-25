@@ -90,9 +90,9 @@ class WarehouseOfItemService
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
-        $sheet->setCellValue('A1', 'Артикул');
-        $sheet->setCellValue('B1', 'Имя');
-        $sheet->setCellValue('C1', 'Количество');
+        $sheet->setCellValue('A1', 'артикул');
+        $sheet->setCellValue('B1', 'имя (необязательно)');
+        $sheet->setCellValue('C1', 'количество');
 
         $sheet->getStyle('A1:C1')->getFont()->setBold(true);
 
