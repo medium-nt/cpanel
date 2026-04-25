@@ -151,7 +151,7 @@
                     @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
                         <div
                             class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                            <a href="{{ route('rolls.index') }}"
+                            <a href="/megatulle/rolls?status=unclosed"
                                class="link-black">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger"><i
