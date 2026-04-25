@@ -9,7 +9,7 @@ class MovementMaterialPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter();
     }
 
     public function viewAny_defect(User $user): bool
@@ -29,7 +29,7 @@ class MovementMaterialPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter();
     }
 
     public function create_defect(User $user): bool
