@@ -6,6 +6,7 @@ use App\Http\Requests\StoreInventoryRequest;
 use App\Models\InventoryCheck;
 use App\Models\Shelf;
 use App\Services\InventoryService;
+use App\Services\ShiftService;
 
 class InventoryController extends Controller
 {
@@ -25,6 +26,7 @@ class InventoryController extends Controller
             'title' => 'Материал на производстве',
             'shifts' => $data['shifts'],
             'materials' => $data['materials'],
+            'todayShiftId' => ShiftService::getTodayScheduledShift()?->id,
         ]);
     }
 

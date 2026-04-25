@@ -29,7 +29,12 @@
                             <th scope="col">Материал</th>
                             @foreach ($shifts as $shift)
                                 <th scope="col"
-                                    class="text-center">{{ $shift->name }}</th>
+                                    class="text-center @if($shift->id === $todayShiftId) today-shift-col today-shift-col-top @endif">
+                                    {{ $shift->name }}
+                                    @if($shift->id === $todayShiftId)
+                                        <span class="badge badge-light ml-1">Работает</span>
+                                    @endif
+                                </th>
                             @endforeach
                             <th scope="col" class="text-center">Без смены</th>
                             <th scope="col" class="text-center">Итого</th>
@@ -41,7 +46,7 @@
                                 <td>{{ $item['material']->title }}</td>
                                 @foreach ($shifts as $shift)
                                     @php $shiftData = $item['per_shift'][$shift->id] ?? null; @endphp
-                                    <td class="text-center {{ $shiftData && $shiftData['quantity'] > 0 ? $statusThresholds($shiftData['quantity']) : '' }}">
+                                    <td class="text-center {{ $shiftData && $shiftData['quantity'] > 0 ? $statusThresholds($shiftData['quantity']) : '' }} @if($shift->id === $todayShiftId) today-shift-col @if($loop->parent->last) today-shift-col-bottom @endif @endif">
                                         @if($shiftData && ($shiftData['quantity'] > 0 || $shiftData['rolls_count'] > 0))
                                             {{ $shiftData['quantity'] }} {{ $item['material']->unit }}
                                             ,
@@ -87,7 +92,13 @@
                                             @php $shiftData = $item['per_shift'][$shift->id] ?? null; @endphp
                                             @if($shiftData && ($shiftData['quantity'] > 0 || $shiftData['rolls_count'] > 0))
                                                 <tr class="{{ $statusThresholds($shiftData['quantity']) }}">
-                                                    <td class="p-1">{{ $shift->name }}</td>
+                                                    <td class="p-1">
+                                                        {{ $shift->name }}
+                                                        @if($shift->id === $todayShiftId)
+                                                            <span
+                                                                class="badge badge-primary ml-1">Сегодня</span>
+                                                        @endif
+                                                    </td>
                                                     <td class="p-1 text-right">
                                                         {{ $shiftData['quantity'] }} {{ $item['material']->unit }}
                                                         ,
@@ -123,4 +134,18 @@
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}"
           rel="stylesheet"/>
+    <style>
+        .today-shift-col {
+            border-left: 3px solid #007bff !important;
+            border-right: 3px solid #007bff !important;
+        }
+
+        .today-shift-col-top {
+            border-top: 3px solid #007bff !important;
+        }
+
+        .today-shift-col-bottom {
+            border-bottom: 3px solid #007bff !important;
+        }
+    </style>
 @endpush
