@@ -65,8 +65,8 @@
                                             $isToday = $date->toDateString() === $today;
                                             $selectedShift = $existingSchedule[$date->toDateString()] ?? null;
                                         @endphp
-                                        <td class="{{ !$isCurrentMonth ? 'text-muted' : '' }} {{ $isToday ? 'bg-light' : '' }} {{ $isPast && $isCurrentMonth ? 'bg-secondary-light' : '' }}"
-                                            style="min-width: 120px;">
+                                        <td class="{{ !$isCurrentMonth ? 'text-muted' : '' }} {{ $isPast && $isCurrentMonth ? 'bg-secondary-light' : '' }}"
+                                            style="min-width: 120px; {{ $isToday ? 'border: 2px solid #007bff !important;' : '' }}">
                                             <div
                                                 class="small font-weight-bold">{{ $date->format('d.m') }}</div>
                                             @if($isCurrentMonth)
