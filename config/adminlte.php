@@ -358,12 +358,6 @@ return [
                     'can' => 'is-storekeeper-or-admin',
                 ],
                 [
-                    'text' => 'material_movements',
-                    'url' => 'megatulle/material-movements',
-                    'icon' => 'fas fa-fw fa-list-alt',
-                    'can' => 'is-storekeeper-or-admin',
-                ],
-                [
                     'text' => 'movements_defect_to_supplier',
                     'url' => 'megatulle/movements_defect_to_supplier',
                     'icon' => 'fas fa-fw fa-dolly',
@@ -382,12 +376,6 @@ return [
                     'icon' => 'fas fa-fw fa-dolly',
                 ],
                 [
-                    'text' => 'movements_by_marketplace_order',
-                    'url' => 'megatulle/movements_by_marketplace_order',
-                    'icon' => 'fas fa-fw fa-pencil-ruler',
-                    'can' => 'is-admin',
-                ],
-                [
                     'text' => 'defect_materials',
                     'url' => 'megatulle/defect_materials',
                     'can' => 'is-admin-storekeeper-seamstress-cutter',
@@ -403,12 +391,6 @@ return [
                     'text' => 'ozon-returns',
                     'url' => 'megatulle/ozon-returns',
                     'icon' => 'fas fa-fw fa-undo',
-                    'can' => 'is-storekeeper-admin-driver',
-                ],
-                [
-                    'text' => 'ozon_returns_products',
-                    'url' => 'megatulle/ozon-returns/products',
-                    'icon' => 'fas fa-fw fa-list',
                     'can' => 'is-storekeeper-admin-driver',
                 ],
             ],
@@ -468,6 +450,31 @@ return [
                     'text' => 'shift_schedule',
                     'url' => 'megatulle/shift-schedule',
                     'icon' => 'fas fa-fw fa-calendar',
+                ],
+            ],
+        ],
+        [
+            'text' => 'statistics',
+            'icon' => 'fas fa-fw fa-chart-bar',
+            'can' => 'is-storekeeper-or-admin',
+            'submenu' => [
+                [
+                    'text' => 'material_movements',
+                    'url' => 'megatulle/material-movements',
+                    'icon' => 'fas fa-fw fa-list-alt',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
+                [
+                    'text' => 'movements_by_marketplace_order',
+                    'url' => 'megatulle/movements_by_marketplace_order',
+                    'icon' => 'fas fa-fw fa-pencil-ruler',
+                    'can' => 'is-admin',
+                ],
+                [
+                    'text' => 'ozon_returns_products',
+                    'url' => 'megatulle/ozon-returns/products',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'is-storekeeper-admin-driver',
                 ],
             ],
         ],

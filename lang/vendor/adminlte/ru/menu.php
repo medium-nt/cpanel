@@ -56,4 +56,5 @@ return [
     'shifts' => 'Смены',
     'shifts_list' => 'Список смен',
     'shift_schedule' => 'Календарь смен',
+    'statistics' => 'Статистика',
 ];
