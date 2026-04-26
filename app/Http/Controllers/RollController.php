@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use App\Models\Order;
 use App\Models\Roll;
+use App\Models\Shift;
 use App\Services\RollService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +17,7 @@ class RollController extends Controller
         return view('rolls.index', [
             'title' => 'Рулоны',
             'materials' => Material::all(),
+            'shifts' => Shift::all(),
             'rolls' => (request('status') === 'unclosed'
                 ? RollService::lowMaterialRollsQuery()->with('shift')
                 : Roll::query()
@@ -29,6 +31,11 @@ class RollController extends Controller
                 })
                 ->when(request('material'), function ($query, $material) {
                     return $query->where('material_id', $material);
+                })
+                ->when(request('shift'), function ($query, $shift) {
+                    return $shift === 'none'
+                        ? $query->whereNull('shift_id')
+                        : $query->where('shift_id', $shift);
                 })
                 ->orderBy('id', 'desc')
                 ->paginate(10)

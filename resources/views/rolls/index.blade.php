@@ -55,7 +55,27 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4 mb-1 mr-1">
+                    <div class="col-md-2 mb-1 mr-1">
+                        <select class="form-control"
+                                id="shift"
+                                name="shift"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            <option value="all" selected>Все смены</option>
+                            <option value="none"
+                                    @if(request()->get('shift') == 'none') selected @endif>
+                                Без смены
+                            </option>
+                            @foreach($shifts as $shift)
+                                <option value="{{ $shift->id }}"
+                                        @if(request()->get('shift') == $shift->id) selected @endif>
+                                    {{ $shift->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-1 mr-1">
                         <form action="{{ route('rolls.index') }}" method="get">
                             <input type="text"
                                    name="search"
@@ -67,7 +87,7 @@
                                    value="{{ request()->get('status') }}">
                         </form>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <a href="{{ route('rolls.index') }}"
                            class="btn btn-outline-secondary">Сбросить</a>
                     </div>
