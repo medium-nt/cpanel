@@ -381,6 +381,7 @@
                                 <td style="text-align: center">
                                     <span
                                         class="mr-2">{{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</span>
+                                    @if(request('status') !== 'done')
                                     <badge class="badge
                                         @if($item->created_at->addHours(41)->isPast()) badge-hot
                                         @elseif($item->created_at->addHours(21)->isPast()) badge-old
@@ -388,6 +389,7 @@
                                         @endif">
                                         {{ $item->created_at->diffForHumans(['parts' => 2]) }}
                                     </badge>
+                                    @endif
                                     <br>
                                 </td>
                                 <td style="text-align: center">{{ is_null($item->completed_at) ? '' : now()->parse($item->completed_at)->format('d/m/Y H:i') }}</td>
@@ -507,6 +509,7 @@
                                         Создан:
                                         <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
                                     </small>
+                                    @if(request('status') !== 'done')
                                     <badge class="badge
                                             @if($item->created_at->addHours(41)->isPast()) badge-hot
                                             @elseif($item->created_at->addHours(21)->isPast()) badge-old
@@ -515,6 +518,7 @@
                                         ">
                                         {{ $item->created_at->diffForHumans(['parts' => 2]) }}
                                     </badge>
+                                    @endif
                                 </div>
 
                                 <a href="{{ route('marketplace_order_items.show', $item->id) }}"

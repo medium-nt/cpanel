@@ -328,6 +328,7 @@
                                         <small class="mr-2">
                                             Создан: <b> {{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</b>
                                         </small>
+                                        @if(!in_array($order->status, [3, 9]))
                                         <badge class="badge
                                         @if($order->created_at->addHours(41)->isPast()) badge-hot
                                         @elseif($order->created_at->addHours(21)->isPast()) badge-old
@@ -335,6 +336,7 @@
                                         @endif">
                                             {{ $order->created_at->diffForHumans(['parts' => 2]) }}
                                         </badge>
+                                        @endif
                                     </div>
                                     @if($order->completed_at)
                                         <div class="mt-2">
@@ -451,13 +453,16 @@
                                 </td>
                                 <td>
                                     <span class="mr-2">{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</span>
-                                    <badge class="badge
-                                    @if($order->created_at->addHours(41)->isPast()) badge-hot
-                                    @elseif($order->created_at->addHours(21)->isPast()) badge-old
-                                    @else badge-new
-                                    @endif">
-                                        {{ $order->created_at->diffForHumans(['parts' => 2]) }}
-                                    </badge><br>
+                                    @if(!in_array($order->status, [3, 9]))
+                                        <badge class="badge
+                                        @if($order->created_at->addHours(41)->isPast()) badge-hot
+                                        @elseif($order->created_at->addHours(21)->isPast()) badge-old
+                                        @else badge-new
+                                        @endif">
+                                            {{ $order->created_at->diffForHumans(['parts' => 2]) }}
+                                        </badge>
+                                    @endif
+                                    <br>
                                 </td>
                                 <td>{{ is_null($order->completed_at) ? '' : now()->parse($order->completed_at)->format('d/m/Y H:i') }}</td>
 
