@@ -115,10 +115,23 @@
                 @php
                     $exportQuery = collect(request()->query())->only(['status', 'material', 'width', 'height', 'shelf']);
                 @endphp
-                <a href="{{ route('warehouse_of_item.export', $exportQuery->toArray()) }}"
-                   class="btn btn-outline-info mr-3 mb-3">
-                    <i class="fas fa-file-excel"></i> Экспорт в Excel
-                </a>
+                    <div class="dropdown"
+                         style="display: inline-block; vertical-align: top; margin-right: 1rem; margin-bottom: 0.75rem;">
+                        <a class="btn btn-outline-info dropdown-toggle"
+                           data-toggle="dropdown" href="#">
+                            <i class="fas fa-file-excel"></i> Экспорт в Excel
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item"
+                               href="{{ route('warehouse_of_item.export', $exportQuery->toArray()) }}">
+                                OZON
+                            </a>
+                            <a class="dropdown-item"
+                               href="{{ route('warehouse_of_item.export', $exportQuery->merge(['type' => 'wb'])->toArray()) }}">
+                                WB (Wildberries)
+                            </a>
+                        </div>
+                    </div>
             @endif
 
             <div class="table-responsive">

@@ -49,6 +49,10 @@ class WarehouseOfItemController extends Controller
                 ->with('error', 'Экспорт доступен только для статуса "На хранении"');
         }
 
+        if ($request->type === 'wb') {
+            return $warehouseOfItemService->exportExcelWb($request);
+        }
+
         return $warehouseOfItemService->exportExcel($request);
     }
 

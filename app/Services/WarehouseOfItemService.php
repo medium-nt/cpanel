@@ -121,6 +121,75 @@ class WarehouseOfItemService
         );
     }
 
+    /**
+     * Экспортирует отфильтрованные товары склада в Excel (.xlsx) в формате WB (Wildberries).
+     */
+    public function exportExcelWb(Request $request): StreamedResponse
+    {
+        $items = MarketplaceOrderItem::query()
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
+            ->join('skus', function ($join) {
+                $join->on('skus.item_id', '=', 'marketplace_items.id')
+                    ->where('skus.marketplace_id', 2);
+            });
+
+        $items = $this->applyFilters($items, $request);
+
+        $grouped = $items
+            ->selectRaw(
+                'skus.sku as barcode, '
+                .'marketplace_items.article, '
+                .'SUM(marketplace_order_items.quantity) as total_quantity'
+            )
+            ->groupBy([
+                'skus.sku',
+                'marketplace_items.article',
+            ])
+            ->orderBy('marketplace_items.article')
+            ->get();
+
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'Баркод');
+        $sheet->setCellValue('B1', 'Количество, шт.');
+        $sheet->setCellValue('C1', 'Предмет');
+        $sheet->setCellValue('D1', 'Артикул поставщика');
+        $sheet->setCellValue('E1', 'Бренд');
+        $sheet->setCellValue('F1', 'Размер');
+        $sheet->setCellValue('G1', 'Цвет');
+
+        $sheet->getStyle('A1:G1')->getFont()->setBold(true);
+
+        foreach (range('A', 'G') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $row = 2;
+        foreach ($grouped as $item) {
+            $sheet->setCellValue('A'.$row, $item->barcode);
+            $sheet->setCellValue('B'.$row, $item->total_quantity);
+            $sheet->setCellValue('C'.$row, 'Тюль');
+            $sheet->setCellValue('D'.$row, $item->article);
+            $sheet->setCellValue('E'.$row, 'МегаТюль');
+            $sheet->setCellValue('F'.$row, '0');
+            $sheet->setCellValue('G'.$row, 'белый');
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(
+            callback: function () use ($writer) {
+                $writer->save('php://output');
+            },
+            name: 'warehouse_storage_wb_'.now()->format('Y-m-d_H-i-s').'.xlsx',
+            headers: [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+        );
+    }
+
     public function getStorageBarcode(MarketplaceOrderItem $marketplace_item): string
     {
         $barcode = $marketplace_item->storage_barcode;
