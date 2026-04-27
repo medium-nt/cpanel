@@ -243,6 +243,11 @@ class InventoryService
     {
         $shifts = Shift::query()->active()->get();
 
+        $user = auth()->user();
+        if ($user->isSeamstress() || $user->isCutter()) {
+            $shifts = $shifts->where('id', $user->currentShift()->id);
+        }
+
         $data = Material::query()
             ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
             ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
