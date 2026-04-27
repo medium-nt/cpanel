@@ -128,7 +128,7 @@
                             </a>
                             <a class="dropdown-item"
                                href="{{ route('warehouse_of_item.export', $exportQuery->merge(['type' => 'wb'])->toArray()) }}">
-                                WB (Wildberries)
+                                WB
                             </a>
                         </div>
                     </div>
