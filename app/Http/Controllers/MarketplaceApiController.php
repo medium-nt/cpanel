@@ -114,8 +114,8 @@ class MarketplaceApiController extends Controller
         }
 
         return match ($order->marketplace_id) {
-            1 => $service->getBarcodeOzonFBO($order),
-            2 => $service->getBarcodeWBFBO($order),
+            1 => $service->getBarcodeOzonFBO(collect([$order])),
+            2 => $service->getBarcodeWBFBO(collect([$order])),
             default => null,
         };
     }

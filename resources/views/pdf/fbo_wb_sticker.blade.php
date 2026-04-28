@@ -32,6 +32,11 @@
         .sticker {
             display: flex;
             flex-direction: column;
+            page-break-after: always;
+        }
+
+        .sticker:last-child {
+            page-break-after: avoid;
         }
 
         .barcode-container {
@@ -82,13 +87,14 @@
     </style>
 </head>
 <body>
+@foreach($stickers as $s)
 <div class="sticker">
     <div class="wb-corner">WB</div>
 
     <div class="barcode-container">
-        {!! DNS1D::getBarcodeHTML($barcode, 'C128', 1.2, 40) !!}
+        {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.2, 40) !!}
     </div>
-    <div class="sku-number">{{ $barcode }}</div>
+    <div class="sku-number">{{ $s['barcode'] }}</div>
 
     <div class="title-row">
         <span class="title">ИП Левкин</span>
@@ -97,17 +103,17 @@
             alt="EAC" width="25" height="25">
     </div>
 
-    <div class="text">ТЮЛЬ {{ Str::upper($item->title) }}</div>
-    <div class="text">Артикул: {{ $article }}</div>
-    <div class="text">Цвет: {{ $color }} / Размер:
+    <div class="text">ТЮЛЬ {{ Str::upper($s['item']->title) }}</div>
+    <div class="text">Артикул: {{ $s['article'] }}</div>
+    <div class="text">Цвет: {{ $s['color'] }} / Размер:
         <b>
-            {{ $item->width }} x {{ $item->height }}
+            {{ $s['item']->width }} x {{ $s['item']->height }}
         </b>
     </div>
-    <div class="text">Страна: {{ $country }}
+    <div class="text">Страна: {{ $s['country'] }}
         <span
-            style="float:right; margin-right: 5px; font-weight: bold; font-size: {{ $fontSizeCluster }}px">
-            {{ $order->cluster }}
+            style="float:right; margin-right: 5px; font-weight: bold; font-size: {{ $s['fontSizeCluster'] }}px">
+            {{ $s['order']->cluster }}
         </span>
     </div>
     <div class="text">Бренд: МЕГАТЮЛЬ
@@ -115,18 +121,19 @@
 
     <div class="footer">
         <span style="font-weight: bold; font-size: 8px">
-            {{ $order->order_id }}
+            {{ $s['order']->order_id }}
         </span>
 
         <span style="float:right; margin-top: 2px;">
             <b>
-                @isset($cutterId)
-                    закройщик № {{ $cutterId }} |
+                @isset($s['cutterId'])
+                    закройщик № {{ $s['cutterId'] }} |
                 @endisset
-                швея № {{ $seamstressId ?? '0' }}
+                швея № {{ $s['seamstressId'] ?? '0' }}
             </b>
         </span>
     </div>
 </div>
+@endforeach
 </body>
 </html>

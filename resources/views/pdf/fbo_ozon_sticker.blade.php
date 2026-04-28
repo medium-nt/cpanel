@@ -22,6 +22,11 @@
             padding: 0 5px ; /* или укажи в px, например: 20px */
             text-align: center;
             box-sizing: border-box;
+            page-break-after: always;
+        }
+
+        .container:last-child {
+            page-break-after: avoid;
         }
 
         .barcode {
@@ -60,36 +65,38 @@
     </style>
 </head>
 <body>
+@foreach($stickers as $s)
     <div class="container">
         <div class="barcode">
-            {!! DNS1D::getBarcodeHTML($barcode, 'C128', 1.5, 85) !!}
+            {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.5, 85) !!}
         </div>
 
-        <div class="code-label">{{ $barcode }}</div>
+        <div class="code-label">{{ $s['barcode'] }}</div>
         <div class="code-text">
-            <div class="reason">Тюль {{ $item->title }}
+            <div class="reason">Тюль {{ $s['item']->title }}
                 <span
-                    style="float:right; font-size: {{ $fontSizeCluster }}px">
-                    {{ $order->order_id }}
+                    style="float:right; font-size: {{ $s['fontSizeCluster'] }}px">
+                    {{ $s['order']->order_id }}
                 </span>
             </div>
         </div>
-        <div class="code-text">ширина {{ $item->width }}</div>
+        <div class="code-text">ширина {{ $s['item']->width }}</div>
         <div class="code-text">
-            <div class="reason">высота {{ $item->height }}
+            <div class="reason">высота {{ $s['item']->height }}
                 <span
-                    style="float:right; font-weight: bold; font-size: {{ $fontSizeCluster }}px">
-                    {{ $order->cluster }}
+                    style="float:right; font-weight: bold; font-size: {{ $s['fontSizeCluster'] }}px">
+                    {{ $s['order']->cluster }}
                 </span>
             </div>
         </div>
 
         <div class="code-text2"><b>
-                @isset($cutterId)
-                    закройщик № {{ $cutterId }} |
+                @isset($s['cutterId'])
+                    закройщик № {{ $s['cutterId'] }} |
                 @endisset
-                    швея № {{ $seamstressId ?? '0' }}</b>
+                швея № {{ $s['seamstressId'] ?? '0' }}</b>
         </div>
     </div>
+@endforeach
 </body>
 </html>

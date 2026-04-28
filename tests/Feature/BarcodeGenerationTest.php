@@ -120,7 +120,9 @@ class BarcodeGenerationTest extends TestCase
 
         $mockService->shouldReceive('getBarcodeOzonFBO')
             ->with(Mockery::on(function ($arg) use ($order) {
-                return $arg instanceof MarketplaceOrder && $arg->id === $order->id;
+                return $arg instanceof \Illuminate\Support\Collection
+                    && $arg->count() === 1
+                    && $arg->first()->id === $order->id;
             }))
             ->andReturn(new Response('PDF_FBO_BARCODE', 200, [
                 'Content-Type' => 'application/pdf',

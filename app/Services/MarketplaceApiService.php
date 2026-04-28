@@ -15,6 +15,7 @@ use App\Models\Sku;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -945,29 +946,38 @@ class MarketplaceApiService
         }
     }
 
-    public function getBarcodeOzonFBO(MarketplaceOrder $order): \Illuminate\Http\Response
+    /**
+     * Генерирует PDF с лентой стикеров для Ozon FBO-заказов.
+     */
+    public function getBarcodeOzonFBO(Collection $orders): \Illuminate\Http\Response
     {
-        $item = $order->items->first()->item;
-        $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
-        $barcode = ($order->marketplace_id == 1) ? self::getBarcodeOzonBySku($sku) : $sku;
+        $stickers = $orders->map(function (MarketplaceOrder $order) {
+            $item = $order->items->first()->item;
+            $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
+            $barcode = ($order->marketplace_id == 1) ? self::getBarcodeOzonBySku($sku) : $sku;
 
-        $length = mb_strlen($order->cluster);
+            $length = mb_strlen($order->cluster);
 
-        if ($length > 25) {
-            $fontSizeCluster = 7;
-        } elseif ($length > 18) {
-            $fontSizeCluster = 12;
-        } else {
-            $fontSizeCluster = 14;
-        }
+            if ($length > 25) {
+                $fontSizeCluster = 7;
+            } elseif ($length > 18) {
+                $fontSizeCluster = 12;
+            } else {
+                $fontSizeCluster = 14;
+            }
+
+            return [
+                'barcode' => $barcode,
+                'item' => $item,
+                'order' => $order,
+                'fontSizeCluster' => $fontSizeCluster,
+                'seamstressId' => $order->items[0]->seamstress?->id,
+                'cutterId' => $order->items[0]->cutter?->id,
+            ];
+        })->all();
 
         $pdf = PDF::loadView('pdf.fbo_ozon_sticker', [
-            'barcode' => $barcode,
-            'item' => $item,
-            'order' => $order,
-            'fontSizeCluster' => $fontSizeCluster,
-            'seamstressId' => $order->items[0]->seamstress?->id,
-            'cutterId' => $order->items[0]->cutter?->id,
+            'stickers' => $stickers,
         ]);
 
         $pdf->setPaper('A4', 'portrait');
@@ -988,36 +998,45 @@ class MarketplaceApiService
         ]);
     }
 
-    public function getBarcodeWBFBO(MarketplaceOrder $order): \Illuminate\Http\Response
+    /**
+     * Генерирует PDF с лентой стикеров для WB FBO-заказов.
+     */
+    public function getBarcodeWBFBO(Collection $orders): \Illuminate\Http\Response
     {
-        $item = $order->items->first()->item;
-        $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
-        $barcode = $sku;
+        $stickers = $orders->map(function (MarketplaceOrder $order) {
+            $item = $order->items->first()->item;
+            $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
+            $barcode = $sku;
 
-        $productSticker = ProductSticker::query()
-            ->where('title', $item->title)
-            ->first();
+            $productSticker = ProductSticker::query()
+                ->where('title', $item->title)
+                ->first();
 
-        $length = mb_strlen($order->cluster);
+            $length = mb_strlen($order->cluster);
 
-        if ($length > 25) {
-            $fontSizeCluster = 4;
-        } elseif ($length > 18) {
-            $fontSizeCluster = 7;
-        } else {
-            $fontSizeCluster = 10;
-        }
+            if ($length > 25) {
+                $fontSizeCluster = 4;
+            } elseif ($length > 18) {
+                $fontSizeCluster = 7;
+            } else {
+                $fontSizeCluster = 10;
+            }
+
+            return [
+                'item' => $item,
+                'barcode' => $barcode,
+                'order' => $order,
+                'fontSizeCluster' => $fontSizeCluster,
+                'seamstressId' => $order->items[0]->seamstress?->id,
+                'cutterId' => $order->items[0]->cutter?->id,
+                'article' => $this->getItemWbBySku($sku)->nmID ?? '',
+                'color' => $productSticker->color ?? '',
+                'country' => $productSticker->country ?? '',
+            ];
+        })->all();
 
         $pdf = PDF::loadView('pdf.fbo_wb_sticker', [
-            'item' => $item,
-            'barcode' => $barcode,
-            'order' => $order,
-            'fontSizeCluster' => $fontSizeCluster,
-            'seamstressId' => $order->items[0]->seamstress?->id,
-            'cutterId' => $order->items[0]->cutter?->id,
-            'article' => $this->getItemWbBySku($sku)->nmID ?? '',
-            'color' => $productSticker->color ?? '',
-            'country' => $productSticker->country ?? '',
+            'stickers' => $stickers,
         ]);
 
         $pdf->setPaper('A4', 'portrait');
