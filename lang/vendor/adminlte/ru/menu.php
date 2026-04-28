@@ -36,6 +36,7 @@ return [
     'marketplace' => 'Маркетплейсы',
     'marketplace_items' => 'Товары на маркетплейсе',
     'product_stickers' => 'Стикеры товаров',
+    'sticker_tape' => 'Печать стикеров FBO',
     'marketplace_orders' => 'Заказы с маркетплейса',
     'marketplace_order_items' => 'Товары для пошива',
     'defect_materials' => 'Передать брак на склад',

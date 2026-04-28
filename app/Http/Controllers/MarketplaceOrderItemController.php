@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrderItem;
+use App\Models\MarketplaceWarehouse;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\ProductSticker;
 use App\Models\Setting;
 use App\Models\Sku;
 use App\Models\User;
@@ -281,5 +284,93 @@ class MarketplaceOrderItemController extends Controller
                     ->update(['roll_id' => $rollId]);
             }
         }
+    }
+
+    /**
+     * Страница с формой для печати ленты стикеров.
+     */
+    public function stickerTapeForm()
+    {
+        $cutters = User::whereHas('role', fn ($q) => $q->where('name', 'cutter'))->get();
+        $seamstresses = User::whereHas('role', fn ($q) => $q->where('name', 'seamstress'))->get();
+        $items = MarketplaceItem::query()->get();
+
+        $warehouses = MarketplaceWarehouse::query()
+            ->orderBy('name')
+            ->get()
+            ->groupBy('marketplace_id')
+            ->map(fn ($group) => $group->pluck('name', 'name')->toArray())
+            ->toArray();
+
+        return view('marketplace_order_items.sticker_tape_form', [
+            'title' => 'Печать ленты стикеров',
+            'cutters' => $cutters,
+            'seamstresses' => $seamstresses,
+            'items' => $items,
+            'warehouses' => $warehouses,
+        ]);
+    }
+
+    /**
+     * Генерирует PDF-стикер по данным из формы.
+     */
+    public function generateStickerTape(Request $request)
+    {
+        $validated = $request->validate([
+            'item_id' => 'required|exists:marketplace_items,id',
+            'marketplace_id' => 'required|in:1,2',
+            'cluster' => 'nullable|string',
+            'cutter_id' => 'nullable|exists:users,id',
+            'seamstress_id' => 'nullable|exists:users,id',
+        ]);
+
+        $item = MarketplaceItem::query()->findOrFail($validated['item_id']);
+
+        $sku = Sku::query()
+            ->where('item_id', $item->id)
+            ->where('marketplace_id', $validated['marketplace_id'])
+            ->firstOrFail();
+
+        $barcode = ($validated['marketplace_id'] == 1)
+            ? MarketplaceApiService::getBarcodeOzonBySku($sku->sku)
+            : $sku->sku;
+
+        $length = mb_strlen($validated['cluster']);
+
+        if ($validated['marketplace_id'] == 1) {
+            $fontSizeCluster = ($length > 25) ? 7 : (($length > 18) ? 12 : 14);
+        } else {
+            $fontSizeCluster = ($length > 25) ? 4 : (($length > 18) ? 7 : 10);
+        }
+
+        $productSticker = ProductSticker::query()
+            ->where('title', $item->title)
+            ->first();
+
+        $stickers = [[
+            'barcode' => $barcode,
+            'item' => $item,
+            'order' => (object) [
+                'order_id' => '',
+                'cluster' => $validated['cluster'],
+            ],
+            'fontSizeCluster' => $fontSizeCluster,
+            'seamstressId' => $validated['seamstress_id'],
+            'cutterId' => $validated['cutter_id'],
+            'article' => ($validated['marketplace_id'] == 2)
+                ? MarketplaceApiService::getItemWbBySku($sku->sku)->nmID ?? ''
+                : '',
+            'color' => $productSticker?->color ?? '',
+            'country' => $productSticker?->country ?? '',
+        ]];
+
+        $template = ($validated['marketplace_id'] == 1)
+            ? 'pdf.fbo_ozon_sticker'
+            : 'pdf.fbo_wb_sticker';
+
+        $pdf = Pdf::loadView($template, ['stickers' => $stickers]);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('sticker.pdf');
     }
 }

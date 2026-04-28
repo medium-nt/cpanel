@@ -411,6 +411,12 @@ return [
                     'url' => 'megatulle/marketplace_order_items',
                     'icon' => 'fas fa-fw fa-stream',
                 ],
+                [
+                    'text' => 'sticker_tape',
+                    'url' => 'megatulle/marketplace_order_items/sticker-tape',
+                    'icon' => 'fas fa-fw fa-print',
+                    'can' => 'is-storekeeper-or-admin',
+                ],
                 //                [
                 //                    'text' => 'barcode_search',
                 //                    'url' => 'megatulle/barcode_search',

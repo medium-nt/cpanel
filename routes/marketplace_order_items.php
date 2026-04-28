@@ -32,6 +32,14 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->can('printA4', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.printCutting');
 
+    Route::get('/sticker-tape', [MarketplaceOrderItemController::class, 'stickerTapeForm'])
+        ->can('is-storekeeper-or-admin')
+        ->name('marketplace_order_items.sticker_tape');
+
+    Route::post('/sticker-tape', [MarketplaceOrderItemController::class, 'generateStickerTape'])
+        ->can('is-storekeeper-or-admin')
+        ->name('marketplace_order_items.generate_sticker_tape');
+
     Route::get('/{marketplace_order_item}', [MarketplaceOrderItemController::class, 'show'])
         ->can('view', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.show');

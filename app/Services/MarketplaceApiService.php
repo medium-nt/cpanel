@@ -832,7 +832,7 @@ class MarketplaceApiService
         }
     }
 
-    private static function getBarcodeOzonBySku(?string $sku): ?string
+    public static function getBarcodeOzonBySku(?string $sku): ?string
     {
         if (empty($sku)) {
             return null;
