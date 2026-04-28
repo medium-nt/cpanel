@@ -102,7 +102,7 @@ class ShiftController extends Controller
     {
         $validated = $request->validate([
             'new_shift_id' => 'required|exists:shifts,id',
-            'effective_from' => 'required|date|after:today',
+            'effective_from' => 'required|date|after_or_equal:today',
         ]);
 
         $newShift = Shift::findOrFail($validated['new_shift_id']);

@@ -97,7 +97,7 @@
                                     <div class="btn-group" role="group">
                                         {{-- Перевод в другую смену --}}
                                         <button type="button"
-                                                class="btn btn-warning btn-sm"
+                                                class="btn btn-warning btn-sm mr-3"
                                                 onclick="openTransferModal({{ $user->id }}, '{{ $user->name }}')">
                                             <i class="fas fa-exchange-alt"></i>
                                         </button>
@@ -308,7 +308,7 @@
                             <input type="date" name="effective_from"
                                    id="transferDate"
                                    class="form-control"
-                                   min="{{ \Carbon\Carbon::tomorrow()->toDateString() }}"
+                                   min="{{ \Carbon\Carbon::today()->toDateString() }}"
                                    required>
                             <small class="text-muted">Сотрудник будет числиться
                                 в новой смене начиная с этой даты</small>
