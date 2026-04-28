@@ -177,7 +177,10 @@
                             wire:click="generatePdf"
                             wire:loading.attr="disabled"
                             wire:target="generatePdf">
-                        <i class="fas fa-print"></i>
+                        <i class="fas fa-print" wire:loading.remove
+                           wire:target="generatePdf"></i>
+                        <i class="fas fa-spinner fa-spin" wire:loading
+                           wire:target="generatePdf"></i>
                         <span wire:loading.remove wire:target="generatePdf">Сгенерировать PDF</span>
                         <span wire:loading wire:target="generatePdf">Генерация...</span>
                     </button>
