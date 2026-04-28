@@ -373,4 +373,14 @@ class MarketplaceOrderItemController extends Controller
 
         return $pdf->stream('sticker.pdf');
     }
+
+    /**
+     * Страница импорта стикеров из Excel.
+     */
+    public function stickerTapeImport()
+    {
+        return view('marketplace_order_items.sticker_tape_import', [
+            'title' => 'Импорт стикеров из Excel',
+        ]);
+    }
 }

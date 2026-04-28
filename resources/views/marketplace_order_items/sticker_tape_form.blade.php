@@ -98,11 +98,10 @@
                         <button type="submit" class="btn btn-success">
                             Сгенерировать стикер
                         </button>
-                        <button type="button" class="btn btn-outline-primary"
-                                id="btnLoadExcel"><i
-                                class="fas fa-file-excel"></i> Загрузить из
-                            Excel
-                        </button>
+                        <a href="{{ route('marketplace_order_items.sticker_tape_import') }}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-file-excel"></i> Загрузить из Excel
+                        </a>
                     </div>
                 </div>
             </form>

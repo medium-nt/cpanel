@@ -40,6 +40,10 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->can('is-storekeeper-or-admin')
         ->name('marketplace_order_items.generate_sticker_tape');
 
+    Route::get('/sticker-tape/import', [MarketplaceOrderItemController::class, 'stickerTapeImport'])
+        ->can('is-storekeeper-or-admin')
+        ->name('marketplace_order_items.sticker_tape_import');
+
     Route::get('/{marketplace_order_item}', [MarketplaceOrderItemController::class, 'show'])
         ->can('view', MarketplaceOrderItem::class)
         ->name('marketplace_order_items.show');
