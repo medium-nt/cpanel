@@ -111,7 +111,7 @@
                class="btn btn-warning mr-3 mb-3">Смена полки</a>
             @endif
 
-            @if(auth()->user()->isManager() || (auth()->user()->isAdmin() && request()->get('status') == 11))
+                @if(auth()->user()->isManager() || ((auth()->user()->isAdmin() || auth()->user()->isStorekeeper()) && request()->get('status') == 11))
                 @php
                     $exportQuery = collect(request()->query())->only(['status', 'material', 'width', 'height', 'shelf']);
                 @endphp
