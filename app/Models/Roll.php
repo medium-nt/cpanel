@@ -101,6 +101,6 @@ class Roll extends Model
             ->whereIn('orders.type_movement', [3, 4])
             ->sum('quantity');
 
-        return $this->initial_quantity - $used;
+        return round($this->initial_quantity - $used, 3);
     }
 }
