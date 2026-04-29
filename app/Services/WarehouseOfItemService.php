@@ -153,15 +153,11 @@ class WarehouseOfItemService
 
         $sheet->setCellValue('A1', 'Баркод');
         $sheet->setCellValue('B1', 'Количество, шт.');
-        $sheet->setCellValue('C1', 'Предмет');
-        $sheet->setCellValue('D1', 'Артикул поставщика');
-        $sheet->setCellValue('E1', 'Бренд');
-        $sheet->setCellValue('F1', 'Размер');
-        $sheet->setCellValue('G1', 'Цвет');
+        $sheet->setCellValue('C1', 'Артикул поставщика');
 
-        $sheet->getStyle('A1:G1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:C1')->getFont()->setBold(true);
 
-        foreach (range('A', 'G') as $col) {
+        foreach (range('A', 'C') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -169,11 +165,7 @@ class WarehouseOfItemService
         foreach ($grouped as $item) {
             $sheet->setCellValue('A'.$row, $item->barcode);
             $sheet->setCellValue('B'.$row, $item->total_quantity);
-            $sheet->setCellValue('C'.$row, 'Тюль');
-            $sheet->setCellValue('D'.$row, $item->article);
-            $sheet->setCellValue('E'.$row, 'МегаТюль');
-            $sheet->setCellValue('F'.$row, '0');
-            $sheet->setCellValue('G'.$row, 'белый');
+            $sheet->setCellValue('C'.$row, $item->article);
             $row++;
         }
 
