@@ -18,13 +18,13 @@ class RequireOpenShift
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
         $is_enabled_work_shift = Setting::getValue('is_enabled_work_shift');
         if ($is_enabled_work_shift) {
-            if ((!$user->isAdmin() && !$user->shift_is_open)) {
+            if (! $user->isAdmin() && ! $user->isManager() && ! $user->shift_is_open) {
                 return redirect()->route('home')
                     ->with('error', 'Откройте смену на терминале для доступа к функционалу.');
             }
