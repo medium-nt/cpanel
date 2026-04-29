@@ -307,7 +307,7 @@ return [
         [
             'text' => 'inventory',
             'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'is-admin-storekeeper-seamstress-cutter',
+            'can' => 'is-admin-storekeeper-seamstress-cutter-manager',
             'submenu' => [
                 [
                     'text' => 'inventory_by_warehouse',
@@ -319,12 +319,13 @@ return [
                     'text' => 'inventory_by_workshop',
                     'url' => 'megatulle/inventory/workshop',
                     'icon' => 'fas fa-fw fa-boxes',
+                    'can' => 'is-admin-storekeeper-seamstress-cutter',
                 ],
                 [
                     'text' => 'warehouse_of_item',
                     'url' => 'megatulle/warehouse_of_item',
                     'icon' => 'fas fa-fw fa-boxes',
-                    'can' => 'is-storekeeper-or-admin',
+                    'can' => 'is-storekeeper-admin-manager',
                 ],
                 [
                     'text' => 'inspection',
@@ -398,13 +399,13 @@ return [
         [
             'text' => 'marketplace',
             'icon' => 'fas fa-fw fa-shopping-cart',
-            'can' => 'is-admin-storekeeper-seamstress-cutter-otk',
+            'can' => 'is-admin-storekeeper-seamstress-cutter-otk-manager',
             'submenu' => [
                 [
                     'text' => 'marketplace_orders',
                     'url' => 'megatulle/marketplace_orders',
                     'icon' => 'fas fa-fw fa-cart-arrow-down',
-                    'can' => 'is-storekeeper-or-admin',
+                    'can' => 'is-storekeeper-admin-manager',
                 ],
                 [
                     'text' => 'marketplace_order_items',
@@ -423,18 +424,6 @@ return [
                 //                    'icon' => 'fas fa-fw fa-barcode',
                 //                ],
             ],
-        ],
-        [
-            'text' => 'warehouse_of_item',
-            'url' => 'megatulle/warehouse_of_item',
-            'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'is-manager',
-        ],
-        [
-            'text' => 'marketplace_orders',
-            'url' => 'megatulle/marketplace_orders',
-            'icon' => 'fas fa-fw fa-cart-arrow-down',
-            'can' => 'is-manager',
         ],
         [
             'text' => 'transactions',

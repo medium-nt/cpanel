@@ -41,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->isStorekeeper() || $user->isAdmin();
         });
 
+        Gate::define('is-storekeeper-admin-manager', function (User $user) {
+            return $user->isStorekeeper() || $user->isAdmin() || $user->isManager();
+        });
+
         Gate::define('is-storekeeper-admin-driver', function (User $user) {
             return $user->isStorekeeper() || $user->isAdmin() || $user->isDriver();
         });
@@ -53,8 +57,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter();
         });
 
-        Gate::define('is-admin-storekeeper-seamstress-cutter-otk', function (User $user) {
-            return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isOtk();
+        Gate::define('is-admin-storekeeper-seamstress-cutter-manager', function (User $user) {
+            return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isManager();
+        });
+
+        Gate::define('is-admin-storekeeper-seamstress-cutter-otk-manager', function (User $user) {
+            return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isOtk() || $user->isManager();
         });
 
         Gate::define('is-admin-storekeeper-seamstress-cutter-driver', function (User $user) {
