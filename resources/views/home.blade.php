@@ -8,11 +8,15 @@
 {{-- Content body: main page content --}}
 
 @section('content_body')
-    @if(!auth()->user()->isManager())
+    @php
+        $user = auth()->user();
+    @endphp
+
     <div class="card">
         <div class="card-body">
             <div class="row">
-                @if(auth()->user()->isOtk())
+                {{-- Раскроено --}}
+                @if($user->isOtk())
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                         <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}"
                            class="link-black">
@@ -29,7 +33,8 @@
                     </div>
                 @endif
 
-                @if(!auth()->user()->isOtk())
+                {{-- Новые задания на пошив --}}
+                @if($user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isManager())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="link-black">
                         <div class="info-box">
@@ -43,7 +48,8 @@
                 </div>
                 @endif
 
-                @if(!auth()->user()->isCutter() && !auth()->user()->isOtk())
+                {{-- Товары в пошиве --}}
+                @if($user->isSeamstress() || $user->isAdmin() || $user->isStorekeeper())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
@@ -57,7 +63,8 @@
                 </div>
                 @endif
 
-                @if(!auth()->user()->isSeamstress() && !auth()->user()->isOtk())
+                {{-- Товары в закрое --}}
+                @if($user->isAdmin() || $user->isStorekeeper() || $user->isCutter())
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index') }}" class="link-black">
                         <div class="info-box">
@@ -71,7 +78,8 @@
                 </div>
                 @endif
 
-                @if(!auth()->user()->isOtk())
+                {{-- Срочные заказы (FBS) --}}
+                @if($user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('marketplace_order_items.index', ['status' => 'new']) }}" class="link-black">
                         <div class="info-box">
@@ -85,7 +93,8 @@
                 </div>
                 @endif
 
-                @if(!auth()->user()->isCutter() && !auth()->user()->isSeamstress() && !auth()->user()->isOtk())
+                {{-- Товары к подбору со склада --}}
+                @if($user->isAdmin() || $user->isStorekeeper())
                     <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                         <a href="{{ route('warehouse_of_item.to_pick_list') }}"
                            class="link-black">
@@ -102,7 +111,8 @@
                     </div>
                 @endif
 
-                @if(!auth()->user()->isOtk())
+                {{-- Не отгруженные поставки в цех --}}
+                @if($user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
@@ -116,7 +126,8 @@
                 </div>
                 @endif
 
-                @if(!auth()->user()->isOtk())
+                {{-- Не принятые поставки в цехе --}}
+                @if($user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter())
                 <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <a href="{{ route('movements_to_workshop.index') }}" class="link-black">
                         <div class="info-box">
@@ -130,47 +141,49 @@
                 </div>
                 @endif
 
-                    @if(auth()->user()->isOtk() || auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                        <div
-                            class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                            <a href="{{ route('marketplace_order_items.index', ['status' => 'labeling']) }}"
-                               class="link-black">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info"><i
-                                            class="fas fa-sticky-note"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Товары на стикеровке</span>
-                                        <span
-                                            class="info-box-number">{{ $stickeredMarketplaceOrderItem }}</span>
-                                    </div>
+                {{-- Товары на стикеровке --}}
+                @if($user->isOtk() || $user->isAdmin() || $user->isStorekeeper())
+                    <div
+                        class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <a href="{{ route('marketplace_order_items.index', ['status' => 'labeling']) }}"
+                           class="link-black">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info"><i
+                                        class="fas fa-sticky-note"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Товары на стикеровке</span>
+                                    <span
+                                        class="info-box-number">{{ $stickeredMarketplaceOrderItem }}</span>
                                 </div>
-                            </a>
-                        </div>
-                    @endif
+                            </div>
+                        </a>
+                    </div>
+                @endif
 
-                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                        <div
-                            class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                            <a href="/megatulle/rolls?status=unclosed"
-                               class="link-black">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger"><i
-                                            class="fas fa-exclamation-triangle"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Рулонов с малым остатком</span>
-                                        <span
-                                            class="info-box-number">{{ $lowMaterialRollsCount }}</span>
-                                    </div>
+                {{-- Рулонов с малым остатком --}}
+                @if($user->isAdmin() || $user->isStorekeeper())
+                    <div
+                        class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <a href="/megatulle/rolls?status=unclosed"
+                           class="link-black">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger"><i
+                                        class="fas fa-exclamation-triangle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Рулонов с малым остатком</span>
+                                    <span
+                                        class="info-box-number">{{ $lowMaterialRollsCount }}</span>
                                 </div>
-                            </a>
-                        </div>
-                    @endif
+                            </div>
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
-    @endif
 
-    @if(auth()->user()->isAdmin())
+    {{-- Начисленные штрафы сотрудникам --}}
+    @if($user->isAdmin())
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Начисленные штрафы сотрудникам</h3>
@@ -214,7 +227,7 @@
                                 <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
 
                                 <td style="width: 100px">
-                                    @if(auth()->user()->isAdmin())
+                                    @if($user->isAdmin())
                                         <div class="btn-group" role="group">
                                             <form
                                                 action="{{ route('transactions.destroy', ['transaction' => $transaction->id]) }}"
@@ -241,7 +254,8 @@
         </div>
     @endif
 
-    @if(!auth()->user()->isAdmin() && auth()->user()->is_show_finance)
+    {{-- Зарплата --}}
+    @if(!$user->isAdmin() && $user->is_show_finance)
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Зарплата</h3>
@@ -256,7 +270,8 @@
     </div>
     @endif
 
-    @if(auth()->user()->isAdmin())
+    {{-- Смены сотрудников --}}
+    @if($user->isAdmin())
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Смены сотрудников</h3>
@@ -313,6 +328,7 @@
     </div>
     @endif
 
+    {{-- Рабочий календарь --}}
     <div class="card">
         <div class="card-header row">
             <h4 class=" my-1 mr-2">Рабочий календарь</h4>
@@ -336,7 +352,8 @@
         </div>
     </div>
 
-    @if(auth()->user()->isAdmin())
+    {{-- Динамика преобладания большими размерами --}}
+    @if($user->isAdmin())
     <div class="card">
         <div class="card-header">
             Динамика преобладания большими размерами
@@ -416,7 +433,7 @@
         window.dates = {!! $dates !!};
     </script>
 
-    @if(auth()->user()->role_id == '3')
+    @if($user->role_id == '3')
     <script src="{{ asset('js/ratingGraph.js') }}"></script>
     @endif
 @endpush
