@@ -22,8 +22,23 @@ use Illuminate\Support\Facades\Log;
 
 class MarketplaceOrderItemController extends Controller
 {
+    /**
+     * Список товаров для пошива с фильтрацией по статусу.
+     */
     public function index(Request $request)
     {
+        // Если статус не указан — редирект на статус по умолчанию для роли
+        if (! $request->has('status') || $request->status === null) {
+            $defaultStatus = match (auth()->user()->role->name) {
+                'otk' => 'cut',
+                'cutter' => 'cutting',
+                'seamstress', 'storekeeper' => 'in_work',
+                default => 'new',
+            };
+
+            return redirect()->route('marketplace_order_items.index', ['status' => $defaultStatus]);
+        }
+
         //  запретить швеям смотреть новые заказы и заказы в закрое.
         if (($request->status == 'new' || $request->status == 'cutting') && auth()->user()->isSeamstress()) {
             return redirect()->route('marketplace_order_items.index', ['status' => 'in_work']);

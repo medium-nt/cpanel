@@ -7,13 +7,17 @@
 
 {{-- Content body: main page content --}}
 
+@php
+    $user = auth()->user();
+@endphp
+
 @section('content_body')
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
 
                 <div class="row">
-                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isOtk())
+                    @if($user->isAdmin() || $user->isStorekeeper() || $user->isOtk())
                         <div class="form-group col-md-1">
                             <select name="fulfillment_type"
                                     id="fulfillment_type"
@@ -33,7 +37,7 @@
                         </div>
                     @endif
 
-                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                    @if($user->isAdmin() || $user->isStorekeeper())
                         <div class="form-group col-md-3">
                             <select name="user_id"
                                     id="user_id"
@@ -41,10 +45,10 @@
                                     onchange="updatePageWithQueryParam(this)"
                                     required>
                                 <option value="" selected>Все</option>
-                                @foreach($users as $user)
+                                @foreach($users as $userSelect)
                                     <option value="{{ $user->id }}"
-                                            @if(request('user_id') == $user->id) selected @endif
-                                    >{{ $user->short_name }}</option>
+                                            @if(request('user_id') == $userSelect->id) selected @endif
+                                    >{{ $userSelect->short_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -113,6 +117,47 @@
                         </div>
                     @endif
 
+                    <div class="form-group col-md-2">
+                        <select name="status"
+                                id="status"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)"
+                                required>
+                            @if($user->isAdmin() || $user->isManager() || $user->isStorekeeper())
+                                <option value="new"
+                                        @if(request('status') == 'new') selected @endif>
+                                    Новые
+                                </option>
+                            @endif
+                            @if($user->isCutter() || $user->isAdmin() || $user->isStorekeeper())
+                                <option value="cutting"
+                                        @if(request('status') == 'cutting') selected @endif>
+                                    На раскрое
+                                </option>
+                            @endif
+                            @if($user->isCutter() || $user->isAdmin() || $user->isOtk() || $user->isStorekeeper())
+                                <option value="cut"
+                                        @if(request('status') == 'cut') selected @endif>
+                                    Раскроено
+                                </option>
+                            @endif
+                            @if($user->isCutter() || $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isManager())
+                                <option value="in_work"
+                                        @if(request('status') == 'in_work') selected @endif>
+                                    В работе
+                                </option>
+                            @endif
+                            <option value="labeling"
+                                    @if(request('status') == 'labeling') selected @endif>
+                                Стикеровка
+                            </option>
+                            <option value="done"
+                                    @if(request('status') == 'done') selected @endif>
+                                Готовые
+                            </option>
+                        </select>
+                    </div>
+
                     <div class="form-group col-md-3">
                         <input type="date"
                                name="date_start"
@@ -132,96 +177,10 @@
                     </div>
 
                 </div>
-
-                @if(auth()->user()->isAdmin())
-                    <a href="{{ route('marketplace_order_items.index', [
-                    'status' => 'new',
-                    'user_id' => request('user_id'),
-                    'date_start' => request('date_start'),
-                    'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id'),
-                    'fulfillment_type' => request('fulfillment_type'),
-                    'material' => request('material'),
-                    'width' => request('width'),
-                    'height' => request('height')
-                ]) }}"
-                       class="btn btn-link">Новые</a>
-                @endif
-
-                @if(auth()->user()->isCutter() || auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                <a href="{{ route('marketplace_order_items.index', [
-                    'status' => 'cutting',
-                    'user_id' => request('user_id'),
-                    'date_start' => request('date_start'),
-                    'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id'),
-                    'fulfillment_type' => request('fulfillment_type'),
-                    'material' => request('material'),
-                    'width' => request('width'),
-                    'height' => request('height')
-                ]) }}"
-                   class="btn btn-link">На раскрое</a>
-                @endif
-
-                @if(auth()->user()->isCutter() || auth()->user()->isAdmin() || auth()->user()->isOtk() || auth()->user()->isStorekeeper())
-                <a href="{{ route('marketplace_order_items.index', [
-                    'status' => 'cut',
-                    'user_id' => request('user_id'),
-                    'date_start' => request('date_start'),
-                    'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id'),
-                    'fulfillment_type' => request('fulfillment_type'),
-                    'material' => request('material'),
-                    'width' => request('width'),
-                    'height' => request('height')
-                ]) }}"
-                   class="btn btn-link">Раскроено</a>
-                @endif
-
-                @if(!auth()->user()->isOtk())
-                <a href="{{ route('marketplace_order_items.index', [
-                    'status' => 'in_work',
-                    'user_id' => request('user_id'),
-                    'date_start' => request('date_start'),
-                    'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id'),
-                    'fulfillment_type' => request('fulfillment_type'),
-                    'material' => request('material'),
-                    'width' => request('width'),
-                    'height' => request('height')
-                ]) }}"
-                   class="btn btn-link">В работе</a>
-                @endif
-
-                <a href="{{ route('marketplace_order_items.index', [
-                    'status' => 'labeling',
-                    'user_id' => request('user_id'),
-                    'date_start' => request('date_start'),
-                    'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id'),
-                    'fulfillment_type' => request('fulfillment_type'),
-                    'material' => request('material'),
-                    'width' => request('width'),
-                    'height' => request('height')
-                ]) }}"
-                   class="btn btn-link">Стикеровка</a>
-
-                <a href="{{ route('marketplace_order_items.index', [
-                    'status' => 'done',
-                    'user_id' => request('user_id'),
-                    'date_start' => request('date_start'),
-                    'date_end' => request('date_end'),
-                    'marketplace_id' => request('marketplace_id'),
-                    'fulfillment_type' => request('fulfillment_type'),
-                    'material' => request('material'),
-                    'width' => request('width'),
-                    'height' => request('height')
-                ]) }}"
-                   class="btn btn-link">Готовые</a>
             </div>
         </div>
 
-        @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+        @if($user->isAdmin() || $user->isStorekeeper())
         <div class="card">
             <div class="card-body">
                 <div class="row">
@@ -265,16 +224,16 @@
         <div class="card only-on-desktop">
             <div class="card-body">
 
-                @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
+                @if($user->isSeamstress() || $user->isCutter())
                 <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                    class="btn btn-primary mb-3 getNewOrderItem">Получить новый
                     заказ</a>
-                    @if(auth()->user()->isCutter())
+                    @if($user->isCutter())
                         <a href="{{ route('marketplace_order_items.fillEntireStack') }}"
                            class="btn btn-success mb-3 fillEntireStack">Взять
                             весь стек</a>
                     @endif
-                    @if(auth()->user()->is_cutter || auth()->user()->isCutter())
+                    @if($user->is_cutter || $user->isCutter())
                         <a href="{{ route('marketplace_order_items.printCutting') }}"
                            target="_blank"
                            class="btn btn-outline-secondary ml-3 mb-3"><i
@@ -306,7 +265,7 @@
                                 Маркетплейс
                             </th>
                             <th style="text-align: center" scope="col">Тип</th>
-                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isOtk())
+                            @if($user->isAdmin() || $user->isStorekeeper() || $user->isOtk())
                                 <th style="text-align: center" scope="col">
                                     Сотрудники
                                 </th>
@@ -337,7 +296,7 @@
                                 </td>
                                 <td style="text-align: center">
                                     {{ $item->marketplaceOrder->order_id }}
-                                    @if($item->status == 3 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
+                                    @if($item->status == 3 && ($user->isAdmin() || $user->isStorekeeper()))
                                         @php
                                             $routeName = $item->marketplaceOrder->fulfillment_type === 'FBO'
                                                 ? 'marketplace_api.fbo_barcode'
@@ -362,7 +321,7 @@
                                 </td>
                                 <td style="text-align: center">{{ $item->marketplaceOrder->fulfillment_type }}</td>
 
-                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isOtk())
+                                @if($user->isAdmin() || $user->isStorekeeper() || $user->isOtk())
                                     <td style="font-size: 12px;">
                                         @if($item->cutter_id)
                                             <b>Закройщик:</b> {{ $item->cutter?->shortName }}
@@ -435,11 +394,11 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body text-center">
-                        @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
+                        @if($user->isSeamstress() || $user->isCutter())
                             <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
                                class="btn btn-primary getNewOrderItem mb-2 mr-1">Получить
                                 новый заказ</a>
-                            @if(auth()->user()->isCutter())
+                            @if($user->isCutter())
                                 <br>
                                 <a href="{{ route('marketplace_order_items.fillEntireStack') }}"
                                    class="btn btn-success fillEntireStack mb-2">Взять
@@ -447,7 +406,7 @@
                             @endif
                         @endif
 
-                            @if(auth()->user()->is_cutter || auth()->user()->isCutter())
+                        @if($user->is_cutter || $user->isCutter())
                             <a href="{{ route('marketplace_order_items.printCutting') }}"
                                target="_blank"
                                class="btn btn-outline-secondary mb-2 ml-2"><i
