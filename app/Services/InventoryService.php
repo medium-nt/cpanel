@@ -134,7 +134,7 @@ class InventoryService
         }
 
         if ($type === 'warehouse') {
-            return self::materialsQuantityByWarehouseAggregate();
+            return self::materialsQuantityByWarehouseFromRolls();
         }
 
         $materials = Material::all();
@@ -345,6 +345,45 @@ class InventoryService
         ];
     }
 
+    /**
+     * Получить количество материала на складе на основе метража рулонов.
+     */
+    private static function materialsQuantityByWarehouseFromRolls(): array
+    {
+        $materials = Material::query()->select('id', 'title', 'unit')->get();
+
+        $usedSub = MovementMaterial::query()
+            ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->whereIn('orders.type_movement', [3, 4])
+            ->select('movement_materials.roll_id', DB::raw('SUM(movement_materials.quantity) as total_used'))
+            ->groupBy('movement_materials.roll_id');
+
+        $rollData = Roll::query()
+            ->leftJoinSub($usedSub, 'used', 'used.roll_id', '=', 'rolls.id')
+            ->where('rolls.status', Roll::STATUS_IN_STORAGE)
+            ->select(
+                'rolls.material_id',
+                DB::raw('COUNT(*) as rolls_count'),
+                DB::raw('SUM(rolls.initial_quantity - COALESCE(used.total_used, 0)) as total_quantity')
+            )
+            ->groupBy('rolls.material_id')
+            ->get()
+            ->keyBy('material_id');
+
+        $result = [];
+        foreach ($materials as $material) {
+            $data = $rollData->get($material->id);
+            $result[] = [
+                'material' => $material,
+                'quantity' => round($data?->total_quantity ?? 0, 2),
+                'rolls_count' => $data?->rolls_count ?? 0,
+            ];
+        }
+
+        return $result;
+    }
+
+    // старая функция подсчета материала на складе (не нужна).
     private static function materialsQuantityByWarehouseAggregate(): array
     {
         // quantity без фильтра даты (как materialInWarehouse)
