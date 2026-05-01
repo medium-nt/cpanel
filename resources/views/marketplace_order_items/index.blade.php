@@ -46,7 +46,7 @@
                                     required>
                                 <option value="" selected>Все</option>
                                 @foreach($users as $userSelect)
-                                    <option value="{{ $user->id }}"
+                                    <option value="{{ $userSelect->id }}"
                                             @if(request('user_id') == $userSelect->id) selected @endif
                                     >{{ $userSelect->short_name }}</option>
                                 @endforeach
