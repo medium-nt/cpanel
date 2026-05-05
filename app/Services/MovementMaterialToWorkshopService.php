@@ -52,6 +52,23 @@ class MovementMaterialToWorkshopService
             ]);
         }
 
+        $shiftId = auth()->user()->currentShift()?->id;
+
+        $exists = MovementMaterial::query()
+            ->where('material_id', $materialId)
+            ->whereHas('order', function ($query) use ($shiftId) {
+                $query->where('type_movement', 2)
+                    ->whereIn('status', [0, 2])
+                    ->where('shift_id', $shiftId);
+            })
+            ->exists();
+
+        if ($exists) {
+            return back()->withInput()->withErrors([
+                'error' => 'Для вашей смены уже есть незакрытая заявка на этот материал.',
+            ]);
+        }
+
         try {
             DB::beginTransaction();
 

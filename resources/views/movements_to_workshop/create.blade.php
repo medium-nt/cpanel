@@ -31,10 +31,10 @@
                             <label for="material_id">Материал</label>
                             <select name="material_id" class="form-control"
                                     required>
-                                <option value="" selected>---</option>
+                                <option value="">---</option>
                                 @foreach($materials as $material)
                                     <option
-                                        value="{{ $material->id }}">{{ $material->title }}</option>
+                                        value="{{ $material->id }}" {{ old('material_id') == $material->id ? 'selected' : '' }}>{{ $material->title }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -47,7 +47,7 @@
                                       class="form-control"
                                       rows="3"
                                       minlength="3"
-                            ></textarea>
+                            >{{ old('comment') }}</textarea>
                         </div>
                     </div>
 

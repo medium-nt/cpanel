@@ -12,6 +12,7 @@ use App\Services\ShiftService;
 use App\Services\TgService;
 use App\Services\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -42,7 +43,13 @@ class MovementMaterialToWorkshopController extends Controller
 
     public function store(StoreMovementMaterialToWorkshopRequest $request)
     {
-        if (! MovementMaterialToWorkshopService::store($request)) {
+        $result = MovementMaterialToWorkshopService::store($request);
+
+        if ($result instanceof RedirectResponse) {
+            return $result;
+        }
+
+        if (! $result) {
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
