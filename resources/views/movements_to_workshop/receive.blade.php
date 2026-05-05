@@ -52,6 +52,15 @@
                     </div>
                     @endforeach
 
+                        @php
+                            $scannedMaterials = $order->movementMaterials->filter(fn($m) => $m->roll_id !== null);
+                        @endphp
+
+                        <div class="font-weight-bold mt-2">
+                            ИТОГО: {{ $scannedMaterials->count() }}
+                            рул., {{ $scannedMaterials->sum('quantity') }} {{ $scannedMaterials->first()?->material->unit }}
+                        </div>
+
                     @if($order->comment)
                         <div class="row">
                             <div class="col-md-12 form-group">
