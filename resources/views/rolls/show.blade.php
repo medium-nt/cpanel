@@ -90,6 +90,7 @@
                             <th scope="col">Кол-во</th>
                             <th scope="col">На что</th>
                             <th scope="col">Тип движения</th>
+                            <th scope="col">Сотрудник</th>
                             <th scope="col">Комментарий</th>
                         </tr>
                         </thead>
@@ -111,6 +112,15 @@
                                     @endif
                                 </td>
                                 <td>{{ $order?->type_movement_name ?? '—' }}</td>
+                                <td>
+                                    @php
+                                        $employees = array_filter([
+                                            $order?->seamstress?->name,
+                                            $order?->cutter?->name,
+                                        ]);
+                                    @endphp
+                                    {{ $employees ? implode(', ', $employees) : '—' }}
+                                </td>
                                 <td>{{ $order?->comment }}</td>
                             </tr>
                         @endforeach
