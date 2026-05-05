@@ -36,6 +36,8 @@ class MarketplaceOrderItemController extends Controller
                 default => 'new',
             };
 
+            session()->reflash();
+
             return redirect()->route('marketplace_order_items.index', ['status' => $defaultStatus]);
         }
 
