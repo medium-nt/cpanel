@@ -6,6 +6,7 @@ use App\Http\Requests\SaveCollectMovementMaterialToWorkshopRequest;
 use App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest;
 use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
@@ -38,14 +39,16 @@ class MovementMaterialToWorkshopService
         return $query;
     }
 
+    /**
+     * Создать заявку на материал для производства (1 заказ, 1 материал).
+     */
     public static function store(StoreMovementMaterialToWorkshopRequest $request): bool|RedirectResponse
     {
-        $materialIds = $request->input('material_id', []);
-        $quantity = $request->input('quantity');
+        $materialId = $request->input('material_id');
 
-        if (empty($materialIds) || ($quantity < 1 || $quantity > 10)) {
+        if (empty($materialId)) {
             return back()->withErrors([
-                'error' => 'Заполните правильно список материалов и количество.',
+                'error' => 'Выберите материал.',
             ]);
         }
 
@@ -58,34 +61,22 @@ class MovementMaterialToWorkshopService
                 default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 
-            $material = '';
+            $order = Order::query()->create([
+                $field => auth()->user()->id,
+                'type_movement' => 2,
+                'status' => 0,
+                'comment' => $request->comment,
+                'shift_id' => auth()->user()->currentShift()?->id,
+            ]);
 
-            for ($i = 0; $i < $quantity; $i++) {
+            MovementMaterial::query()->create([
+                'order_id' => $order->id,
+                'material_id' => $materialId,
+                'ordered_quantity' => 0,
+            ]);
 
-                $order = Order::query()->create([
-                    $field => auth()->user()->id,
-                    'type_movement' => 2,
-                    'status' => 0,
-                    'comment' => $request->comment,
-                    'shift_id' => auth()->user()->currentShift()?->id,
-                ]);
-
-                foreach ($materialIds as $key => $material_id) {
-                    if ($material_id == 0) {
-                        continue;
-                    }
-
-                    $movementMaterial = MovementMaterial::query()->create([
-                        'order_id' => $order->id,
-                        'material_id' => $material_id,
-                        'ordered_quantity' => 0,
-                    ]);
-
-                    $material = '• '.$movementMaterial->material->title;
-                }
-            }
-
-            $text = 'Швея '.auth()->user()->name.' запросила: '."\n".$material.' x '.$quantity;
+            $material = Material::find($materialId);
+            $text = auth()->user()->name.' запросил(а) материал: '.$material->title;
 
             Log::channel('tg')
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);

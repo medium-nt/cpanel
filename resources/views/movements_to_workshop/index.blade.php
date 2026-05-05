@@ -43,17 +43,33 @@
                                 <div class="mt-3">
                                     @foreach($order->movementMaterials as $material)
                                         <li>
-                                            <b>{{ $material->material->title }}</b> -
-                                            {{ $material->ordered_quantity }} {{ $material->material->unit }} /
-                                            <span style="@if($order->status == '2' && $material->quantity < $material->ordered_quantity) color: red; @endif">
-                                            {{ $material->quantity }} {{ $material->material->unit }}
-                                            </span>
+                                            <b>{{ $material->material->title }}</b>
+                                            @if($material->roll)
+                                                — рулон:
+                                                <b>{{ $material->roll->roll_code }}</b>
+                                                ({{ $material->quantity }} {{ $material->material->unit }}
+                                                )
+                                            @endif
                                         </li>
                                     @endforeach
 
                                     <div class="my-2">
                                         Комментарий: <b>{{ $order->comment }}</b>
                                     </div>
+
+                                    @if($order->user)
+                                        <div style="font-size: 0.85em;">
+                                            Отгрузил:
+                                            <b>{{ $order->user->name }}</b>
+                                        </div>
+                                    @endif
+
+                                    @if($order->seamstress || $order->cutter)
+                                        <div style="font-size: 0.85em;">
+                                            Запросил/Получил:
+                                            <b>{{ $order->seamstress?->name ?? $order->cutter?->name }}</b>
+                                        </div>
+                                    @endif
 
                                     @if($order->status == '3' && $order->completed_at)
                                         <div class="my-2" style="white-space: nowrap; font-size: 0.8em;">
@@ -76,6 +92,14 @@
                                                class="btn btn-success mr-1"
                                                title="Принять">
                                                 <i class="fas fa-vote-yea"></i> Принять
+                                            </a>
+                                        </div>
+                                    @elseif( $order->status == '2' && (auth()->user()->isStorekeeper() || auth()->user()->isAdmin()))
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
+                                               class="btn btn-info mr-1"
+                                               title="Просмотр">
+                                                <i class="fas fa-eye"></i>
                                             </a>
                                         </div>
                                     @endif
@@ -111,6 +135,8 @@
                             <th scope="col">Комментарии</th>
                             <th scope="col">Статус </th>
                             <th scope="col">Смена</th>
+                            <th scope="col">Отгрузил</th>
+                            <th scope="col">Запросил/Получил</th>
                             <th scope="col">Заказ создан</th>
                             <th scope="col">Получено</th>
                             <th scope="col"></th>
@@ -122,16 +148,13 @@
                                 <td>{{ $order->id }}</td>
                                 <td style="white-space: nowrap;">
                                     @foreach($order->movementMaterials as $material)
-                                        <b>{{ $material->material->title }}</b> -
-                                        {{ $material->ordered_quantity }} {{ $material->material->unit }}
-                                        / <span style="@if($order->status == '2' && $material->quantity < $material->ordered_quantity) color: red; @endif">
-                                            {{ $material->quantity }} {{ $material->material->unit }}
-                                            @if($material->roll)
-                                                (рулон:
-                                                <b>{{ $material->roll->roll_code ?? '' }} </b>
-                                                )
-                                            @endif
-                                        </span>
+                                        <b>{{ $material->material->title }}</b>
+                                        @if($material->roll)
+                                            — рулон:
+                                            <b>{{ $material->roll->roll_code }}</b>
+                                            ({{ $material->quantity }} {{ $material->material->unit }}
+                                            )
+                                        @endif
                                         <br>
                                     @endforeach
                                 </td>
@@ -143,6 +166,8 @@
                                             class="badge badge-info">{{ $order->shift->name }}</span>
                                     @endif
                                 </td>
+                                <td>{{ $order->user?->name }}</td>
+                                <td>{{ $order->seamstress?->name ?? $order->cutter?->name }}</td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @if($order->status == '3' && $order->completed_at)
@@ -164,6 +189,14 @@
                                            class="btn btn-success mr-1"
                                            title="Принять">
                                             <i class="fas fa-vote-yea"></i>
+                                        </a>
+                                    </div>
+                                    @elseif( $order->status == '2' && (auth()->user()->isStorekeeper() || auth()->user()->isAdmin()))
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
+                                               class="btn btn-info mr-1"
+                                               title="Просмотр">
+                                                <i class="fas fa-eye"></i>
                                         </a>
                                     </div>
                                     @endif

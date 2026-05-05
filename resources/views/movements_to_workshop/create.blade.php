@@ -1,11 +1,7 @@
 @extends('layouts.app')
 
-{{-- Customize layout sections --}}
-
 @section('subtitle', $title)
 @section('content_header_title', $title)
-
-{{-- Content body: main page content --}}
 
 @section('content_body')
     <div class="col-12">
@@ -28,10 +24,21 @@
             @endif
 
             <form action="{{ route('movements_to_workshop.store') }}" method="POST">
-                @method('POST')
                 @csrf
                 <div class="card-body">
-                    @livewire('material-form', ['isFirst' => true, 'isMovementToWorkshop' => true])
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label for="material_id">Материал</label>
+                            <select name="material_id" class="form-control"
+                                    required>
+                                <option value="" selected>---</option>
+                                @foreach($materials as $material)
+                                    <option
+                                        value="{{ $material->id }}">{{ $material->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="row">
                         <div class="col-md-12 form-group">
@@ -57,29 +64,6 @@
 
 @section('js')
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const selects = document.querySelectorAll('select[name="material_id[]"]');
-
-            function checkUniqueSelects() {
-                let selectedValues = [];
-
-                selects.forEach(select => {
-                    if (select.value !== "") {
-                        if (selectedValues.includes(select.value)) {
-                            select.value = "";
-                            alert("Этот материал уже выбран!");
-                        } else {
-                            selectedValues.push(select.value);
-                        }
-                    }
-                });
-            }
-
-            selects.forEach(select => {
-                select.addEventListener('change', checkUniqueSelects);
-            });
-        });
-
         const form = document.querySelector('form[action*="movements_to_workshop"]');
         const button = form.querySelector('button');
 

@@ -1,11 +1,7 @@
 @extends('layouts.app')
 
-{{-- Customize layout sections --}}
-
 @section('subtitle', $title)
 @section('content_header_title', $title)
-
-{{-- Content body: main page content --}}
 
 @section('content_body')
     <div class="col-12">
@@ -27,70 +23,71 @@
                 </div>
             @endif
 
-            <form action="{{ route('movements_to_workshop.save_receive', ['order' => $order->id]) }}" method="POST">
-                @method('PUT')
-                @csrf
                 <div class="card-body">
-                    @foreach($order->movementMaterials as $item)
+                    @foreach($order->movementMaterials->filter(fn($m) => $m->roll_id !== null) as $item)
                     <div class="row">
-                        <div class="col-md-8 form-group">
-                            <label for="material_id">Материал</label>
+                        <div class="col-md-6 form-group">
+                            <label>Материал</label>
                             <input type="text"
                                    class="form-control"
-                                   id="material_id"
-                                   name="material_id[]"
                                    value="{{ $item->material->title }}"
                                    readonly>
                         </div>
 
-                        {{--                        <div class="col-md-2 form-group">--}}
-                        {{--                            <label for="ordered_quantity">Заказано</label>--}}
-                        {{--                            <input type="number"--}}
-                        {{--                                   class="form-control"--}}
-                        {{--                                   id="ordered_quantity"--}}
-                        {{--                                   value="{{ $item->ordered_quantity }}"--}}
-                        {{--                                   readonly>--}}
-                        {{--                        </div>--}}
-
                         <div class="col-md-2 form-group">
-                            <label for="quantity">Отгружено</label>
+                            <label>Кол-во</label>
                             <input type="number"
                                    class="form-control"
-                                   id="quantity"
-                                   name="quantity[]"
-                                   step="1"
-                                   min="0"
                                    value="{{ $item->quantity }}"
                                    readonly>
                         </div>
 
-                        <div class="col-md-2 form-group">
-                            <label for="roll_id">Рулон</label>
+                        <div class="col-md-4 form-group">
+                            <label>Рулон</label>
                             <input type="text"
                                    class="form-control"
-                                   id="roll_id"
                                    value="{{ $item->roll->roll_code ?? '' }}"
                                    readonly>
                         </div>
-
-                        <input type="hidden" name="id[]" value="{{ $item->id }}">
                     </div>
                     @endforeach
 
+                    @if($order->comment)
                         <div class="row">
                             <div class="col-md-12 form-group">
-                                <label for="comment">Комментарий</label>
+                                <label>Комментарий</label>
                                 <textarea rows="3"
                                           class="form-control"
                                           readonly>{{ $order->comment }}</textarea>
                             </div>
                         </div>
+                    @endif
 
-                    <div class="form-group">
-                        <button class="btn btn-success">Принять поставку</button>
-                    </div>
+                    @if(auth()->user()->isStorekeeper() || auth()->user()->isAdmin())
+                        <div class="form-group">
+                            <a href="{{ route('movements_to_workshop.index') }}"
+                               class="btn btn-secondary mr-1">Назад</a>
+                            <a href="{{ route('movements_to_workshop.print_sticker', ['order' => $order->id]) }}"
+                               class="btn btn-outline-secondary"
+                               target="_blank">
+                                <i class="fas fa-sticky-note"></i> Печать
+                                стикеров
+                            </a>
+                        </div>
+                    @else
+                        <form
+                            action="{{ route('movements_to_workshop.save_receive', ['order' => $order->id]) }}"
+                            method="POST">
+                            @method('PUT')
+                            @csrf
+                            <div class="form-group">
+                                <button class="btn btn-success">Принять
+                                    поставку
+                                </button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
-            </form>
         </div>
     </div>
 @stop

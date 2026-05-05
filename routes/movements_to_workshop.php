@@ -44,4 +44,7 @@ Route::prefix('/movements_to_workshop')->group(function () {
     Route::get('/{order}/delete', [MovementMaterialToWorkshopController::class, 'delete'])
         ->can('delete', 'order')
         ->name('movements_to_workshop.destroy');
+
+    Route::get('/{order}/print-sticker', [MovementMaterialToWorkshopController::class, 'printSticker'])
+        ->name('movements_to_workshop.print_sticker');
 });

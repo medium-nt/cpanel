@@ -11,6 +11,7 @@ use App\Services\MovementMaterialToWorkshopService;
 use App\Services\ShiftService;
 use App\Services\TgService;
 use App\Services\UserService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -19,7 +20,7 @@ class MovementMaterialToWorkshopController extends Controller
     public function index(Request $request)
     {
         $paginatedOrders = MovementMaterialToWorkshopService::getOrdersByStatus($request->status, auth()->user())
-            ->with(['shift', 'movementMaterials.material'])
+            ->with(['shift', 'movementMaterials.material', 'movementMaterials.roll', 'seamstress', 'cutter', 'user'])
             ->latest()
             ->paginate(10);
 
@@ -148,5 +149,28 @@ class MovementMaterialToWorkshopController extends Controller
         return redirect()
             ->route('movements_to_workshop.index')
             ->with('success', 'Поставка удалена');
+    }
+
+    /**
+     * Сгенерировать ленту стикеров с названием смены.
+     */
+    public function printSticker(Order $order)
+    {
+        $order->load('shift', 'movementMaterials');
+
+        $rollsCount = $order->movementMaterials->whereNotNull('roll_id')->count();
+
+        if ($rollsCount === 0) {
+            return back()->with('error', 'Нет рулонов для печати стикера.');
+        }
+
+        $pdf = Pdf::loadView('pdf.shift_sticker', [
+            'shiftName' => $order->shift?->name ?? 'Без смены',
+            'count' => $rollsCount,
+        ]);
+
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('shift_sticker_order_'.$order->id.'.pdf');
     }
 }
