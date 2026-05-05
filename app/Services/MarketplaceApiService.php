@@ -961,7 +961,7 @@ class MarketplaceApiService
             if ($length > 25) {
                 $fontSizeCluster = 7;
             } elseif ($length > 18) {
-                $fontSizeCluster = 12;
+                $fontSizeCluster = 11;
             } else {
                 $fontSizeCluster = 14;
             }
