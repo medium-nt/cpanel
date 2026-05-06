@@ -16,7 +16,7 @@ Artisan::command('inspire', function () {
 Schedule::call(function () {
     MarketplaceApiService::uploadingNewProducts();
     MarketplaceApiService::uploadingCancelledProducts();
-})->everyFiveMinutes();
+})->everyTenMinutes();
 
 $workingDayStart = app()->runningUnitTests()
     ? '09:00'
