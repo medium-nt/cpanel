@@ -324,6 +324,11 @@ class MarketplaceApiService
                     Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
                     Log::channel('marketplace_api')->error($body);
                     Log::channel('marketplace_api')->error(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                    Log::channel('marketplace_api')->error('Rate-Limit Headers: ' . json_encode([
+                            'x-ratelimit-limit' => $response->header('x-ratelimit-limit'),
+                            'x-ratelimit-retry' => $response->header('x-ratelimit-retry'),
+                            'x-ratelimit-reset' => $response->header('x-ratelimit-reset'),
+                        ], JSON_UNESCAPED_UNICODE));
 
                     return [];
                 }
