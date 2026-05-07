@@ -18,9 +18,9 @@
                         Добавить возврат поставщику
                     </a>
 
-                    <a href="{{ route('write_off_remnants.create') }}" class="btn btn-primary mb-2">
-                        Списать остатки
-                    </a>
+                    {{--                    <a href="{{ route('write_off_remnants.create') }}" class="btn btn-primary mb-2">--}}
+                    {{--                        Списать остатки--}}
+                    {{--                    </a>--}}
                 </div>
             </div>
 
@@ -34,7 +34,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Материал</th>
                                 <th scope="col">Брак</th>
-                                <th scope="col">Остатки</th>
+                                {{--                                <th scope="col">Остатки</th>--}}
                             </tr>
                             </thead>
                             <tbody>
@@ -43,7 +43,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item['material']->title }}</td>
                                     <td>{{ $item['quantity'] }}</td>
-                                    <td>{{ $item['remnants'] }}</td>
+                                    {{--                                    <td>{{ $item['remnants'] }}</td>--}}
                                 </tr>
                             @endforeach
                             </tbody>
