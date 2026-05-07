@@ -9,7 +9,7 @@ class MovementMaterialPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isManager();
     }
 
     public function viewAny_defect(User $user): bool

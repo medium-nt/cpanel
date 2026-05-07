@@ -313,13 +313,13 @@ return [
                     'text' => 'inventory_by_warehouse',
                     'url' => 'megatulle/inventory/warehouse',
                     'icon' => 'fas fa-fw fa-boxes',
-                    'can' => 'is-storekeeper-or-admin',
+                    'can' => 'is-storekeeper-admin-manager',
                 ],
                 [
                     'text' => 'inventory_by_workshop',
                     'url' => 'megatulle/inventory/workshop',
                     'icon' => 'fas fa-fw fa-boxes',
-                    'can' => 'is-admin-storekeeper-seamstress-cutter',
+                    'can' => 'is-admin-storekeeper-seamstress-cutter-manager',
                 ],
                 [
                     'text' => 'warehouse_of_item',

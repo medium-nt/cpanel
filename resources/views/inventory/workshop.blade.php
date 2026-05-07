@@ -40,6 +40,8 @@
                             @if(auth()->user()->isadmin() || auth()->user()->isStorekeeper())
                                 <th scope="col" class="text-center">Без смены
                                 </th>
+                            @endif
+                            @if(auth()->user()->isadmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
                                 <th scope="col" class="text-center">Итого</th>
                             @endif
                         </tr>
@@ -72,6 +74,8 @@
                                             —
                                         @endif
                                     </td>
+                                @endif
+                                @if(auth()->user()->isadmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
                                     <td class="text-center">
                                         <b>{{ $item['total_quantity'] }} {{ $item['material']->unit }}</b>,
                                         {{ $item['total_rolls'] }} рул.
@@ -89,7 +93,7 @@
                             <div class="card mb-2">
                                 <div class="card-body p-2">
                                     <b>{{ $item['material']->title }}</b>
-                                    @if(auth()->user()->isadmin() || auth()->user()->isStorekeeper())
+                                    @if(auth()->user()->isadmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
                                         <span class="float-right">
                                             <b>{{ $item['total_quantity'] }} {{ $item['material']->unit }}</b>,
                                             {{ $item['total_rolls'] }} рул.
@@ -132,7 +136,7 @@
                                                         </td>
                                                     </tr>
                                                 @endif
-                                        @endif
+                                            @endif
                                     </table>
                                 </div>
                             </div>
