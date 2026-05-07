@@ -98,6 +98,14 @@
                         </div>
                     @endforeach
 
+                    <div class="font-weight-bold mt-2 mb-3">
+                        ИТОГО: <span
+                            id="total-rolls">{{ $order->movementMaterials->count() }}</span>
+                        рул., <span
+                            id="total-quantity">{{ $order->movementMaterials->sum('quantity') }}</span>
+                        м
+                    </div>
+
                     <div class="form-group">
                         <button class="btn btn-success">Сохранить изменения</button>
 
@@ -120,4 +128,18 @@
                 </form>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('input[name="quantity[]"]').forEach(function (input) {
+            if (!input.readOnly) {
+                input.addEventListener('input', function () {
+                    let total = 0;
+                    document.querySelectorAll('input[name="quantity[]"]').forEach(function (el) {
+                        total += parseFloat(el.value) || 0;
+                    });
+                    document.getElementById('total-quantity').textContent = total.toFixed(2);
+                });
+            }
+        });
+    </script>
 @stop
