@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
  * @mixin IdeHelperShelf
@@ -40,6 +41,21 @@ class Roll extends Model
             self::STATUS_IN_WORKSHOP,
             self::STATUS_COMPLETED,
         ];
+    }
+
+    /**
+     * Заказ поставки от поставщика, через который поступил этот рулон.
+     */
+    public function supplyOrder(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Order::class,
+            MovementMaterial::class,
+            'roll_id',
+            'id',
+            'id',
+            'order_id',
+        )->where('orders.type_movement', 1);
     }
 
     public function material(): BelongsTo

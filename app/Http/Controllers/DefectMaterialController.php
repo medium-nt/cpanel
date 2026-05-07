@@ -17,7 +17,7 @@ class DefectMaterialController extends Controller
     public function index(Request $request)
     {
         $orders = OrderService::getFiltered($request);
-        $paginatedItems = $orders->paginate(10);
+        $paginatedItems = $orders->with('movementMaterials.roll.supplyOrder.supplier')->paginate(10);
         $queryParams = $request->except(['page']);
 
         // Сохраняем полный URL со всеми параметрами
@@ -56,6 +56,8 @@ class DefectMaterialController extends Controller
 
     public function approve_reject(Order $order)
     {
+        $order->load('movementMaterials.roll.supplyOrder.supplier');
+
         return view('defect_materials.approve_reject', [
             'title' => 'Одобрение брака',
             'order' => $order,

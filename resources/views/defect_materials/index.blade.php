@@ -10,7 +10,7 @@
 @section('content_body')
     <div class="row">
         @if(auth()->user()->isStorekeeper() || auth()->user()->isAdmin())
-        <div class="col-md-6">
+            <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <a href="{{ route('movements_defect_to_supplier.create') }}"
@@ -55,7 +55,7 @@
         </div>
         @endif
 
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
 
@@ -177,6 +177,14 @@
                                             Тип: <b>{{ $order->type_movement_name }}</b>
                                         </div>
                                         <div class="my-2">
+                                            Поставщик:
+                                            <b>
+                                                @foreach($order->movementMaterials as $material)
+                                                    {{ $material->roll?->supplyOrder?->supplier?->title ?? '—' }}
+                                                @endforeach
+                                            </b>
+                                        </div>
+                                            <div class="my-2">
                                             Комментарий: <b>{{ $order->comment }}</b>
                                         </div>
 
@@ -224,6 +232,7 @@
                                 <th scope="col">Статус</th>
                                 <th scope="col">Тип</th>
                                 <th scope="col">Сотрудник</th>
+                                <th scope="col">Поставщик</th>
                                 <th scope="col">Комментарий</th>
                                 <th scope="col">Дата</th>
                             </tr>
@@ -285,6 +294,14 @@
                                     </td>
                                     <td>{{ $order->type_movement_name }}</td>
                                     <td>{{ $order->seamstress->short_name ?? '' }} {{ $order->cutter->short_name ?? '' }}</td>
+                                    <td>
+                                        @foreach($order->movementMaterials as $material)
+                                            {{ $material->roll?->supplyOrder?->supplier?->title ?? '—' }}
+                                            @if(!$loop->last)
+                                                <br>
+                                            @endif
+                                        @endforeach
+                                    </td>
                                     <td>{{ $order->comment }}</td>
                                     <td>{{ $order->created_date }}</td>
 

@@ -39,7 +39,7 @@
 
                 <div class="row">
                     @foreach($order->movementMaterials as $item)
-                    <div class="col-md-10 form-group">
+                        <div class="col-md-4 form-group">
                         <label for="material_id">Материал</label>
                         <input type="text"
                                class="form-control @error('material_id') is-invalid @enderror"
@@ -47,6 +47,15 @@
                                value="{{ $item->material->title }}"
                                readonly>
                     </div>
+
+                        <div class="col-md-6 form-group">
+                            <label for="supplier">Поставщик</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="supplier"
+                                   value="{{ $item->roll?->supplyOrder?->supplier?->title ?? '—' }}"
+                                   readonly>
+                        </div>
 
                     <div class="col-md-2 form-group">
                         <label for="quantity">Количество</label>
