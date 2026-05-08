@@ -57,8 +57,13 @@ class MarketplaceSupplyController extends Controller
         ]);
     }
 
+    /**
+     * Создание новой поставки для маркетплейса.
+     */
     public function create(string $marketplace_id)
     {
+        $type = request()->input('type', 'FBS');
+
         if ($marketplace_id == 1) {
             $openSupplyOzon = MarketplaceSupply::query()
                 ->where('marketplace_id', 1)
@@ -74,12 +79,13 @@ class MarketplaceSupplyController extends Controller
 
         $marketplaceSupply = MarketplaceSupply::query()->create([
             'marketplace_id' => $marketplace_id,
+            'type' => $type,
         ]);
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         Log::channel('marketplace_supplies')
-            ->notice(auth()->user()->name.' создал поставку для маркетплейса '.$marketplaceName.' (#'.$marketplaceSupply->id.').');
+            ->notice(auth()->user()->name.' создал поставку для маркетплейса '.$marketplaceName.' ('.strtoupper($type).') (#'.$marketplaceSupply->id.').');
 
         return redirect()
             ->route('marketplace_supplies.index')

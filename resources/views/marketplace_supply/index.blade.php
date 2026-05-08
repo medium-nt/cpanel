@@ -19,8 +19,15 @@
                             Создать поставку
                         </button>
                         <div class="dropdown-menu" aria-labelledby="supplyDropdown">
-                            <a class="dropdown-item" href="{{ route('marketplace_supplies.create', ['marketplace_id' => 1]) }}">OZON</a>
-                            <a class="dropdown-item" href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2]) }}">WB</a>
+                            <a class="dropdown-item"
+                               href="{{ route('marketplace_supplies.create', ['marketplace_id' => 1, 'type' => 'FBS']) }}">OZON
+                                FBS</a>
+                            <a class="dropdown-item"
+                               href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2, 'type' => 'FBS']) }}">WB
+                                FBS</a>
+                            <a class="dropdown-item"
+                               href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2, 'type' => 'FBO']) }}">WB
+                                FBO</a>
                         </div>
                         @endif
                     </div>
@@ -145,6 +152,7 @@
                             <th scope="col">Статус</th>
                             <th scope="col">Номер поставки</th>
                             <th scope="col">Маркетплейс</th>
+                            <th scope="col">Тип</th>
                             <th scope="col">Создан</th>
                             <th scope="col">Выполнен</th>
                             <th scope="col"></th>
@@ -173,6 +181,7 @@
                                          src="{{ asset($marketplace_supply->marketplace_name) }}"
                                          alt="{{ $marketplace_supply->marketplace_name }}">
                                 </td>
+                                <td>{{ $marketplace_supply->type }}</td>
 
                                 <td>
                                     <span class="mr-2">{{ now()->parse($marketplace_supply->created_at)->format('d/m/Y H:i') }}</span>
