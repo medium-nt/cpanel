@@ -8,6 +8,7 @@ use App\Services\MarketplaceOrderService;
 use App\Services\MarketplaceSupplyService;
 use App\Services\TgService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -49,12 +50,61 @@ class MarketplaceSupplyController extends Controller
     {
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
+        if ($marketplaceSupply->type === 'FBO') {
+            $wbSupplies = $marketplaceSupply->status === 0
+                ? MarketplaceApiService::getFboSuppliesWb()
+                : [];
+
+            return view('marketplace_supply.show-wb-fbo', [
+                'title' => 'Поставка для маркетплейса ' . $marketplaceName,
+                'supply' => $marketplaceSupply,
+                'wbSupplies' => $wbSupplies,
+            ]);
+        }
+
         return view('marketplace_supply.show', [
             'title' => 'Поставка для маркетплейса '.$marketplaceName,
             'supply' => $marketplaceSupply,
             'hasShippedOrders' => MarketplaceOrderService::hasShippedOrdersBySupply($marketplaceSupply),
             'supply_orders' => $marketplaceSupply->marketplace_orders()->get(),
         ]);
+    }
+
+    /**
+     * Привязка выбранной FBO-поставки из WB к поставке в системе.
+     */
+    public function linkWbFbo(Request $request, MarketplaceSupply $marketplaceSupply)
+    {
+        $validated = $request->validate([
+            'wb_supply_id' => 'required|integer',
+        ]);
+
+        $exists = MarketplaceSupply::query()
+            ->where('supply_id', (string)$validated['wb_supply_id'])
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Поставка с номером ' . $validated['wb_supply_id'] . ' уже привязана.');
+        }
+
+        $detail = MarketplaceApiService::getFboSupplyDetailWb((int)$validated['wb_supply_id']);
+
+        if (empty($detail)) {
+            return back()->with('error', 'Не удалось получить данные поставки из WB.');
+        }
+
+        $marketplaceSupply->update([
+            'supply_id' => (string)$validated['wb_supply_id'],
+            'cluster' => $detail['warehouseName'] ?? null,
+            'supply_date' => isset($detail['supplyDate']) ? Carbon::parse($detail['supplyDate']) : null,
+        ]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name . ' привязал FBO-поставку WB #' . $validated['wb_supply_id'] . ' к поставке #' . $marketplaceSupply->id . '.');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Поставка привязана.');
     }
 
     /**

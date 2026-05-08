@@ -12,6 +12,10 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('view', 'marketplace_supply')
         ->name('marketplace_supplies.show');
 
+    Route::post('/{marketplace_supply}/link-wb-fbo', [MarketplaceSupplyController::class, 'linkWbFbo'])
+        ->can('linkWbFbo', 'marketplace_supply')
+        ->name('marketplace_supplies.link_wb_fbo');
+
     Route::get('/{marketplace_supply}/complete', [MarketplaceSupplyController::class, 'complete'])
         ->can('complete', 'marketplace_supply')
         ->name('marketplace_supplies.complete');

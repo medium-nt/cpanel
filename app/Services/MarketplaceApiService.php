@@ -2492,4 +2492,68 @@ class MarketplaceApiService
             return 0;
         }
     }
+
+    /**
+     * Получает список FBO-поставок из WB supplies API.
+     */
+    public static function getFboSuppliesWb(): array
+    {
+        try {
+            $response = self::wbRequest()
+                ->post('https://supplies-api.wildberries.ru/api/v1/supplies', [
+                    'statusIDs' => [1, 2, 3, 4],
+                ]);
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения FBO-поставок из WB',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return [];
+            }
+
+            return $response->json() ?? [];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении FBO-поставок WB: ' . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
+
+    /**
+     * Получает детальную информацию по FBO-поставке из WB supplies API.
+     */
+    public static function getFboSupplyDetailWb(int $supplyId): array
+    {
+        try {
+            $response = self::wbRequest()
+                ->get("https://supplies-api.wildberries.ru/api/v1/supplies/{$supplyId}");
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    "Ошибка получения деталей FBO-поставки #{$supplyId} из WB",
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return [];
+            }
+
+            return $response->json() ?? [];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                "Ошибка при получении деталей FBO-поставки WB #{$supplyId}: " . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
 }
