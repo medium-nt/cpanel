@@ -52,12 +52,12 @@ class MarketplaceSupplyController extends Controller
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         if ($marketplaceSupply->type === 'FBO') {
-            $wbSupplies = $marketplaceSupply->status === 0
+            $wbSupplies = ($marketplaceSupply->status === 0 && empty($marketplaceSupply->supply_id))
                 ? MarketplaceApiService::getFboSuppliesWb()
                 : [];
 
             return view('marketplace_supply.show-wb-fbo', [
-                'title' => 'Поставка для маркетплейса ' . $marketplaceName,
+                'title' => 'Поставка для маркетплейса '.$marketplaceName,
                 'supply' => $marketplaceSupply,
                 'wbSupplies' => $wbSupplies,
             ]);
@@ -81,27 +81,27 @@ class MarketplaceSupplyController extends Controller
         ]);
 
         $exists = MarketplaceSupply::query()
-            ->where('supply_id', (string)$validated['wb_supply_id'])
+            ->where('supply_id', (string) $validated['wb_supply_id'])
             ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Поставка с номером ' . $validated['wb_supply_id'] . ' уже привязана.');
+            return back()->with('error', 'Поставка с номером '.$validated['wb_supply_id'].' уже привязана.');
         }
 
-        $detail = MarketplaceApiService::getFboSupplyDetailWb((int)$validated['wb_supply_id']);
+        $detail = MarketplaceApiService::getFboSupplyDetailWb((int) $validated['wb_supply_id']);
 
         if (empty($detail)) {
             return back()->with('error', 'Не удалось получить данные поставки из WB.');
         }
 
         $marketplaceSupply->update([
-            'supply_id' => (string)$validated['wb_supply_id'],
+            'supply_id' => (string) $validated['wb_supply_id'],
             'cluster' => $detail['warehouseName'] ?? null,
             'supply_date' => isset($detail['supplyDate']) ? Carbon::parse($detail['supplyDate']) : null,
         ]);
 
         Log::channel('marketplace_supplies')
-            ->notice(auth()->user()->name . ' привязал FBO-поставку WB #' . $validated['wb_supply_id'] . ' к поставке #' . $marketplaceSupply->id . '.');
+            ->notice(auth()->user()->name.' привязал FBO-поставку WB #'.$validated['wb_supply_id'].' к поставке #'.$marketplaceSupply->id.'.');
 
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
@@ -113,7 +113,7 @@ class MarketplaceSupplyController extends Controller
      */
     public function loadFboGoods(MarketplaceSupply $marketplaceSupply)
     {
-        $goods = MarketplaceApiService::getFboSupplyGoodsWb((int)$marketplaceSupply->supply_id);
+        $goods = MarketplaceApiService::getFboSupplyGoodsWb((int) $marketplaceSupply->supply_id);
 
         if (empty($goods)) {
             return back()->with('error', 'Не удалось получить товарный состав из WB.');
@@ -132,7 +132,7 @@ class MarketplaceSupplyController extends Controller
             return [
                 'vendorCode' => $good['vendorCode'],
                 'name' => $item
-                    ? $item->title . ' ' . $item->width . 'x' . $item->height
+                    ? $item->title.' '.$item->width.'x'.$item->height
                     : '-',
                 'quantity' => $good['quantity'],
             ];
@@ -141,11 +141,44 @@ class MarketplaceSupplyController extends Controller
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         return view('marketplace_supply.show-wb-fbo', [
-            'title' => 'Поставка для маркетплейса ' . $marketplaceName,
+            'title' => 'Поставка для маркетплейса '.$marketplaceName,
             'supply' => $marketplaceSupply,
             'wbSupplies' => [],
             'supplyGoods' => $supplyGoods,
         ]);
+    }
+
+    /**
+     * Форма редактирования полей Газельки для FBO-поставки.
+     */
+    public function editWbFbo(MarketplaceSupply $marketplaceSupply)
+    {
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
+
+        return view('marketplace_supply.edit-wb-fbo', [
+            'title' => 'Редактирование поставки '.$marketplaceName,
+            'supply' => $marketplaceSupply,
+        ]);
+    }
+
+    /**
+     * Сохранение полей Газельки для FBO-поставки.
+     */
+    public function updateWbFbo(Request $request, MarketplaceSupply $marketplaceSupply)
+    {
+        $validated = $request->validate([
+            'gazelka_shipment_id' => 'nullable|string',
+            'gazelka_shipment_date' => 'nullable|date',
+        ]);
+
+        $marketplaceSupply->update([
+            'gazelka_shipment_id' => $validated['gazelka_shipment_id'] ?? null,
+            'gazelka_shipment_date' => isset($validated['gazelka_shipment_date']) ? Carbon::parse($validated['gazelka_shipment_date']) : null,
+        ]);
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Данные обновлены.');
     }
 
     /**

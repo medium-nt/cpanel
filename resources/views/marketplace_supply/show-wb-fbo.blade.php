@@ -51,7 +51,7 @@
                     <h3 class="card-title">Данные поставки WB FBO</h3>
                 </div>
                 <div class="card-body">
-                    <table class="table">
+                    <table class="table mb-3">
                         <tr>
                             <th>Номер поставки</th>
                             <td>{{ $supply->supply_id }}</td>
@@ -64,11 +64,26 @@
                             <th>Дата поставки</th>
                             <td>{{ $supply->supply_date?->format('d.m.Y') }}</td>
                         </tr>
+                        <tr>
+                            <th>ID отгрузки в Газельку</th>
+                            <td>{{ $supply->gazelka_shipment_id ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Дата отгрузки в Газельку</th>
+                            <td>{{ $supply->gazelka_shipment_date?->format('d.m.Y') ?? '-' }}</td>
+                        </tr>
                     </table>
+
+                    @if(auth()->user()->isAdmin() || auth()->user()->isManager())
+                        <a href="{{ route('marketplace_supplies.edit_wb_fbo', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-outline-primary ml-2 mb-2">
+                            Редактировать
+                        </a>
+                    @endif
 
                     @if($supply->status == 0 && !empty($supply->supply_id) && empty($supplyGoods))
                         <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
-                           class="btn btn-primary">
+                           class="btn btn-primary ml-2 mb-2">
                             Загрузить товарный состав
                         </a>
                     @endif

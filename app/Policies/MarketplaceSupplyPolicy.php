@@ -51,4 +51,9 @@ class MarketplaceSupplyPolicy
     {
         return $user->isAdmin() || $user->isStorekeeper();
     }
+
+    public function updateWbFbo(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isManager();
+    }
 }
