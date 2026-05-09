@@ -2556,4 +2556,35 @@ class MarketplaceApiService
             return [];
         }
     }
+
+    /**
+     * Получает товарный состав FBO-поставки из WB supplies API.
+     */
+    public static function getFboSupplyGoodsWb(int $supplyId): array
+    {
+        try {
+            $response = self::wbRequest()
+                ->get("https://supplies-api.wildberries.ru/api/v1/supplies/{$supplyId}/goods");
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    "Ошибка получения товаров FBO-поставки #{$supplyId} из WB",
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return [];
+            }
+
+            return $response->json() ?? [];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                "Ошибка при получении товаров FBO-поставки WB #{$supplyId}: " . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
 }

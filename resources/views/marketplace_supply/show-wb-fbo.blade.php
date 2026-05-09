@@ -65,8 +65,43 @@
                             <td>{{ $supply->supply_date?->format('d.m.Y') }}</td>
                         </tr>
                     </table>
+
+                    @if($supply->status == 0 && !empty($supply->supply_id) && empty($supplyGoods))
+                        <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-primary">
+                            Загрузить товарный состав
+                        </a>
+                    @endif
                 </div>
             </div>
+
+            @if(!empty($supplyGoods))
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Товарный состав</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover table-bordered">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th>Артикул</th>
+                                <th>Товар</th>
+                                <th>Кол-во</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($supplyGoods as $good)
+                                <tr>
+                                    <td>{{ $good['vendorCode'] }}</td>
+                                    <td>{{ $good['name'] }}</td>
+                                    <td>{{ $good['quantity'] }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 @stop

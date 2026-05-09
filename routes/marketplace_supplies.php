@@ -16,6 +16,10 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('linkWbFbo', 'marketplace_supply')
         ->name('marketplace_supplies.link_wb_fbo');
 
+    Route::get('/{marketplace_supply}/load-fbo-goods', [MarketplaceSupplyController::class, 'loadFboGoods'])
+        ->can('view', 'marketplace_supply')
+        ->name('marketplace_supplies.load_fbo_goods');
+
     Route::get('/{marketplace_supply}/complete', [MarketplaceSupplyController::class, 'complete'])
         ->can('complete', 'marketplace_supply')
         ->name('marketplace_supplies.complete');

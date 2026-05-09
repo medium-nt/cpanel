@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketplaceItem;
 use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderService;
@@ -105,6 +106,46 @@ class MarketplaceSupplyController extends Controller
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
             ->with('success', 'Поставка привязана.');
+    }
+
+    /**
+     * Загрузка товарного состава FBO-поставки из WB API.
+     */
+    public function loadFboGoods(MarketplaceSupply $marketplaceSupply)
+    {
+        $goods = MarketplaceApiService::getFboSupplyGoodsWb((int)$marketplaceSupply->supply_id);
+
+        if (empty($goods)) {
+            return back()->with('error', 'Не удалось получить товарный состав из WB.');
+        }
+
+        $vendorCodes = collect($goods)->pluck('vendorCode')->unique()->filter()->values()->toArray();
+
+        $items = MarketplaceItem::query()
+            ->whereIn('article', $vendorCodes)
+            ->get()
+            ->keyBy('article');
+
+        $supplyGoods = collect($goods)->map(function (array $good) use ($items) {
+            $item = $items->get($good['vendorCode']);
+
+            return [
+                'vendorCode' => $good['vendorCode'],
+                'name' => $item
+                    ? $item->title . ' ' . $item->width . 'x' . $item->height
+                    : '-',
+                'quantity' => $good['quantity'],
+            ];
+        });
+
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
+
+        return view('marketplace_supply.show-wb-fbo', [
+            'title' => 'Поставка для маркетплейса ' . $marketplaceName,
+            'supply' => $marketplaceSupply,
+            'wbSupplies' => [],
+            'supplyGoods' => $supplyGoods,
+        ]);
     }
 
     /**
