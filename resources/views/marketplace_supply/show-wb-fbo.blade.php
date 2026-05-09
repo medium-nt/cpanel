@@ -81,6 +81,11 @@
                         <h3 class="card-title">Товарный состав</h3>
                     </div>
                     <div class="card-body">
+                        <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-outline-primary mb-3">
+                            Обновить товарный состав
+                        </a>
+
                         <table class="table table-hover table-bordered">
                             <thead class="thead-dark">
                             <tr>
