@@ -98,7 +98,10 @@
                                         <span class="badge bg-warning"> Отгрузка </span>
                                         @break
                                 @endswitch
-                                <b class="ml-2">{{ $marketplace_supply->supply_id }} </b>
+                                    <b class="ml-2">{{ $marketplace_supply->supply_id }}
+                                        <br>
+                                        {{ $marketplace_supply->cluster ?? '' }}
+                                    </b>
                                 <div class="my-3">
 
                                     <div class="mt-2">
@@ -161,7 +164,7 @@
                         <tbody>
                         @foreach ($marketplace_supplies as $marketplace_supply)
                             <tr>
-                                <td>{{ $marketplace_supply->id }}</td>
+                                <td>{{ $marketplace_supply->id }} </td>
                                 <td>
                                     @switch($marketplace_supply->status)
                                         @case(0)
@@ -175,7 +178,10 @@
                                         @break
                                     @endswitch
                                 </td>
-                                <td>{{ $marketplace_supply->supply_id }}</td>
+                                <td>
+                                    <b>{{ $marketplace_supply->supply_id }} </b>
+                                    {{ $marketplace_supply->cluster ? "($marketplace_supply->cluster)" : '' }}
+                                </td>
                                 <td>
                                     <img style="width: 80px;"
                                          src="{{ asset($marketplace_supply->marketplace_name) }}"
