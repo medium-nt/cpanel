@@ -56,4 +56,9 @@ class MarketplaceSupplyPolicy
     {
         return $user->isAdmin() || $user->isManager();
     }
+
+    public function manageBoxes(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isStorekeeper();
+    }
 }

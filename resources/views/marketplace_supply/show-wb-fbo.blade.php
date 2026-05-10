@@ -81,6 +81,13 @@
                         </a>
                     @endif
 
+                    @if($hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
+                        <a href="{{ route('supply_boxes.index', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-success ml-2 mb-2">
+                            Управление коробами
+                        </a>
+                    @endif
+
                     @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods))
                         <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-primary ml-2 mb-2">
@@ -138,34 +145,35 @@
 
             @if($hasOrders)
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header cursor-pointer"
+                         data-toggle="collapse" data-target="#orders-collapse">
                         <h3 class="card-title">Заказы
                             ({{ $supplyOrders->count() }})</h3>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-hover table-bordered">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th>№</th>
-                                <th>Заказ</th>
-                                <th>Товар</th>
-                                <th>Кол-во</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($supplyOrders as $order)
-                                @foreach($order->items as $item)
-                                    <tr>
-                                        <td>{{ $loop->parent->iteration }}</td>
-                                        <td>{{ $order->order_id }}</td>
-                                        <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
-                                            x{{ $item->item?->height }}</td>
-                                        <td>{{ $item->quantity }}</td>
-                                    </tr>
+                    <div id="orders-collapse" class="collapse">
+                        <div class="card-body">
+                            <table class="table table-hover table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>Заказ</th>
+                                    <th>Товар</th>
+                                    <th>Кол-во</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($supplyOrders as $order)
+                                    @foreach($order->items as $item)
+                                        <tr>
+                                            <td>{{ $order->order_id }}</td>
+                                            <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
+                                                x{{ $item->item?->height }}</td>
+                                            <td>{{ $item->quantity }}</td>
+                                        </tr>
+                                    @endforeach
                                 @endforeach
-                            @endforeach
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -188,3 +196,15 @@
         });
     </script>
 @stop
+
+@push('css')
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .cursor-pointer:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+@endpush

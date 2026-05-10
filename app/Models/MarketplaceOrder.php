@@ -28,6 +28,7 @@ class MarketplaceOrder extends Model
         'marketplace_id',
         'order_id',
         'supply_id',
+        'box_id',
         'status',
         'fulfillment_type',
         'completed_at',
@@ -82,6 +83,11 @@ class MarketplaceOrder extends Model
     public function supply(): BelongsTo
     {
         return $this->belongsTo(MarketplaceSupply::class);
+    }
+
+    public function box(): BelongsTo
+    {
+        return $this->belongsTo(SupplyBox::class, 'box_id');
     }
 
     public function getCompletedDateAttribute(): string

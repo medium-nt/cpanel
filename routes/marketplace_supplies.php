@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MarketplaceSupplyController;
+use App\Http\Controllers\SupplyBoxController;
 use App\Models\MarketplaceSupply;
 
 Route::prefix('/marketplace_supplies')->group(function () {
@@ -23,6 +24,26 @@ Route::prefix('/marketplace_supplies')->group(function () {
     Route::post('/{marketplace_supply}/confirm-fbo-goods', [MarketplaceSupplyController::class, 'confirmFboGoods'])
         ->can('updateWbFbo', 'marketplace_supply')
         ->name('marketplace_supplies.confirm_fbo_goods');
+
+    Route::get('/{marketplace_supply}/boxes', [SupplyBoxController::class, 'index'])
+        ->can('manageBoxes', 'marketplace_supply')
+        ->name('supply_boxes.index');
+
+    Route::post('/{marketplace_supply}/boxes', [SupplyBoxController::class, 'store'])
+        ->can('manageBoxes', 'marketplace_supply')
+        ->name('supply_boxes.store');
+
+    Route::get('/{marketplace_supply}/boxes/{box}', [SupplyBoxController::class, 'show'])
+        ->can('manageBoxes', 'marketplace_supply')
+        ->name('supply_boxes.show');
+
+    Route::delete('/{marketplace_supply}/boxes/{box}', [SupplyBoxController::class, 'destroy'])
+        ->can('manageBoxes', 'marketplace_supply')
+        ->name('supply_boxes.destroy');
+
+    Route::delete('/{marketplace_supply}/boxes/{box}/remove-order/{order}', [SupplyBoxController::class, 'removeOrder'])
+        ->can('manageBoxes', 'marketplace_supply')
+        ->name('supply_boxes.remove_order');
 
     Route::get('/{marketplace_supply}/edit-wb-fbo', [MarketplaceSupplyController::class, 'editWbFbo'])
         ->can('updateWbFbo', 'marketplace_supply')
