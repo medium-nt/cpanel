@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceItem;
+use App\Models\MarketplaceOrder;
+use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderService;
@@ -135,8 +137,11 @@ class MarketplaceSupplyController extends Controller
                     ? $item->title.' '.$item->width.'x'.$item->height
                     : '-',
                 'quantity' => $good['quantity'],
+                'found' => $item !== null,
             ];
         });
+
+        $allItemsFound = $supplyGoods->every(fn ($g) => $g['found']);
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
@@ -145,6 +150,7 @@ class MarketplaceSupplyController extends Controller
             'supply' => $marketplaceSupply,
             'wbSupplies' => [],
             'supplyGoods' => $supplyGoods,
+            'allItemsFound' => $allItemsFound,
         ]);
     }
 
@@ -179,6 +185,64 @@ class MarketplaceSupplyController extends Controller
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
             ->with('success', 'Данные обновлены.');
+    }
+
+    /**
+     * Формирование заказов из товарного состава FBO-поставки.
+     */
+    public function confirmFboGoods(MarketplaceSupply $marketplaceSupply)
+    {
+        $goods = MarketplaceApiService::getFboSupplyGoodsWb((int) $marketplaceSupply->supply_id);
+
+        if (empty($goods)) {
+            return back()->with('error', 'Не удалось получить товарный состав из WB.');
+        }
+
+        $vendorCodes = collect($goods)->pluck('vendorCode')->unique()->filter()->values()->toArray();
+
+        $items = MarketplaceItem::query()
+            ->whereIn('article', $vendorCodes)
+            ->get()
+            ->keyBy('article');
+
+        $notFound = collect($vendorCodes)->diff($items->keys())->values();
+
+        if ($notFound->isNotEmpty()) {
+            return back()->with('error', 'Не найдены товары с артикулами: '.$notFound->implode(', '));
+        }
+
+        $orderNumber = 1;
+
+        foreach ($goods as $good) {
+            $item = $items->get($good['vendorCode']);
+
+            for ($i = 0; $i < $good['quantity']; $i++) {
+                $order = MarketplaceOrder::query()->create([
+                    'order_id' => $marketplaceSupply->supply_id.'-'.$orderNumber,
+                    'marketplace_id' => 2,
+                    'supply_id' => $marketplaceSupply->id,
+                    'fulfillment_type' => 'FBO',
+                    'status' => 0,
+                ]);
+
+                MarketplaceOrderItem::query()->create([
+                    'marketplace_order_id' => $order->id,
+                    'marketplace_item_id' => $item->id,
+                    'quantity' => 1,
+                    'price' => 0,
+                    'status' => 0,
+                ]);
+
+                $orderNumber++;
+            }
+        }
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' сформировал FBO-поставку #'.$marketplaceSupply->id.' ('.($orderNumber - 1).' заказов).');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Поставка сформирована ('.($orderNumber - 1).' заказов).');
     }
 
     /**

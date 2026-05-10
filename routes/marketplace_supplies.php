@@ -20,6 +20,10 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('view', 'marketplace_supply')
         ->name('marketplace_supplies.load_fbo_goods');
 
+    Route::post('/{marketplace_supply}/confirm-fbo-goods', [MarketplaceSupplyController::class, 'confirmFboGoods'])
+        ->can('updateWbFbo', 'marketplace_supply')
+        ->name('marketplace_supplies.confirm_fbo_goods');
+
     Route::get('/{marketplace_supply}/edit-wb-fbo', [MarketplaceSupplyController::class, 'editWbFbo'])
         ->can('updateWbFbo', 'marketplace_supply')
         ->name('marketplace_supplies.edit_wb_fbo');

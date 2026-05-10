@@ -27,6 +27,7 @@ class MarketplaceOrder extends Model
     protected $fillable = [
         'marketplace_id',
         'order_id',
+        'supply_id',
         'status',
         'fulfillment_type',
         'completed_at',

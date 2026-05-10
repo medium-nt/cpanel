@@ -101,6 +101,19 @@
                             Обновить товарный состав
                         </a>
 
+                        @if($allItemsFound ?? false)
+                            <form
+                                action="{{ route('marketplace_supplies.confirm_fbo_goods', ['marketplace_supply' => $supply]) }}"
+                                method="POST" id="confirm_fbo_form"
+                                class="d-inline">
+                                @csrf
+                                <button type="submit"
+                                        class="btn btn-success mb-3">
+                                    Сформировать поставку
+                                </button>
+                            </form>
+                        @endif
+
                         <table class="table table-hover table-bordered">
                             <thead class="thead-dark">
                             <tr>
@@ -130,6 +143,12 @@
     <script>
         document.getElementById('link_wb_fbo_form')?.addEventListener('submit', function (e) {
             if (!confirm('Вы уверены, что хотите выбрать эту поставку?')) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('confirm_fbo_form')?.addEventListener('submit', function (e) {
+            if (!confirm('Сформировать поставку? Будут созданы заказы на основе товарного состава.')) {
                 e.preventDefault();
             }
         });
