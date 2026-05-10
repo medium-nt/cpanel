@@ -81,7 +81,7 @@
                         </a>
                     @endif
 
-                    @if($supply->status == 0 && !empty($supply->supply_id) && empty($supplyGoods))
+                    @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods))
                         <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-primary ml-2 mb-2">
                             Загрузить товарный состав
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-            @if(!empty($supplyGoods))
+            @if(!$hasOrders && !empty($supplyGoods))
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Товарный состав</h3>
@@ -129,6 +129,40 @@
                                     <td>{{ $good['name'] }}</td>
                                     <td>{{ $good['quantity'] }}</td>
                                 </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
+            @if($hasOrders)
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Заказы
+                            ({{ $supplyOrders->count() }})</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover table-bordered">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th>№</th>
+                                <th>Заказ</th>
+                                <th>Товар</th>
+                                <th>Кол-во</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($supplyOrders as $order)
+                                @foreach($order->items as $item)
+                                    <tr>
+                                        <td>{{ $loop->parent->iteration }}</td>
+                                        <td>{{ $order->order_id }}</td>
+                                        <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
+                                            x{{ $item->item?->height }}</td>
+                                        <td>{{ $item->quantity }}</td>
+                                    </tr>
+                                @endforeach
                             @endforeach
                             </tbody>
                         </table>

@@ -97,6 +97,10 @@
                                     @case(4)
                                         <span class="badge bg-warning"> Отгрузка </span>
                                         @break
+                                    @case(13)
+                                        <span
+                                            class="badge bg-info"> На сборке </span>
+                                        @break
                                 @endswitch
                                     <b class="ml-2">{{ $marketplace_supply->supply_id }}
                                         <br>
@@ -175,6 +179,9 @@
                                         @break
                                         @case(4)
                                         <span class="badge bg-warning"> Отгрузка </span>
+                                            @break
+                                        @case(13)
+                                            <span class="badge bg-info"> На сборке </span>
                                         @break
                                     @endswitch
                                 </td>

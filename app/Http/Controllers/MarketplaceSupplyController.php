@@ -24,6 +24,8 @@ class MarketplaceSupplyController extends Controller
 
         if ($request->status == 3) {
             $supplies = $supplies->where('status', 3);
+        } elseif ($request->status == 0) {
+            $supplies = $supplies->whereIn('status', [0, 13]);
         } else {
             $supplies = match (auth()->user()->role->name) {
                 'driver' => $supplies->where('status', 4),
@@ -58,10 +60,23 @@ class MarketplaceSupplyController extends Controller
                 ? MarketplaceApiService::getFboSuppliesWb()
                 : [];
 
+            $hasOrders = MarketplaceOrder::query()
+                ->where('supply_id', $marketplaceSupply->id)
+                ->exists();
+
+            $supplyOrders = $hasOrders
+                ? MarketplaceOrder::query()
+                    ->with('items.item')
+                    ->where('supply_id', $marketplaceSupply->id)
+                    ->get()
+                : collect();
+
             return view('marketplace_supply.show-wb-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
                 'supply' => $marketplaceSupply,
                 'wbSupplies' => $wbSupplies,
+                'hasOrders' => $hasOrders,
+                'supplyOrders' => $supplyOrders,
             ]);
         }
 
@@ -151,6 +166,8 @@ class MarketplaceSupplyController extends Controller
             'wbSupplies' => [],
             'supplyGoods' => $supplyGoods,
             'allItemsFound' => $allItemsFound,
+            'hasOrders' => false,
+            'supplyOrders' => collect(),
         ]);
     }
 
@@ -192,6 +209,14 @@ class MarketplaceSupplyController extends Controller
      */
     public function confirmFboGoods(MarketplaceSupply $marketplaceSupply)
     {
+        $hasOrders = MarketplaceOrder::query()
+            ->where('supply_id', $marketplaceSupply->id)
+            ->exists();
+
+        if ($hasOrders) {
+            return back()->with('error', 'Заказы для этой поставки уже созданы.');
+        }
+
         $goods = MarketplaceApiService::getFboSupplyGoodsWb((int) $marketplaceSupply->supply_id);
 
         if (empty($goods)) {
@@ -236,6 +261,8 @@ class MarketplaceSupplyController extends Controller
                 $orderNumber++;
             }
         }
+
+        $marketplaceSupply->update(['status' => 13]);
 
         Log::channel('marketplace_supplies')
             ->notice(auth()->user()->name.' сформировал FBO-поставку #'.$marketplaceSupply->id.' ('.($orderNumber - 1).' заказов).');
