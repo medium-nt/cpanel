@@ -182,6 +182,44 @@
         </div>
     </div>
 
+    {{-- Отгрузки в Газельку --}}
+    @if($user->isAdmin() || $user->isStorekeeper())
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Отгрузки в Газельку</h3>
+            </div>
+            <div class="card-body">
+                @if($gazelkaShipments->isNotEmpty())
+                    <table class="table table-hover table-bordered">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th>Поставка</th>
+                            <th>Дата отгрузки</th>
+                            <th>Заказов</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($gazelkaShipments as $shipment)
+                            <tr class="{{ $shipment->gazelka_shipment_date->isToday() ? 'text-danger font-weight-bold' : '' }}">
+                                <td>
+                                    <a href="{{ route('marketplace_supplies.show', $shipment) }}"
+                                       class="{{ $shipment->gazelka_shipment_date->isToday() ? 'text-danger font-weight-bold' : '' }}">
+                                        Поставка #{{ $shipment->supply_id }}
+                                    </a>
+                                </td>
+                                <td>{{ $shipment->gazelka_shipment_date->format('d.m.Y') }}</td>
+                                <td>{{ $shipment->marketplace_orders()->count() }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p class="text-muted">Нет предстоящих отгрузок.</p>
+                @endif
+            </div>
+        </div>
+    @endif
+
     {{-- Начисленные штрафы сотрудникам --}}
     @if($user->isAdmin())
         <div class="card">

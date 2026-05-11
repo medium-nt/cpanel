@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarketplaceSupply;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
@@ -29,6 +30,13 @@ class HomeController extends Controller
         if ($daysAgo < 0 || $daysAgo > 28) {
             $daysAgo = 0;
         }
+
+        $gazelkaShipments = MarketplaceSupply::query()
+            ->whereNotNull('gazelka_shipment_date')
+            ->where('gazelka_shipment_date', '>=', now()->startOfDay())
+            ->where('gazelka_shipment_date', '<=', now()->addDays(3)->endOfDay())
+            ->orderBy('gazelka_shipment_date')
+            ->get();
 
         $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
 
@@ -67,6 +75,7 @@ class HomeController extends Controller
                 ->where('transaction_type', 'in')
                 ->whereIn('status', [1])
                 ->paginate(5, ['*'], 'transactions')->withQueryString(),
+            'gazelkaShipments' => $gazelkaShipments,
         ]);
     }
 }
