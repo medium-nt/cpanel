@@ -8,6 +8,8 @@ use App\Models\SupplyBox;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class SupplyBoxController extends Controller
 {
@@ -129,5 +131,82 @@ class SupplyBoxController extends Controller
         $pdf->setPaper([0, 0, 75 * 2.83, 120 * 2.83], 'portrait');
 
         return $pdf->stream('box_sticker_'.$box->number.'.pdf');
+    }
+
+    /**
+     * Экспорт коробов поставки в Excel-файл.
+     */
+    public function exportExcel(MarketplaceSupply $marketplaceSupply)
+    {
+        $boxes = SupplyBox::query()
+            ->where('marketplace_supply_id', $marketplaceSupply->id)
+            ->get();
+
+        $freeOrdersCount = MarketplaceOrder::query()
+            ->where('supply_id', $marketplaceSupply->id)
+            ->whereNull('box_id')
+            ->count();
+
+        if ($boxes->isEmpty() || $boxes->some(fn ($box) => ! $box->closed_at) || $freeOrdersCount > 0) {
+            return back()->with('error', 'Экспорт доступен только когда все коробы закрыты и нет нераспределённых заказов.');
+        }
+
+        $rows = MarketplaceOrder::query()
+            ->join('marketplace_order_items', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
+            ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
+            ->join('skus', function ($join) {
+                $join->on('skus.item_id', '=', 'marketplace_items.id')
+                    ->where('skus.marketplace_id', 2);
+            })
+            ->join('supply_boxes', 'marketplace_orders.box_id', '=', 'supply_boxes.id')
+            ->where('marketplace_orders.supply_id', $marketplaceSupply->id)
+            ->whereNotNull('marketplace_orders.box_id')
+            ->selectRaw(
+                'skus.sku as barcode, '
+                .'SUM(marketplace_order_items.quantity) as total_quantity, '
+                .'supply_boxes.number as box_number'
+            )
+            ->groupBy([
+                'skus.sku',
+                'supply_boxes.number',
+            ])
+            ->orderBy('supply_boxes.number')
+            ->orderBy('skus.sku')
+            ->get();
+
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'Баркод товара');
+        $sheet->setCellValue('B1', 'Кол-во товаров');
+        $sheet->setCellValue('C1', 'ШК короба');
+        $sheet->setCellValue('D1', 'Срок годности');
+
+        $sheet->getStyle('A1:D1')->getFont()->setBold(true);
+
+        foreach (range('A', 'D') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $row = 2;
+        foreach ($rows as $item) {
+            $sheet->setCellValue('A'.$row, $item->barcode);
+            $sheet->setCellValue('B'.$row, $item->total_quantity);
+            $sheet->setCellValue('C'.$row, $item->box_number);
+            $sheet->setCellValue('D'.$row, '');
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(
+            callback: function () use ($writer) {
+                $writer->save('php://output');
+            },
+            name: 'boxes_supply_'.$marketplaceSupply->id.'_'.now()->format('Y-m-d_H-i-s').'.xlsx',
+            headers: [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+        );
     }
 }
