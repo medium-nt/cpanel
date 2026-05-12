@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
 use App\Models\SupplyBox;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -111,5 +112,22 @@ class SupplyBoxController extends Controller
         return redirect()
             ->route('supply_boxes.show', ['marketplace_supply' => $marketplaceSupply, 'box' => $box])
             ->with('success', 'Короб закрыт.');
+    }
+
+    /**
+     * Генерация PDF-стикера короба.
+     */
+    public function printSticker(MarketplaceSupply $marketplaceSupply, SupplyBox $box)
+    {
+        if (! $box->closed_at) {
+            return back()->with('error', 'Стикер доступен только для закрытого короба.');
+        }
+
+        $box->load('supply');
+
+        $pdf = Pdf::loadView('pdf.box_sticker', ['box' => $box]);
+        $pdf->setPaper([0, 0, 75 * 2.83, 120 * 2.83], 'portrait');
+
+        return $pdf->stream('box_sticker_'.$box->number.'.pdf');
     }
 }
