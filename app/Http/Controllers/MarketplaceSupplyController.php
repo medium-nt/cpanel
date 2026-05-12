@@ -66,7 +66,7 @@ class MarketplaceSupplyController extends Controller
 
             $supplyOrders = $hasOrders
                 ? MarketplaceOrder::query()
-                    ->with('items.item')
+                    ->with('items.item', 'box')
                     ->where('supply_id', $marketplaceSupply->id)
                     ->get()
                 : collect();

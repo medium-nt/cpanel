@@ -157,7 +157,7 @@
                                 <tr>
                                     <th>Заказ</th>
                                     <th>Товар</th>
-                                    <th>Кол-во</th>
+                                    <th>Статус</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -167,7 +167,17 @@
                                             <td>{{ $order->order_id }}</td>
                                             <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
                                                 x{{ $item->item?->height }}</td>
-                                            <td>{{ $item->quantity }}</td>
+                                            <td>
+                                                @if($order->box_id)
+                                                    <a href="{{ route('supply_boxes.show', ['marketplace_supply' => $supply, 'box' => $order->box_id]) }}"
+                                                       class="badge badge-info text-white">
+                                                        Короб {{ $order->box->number }}
+                                                    </a>
+                                                @else
+                                                    <span
+                                                        class="badge {{ $order->status_color }}">{{ $order->status_name }}</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endforeach
