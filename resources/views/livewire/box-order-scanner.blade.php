@@ -1,36 +1,41 @@
 <div class="col-md-12"
      x-data
+     @if(!$box->closed_at)
      x-init="$nextTick(() => { $refs.scanInput.focus() })"
      @click="if (!$event.target.closest('select, button, input, textarea, a, [data-no-refocus]')) { $refs.scanInput.focus() }"
+    @endif
 >
     {{-- Сканер --}}
-    <div class="card">
-        <div class="card-body">
-            @if($statusMessage)
-                <div class="alert {{ $statusClass }} py-2" role="alert">
-                    {{ $statusMessage }}
+    @if(!$box->closed_at)
+        <div class="card">
+            <div class="card-body">
+                @if($statusMessage)
+                    <div class="alert {{ $statusClass }} py-2" role="alert">
+                        {{ $statusMessage }}
+                    </div>
+                @endif
+                <div>
+                    <label>Отсканируйте ШК товара</label>
+                    <input
+                        type="text"
+                        x-ref="scanInput"
+                        wire:model.defer="scanCode"
+                        wire:keydown.enter.prevent="handleScan"
+                        autocomplete="off"
+                        class="form-control"
+                        placeholder="Штрихкод"
+                    >
                 </div>
-            @endif
-            <div>
-                <label>Отсканируйте ШК товара</label>
-                <input
-                    type="text"
-                    x-ref="scanInput"
-                    wire:model.defer="scanCode"
-                    wire:keydown.enter.prevent="handleScan"
-                    autocomplete="off"
-                    class="form-control"
-                    placeholder="Штрихкод"
-                >
             </div>
         </div>
-    </div>
+    @endif
 
     {{-- Таблица заказов --}}
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Заказы в коробе ({{ $box->orders->count() }}
-                )</h3>
+            <h3 class="card-title">
+                Заказы в коробе ({{ $box->orders->count() }})
+            </h3>
         </div>
         <div class="card-body">
             @if($box->orders->isNotEmpty())
@@ -40,7 +45,9 @@
                         <tr>
                             <th>Заказ</th>
                             <th>Товар</th>
-                            <th></th>
+                            @if(!$box->closed_at)
+                                <th></th>
+                            @endif
                         </tr>
                         </thead>
                         <tbody>
@@ -50,7 +57,7 @@
                                     <td>{{ $order->order_id }}</td>
                                     <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
                                         x{{ $item->item?->height }}</td>
-                                    @if($loop->first)
+                                    @if(!$box->closed_at && $loop->first)
                                         <td rowspan="{{ $order->items->count() }}">
                                             <button
                                                 wire:click="removeOrder({{ $order->id }})"

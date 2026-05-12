@@ -11,7 +11,15 @@ class SupplyBox extends Model
     protected $fillable = [
         'marketplace_supply_id',
         'number',
+        'closed_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'closed_at' => 'datetime',
+        ];
+    }
 
     protected static function booted(): void
     {

@@ -35,6 +35,7 @@
                         <thead class="thead-dark">
                         <tr>
                             <th>Номер короба</th>
+                            <th>Статус</th>
                             <th>Заказов</th>
                             <th></th>
                         </tr>
@@ -43,6 +44,14 @@
                         @foreach($boxes as $box)
                             <tr>
                                 <td>{{ $box->number }}</td>
+                                <td>
+                                    @if($box->closed_at)
+                                        <span class="badge badge-secondary">Закрыт</span>
+                                    @else
+                                        <span
+                                            class="badge badge-success">Открыт</span>
+                                    @endif
+                                </td>
                                 <td>{{ $box->orders_count }}</td>
                                 <td>
                                     <a href="{{ route('supply_boxes.show', ['marketplace_supply' => $supply, 'box' => $box]) }}"

@@ -41,6 +41,10 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('manageBoxes', 'marketplace_supply')
         ->name('supply_boxes.destroy');
 
+    Route::post('/{marketplace_supply}/boxes/{box}/close', [SupplyBoxController::class, 'closeBox'])
+        ->can('manageBoxes', 'marketplace_supply')
+        ->name('supply_boxes.close_box');
+
     Route::delete('/{marketplace_supply}/boxes/{box}/remove-order/{order}', [SupplyBoxController::class, 'removeOrder'])
         ->can('manageBoxes', 'marketplace_supply')
         ->name('supply_boxes.remove_order');

@@ -92,4 +92,24 @@ class SupplyBoxController extends Controller
 
         return back()->with('success', 'Заказ убран из короба.');
     }
+
+    /**
+     * Закрыть короб — запретить добавление и удаление товаров.
+     */
+    public function closeBox(MarketplaceSupply $marketplaceSupply, SupplyBox $box)
+    {
+        if ($box->closed_at) {
+            return back()->with('error', 'Короб уже закрыт.');
+        }
+
+        if ($box->orders()->count() === 0) {
+            return back()->with('error', 'Нельзя закрыть пустой короб.');
+        }
+
+        $box->update(['closed_at' => now()]);
+
+        return redirect()
+            ->route('supply_boxes.show', ['marketplace_supply' => $marketplaceSupply, 'box' => $box])
+            ->with('success', 'Короб закрыт.');
+    }
 }

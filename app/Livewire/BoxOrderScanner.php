@@ -40,6 +40,13 @@ class BoxOrderScanner extends Component
      */
     public function handleScan(): void
     {
+        if ($this->box->closed_at) {
+            $this->setStatus('Короб закрыт. Добавление невозможно.', 'error');
+            $this->dispatch('scanError');
+
+            return;
+        }
+
         $code = trim($this->scanCode);
         $this->scanCode = '';
 
@@ -101,6 +108,10 @@ class BoxOrderScanner extends Component
      */
     public function removeOrder(int $orderId): void
     {
+        if ($this->box->closed_at) {
+            return;
+        }
+
         $order = MarketplaceOrder::query()
             ->where('id', $orderId)
             ->where('box_id', $this->box->id)
