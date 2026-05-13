@@ -13,15 +13,6 @@
                 </a>
 
                 <h4>Нераспределённых заказов: {{ $freeOrdersCount }}</h4>
-
-                <form
-                    action="{{ route('supply_boxes.store', ['marketplace_supply' => $supply]) }}"
-                    method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-primary mb-3">
-                        Создать короб
-                    </button>
-                </form>
             </div>
         </div>
 
@@ -31,6 +22,14 @@
                     <h3 class="card-title">Коробы ({{ $boxes->count() }})</h3>
                 </div>
                 <div class="card-body">
+                    <form
+                        action="{{ route('supply_boxes.store', ['marketplace_supply' => $supply]) }}"
+                        method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-primary mb-3">
+                            Добавить короб
+                        </button>
+                    </form>
                     <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
