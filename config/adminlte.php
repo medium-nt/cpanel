@@ -386,7 +386,7 @@ return [
                     'text' => 'marketplace_supplies',
                     'url' => 'megatulle/marketplace_supplies',
                     'icon' => 'fas fa-fw fa-warehouse',
-                    'can' => 'is-storekeeper-admin-driver',
+                    'can' => 'is-storekeeper-admin-driver-manager',
                 ],
                 [
                     'text' => 'ozon-returns',

@@ -22,18 +22,6 @@
                         Создать короб
                     </button>
                 </form>
-
-                @php
-                    $allBoxesClosed = $boxes->isNotEmpty() && $boxes->every(fn($box) => $box->closed_at);
-                    $canExport = $allBoxesClosed && $freeOrdersCount === 0;
-                @endphp
-
-                @if($canExport)
-                    <a href="{{ route('supply_boxes.export_excel', ['marketplace_supply' => $supply]) }}"
-                       class="btn btn-success mb-3 ml-2">
-                        Скачать Excel с коробами
-                    </a>
-                @endif
             </div>
         </div>
 

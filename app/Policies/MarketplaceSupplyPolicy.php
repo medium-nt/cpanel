@@ -9,22 +9,26 @@ class MarketplaceSupplyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper() || $user->isDriver();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isDriver() || $user->isManager();
     }
 
     public function view(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
+        if ($user->isManager()) {
+            return $marketplaceSupply->type === 'FBO';
+        }
+
         return $user->isAdmin() || $user->isStorekeeper() || $user->isDriver();
     }
 
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 
     public function destroy(User $user): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 
     public function complete(User $user, MarketplaceSupply $marketplaceSupply): bool
@@ -49,7 +53,7 @@ class MarketplaceSupplyPolicy
 
     public function linkWbFbo(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
-        return $user->isAdmin() || $user->isStorekeeper();
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 
     public function updateWbFbo(User $user, MarketplaceSupply $marketplaceSupply): bool
@@ -60,5 +64,10 @@ class MarketplaceSupplyPolicy
     public function manageBoxes(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
         return $user->isAdmin() || $user->isStorekeeper();
+    }
+
+    public function exportBoxes(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 }

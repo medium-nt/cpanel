@@ -34,7 +34,7 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->name('supply_boxes.store');
 
     Route::get('/{marketplace_supply}/boxes/export-excel', [SupplyBoxController::class, 'exportExcel'])
-        ->can('manageBoxes', 'marketplace_supply')
+        ->can('exportBoxes', 'marketplace_supply')
         ->name('supply_boxes.export_excel');
 
     Route::get('/{marketplace_supply}/boxes/{box}', [SupplyBoxController::class, 'show'])

@@ -88,7 +88,14 @@
                         </a>
                     @endif
 
-                    @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods))
+                    @if($canExportExcel)
+                        <a href="{{ route('supply_boxes.export_excel', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-warning ml-2 mb-2">
+                            Скачать Excel с коробами
+                        </a>
+                    @endif
+
+                    @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods) && (auth()->user()->isAdmin() || auth()->user()->isManager()))
                         <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-primary ml-2 mb-2">
                             Загрузить товарный состав

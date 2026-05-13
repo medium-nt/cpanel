@@ -6,6 +6,7 @@ use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
+use App\Models\SupplyBox;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderService;
 use App\Services\MarketplaceSupplyService;
@@ -71,12 +72,27 @@ class MarketplaceSupplyController extends Controller
                     ->get()
                 : collect();
 
+            $canExportExcel = false;
+            if ($hasOrders) {
+                $boxes = SupplyBox::query()
+                    ->where('marketplace_supply_id', $marketplaceSupply->id)
+                    ->get();
+                $freeOrdersCount = MarketplaceOrder::query()
+                    ->where('supply_id', $marketplaceSupply->id)
+                    ->whereNull('box_id')
+                    ->count();
+                $canExportExcel = $boxes->isNotEmpty()
+                    && $boxes->every(fn ($box) => $box->closed_at)
+                    && $freeOrdersCount === 0;
+            }
+
             return view('marketplace_supply.show-wb-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
                 'supply' => $marketplaceSupply,
                 'wbSupplies' => $wbSupplies,
                 'hasOrders' => $hasOrders,
                 'supplyOrders' => $supplyOrders,
+                'canExportExcel' => $canExportExcel,
             ]);
         }
 
@@ -168,6 +184,7 @@ class MarketplaceSupplyController extends Controller
             'allItemsFound' => $allItemsFound,
             'hasOrders' => false,
             'supplyOrders' => collect(),
+            'canExportExcel' => false,
         ]);
     }
 
@@ -278,6 +295,16 @@ class MarketplaceSupplyController extends Controller
     public function create(string $marketplace_id)
     {
         $type = request()->input('type', 'FBS');
+        $user = auth()->user();
+
+        if (! $user->isAdmin()) {
+            if ($user->isManager() && $type !== 'FBO') {
+                abort(403, 'Менеджер может создавать только FBO поставки.');
+            }
+            if ($user->isStorekeeper() && $type !== 'FBS') {
+                abort(403, 'Кладовщик может создавать только FBS поставки.');
+            }
+        }
 
         if ($marketplace_id == 1) {
             $openSupplyOzon = MarketplaceSupply::query()

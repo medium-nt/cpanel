@@ -49,6 +49,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->isStorekeeper() || $user->isAdmin() || $user->isDriver();
         });
 
+        Gate::define('is-storekeeper-admin-driver-manager', function (User $user) {
+            return $user->isStorekeeper() || $user->isAdmin() || $user->isDriver() || $user->isManager();
+        });
+
         Gate::define('is-seamstress-or-admin', function (User $user) {
             return $user->isSeamstress() || $user->isAdmin();
         });
@@ -66,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('is-admin-storekeeper-seamstress-cutter-driver', function (User $user) {
-            return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isDriver();
+            return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isDriver() || $user->isManager();
         });
 
         Gate::define('viewLogViewer', function (User $user) {
