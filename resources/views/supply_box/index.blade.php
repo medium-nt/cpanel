@@ -22,6 +22,7 @@
                     <h3 class="card-title">Коробы ({{ $boxes->count() }})</h3>
                 </div>
                 <div class="card-body">
+                    @if($freeOrdersCount > 0)
                     <form
                         action="{{ route('supply_boxes.store', ['marketplace_supply' => $supply]) }}"
                         method="POST" class="d-inline">
@@ -30,6 +31,7 @@
                             Добавить короб
                         </button>
                     </form>
+                    @endif
                     <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
