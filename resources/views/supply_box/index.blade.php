@@ -43,6 +43,7 @@
                     <h3 class="card-title">Коробы ({{ $boxes->count() }})</h3>
                 </div>
                 <div class="card-body">
+                    <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
                         <tr>
@@ -88,6 +89,7 @@
                         @endforeach
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         @else
