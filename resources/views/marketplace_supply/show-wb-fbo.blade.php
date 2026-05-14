@@ -95,6 +95,40 @@
                         </a>
                     @endif
 
+                    @if($supply->sticker)
+                        @can('downloadSticker', $supply)
+                            <a href="{{ route('marketplace_supplies.download_sticker', $supply) }}"
+                               class="btn btn-info ml-2 mb-2">
+                                Скачать стикер пропуска
+                            </a>
+                        @endcan
+                        @can('manageSticker', $supply)
+                            <a href="{{ route('marketplace_supplies.delete_sticker', $supply) }}"
+                               class="btn btn-danger ml-2 mb-2"
+                               onclick="return confirm('Удалить стикер пропуска?')">
+                                Удалить стикер
+                            </a>
+                        @endcan
+                    @else
+                        @can('manageSticker', $supply)
+                            <div class="border rounded p-3 mt-3">
+                                <strong>Стикер пропуска</strong>
+                                <form
+                                    action="{{ route('marketplace_supplies.upload_sticker', $supply) }}"
+                                    method="POST" enctype="multipart/form-data"
+                                    class="d-inline ml-3">
+                                    @csrf
+                                    <input type="file" name="sticker"
+                                           accept=".pdf" required>
+                                    <button type="submit"
+                                            class="btn btn-outline-info">
+                                        Загрузить
+                                    </button>
+                                </form>
+                            </div>
+                        @endcan
+                    @endif
+
                     @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods) && (auth()->user()->isAdmin() || auth()->user()->isManager()))
                         <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-primary ml-2 mb-2">

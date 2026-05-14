@@ -105,6 +105,18 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('delete_video', 'marketplace_supply')
         ->name('marketplace_supplies.delete_video');
 
+    Route::post('/{marketplace_supply}/upload-sticker', [MarketplaceSupplyController::class, 'uploadSticker'])
+        ->can('manageSticker', 'marketplace_supply')
+        ->name('marketplace_supplies.upload_sticker');
+
+    Route::get('/{marketplace_supply}/download-sticker', [MarketplaceSupplyController::class, 'downloadSticker'])
+        ->can('downloadSticker', 'marketplace_supply')
+        ->name('marketplace_supplies.download_sticker');
+
+    Route::get('/{marketplace_supply}/delete-sticker', [MarketplaceSupplyController::class, 'deleteSticker'])
+        ->can('manageSticker', 'marketplace_supply')
+        ->name('marketplace_supplies.delete_sticker');
+
     Route::post('/upload-chunk', [MarketplaceSupplyController::class, 'chunkedUpload'])
         ->name('marketplace_supplies.upload-chunk');
 

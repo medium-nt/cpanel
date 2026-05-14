@@ -70,4 +70,14 @@ class MarketplaceSupplyPolicy
     {
         return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
+
+    public function manageSticker(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isManager();
+    }
+
+    public function downloadSticker(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
+    }
 }

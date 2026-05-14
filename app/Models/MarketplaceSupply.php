@@ -22,6 +22,7 @@ class MarketplaceSupply extends Model
         'status',
         'completed_at',
         'video',
+        'sticker',
     ];
 
     protected function casts(): array

@@ -500,6 +500,56 @@ class MarketplaceSupplyController extends Controller
         return MarketplaceSupplyService::chunkedUpload($request);
     }
 
+    /**
+     * Загрузка PDF-стикера пропуска для поставки.
+     */
+    public function uploadSticker(Request $request, MarketplaceSupply $marketplaceSupply)
+    {
+        $validated = $request->validate([
+            'sticker' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        $fileName = 'supply_'.$marketplaceSupply->id.'.pdf';
+
+        Storage::disk('public')->putFileAs('stickers', $validated['sticker'], $fileName);
+
+        $marketplaceSupply->update(['sticker' => $fileName]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' загрузил стикер пропуска для поставки #'.$marketplaceSupply->id.'.');
+
+        return back()->with('success', 'Стикер пропуска загружен.');
+    }
+
+    /**
+     * Скачивание PDF-стикера пропуска поставки.
+     */
+    public function downloadSticker(MarketplaceSupply $marketplaceSupply)
+    {
+        if (! $marketplaceSupply->sticker || ! Storage::disk('public')->exists('stickers/'.$marketplaceSupply->sticker)) {
+            return back()->with('error', 'Стикер пропуска не найден.');
+        }
+
+        return Storage::disk('public')->download('stickers/'.$marketplaceSupply->sticker);
+    }
+
+    /**
+     * Удаление PDF-стикера пропуска поставки.
+     */
+    public function deleteSticker(MarketplaceSupply $marketplaceSupply)
+    {
+        if (Storage::disk('public')->exists('stickers/'.$marketplaceSupply->sticker)) {
+            Storage::disk('public')->delete('stickers/'.$marketplaceSupply->sticker);
+        }
+
+        $marketplaceSupply->update(['sticker' => null]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' удалил стикер пропуска для поставки #'.$marketplaceSupply->id.'.');
+
+        return back()->with('success', 'Стикер пропуска удалён.');
+    }
+
     public function close(MarketplaceSupply $marketplace_supply)
     {
         $marketplace_supply->update([
