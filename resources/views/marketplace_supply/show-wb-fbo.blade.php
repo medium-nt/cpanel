@@ -74,14 +74,14 @@
                         </tr>
                     </table>
 
-                    @if(auth()->user()->isAdmin() || auth()->user()->isManager())
+                    @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))
                         <a href="{{ route('marketplace_supplies.edit_wb_fbo', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-outline-primary ml-2 mb-2">
                             Редактировать
                         </a>
                     @endif
 
-                    @if($hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
+                    @if($supply->status !== 3 && $hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                         <a href="{{ route('supply_boxes.index', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-success ml-2 mb-2">
                             Управление коробами
@@ -102,31 +102,43 @@
                                 Скачать стикер пропуска
                             </a>
                         @endcan
-                        @can('manageSticker', $supply)
-                            <a href="{{ route('marketplace_supplies.delete_sticker', $supply) }}"
-                               class="btn btn-danger ml-2 mb-2"
-                               onclick="return confirm('Удалить стикер пропуска?')">
-                                Удалить стикер
-                            </a>
-                        @endcan
+                            @if($supply->status !== 3)
+                                @can('manageSticker', $supply)
+                                    <a href="{{ route('marketplace_supplies.delete_sticker', $supply) }}"
+                                       class="btn btn-danger ml-2 mb-2"
+                                       onclick="return confirm('Удалить стикер пропуска?')">
+                                        Удалить стикер
+                                    </a>
+                                @endcan
+                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                    <a href="{{ route('marketplace_supplies.mark_shipped', $supply) }}"
+                                       class="btn btn-danger ml-2 mb-2"
+                                       onclick="return confirm('Подтвердите отгрузку поставки? После этого редактирование будет недоступно.')">
+                                        Поставка отгружена
+                                    </a>
+                                @endif
+                            @endif
                     @else
-                        @can('manageSticker', $supply)
-                            <div class="border rounded p-3 mt-3">
-                                <strong>Стикер пропуска</strong>
-                                <form
-                                    action="{{ route('marketplace_supplies.upload_sticker', $supply) }}"
-                                    method="POST" enctype="multipart/form-data"
-                                    class="d-inline ml-3">
-                                    @csrf
-                                    <input type="file" name="sticker"
-                                           accept=".pdf" required>
-                                    <button type="submit"
-                                            class="btn btn-outline-info">
-                                        Загрузить
-                                    </button>
-                                </form>
-                            </div>
-                        @endcan
+                        @if($supply->status !== 3)
+                            @can('manageSticker', $supply)
+                                <div class="border rounded p-3 mt-3">
+                                    <strong>Стикер пропуска</strong>
+                                    <form
+                                        action="{{ route('marketplace_supplies.upload_sticker', $supply) }}"
+                                        method="POST"
+                                        enctype="multipart/form-data"
+                                        class="d-inline ml-3">
+                                        @csrf
+                                        <input type="file" name="sticker"
+                                               accept=".pdf" required>
+                                        <button type="submit"
+                                                class="btn btn-outline-info">
+                                            Загрузить
+                                        </button>
+                                    </form>
+                                </div>
+                            @endcan
+                        @endif
                     @endif
 
                     @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods) && (auth()->user()->isAdmin() || auth()->user()->isManager()))

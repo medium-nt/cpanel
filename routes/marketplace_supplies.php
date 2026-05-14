@@ -117,6 +117,10 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('manageSticker', 'marketplace_supply')
         ->name('marketplace_supplies.delete_sticker');
 
+    Route::get('/{marketplace_supply}/mark-shipped', [MarketplaceSupplyController::class, 'markShipped'])
+        ->can('complete', 'marketplace_supply')
+        ->name('marketplace_supplies.mark_shipped');
+
     Route::post('/upload-chunk', [MarketplaceSupplyController::class, 'chunkedUpload'])
         ->name('marketplace_supplies.upload-chunk');
 

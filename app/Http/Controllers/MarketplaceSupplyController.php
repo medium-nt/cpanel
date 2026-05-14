@@ -550,6 +550,32 @@ class MarketplaceSupplyController extends Controller
         return back()->with('success', 'Стикер пропуска удалён.');
     }
 
+    /**
+     * Пометить FBO-поставку как отгруженную (статус 3).
+     */
+    public function markShipped(MarketplaceSupply $marketplaceSupply)
+    {
+        if ($marketplaceSupply->status === 3) {
+            return back()->with('error', 'Поставка уже отгружена.');
+        }
+
+        if (! $marketplaceSupply->sticker) {
+            return back()->with('error', 'Сначала загрузите стикер пропуска.');
+        }
+
+        $marketplaceSupply->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' пометил поставку #'.$marketplaceSupply->id.' как отгруженную.');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Поставка отгружена.');
+    }
+
     public function close(MarketplaceSupply $marketplace_supply)
     {
         $marketplace_supply->update([
