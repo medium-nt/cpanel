@@ -6,7 +6,6 @@ use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
-use App\Models\SupplyBox;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderService;
 use App\Services\MarketplaceSupplyService;
@@ -26,7 +25,7 @@ class MarketplaceSupplyController extends Controller
         if ($request->status == 3) {
             $supplies = $supplies->where('status', 3);
         } elseif ($request->status == 0) {
-            $supplies = $supplies->whereIn('status', [0, 13]);
+            $supplies = $supplies->whereIn('status', [0, 4, 13]);
         } else {
             $supplies = match (auth()->user()->role->name) {
                 'driver' => $supplies->where('status', 4),
@@ -72,19 +71,7 @@ class MarketplaceSupplyController extends Controller
                     ->get()
                 : collect();
 
-            $canExportExcel = false;
-            if ($hasOrders) {
-                $boxes = SupplyBox::query()
-                    ->where('marketplace_supply_id', $marketplaceSupply->id)
-                    ->get();
-                $freeOrdersCount = MarketplaceOrder::query()
-                    ->where('supply_id', $marketplaceSupply->id)
-                    ->whereNull('box_id')
-                    ->count();
-                $canExportExcel = $boxes->isNotEmpty()
-                    && $boxes->every(fn ($box) => $box->closed_at)
-                    && $freeOrdersCount === 0;
-            }
+            $canExportExcel = $marketplaceSupply->status === 4;
 
             return view('marketplace_supply.show-wb-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,

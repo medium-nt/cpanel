@@ -37,6 +37,46 @@ class SupplyBoxController extends Controller
     }
 
     /**
+     * Пометить поставку как собранную — все заказы распределены и все коробы закрыты.
+     */
+    public function markAssembled(MarketplaceSupply $marketplaceSupply)
+    {
+        if ($marketplaceSupply->status === 4) {
+            return back()->with('error', 'Поставка уже в отгрузке.');
+        }
+
+        $boxes = SupplyBox::query()
+            ->where('marketplace_supply_id', $marketplaceSupply->id)
+            ->get();
+
+        if ($boxes->isEmpty()) {
+            return back()->with('error', 'Нет созданных коробов.');
+        }
+
+        if ($boxes->some(fn (SupplyBox $box) => ! $box->closed_at)) {
+            return back()->with('error', 'Не все коробы закрыты. Закройте все коробы перед завершением.');
+        }
+
+        $freeOrdersCount = MarketplaceOrder::query()
+            ->where('supply_id', $marketplaceSupply->id)
+            ->whereNull('box_id')
+            ->count();
+
+        if ($freeOrdersCount > 0) {
+            return back()->with('error', 'Есть нераспределённые заказы. Распределите все заказы по коробам.');
+        }
+
+        $marketplaceSupply->update(['status' => 4]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' пометил поставку #'.$marketplaceSupply->id.' как собранную.');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Поставка помечена как собранная.');
+    }
+
+    /**
      * Создание нового короба.
      */
     public function store(Request $request, MarketplaceSupply $marketplaceSupply)

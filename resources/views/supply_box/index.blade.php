@@ -32,6 +32,18 @@
                         </button>
                     </form>
                     @endif
+                        @if($freeOrdersCount === 0 && $supply->status !== 4 && $boxes->every(fn($box) => $box->closed_at))
+                            <form
+                                action="{{ route('supply_boxes.mark_assembled', ['marketplace_supply' => $supply]) }}"
+                                method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit"
+                                        class="btn btn-success mb-3"
+                                        onclick="return confirm('Подтвердите: все заказы распределены и коробы закрыты. Поставка собрана?')">
+                                    Поставка собрана
+                                </button>
+                            </form>
+                        @endif
                     <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
