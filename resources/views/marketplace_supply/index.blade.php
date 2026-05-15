@@ -1,3 +1,4 @@
+@php use App\Models\MarketplaceSupply; @endphp
 @extends('layouts.app')
 
 {{-- Customize layout sections --}}
@@ -13,35 +14,38 @@
             <div class="card-body">
                 <div class="row">
                     <div class="dropdown mb-3 mr-3">
-                        @can('create', \App\Models\MarketplaceSupply::class)
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="supplyDropdown"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Создать поставку
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="supplyDropdown">
-                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                                <a class="dropdown-item"
-                                   href="{{ route('marketplace_supplies.create', ['marketplace_id' => 1, 'type' => 'FBS']) }}">OZON
-                                    FBS</a>
-                                <a class="dropdown-item"
-                                   href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2, 'type' => 'FBS']) }}">WB
-                                    FBS</a>
-                            @endif
-                            @if(auth()->user()->isAdmin() || auth()->user()->isManager())
-                                <a class="dropdown-item"
-                                   href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2, 'type' => 'FBO']) }}">WB
-                                    FBO</a>
-                            @endif
-                        </div>
+                        @can('create', MarketplaceSupply::class)
+                            <button class="btn btn-primary dropdown-toggle"
+                                    type="button" id="supplyDropdown"
+                                    data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                Создать поставку
+                            </button>
+                            <div class="dropdown-menu"
+                                 aria-labelledby="supplyDropdown">
+                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                    <a class="dropdown-item"
+                                       href="{{ route('marketplace_supplies.create', ['marketplace_id' => 1, 'type' => 'FBS']) }}">OZON
+                                        FBS</a>
+                                    <a class="dropdown-item"
+                                       href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2, 'type' => 'FBS']) }}">WB
+                                        FBS</a>
+                                @endif
+                                @if(auth()->user()->isAdmin() || auth()->user()->isManager())
+                                    <a class="dropdown-item"
+                                       href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2, 'type' => 'FBO']) }}">WB
+                                        FBO</a>
+                                @endif
+                            </div>
                         @endcan
                     </div>
 
                     @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                    <a href="{{ route('marketplace_supplies.index', ['status' => 0, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
-                       class="btn btn-link mr-3 mb-3">Открытые поставки</a>
+                        <a href="{{ route('marketplace_supplies.index', ['status' => 0, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
+                           class="btn btn-link mr-3 mb-3">Открытые поставки</a>
 
-                    <a href="{{ route('marketplace_supplies.index', ['status' => 3, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
-                       class="btn btn-link mr-3 mb-3">Выполненные</a>
+                        <a href="{{ route('marketplace_supplies.index', ['status' => 3, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
+                           class="btn btn-link mr-3 mb-3">Выполненные</a>
                     @endif
 
                     <div class="form-group col-md-2">
@@ -51,19 +55,29 @@
                                 onchange="updatePageWithQueryParam(this)"
                                 required>
                             <option value="" selected>---</option>
-                            <option value="1" @if(request()->get('marketplace_id') == 1) selected @endif>OZON</option>
-                            <option value="2" @if(request()->get('marketplace_id') == 2) selected @endif>WB</option>
+                            <option value="1"
+                                    @if(request()->get('marketplace_id') == 1) selected @endif>
+                                OZON
+                            </option>
+                            <option value="2"
+                                    @if(request()->get('marketplace_id') == 2) selected @endif>
+                                WB
+                            </option>
                         </select>
                     </div>
 
                     <div class="form-group col-md-2">
-                        <form action="{{ route('marketplace_supplies.index', ['status' => request('status'), 'marketplace_id' => request('marketplace_id')]) }}"
-                              method="GET" class="form-inline">
+                        <form
+                            action="{{ route('marketplace_supplies.index', ['status' => request('status'), 'marketplace_id' => request('marketplace_id')]) }}"
+                            method="GET" class="form-inline">
                             <div class="input-group">
-                                <input type="text" name="search" class="form-control" placeholder="укажите номер поставки"
+                                <input type="text" name="search"
+                                       class="form-control"
+                                       placeholder="укажите номер поставки"
                                        value="{{ request()->get('search') }}">
                                 <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit">
+                                    <button class="btn btn-primary"
+                                            type="submit">
                                         <i class="fas fa-search"></i>
                                     </button>
                                 </div>
@@ -71,7 +85,8 @@
                         </form>
                     </div>
 
-                    <a href="{{ route('marketplace_supplies.index') }}" class="btn btn-link">
+                    <a href="{{ route('marketplace_supplies.index') }}"
+                       class="btn btn-link">
                         сбросить фильтр
                     </a>
                 </div>
@@ -84,7 +99,8 @@
                     <div class="card">
                         <div class="position-relative">
                             <div class="ribbon-wrapper ribbon-lg">
-                                <div class="ribbon bg-gradient-gray-dark text-lg">
+                                <div
+                                    class="ribbon bg-gradient-gray-dark text-lg">
                                     <img style="width: 80px;"
                                          src="{{ asset($marketplace_supply->marketplace_name) }}"
                                          alt="{{ $marketplace_supply->marketplace_name }}">
@@ -96,25 +112,28 @@
                                         <span class="badge bg-secondary"> Открытая </span>
                                         @break
                                     @case(3)
-                                        <span class="badge bg-success"> Закрытая </span>
+                                        <span
+                                            class="badge bg-success"> Закрытая </span>
                                         @break
                                     @case(4)
-                                        <span class="badge bg-warning"> Отгрузка </span>
+                                        <span
+                                            class="badge bg-warning"> Отгрузка </span>
                                         @break
                                     @case(13)
                                         <span
                                             class="badge bg-info"> На сборке </span>
                                         @break
                                 @endswitch
-                                    <b class="ml-2">{{ $marketplace_supply->supply_id }}
-                                        <br>
-                                        {{ $marketplace_supply->cluster ?? '' }}
-                                    </b>
+                                <b class="ml-2">{{ $marketplace_supply->supply_id }}
+                                    <br>
+                                    {{ $marketplace_supply->cluster ?? '' }}
+                                </b>
                                 <div class="my-3">
 
                                     <div class="mt-2">
                                         <small class="mr-2">
-                                            Создан: <b> {{ now()->parse($marketplace_supply->created_at)->format('d/m/Y H:i') }}</b>
+                                            Создан:
+                                            <b> {{ now()->parse($marketplace_supply->created_at)->format('d/m/Y H:i') }}</b>
                                         </small>
                                         <badge class="badge
                                         @if($marketplace_supply->created_at->addHours(41)->isPast()) badge-hot
@@ -126,21 +145,26 @@
                                     </div>
                                 </div>
 
-                                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isDriver() || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO'))
+                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isDriver() || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO'))
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply->id]) }}"
                                            class="btn btn-primary mr-3">
-                                            <i class="fas fa-edit"></i> Редактировать
+                                            <i class="fas fa-edit"></i>
+                                            Редактировать
                                         </a>
                                         @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO')))
-                                        <form action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger"
-                                                    onclick="return confirm('Вы уверены что хотите удалить данную поставку из системы?')">
-                                                <i class="fas fa-trash"></i> Удалить
-                                            </button>
-                                        </form>
+                                            <form
+                                                action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="btn btn-danger"
+                                                        onclick="return confirm('Вы уверены что хотите удалить данную поставку из системы?')">
+                                                    <i class="fas fa-trash"></i>
+                                                    Удалить
+                                                </button>
+                                            </form>
                                         @endif
                                     </div>
                                 @endif
@@ -150,7 +174,7 @@
                 </div>
             @endforeach
 
-            <x-pagination-component :collection="$marketplace_supplies" />
+            <x-pagination-component :collection="$marketplace_supplies"/>
         </div>
 
         <div class="card only-on-desktop">
@@ -162,9 +186,12 @@
                             <th scope="col">#</th>
                             <th scope="col">Статус</th>
                             <th scope="col">Номер поставки</th>
+                            <th scope="col">id Газельки</th>
                             <th scope="col">Маркетплейс</th>
                             <th scope="col">Тип</th>
                             <th scope="col">Создан</th>
+                            <th scope="col">Отгрузка в Газельку</th>
+                            <th scope="col">Отгрузка в маркетплейс</th>
                             <th scope="col">Выполнен</th>
                             <th scope="col"></th>
                         </tr>
@@ -176,22 +203,25 @@
                                 <td>
                                     @switch($marketplace_supply->status)
                                         @case(0)
-                                        <span class="badge bg-secondary"> Открытая </span>
-                                        @break
+                                            <span class="badge bg-secondary"> Открытая </span>
+                                            @break
                                         @case(3)
-                                        <span class="badge bg-success"> Закрытая </span>
-                                        @break
+                                            <span class="badge bg-success"> Закрытая </span>
+                                            @break
                                         @case(4)
-                                        <span class="badge bg-warning"> Отгрузка </span>
+                                            <span class="badge bg-warning"> Отгрузка </span>
                                             @break
                                         @case(13)
                                             <span class="badge bg-info"> На сборке </span>
-                                        @break
+                                            @break
                                     @endswitch
                                 </td>
                                 <td>
                                     <b>{{ $marketplace_supply->supply_id }} </b>
                                     {{ $marketplace_supply->cluster ? "($marketplace_supply->cluster)" : '' }}
+                                </td>
+                                <td>
+                                    {{ $marketplace_supply->gazelka_shipment_id }}
                                 </td>
                                 <td>
                                     <img style="width: 80px;"
@@ -201,17 +231,20 @@
                                 <td>{{ $marketplace_supply->type }}</td>
 
                                 <td>
-                                    <span class="mr-2">{{ now()->parse($marketplace_supply->created_at)->format('d/m/Y H:i') }}</span>
+                                    <span
+                                        class="mr-2">{{ now()->parse($marketplace_supply->created_at)->format('d/m/Y H:i') }}</span>
                                     <badge class="badge
                                     @if($marketplace_supply->created_at->addHours(41)->isPast()) badge-hot
                                     @elseif($marketplace_supply->created_at->addHours(21)->isPast()) badge-old
                                     @else badge-new
                                     @endif">
                                         {{ $marketplace_supply->created_at->diffForHumans(['parts' => 2]) }}
-                                    </badge><br>
+                                    </badge>
+                                    <br>
                                 </td>
-                                <td>{{ is_null($marketplace_supply->completed_at) ? '' : now()->parse($marketplace_supply->completed_at)->format('d/m/Y H:i') }}</td>
-
+                                <td>{{ $marketplace_supply->gazelka_shipment_date?->format('d/m/Y') ?? '' }}</td>
+                                <td>{{ $marketplace_supply->supply_date?->format('d/m/Y') ?? '' }}</td>
+                                <td>{{ $marketplace_supply->completed_at?->format('d/m/Y') ?? '' }}</td>
                                 <td style="width: 100px">
                                     @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isDriver() || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO'))
                                         <div class="btn-group" role="group">
@@ -220,14 +253,17 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO')))
-                                            <form action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger"
-                                                        onclick="return confirm('Вы уверены что хотите удалить данную поставку из системы?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                                <form
+                                                    action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            class="btn btn-danger"
+                                                            onclick="return confirm('Вы уверены что хотите удалить данную поставку из системы?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             @endif
                                         </div>
                                     @endif
@@ -238,7 +274,7 @@
                     </table>
                 </div>
                 {{-- Pagination --}}
-                <x-pagination-component :collection="$marketplace_supplies" />
+                <x-pagination-component :collection="$marketplace_supplies"/>
 
             </div>
         </div>
@@ -246,7 +282,8 @@
 @stop
 
 @push('css')
-    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}"
+          rel="stylesheet"/>
     <link href="{{ asset('css/badges.css') }}" rel="stylesheet"/>
 @endpush
 

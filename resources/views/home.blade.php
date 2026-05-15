@@ -194,7 +194,9 @@
                         <thead class="thead-dark">
                         <tr>
                             <th>Поставка</th>
-                            <th>Дата отгрузки</th>
+                            <th>Отгрузка в Газельку</th>
+                            <th>Отгрузка в маркетплейс</th>
+                            <th>Кластер</th>
                             <th>Заказов</th>
                         </tr>
                         </thead>
@@ -208,6 +210,8 @@
                                     </a>
                                 </td>
                                 <td>{{ $shipment->gazelka_shipment_date->format('d.m.Y') }}</td>
+                                <td>{{ $shipment->supply_date->format('d.m.Y') }}</td>
+                                <td>{{ $shipment->cluster }}</td>
                                 <td>{{ $shipment->marketplace_orders()->count() }}</td>
                             </tr>
                         @endforeach
