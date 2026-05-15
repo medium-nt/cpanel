@@ -20,7 +20,9 @@ class MarketplaceSupplyController extends Controller
     public function index(Request $request)
     {
         $supplies = MarketplaceSupply::query()
-            ->orderBy('created_at', 'desc');
+            ->orderByRaw('CASE WHEN gazelka_shipment_date IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('gazelka_shipment_date', 'asc')
+            ->orderBy('id', 'asc');
 
         if ($request->status == 3) {
             $supplies = $supplies->where('status', 3);
