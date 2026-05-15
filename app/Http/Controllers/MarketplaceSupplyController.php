@@ -33,6 +33,10 @@ class MarketplaceSupplyController extends Controller
             };
         }
 
+        if ($request->filled('type')) {
+            $supplies = $supplies->where('type', $request->type);
+        }
+
         if (isset($request->marketplace_id)) {
             $supplies = $supplies->where('marketplace_id', $request->marketplace_id);
         }

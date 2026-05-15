@@ -40,21 +40,43 @@
                         @endcan
                     </div>
 
-                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                        <a href="{{ route('marketplace_supplies.index', ['status' => 0, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
-                           class="btn btn-link mr-3 mb-3">Открытые поставки</a>
+                    <div class="form-group col-md-2">
+                        <select name="status"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="0"
+                                    @if(request('status') !== '3') selected @endif>
+                                Открытые
+                            </option>
+                            <option value="3"
+                                    @if(request('status') == '3') selected @endif>
+                                Закрытые
+                            </option>
+                        </select>
+                    </div>
 
-                        <a href="{{ route('marketplace_supplies.index', ['status' => 3, 'marketplace_id' => request('marketplace_id'), 'search' => request('search')]) }}"
-                           class="btn btn-link mr-3 mb-3">Выполненные</a>
-                    @endif
+                    <div class="form-group col-md-2">
+                        <select name="type"
+                                class="form-control"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">Все типы</option>
+                            <option value="FBS"
+                                    @if(request('type') == 'FBS') selected @endif>
+                                FBS
+                            </option>
+                            <option value="FBO"
+                                    @if(request('type') == 'FBO') selected @endif>
+                                FBO
+                            </option>
+                        </select>
+                    </div>
 
                     <div class="form-group col-md-2">
                         <select name="marketplace_id"
                                 id="marketplace_id"
                                 class="form-control"
-                                onchange="updatePageWithQueryParam(this)"
-                                required>
-                            <option value="" selected>---</option>
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">Все маркетплейсы</option>
                             <option value="1"
                                     @if(request()->get('marketplace_id') == 1) selected @endif>
                                 OZON
@@ -68,7 +90,7 @@
 
                     <div class="form-group col-md-2">
                         <form
-                            action="{{ route('marketplace_supplies.index', ['status' => request('status'), 'marketplace_id' => request('marketplace_id')]) }}"
+                            action="{{ route('marketplace_supplies.index', ['status' => request('status'), 'type' => request('type'), 'marketplace_id' => request('marketplace_id')]) }}"
                             method="GET" class="form-inline">
                             <div class="input-group">
                                 <input type="text" name="search"
