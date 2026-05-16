@@ -298,7 +298,7 @@ class InventoryService
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
             ->where('orders.type_movement', 2)
             ->where('orders.status', 3)
-            ->select('rolls.material_id', 'rolls.shift_id', DB::raw('COUNT(*) as rolls_count'))
+            ->select('rolls.material_id', 'rolls.shift_id', DB::raw('COUNT(DISTINCT rolls.id) as rolls_count'))
             ->groupBy('rolls.material_id', 'rolls.shift_id')
             ->get()
             ->groupBy('material_id');
