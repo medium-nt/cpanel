@@ -235,7 +235,7 @@ class InventoryService
     }
 
     /**
-     * Получить количество материала на производстве, сгруппированное по сменам.
+     * Получить количество материала в цехе по сменам на основе фактических рулонов.
      *
      * @return array{shifts: \Illuminate\Support\Collection, materials: array}
      */
@@ -248,63 +248,29 @@ class InventoryService
             $shifts = $shifts->where('id', $user->currentShift()->id);
         }
 
-        $data = Material::query()
-            ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
-            ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
-            ->leftJoin('shifts', 'orders.shift_id', '=', 'shifts.id')
+        $usedSub = MovementMaterial::query()
+            ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->whereIn('orders.type_movement', [3, 4, 6, 7])
+            ->select('movement_materials.roll_id', DB::raw('SUM(movement_materials.quantity) as total_used'))
+            ->groupBy('movement_materials.roll_id');
+
+        $rollsData = Roll::query()
+            ->where('rolls.status', Roll::STATUS_IN_WORKSHOP)
+            ->leftJoinSub($usedSub, 'used', 'used.roll_id', '=', 'rolls.id')
+            ->join('materials', 'materials.id', '=', 'rolls.material_id')
             ->select(
                 'materials.id',
                 'materials.title',
                 'materials.unit',
-                'orders.shift_id',
-                'shifts.name as shift_name',
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 2 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as in_workshop
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 3 AND orders.status = 4 THEN movement_materials.quantity ELSE 0 END) as hold_workshop_to_items
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 3 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_workshop_to_items
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 0 THEN movement_materials.quantity ELSE 0 END) as hold_to_defect
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 1 THEN movement_materials.quantity ELSE 0 END) as approved_defect
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 4 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_to_defect
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 0 THEN movement_materials.quantity ELSE 0 END) as hold_to_write_off
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 1 THEN movement_materials.quantity ELSE 0 END) as approved_write_off
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 7 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as out_to_write_off
-                '),
-                DB::raw('
-                    SUM(CASE WHEN orders.type_movement = 6 AND orders.status = 3 THEN movement_materials.quantity ELSE 0 END) as write_off
-                ')
+                'rolls.shift_id',
+                DB::raw('COUNT(*) as rolls_count'),
+                DB::raw('SUM(rolls.initial_quantity - COALESCE(used.total_used, 0)) as total_quantity')
             )
-            ->groupBy('materials.id', 'materials.title', 'materials.unit', 'orders.shift_id', 'shifts.name')
+            ->groupBy('materials.id', 'materials.title', 'materials.unit', 'rolls.shift_id')
             ->get();
 
-        $rollsCount = Roll::query()
-            ->where('rolls.status', Roll::STATUS_IN_WORKSHOP)
-            ->join('movement_materials', 'movement_materials.roll_id', '=', 'rolls.id')
-            ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
-            ->where('orders.type_movement', 2)
-            ->where('orders.status', 3)
-            ->select('rolls.material_id', 'rolls.shift_id', DB::raw('COUNT(DISTINCT rolls.id) as rolls_count'))
-            ->groupBy('rolls.material_id', 'rolls.shift_id')
-            ->get()
-            ->groupBy('material_id');
-
         $result = [];
-        foreach ($data as $row) {
+        foreach ($rollsData as $row) {
             $materialId = $row->id;
             $shiftId = $row->shift_id;
 
@@ -317,26 +283,14 @@ class InventoryService
                 ];
             }
 
-            $quantity = $row->in_workshop
-                - $row->hold_workshop_to_items
-                - $row->out_workshop_to_items
-                - $row->hold_to_defect
-                - $row->approved_defect
-                - $row->out_to_defect
-                - $row->hold_to_write_off
-                - $row->approved_write_off
-                - $row->out_to_write_off
-                - $row->write_off;
-
-            $roundedQuantity = round($quantity, 2);
-            $shiftRolls = $rollsCount->get($materialId)?->firstWhere('shift_id', $shiftId)?->rolls_count ?? 0;
+            $roundedQuantity = round($row->total_quantity, 2);
 
             $result[$materialId]['per_shift'][$shiftId] = [
                 'quantity' => $roundedQuantity,
-                'rolls_count' => $shiftRolls,
+                'rolls_count' => $row->rolls_count,
             ];
             $result[$materialId]['total_quantity'] += $roundedQuantity;
-            $result[$materialId]['total_rolls'] += $shiftRolls;
+            $result[$materialId]['total_rolls'] += $row->rolls_count;
         }
 
         return [
