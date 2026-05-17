@@ -75,6 +75,7 @@ class MovementMaterialToWorkshopService
             $field = match (auth()->user()->role->name) {
                 'seamstress' => 'seamstress_id',
                 'cutter' => 'cutter_id',
+                'otk' => 'otk_id',
                 default => throw new \Exception('Недопустимая роль: '.auth()->user()->role->name),
             };
 

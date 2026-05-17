@@ -12,7 +12,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter())
+                    @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isOtk())
                         <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-1">Новый заказ</a>
                     @endif
 
@@ -67,7 +67,7 @@
                                     @if($order->seamstress || $order->cutter)
                                         <div style="font-size: 0.85em;">
                                             Запросил/Получил:
-                                            <b>{{ $order->seamstress?->name ?? $order->cutter?->name }}</b>
+                                            <b>{{ $order->seamstress?->name ?? $order->cutter?->name ?? $order->otk?->name }}</b>
                                         </div>
                                     @endif
 
@@ -86,7 +86,7 @@
                                                 <i class="fas fa-box-open"></i> Сформировать
                                             </a>
                                         </div>
-                                    @elseif( $order->status == '2' && (auth()->user()->isCutter() || auth()->user()->isSeamstress()))
+                                        @elseif( $order->status == '2' && (auth()->user()->isCutter() || auth()->user()->isSeamstress() || auth()->user()->isOtk()))
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                                class="btn btn-success mr-1"
@@ -167,7 +167,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $order->user?->name }}</td>
-                                <td>{{ $order->seamstress?->name ?? $order->cutter?->name }}</td>
+                                <td>{{ $order->seamstress?->name ?? $order->cutter?->name ?? $order->otk?->name }}</td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @if($order->status == '3' && $order->completed_at)
@@ -183,7 +183,7 @@
                                             <i class="fas fa-box-open"></i>
                                         </a>
                                     </div>
-                                    @elseif( $order->status == '2' && (auth()->user()->isCutter() || auth()->user()->isSeamstress()))
+                                    @elseif( $order->status == '2' && (auth()->user()->isCutter() || auth()->user()->isSeamstress() || auth()->user()->isOtk()))
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('movements_to_workshop.receive', ['order' => $order->id]) }}"
                                            class="btn btn-success mr-1"

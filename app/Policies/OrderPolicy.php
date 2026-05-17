@@ -31,7 +31,7 @@ class OrderPolicy
 
         match ($order->status) {
             1 => $return = $user->isStorekeeper(),
-            2 => $return = $user->isSeamstress() || $user->isCutter(),
+            2 => $return = $user->isSeamstress() || $user->isCutter() || $user->isOtk(),
             default => false
         };
 

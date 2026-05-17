@@ -123,7 +123,7 @@ class MovementMaterialToWorkshopController extends Controller
             $list .= '• '.$movementMaterial->material->title.' '.$movementMaterial->quantity.' '.$movementMaterial->material->unit."\n";
         }
 
-        $text = 'Швея '.auth()->user()->name.' приняла поставку в цехе: '."\n".$list;
+        $text = auth()->user()->name.' приняла поставку в цехе: '."\n".$list;
 
         Log::channel('tg')
             ->notice('Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: '.$text);

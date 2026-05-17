@@ -22,6 +22,7 @@ class Order extends Model
         'storekeeper_id',
         'seamstress_id',
         'cutter_id',
+        'otk_id',
         'comment',
         'marketplace_order_id',
         'is_approved',
@@ -58,6 +59,11 @@ class Order extends Model
     public function cutter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cutter_id');
+    }
+
+    public function otk(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'otk_id');
     }
 
     public function shift(): BelongsTo

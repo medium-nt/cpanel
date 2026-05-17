@@ -350,7 +350,7 @@ return [
         [
             'text' => 'movements',
             'icon' => 'fas fa-fw fa-dolly',
-            'can' => 'is-admin-storekeeper-seamstress-cutter-driver',
+            'can' => 'is-admin-storekeeper-seamstress-cutter-driver-otk',
             'submenu' => [
                 [
                     'text' => 'movements_from_supplier',
@@ -373,7 +373,7 @@ return [
                 [
                     'text' => 'movements_to_workshop',
                     'url' => 'megatulle/movements_to_workshop',
-                    'can' => 'is-admin-storekeeper-seamstress-cutter',
+                    'can' => 'is-admin-storekeeper-seamstress-cutter-otk',
                     'icon' => 'fas fa-fw fa-dolly',
                 ],
                 [
