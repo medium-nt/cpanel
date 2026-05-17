@@ -28,6 +28,10 @@
                                     @if(request()->get('status') == 'in_storage') selected @endif>
                                 На складе
                             </option>
+                            <option value="shipped_to_workshop"
+                                    @if(request()->get('status') == 'shipped_to_workshop') selected @endif>
+                                Отгружен в цех
+                            </option>
                             <option value="in_workshop"
                                     @if(request()->get('status') == 'in_workshop') selected @endif>
                                 В цехе

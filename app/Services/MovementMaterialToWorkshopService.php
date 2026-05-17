@@ -150,7 +150,7 @@ class MovementMaterialToWorkshopService
                     ]);
 
                 $roll->update([
-                    'status' => Roll::STATUS_IN_WORKSHOP,
+                    'status' => Roll::STATUS_SHIPPED_TO_WORKSHOP,
                     'shift_id' => $order->shift_id,
                 ]);
 

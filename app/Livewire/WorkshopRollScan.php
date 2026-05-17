@@ -190,7 +190,7 @@ class WorkshopRollScan extends Component
             $list = '';
             foreach ($scannedRolls as $movementMaterial) {
                 $movementMaterial->roll->update([
-                    'status' => Roll::STATUS_IN_WORKSHOP,
+                    'status' => Roll::STATUS_SHIPPED_TO_WORKSHOP,
                     'shift_id' => $this->order->shift_id,
                 ]);
 

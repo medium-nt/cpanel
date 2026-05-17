@@ -7,6 +7,7 @@ use App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest;
 use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\Material;
 use App\Models\Order;
+use App\Models\Roll;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\ShiftService;
 use App\Services\TgService;
@@ -117,6 +118,14 @@ class MovementMaterialToWorkshopController extends Controller
             'status' => 3,
             'completed_at' => now(),
         ]);
+
+        foreach ($order->movementMaterials as $movementMaterial) {
+            if ($movementMaterial->roll) {
+                $movementMaterial->roll->update([
+                    'status' => Roll::STATUS_IN_WORKSHOP,
+                ]);
+            }
+        }
 
         $list = '';
         foreach ($order->movementMaterials as $movementMaterial) {

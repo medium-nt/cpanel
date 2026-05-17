@@ -29,6 +29,8 @@ class Roll extends Model
 
     public const STATUS_IN_STORAGE = 'in_storage';
 
+    public const STATUS_SHIPPED_TO_WORKSHOP = 'shipped_to_workshop';
+
     public const STATUS_IN_WORKSHOP = 'in_workshop';
 
     public const STATUS_COMPLETED = 'completed';
@@ -38,6 +40,7 @@ class Roll extends Model
     {
         return [
             self::STATUS_IN_STORAGE,
+            self::STATUS_SHIPPED_TO_WORKSHOP,
             self::STATUS_IN_WORKSHOP,
             self::STATUS_COMPLETED,
         ];
@@ -91,6 +94,7 @@ class Roll extends Model
     {
         $map = [
             self::STATUS_IN_STORAGE => 'На складе',
+            self::STATUS_SHIPPED_TO_WORKSHOP => 'Отгружен в цех',
             self::STATUS_IN_WORKSHOP => 'В цехе',
             self::STATUS_COMPLETED => 'Завершен',
         ];
@@ -102,6 +106,7 @@ class Roll extends Model
     {
         $map = [
             self::STATUS_IN_STORAGE => 'badge-primary',
+            self::STATUS_SHIPPED_TO_WORKSHOP => 'badge-info',
             self::STATUS_IN_WORKSHOP => 'badge-warning',
             self::STATUS_COMPLETED => 'badge-secondary',
         ];

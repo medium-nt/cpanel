@@ -148,6 +148,12 @@
                                                 Закрыл(а): {{ $roll->completedBy->name }}</h5>
                                         @endif
                                     </div>
+                                @elseif($roll->status === \App\Models\Roll::STATUS_SHIPPED_TO_WORKSHOP)
+                                    <div
+                                        class="alert alert-info text-center mt-3">
+                                        <h4>Рулон отгружен в цех, ожидает
+                                            приёмки</h4>
+                                    </div>
                                 @else
                                     <div
                                         class="alert alert-warning text-center mt-3">
