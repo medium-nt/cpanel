@@ -244,7 +244,7 @@ class InventoryService
         $shifts = Shift::query()->active()->get();
 
         $user = auth()->user();
-        if ($user->isSeamstress() || $user->isCutter()) {
+        if ($user->isSeamstress() || $user->isCutter() || $user->isOtk()) {
             $shifts = $shifts->where('id', $user->currentShift()->id);
         }
 

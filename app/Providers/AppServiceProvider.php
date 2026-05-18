@@ -65,8 +65,8 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isOtk();
         });
 
-        Gate::define('is-admin-storekeeper-seamstress-cutter-manager', function (User $user) {
-            return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isManager();
+        Gate::define('is-admin-storekeeper-seamstress-cutter-manager-otk', function (User $user) {
+            return $user->isAdmin() || $user->isStorekeeper() || $user->isSeamstress() || $user->isCutter() || $user->isManager() || $user->isOtk();
         });
 
         Gate::define('is-admin-storekeeper-seamstress-cutter-otk-manager', function (User $user) {

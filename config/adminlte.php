@@ -307,7 +307,7 @@ return [
         [
             'text' => 'inventory',
             'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'is-admin-storekeeper-seamstress-cutter-manager',
+            'can' => 'is-admin-storekeeper-seamstress-cutter-manager-otk',
             'submenu' => [
                 [
                     'text' => 'inventory_by_warehouse',
@@ -319,7 +319,7 @@ return [
                     'text' => 'inventory_by_workshop',
                     'url' => 'megatulle/inventory/workshop',
                     'icon' => 'fas fa-fw fa-boxes',
-                    'can' => 'is-admin-storekeeper-seamstress-cutter-manager',
+                    'can' => 'is-admin-storekeeper-seamstress-cutter-manager-otk',
                 ],
                 [
                     'text' => 'warehouse_of_item',
