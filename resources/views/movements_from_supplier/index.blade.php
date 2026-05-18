@@ -72,6 +72,8 @@
                                            btn-xs mr-1 py-0" target="_blank">
                                                 <i class="fas fa-barcode"></i>
                                             </a>
+                                            (рулон: {{ $material->roll->roll_code }}
+                                            )
                                         @endif
                                         <br>
                                     @endforeach
@@ -131,6 +133,8 @@
                                            btn-xs mr-1 py-0" target="_blank">
                                                 <i class="fas fa-barcode"></i>
                                             </a>
+                                            (рулон: {{ $material->roll->roll_code }}
+                                            )
                                         @endif
                                     </li>
                                     @endforeach

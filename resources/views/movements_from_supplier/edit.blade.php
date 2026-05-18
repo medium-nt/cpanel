@@ -57,7 +57,15 @@
 
                     @foreach($order->movementMaterials as $item)
                         <div class="row">
-                            <div class="col-md-8 form-group">
+                            <div class="col-md-2 form-group">
+                                <label for="roll_id">Рулон</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="roll_id"
+                                       value="{{ $item->roll->roll_code }}"
+                                       readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
                                 <label for="material_id">Материал</label>
                                 <input
                                     type="text"
