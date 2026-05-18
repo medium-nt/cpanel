@@ -180,7 +180,7 @@
             </div>
 
             <div class="ml-2">
-                Всего: {{ $totalItems }}
+                Всего: {{ $items->total() }}
             </div>
 
             {{-- Pagination --}}
