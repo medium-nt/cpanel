@@ -183,7 +183,7 @@
     </div>
 
     {{-- Отгрузки в Газельку --}}
-    @if($user->isAdmin() || $user->isStorekeeper())
+    @if($user->isAdmin() || $user->isStorekeeper() || $user->isManager())
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Отгрузки в Газельку</h3>
