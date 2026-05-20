@@ -119,7 +119,7 @@
                                 @endif
                             @endif
                     @else
-                        @if($supply->status !== 3)
+                        @if($supply->status == 13)
                             @can('manageSticker', $supply)
                                 <div class="border rounded p-3 mt-3">
                                     <strong>Стикер пропуска</strong>
