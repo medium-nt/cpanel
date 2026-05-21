@@ -29,7 +29,7 @@ class SupplyBoxController extends Controller
             ->count();
 
         return view('supply_box.index', [
-            'title' => 'Коробы поставки #'.$marketplaceSupply->supply_id,
+            'title' => 'Короба поставки #'.$marketplaceSupply->supply_id,
             'supply' => $marketplaceSupply,
             'boxes' => $boxes,
             'freeOrdersCount' => $freeOrdersCount,
@@ -37,7 +37,7 @@ class SupplyBoxController extends Controller
     }
 
     /**
-     * Пометить поставку как собранную — все заказы распределены и все коробы закрыты.
+     * Пометить поставку как собранную — все заказы распределены и все короба закрыты.
      */
     public function markAssembled(MarketplaceSupply $marketplaceSupply)
     {
@@ -54,7 +54,7 @@ class SupplyBoxController extends Controller
         }
 
         if ($boxes->some(fn (SupplyBox $box) => ! $box->closed_at)) {
-            return back()->with('error', 'Не все коробы закрыты. Закройте все коробы перед завершением.');
+            return back()->with('error', 'Не все короба закрыты. Закройте все короба перед завершением.');
         }
 
         $freeOrdersCount = MarketplaceOrder::query()
@@ -188,7 +188,7 @@ class SupplyBoxController extends Controller
             ->count();
 
         if ($boxes->isEmpty() || $boxes->some(fn ($box) => ! $box->closed_at) || $freeOrdersCount > 0) {
-            return back()->with('error', 'Экспорт доступен только когда все коробы закрыты и нет нераспределённых заказов.');
+            return back()->with('error', 'Экспорт доступен только когда все короба закрыты и нет нераспределённых заказов.');
         }
 
         $rows = MarketplaceOrder::query()
