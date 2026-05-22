@@ -32,7 +32,7 @@
                     </form>
                 @endif
                 @if($boxes->isNotEmpty())
-                    @if($freeOrdersCount === 0 && $supply->status !== 4 && $boxes->every(fn($box) => $box->closed_at))
+                        @if($freeOrdersCount === 0 && $supply->status == 13 && $boxes->every(fn($box) => $box->closed_at))
                         <form
                             action="{{ route('supply_boxes.mark_assembled', ['marketplace_supply' => $supply]) }}"
                             method="POST" class="d-inline">
