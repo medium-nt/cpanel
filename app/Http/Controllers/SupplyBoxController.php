@@ -68,6 +68,11 @@ class SupplyBoxController extends Controller
 
         $marketplaceSupply->update(['status' => 4]);
 
+        $marketplaceSupply->marketplace_orders()->update([
+            'status' => 3,
+            'completed_at' => now(),
+        ]);
+
         Log::channel('marketplace_supplies')
             ->notice(auth()->user()->name.' пометил поставку #'.$marketplaceSupply->id.' как собранную.');
 
