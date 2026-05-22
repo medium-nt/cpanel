@@ -190,6 +190,7 @@
             </div>
             <div class="card-body">
                 @if($gazelkaShipments->isNotEmpty())
+                    <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
                         <tr>
@@ -217,6 +218,7 @@
                         @endforeach
                         </tbody>
                     </table>
+                    </div>
                 @else
                     <p class="text-muted">Нет предстоящих отгрузок.</p>
                 @endif
