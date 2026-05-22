@@ -81,7 +81,7 @@
                         </a>
                     @endif
 
-                    @if($supply->status !== 3 && $hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
+                    @if($supply->status !== 13 && $hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                         <a href="{{ route('supply_boxes.index', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-success ml-2 mb-2">
                             Управление коробами
@@ -119,7 +119,7 @@
                                 @endif
                             @endif
                     @else
-                        @if($supply->status == 13)
+                        @if($supply->status == 4)
                             @can('manageSticker', $supply)
                                 <div class="border rounded p-3 mt-3">
                                     <strong>Стикер пропуска</strong>

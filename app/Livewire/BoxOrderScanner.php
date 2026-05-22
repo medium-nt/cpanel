@@ -74,17 +74,17 @@ class BoxOrderScanner extends Component
 
         $order = (clone $baseQuery)
             ->whereNull('box_id')
-            ->where('status', 3)
+            ->where('status', 6)
             ->first();
 
         if (! $order) {
             $hasNotReady = (clone $baseQuery)
                 ->whereNull('box_id')
-                ->where('status', '!=', 3)
+                ->where('status', '!=', 6)
                 ->exists();
 
             if ($hasNotReady) {
-                $this->setStatus('Товар есть в поставке, но ещё не готов.', 'warn');
+                $this->setStatus('Товар есть в поставке, но ещё не в статусе «На поставку».', 'warn');
             } elseif ($baseQuery->exists()) {
                 $this->setStatus('Все товары с таким ШК уже добавлены в короба.', 'warn');
             } else {
