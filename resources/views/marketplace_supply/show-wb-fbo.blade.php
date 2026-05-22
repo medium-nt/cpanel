@@ -81,7 +81,7 @@
                         </a>
                     @endif
 
-                    @if($supply->status == 13 && $hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
+                    @if($supply->status == 13 && $hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager()))
                         <a href="{{ route('supply_boxes.index', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-success ml-2 mb-2">
                             Управление коробами

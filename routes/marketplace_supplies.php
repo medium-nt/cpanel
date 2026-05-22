@@ -26,7 +26,7 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->name('marketplace_supplies.confirm_fbo_goods');
 
     Route::get('/{marketplace_supply}/boxes', [SupplyBoxController::class, 'index'])
-        ->can('manageBoxes', 'marketplace_supply')
+        ->can('viewBoxes', 'marketplace_supply')
         ->name('supply_boxes.index');
 
     Route::post('/{marketplace_supply}/boxes', [SupplyBoxController::class, 'store'])
@@ -42,7 +42,7 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->name('supply_boxes.mark_assembled');
 
     Route::get('/{marketplace_supply}/boxes/{box}', [SupplyBoxController::class, 'show'])
-        ->can('manageBoxes', 'marketplace_supply')
+        ->can('viewBoxes', 'marketplace_supply')
         ->name('supply_boxes.show');
 
     Route::delete('/{marketplace_supply}/boxes/{box}', [SupplyBoxController::class, 'destroy'])

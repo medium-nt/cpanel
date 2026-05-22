@@ -1,12 +1,12 @@
 <div class="col-md-12"
      x-data
-     @if(!$box->closed_at)
+     @if(!$box->closed_at && !auth()->user()->isManager())
      x-init="$nextTick(() => { $refs.scanInput.focus() })"
      @click="if (!$event.target.closest('select, button, input, textarea, a, [data-no-refocus]')) { $refs.scanInput.focus() }"
     @endif
 >
     {{-- Сканер --}}
-    @if(!$box->closed_at)
+    @if(!$box->closed_at && !auth()->user()->isManager())
         <div class="card">
             <div class="card-body">
                 @if($statusMessage)
@@ -45,7 +45,7 @@
                         <tr>
                             <th>Заказ</th>
                             <th>Товар</th>
-                            @if(!$box->closed_at)
+                            @if(!$box->closed_at && !auth()->user()->isManager())
                                 <th></th>
                             @endif
                         </tr>
@@ -57,7 +57,7 @@
                                     <td>{{ $order->order_id }}</td>
                                     <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
                                         x{{ $item->item?->height }}</td>
-                                    @if(!$box->closed_at && $loop->first)
+                                    @if(!$box->closed_at && $loop->first && !auth()->user()->isManager())
                                         <td rowspan="{{ $order->items->count() }}">
                                             <button
                                                 wire:click="removeOrder({{ $order->id }})"

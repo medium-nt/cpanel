@@ -19,7 +19,7 @@
                     @endif
                 </h4>
 
-                @if(!$box->closed_at && $box->orders->count() > 0)
+                @if(!$box->closed_at && $box->orders->count() > 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                     <form
                         action="{{ route('supply_boxes.close_box', ['marketplace_supply' => $supply, 'box' => $box]) }}"
                         method="POST" class="mt-2 d-inline">
@@ -32,7 +32,7 @@
                     </form>
                 @endif
 
-                @if($box->closed_at)
+                @if($box->closed_at && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                     <a href="{{ route('supply_boxes.print_sticker', ['marketplace_supply' => $supply, 'box' => $box]) }}"
                        class="btn btn-primary btn-sm mt-2"
                        target="_blank">

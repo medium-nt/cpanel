@@ -21,7 +21,7 @@
                 <h3 class="card-title">Короба ({{ $boxes->count() }})</h3>
             </div>
             <div class="card-body">
-                @if($freeOrdersCount > 0)
+                @if($freeOrdersCount > 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                     <form
                         action="{{ route('supply_boxes.store', ['marketplace_supply' => $supply]) }}"
                         method="POST" class="d-inline">
@@ -32,7 +32,7 @@
                     </form>
                 @endif
                 @if($boxes->isNotEmpty())
-                        @if($freeOrdersCount === 0 && $supply->status == 13 && $boxes->every(fn($box) => $box->closed_at))
+                    @if($freeOrdersCount === 0 && $supply->status == 13 && $boxes->every(fn($box) => $box->closed_at) && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                         <form
                             action="{{ route('supply_boxes.mark_assembled', ['marketplace_supply' => $supply]) }}"
                             method="POST" class="d-inline">
@@ -72,7 +72,7 @@
                                            class="btn btn-primary btn-sm mr-1">
                                             Открыть
                                         </a>
-                                        @if($box->orders_count == 0)
+                                        @if($box->orders_count == 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                                             <form
                                                 action="{{ route('supply_boxes.destroy', ['marketplace_supply' => $supply, 'box' => $box]) }}"
                                                 method="POST" class="d-inline">
