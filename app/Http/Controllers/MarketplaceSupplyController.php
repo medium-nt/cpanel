@@ -257,6 +257,7 @@ class MarketplaceSupplyController extends Controller
                     'marketplace_id' => 2,
                     'supply_id' => $marketplaceSupply->id,
                     'fulfillment_type' => 'FBO',
+                    'cluster' => $marketplaceSupply->cluster,
                     'status' => 0,
                 ]);
 
