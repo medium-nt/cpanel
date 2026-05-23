@@ -117,9 +117,13 @@ class MovementMaterialFromSupplierService
         try {
             DB::beginTransaction();
 
-            $order->update([
-                'status' => 3,
-            ]);
+            $isComplete = $request->input('action') === 'complete';
+
+            if ($isComplete) {
+                $order->update([
+                    'status' => 3,
+                ]);
+            }
 
             $list = '';
             foreach ($materialIds as $key => $material_id) {
@@ -153,9 +157,10 @@ class MovementMaterialFromSupplierService
                     ."\n";
             }
 
+            $actionText = $isComplete ? 'одобрил поступление' : 'изменил поступление';
             Log::channel('materials')
                 ->notice('   Админ '.auth()->user()->name.
-                    ' одобрил поступление материала на склад от поставщика '
+                    ' '.$actionText.' материала на склад от поставщика '
                     .$order->supplier->title.' :'."\n".$list);
 
             DB::commit();

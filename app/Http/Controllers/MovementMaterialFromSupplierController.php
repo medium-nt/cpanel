@@ -71,9 +71,13 @@ class MovementMaterialFromSupplierController extends Controller
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
+        $message = $request->input('action') === 'complete'
+            ? 'Поступление завершено'
+            : 'Изменения сохранены';
+
         return redirect()
             ->route('movements_from_supplier.index')
-            ->with('success', 'Поступление добавлено');
+            ->with('success', $message);
     }
 
     /**

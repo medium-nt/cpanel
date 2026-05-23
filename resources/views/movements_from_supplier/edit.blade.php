@@ -115,7 +115,17 @@
                     </div>
 
                     <div class="form-group">
-                        <button class="btn btn-success">Сохранить изменения</button>
+                        <button type="submit" name="action" value="save"
+                                class="btn btn-success">Сохранить изменения
+                        </button>
+
+                        @if($order->status != 3)
+                            <button type="submit" name="action" value="complete"
+                                    class="btn btn-primary"
+                                    onclick="return confirm('Вы действительно хотите завершить поставку?')">
+                                Завершить поставку
+                            </button>
+                        @endif
 
                         @if($order->status == 0)
                             <button form="deleteForm"
