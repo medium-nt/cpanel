@@ -194,9 +194,11 @@
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
                         <tr>
+                            <th>Статус</th>
                             <th>Поставка</th>
                             <th>Отгрузка в Газельку</th>
                             <th>Отгрузка в маркетплейс</th>
+                            <th>Маркетплейс</th>
                             <th>Кластер</th>
                             <th>Заказов</th>
                         </tr>
@@ -205,6 +207,22 @@
                         @foreach($gazelkaShipments as $shipment)
                             <tr class="{{ $shipment->gazelka_shipment_date->isToday() ? 'text-danger font-weight-bold' : '' }}">
                                 <td>
+                                    @switch($shipment->status)
+                                        @case(0)
+                                            <span class="badge bg-secondary"> Открытая </span>
+                                            @break
+                                        @case(3)
+                                            <span class="badge bg-success"> Закрытая </span>
+                                            @break
+                                        @case(4)
+                                            <span class="badge bg-warning"> Отгрузка </span>
+                                            @break
+                                        @case(13)
+                                            <span class="badge bg-info"> На сборке </span>
+                                            @break
+                                    @endswitch
+                                </td>
+                                <td>
                                     <a href="{{ route('marketplace_supplies.show', $shipment) }}"
                                        class="{{ $shipment->gazelka_shipment_date->isToday() ? 'text-danger font-weight-bold' : '' }}">
                                         Поставка #{{ $shipment->supply_id }}
@@ -212,6 +230,11 @@
                                 </td>
                                 <td>{{ $shipment->gazelka_shipment_date->format('d.m.Y') }}</td>
                                 <td>{{ $shipment->supply_date->format('d.m.Y') }}</td>
+                                <td>
+                                    <img style="width: 80px;"
+                                         src="{{ asset($shipment->marketplace_name) }}"
+                                         alt="{{ $shipment->marketplace_name }}">
+                                </td>
                                 <td>{{ $shipment->cluster }}</td>
                                 <td>{{ $shipment->marketplace_orders()->count() }}</td>
                             </tr>
