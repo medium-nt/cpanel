@@ -336,7 +336,7 @@ class MarketplaceApiService
                 $orders = $response->object()->orders;
 
                 foreach ($orders as $order) {
-                    if ($order->wbStatus == 'declined_by_client') {
+                    if ($order->wbStatus == 'declined_by_client' || $order->wbStatus == 'canceled_by_client') {
                         $unifiedOrders[] = [
                             'id' => $order->id,
                             'marketplace_id' => '2',
