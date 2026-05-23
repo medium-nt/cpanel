@@ -76,6 +76,10 @@
                             <th>Тип поставки</th>
                             <td>{{ $supply->delivery_type ?? '-' }}</td>
                         </tr>
+                        <tr>
+                            <th>Забор Газелькой</th>
+                            <td>{{ $supply->gazelka_pickup === null ? '-' : ($supply->gazelka_pickup ? 'Да' : 'Нет') }}</td>
+                        </tr>
                     </table>
 
                     @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))

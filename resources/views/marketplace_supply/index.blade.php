@@ -264,7 +264,14 @@
                                     </badge>
                                     <br>
                                 </td>
-                                <td>{{ $marketplace_supply->gazelka_shipment_date?->format('d/m/Y') ?? '' }}</td>
+                                <td>
+                                    {{ $marketplace_supply->gazelka_shipment_date?->format('d/m/Y') ?? '' }}
+                                    @if($marketplace_supply->gazelka_pickup === true)
+                                        <br><span class="badge badge-warning">Забор Газелькой</span>
+                                    @elseif($marketplace_supply->gazelka_pickup === false)
+                                        <br><span class="badge badge-danger">До склада Газельки</span>
+                                    @endif
+                                </td>
                                 <td>{{ $marketplace_supply->supply_date?->format('d/m/Y') ?? '' }}</td>
                                 <td>{{ $marketplace_supply->completed_at?->format('d/m/Y') ?? '' }}</td>
                                 <td style="width: 100px">

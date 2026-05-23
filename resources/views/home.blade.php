@@ -228,7 +228,14 @@
                                         Поставка #{{ $shipment->supply_id }}
                                     </a>
                                 </td>
-                                <td>{{ $shipment->gazelka_shipment_date->format('d.m.Y') }}</td>
+                                <td>
+                                    {{ $shipment->gazelka_shipment_date->format('d.m.Y') }}
+                                    @if($shipment->gazelka_pickup === true)
+                                        <br><span class="badge badge-warning">Забор Газелькой</span>
+                                    @elseif($shipment->gazelka_pickup === false)
+                                        <br><span class="badge badge-danger">До склада Газельки</span>
+                                    @endif
+                                </td>
                                 <td>{{ $shipment->supply_date->format('d.m.Y') }}</td>
                                 <td>
                                     <img style="width: 80px;"

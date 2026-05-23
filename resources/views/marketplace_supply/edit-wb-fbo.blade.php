@@ -50,6 +50,24 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <div class="form-group ml-3 mb-0">
+                            @php($pickupVal = old('gazelka_pickup', $supply->gazelka_pickup))
+                            <label for="gazelka_pickup">Забор Газелькой</label>
+                            <select class="form-control"
+                                    id="gazelka_pickup"
+                                    name="gazelka_pickup">
+                                <option value="">-- Не указан --</option>
+                                <option value="1"
+                                    {{ $pickupVal === true || $pickupVal === 1 || $pickupVal === '1' ? 'selected' : '' }}>
+                                    Да
+                                </option>
+                                <option value="0"
+                                    {{ $pickupVal === false || $pickupVal === 0 || $pickupVal === '0' ? 'selected' : '' }}>
+                                    Нет
+                                </option>
+                            </select>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary mr-2">
