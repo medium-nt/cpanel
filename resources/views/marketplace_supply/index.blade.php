@@ -250,7 +250,7 @@
                                          src="{{ asset($marketplace_supply->marketplace_name) }}"
                                          alt="{{ $marketplace_supply->marketplace_name }}">
                                 </td>
-                                <td>{{ $marketplace_supply->type }}</td>
+                                <td>{{ $marketplace_supply->type }} {{ $marketplace_supply->delivery_type }}</td>
 
                                 <td>
                                     <span

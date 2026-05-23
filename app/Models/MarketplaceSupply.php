@@ -9,6 +9,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class MarketplaceSupply extends Model
 {
+    public const DELIVERY_TYPE_BOX = 'короба';
+
+    public const DELIVERY_TYPE_PALLET = 'палета';
+
+    public const DELIVERY_TYPES = [
+        self::DELIVERY_TYPE_BOX,
+        self::DELIVERY_TYPE_PALLET,
+    ];
+
     protected $table = 'marketplace_supplies';
 
     protected $fillable = [
@@ -19,6 +28,7 @@ class MarketplaceSupply extends Model
         'supply_date',
         'gazelka_shipment_date',
         'gazelka_shipment_id',
+        'delivery_type',
         'status',
         'completed_at',
         'video',

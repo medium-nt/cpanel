@@ -202,11 +202,13 @@ class MarketplaceSupplyController extends Controller
         $validated = $request->validate([
             'gazelka_shipment_id' => 'nullable|string',
             'gazelka_shipment_date' => 'nullable|date',
+            'delivery_type' => 'nullable|string|in:'.implode(',', MarketplaceSupply::DELIVERY_TYPES),
         ]);
 
         $marketplaceSupply->update([
             'gazelka_shipment_id' => $validated['gazelka_shipment_id'] ?? null,
             'gazelka_shipment_date' => isset($validated['gazelka_shipment_date']) ? Carbon::parse($validated['gazelka_shipment_date']) : null,
+            'delivery_type' => $validated['delivery_type'] ?? null,
         ]);
 
         return redirect()

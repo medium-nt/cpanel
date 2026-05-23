@@ -35,6 +35,21 @@
                                    name="gazelka_shipment_date"
                                    value="{{ old('gazelka_shipment_date', $supply->gazelka_shipment_date?->format('Y-m-d')) }}">
                         </div>
+
+                        <div class="form-group ml-3 mb-0">
+                            <label for="delivery_type">Тип поставки</label>
+                            <select class="form-control"
+                                    id="delivery_type"
+                                    name="delivery_type">
+                                <option value="">-- Не указан --</option>
+                                @foreach(\App\Models\MarketplaceSupply::DELIVERY_TYPES as $type)
+                                    <option value="{{ $type }}"
+                                        {{ old('delivery_type', $supply->delivery_type) === $type ? 'selected' : '' }}>
+                                        {{ $type }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary mr-2">

@@ -72,6 +72,10 @@
                             <th>Дата отгрузки в Газельку</th>
                             <td>{{ $supply->gazelka_shipment_date?->format('d.m.Y') ?? '-' }}</td>
                         </tr>
+                        <tr>
+                            <th>Тип поставки</th>
+                            <td>{{ $supply->delivery_type ?? '-' }}</td>
+                        </tr>
                     </table>
 
                     @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))
