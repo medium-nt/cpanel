@@ -46,6 +46,10 @@
                                 Новые заказы
                             </option>
                             <option
+                                value="4" {{ request('status') == '4' ? 'selected' : '' }}>
+                                В работе
+                            </option>
+                            <option
                                 value="6" {{ request('status') == '6' ? 'selected' : '' }}>
                                 На поставку
                             </option>

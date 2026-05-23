@@ -175,8 +175,15 @@ class MarketplaceOrderItemService
                 $marketplaceOrderItem->completed_at = null;
                 $marketplaceOrderItem->save();
 
+                $marketplaceOrder = $marketplaceOrderItem->marketplaceOrder;
+
+                if ($status == 4 && ! $marketplaceOrderItem->cutter_id) {
+                    $marketplaceOrder->status = 0;
+                    $marketplaceOrder->save();
+                }
+
                 $order = Order::query()
-                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id);
+                    ->where('marketplace_order_id', $marketplaceOrder->id);
 
                 if ($marketplaceOrderItem->cutter_id) {
                     $order = $order->whereNull('cutter_id');
@@ -728,6 +735,10 @@ class MarketplaceOrderItemService
             if ($roleName == 'cutter') {
                 StackService::incrementStackAndMaxStack(auth()->user()->id);
             }
+
+            $marketplaceOrder = $marketplaceOrderItem->marketplaceOrder;
+            $marketplaceOrder->status = 4;
+            $marketplaceOrder->save();
 
             $order = Order::query()->create([
                 'type_movement' => 3,

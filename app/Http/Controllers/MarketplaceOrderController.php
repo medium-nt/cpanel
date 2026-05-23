@@ -19,6 +19,7 @@ class MarketplaceOrderController extends Controller
 
         $orders = match ($request->status) {
             '3' => $orders->where('marketplace_orders.status', 3),
+            '4' => $orders->where('marketplace_orders.status', 4),
             '6' => $orders->where('marketplace_orders.status', 6),
             '9' => $orders->where('marketplace_orders.status', 9),
             default => $orders->where('marketplace_orders.status', 0)
