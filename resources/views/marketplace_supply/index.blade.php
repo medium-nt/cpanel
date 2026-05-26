@@ -33,6 +33,9 @@
                                 @endif
                                 @if(auth()->user()->isAdmin() || auth()->user()->isManager())
                                     <a class="dropdown-item"
+                                       href="{{ route('marketplace_supplies.create', ['marketplace_id' => 1, 'type' => 'FBO']) }}">OZON
+                                        FBO</a>
+                                        <a class="dropdown-item"
                                        href="{{ route('marketplace_supplies.create', ['marketplace_id' => 2, 'type' => 'FBO']) }}">WB
                                         FBO</a>
                                 @endif

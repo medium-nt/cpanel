@@ -29,6 +29,10 @@ class MarketplaceSupply extends Model
         'gazelka_shipment_date',
         'gazelka_shipment_id',
         'delivery_type',
+        'draft_id',
+        'draft_params',
+        'draft_created_at',
+        'supply_type',
         'gazelka_pickup',
         'status',
         'completed_at',
@@ -43,6 +47,8 @@ class MarketplaceSupply extends Model
             'gazelka_shipment_date' => 'date',
             'gazelka_pickup' => 'boolean',
             'completed_at' => 'datetime',
+            'draft_params' => 'array',
+            'draft_created_at' => 'datetime',
         ];
     }
 

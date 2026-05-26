@@ -324,11 +324,11 @@ class MarketplaceApiService
                     Log::channel('marketplace_api')->error('ВНИМАНИЕ! Ошибка получения отмененных заказов из Wb');
                     Log::channel('marketplace_api')->error($body);
                     Log::channel('marketplace_api')->error(json_encode($response->object(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-                    Log::channel('marketplace_api')->error('Rate-Limit Headers: ' . json_encode([
-                            'x-ratelimit-limit' => $response->header('x-ratelimit-limit'),
-                            'x-ratelimit-retry' => $response->header('x-ratelimit-retry'),
-                            'x-ratelimit-reset' => $response->header('x-ratelimit-reset'),
-                        ], JSON_UNESCAPED_UNICODE));
+                    Log::channel('marketplace_api')->error('Rate-Limit Headers: '.json_encode([
+                        'x-ratelimit-limit' => $response->header('x-ratelimit-limit'),
+                        'x-ratelimit-retry' => $response->header('x-ratelimit-retry'),
+                        'x-ratelimit-reset' => $response->header('x-ratelimit-reset'),
+                    ], JSON_UNESCAPED_UNICODE));
 
                     return [];
                 }
@@ -2380,6 +2380,7 @@ class MarketplaceApiService
 
             foreach ($clusters as $cluster) {
                 $clusterName = $cluster['name'] ?? '';
+                $macrolocalId = $cluster['macrolocal_cluster_id'] ?? null;
 
                 foreach ($cluster['logistic_clusters'] ?? [] as $logisticCluster) {
                     foreach ($logisticCluster['warehouses'] ?? [] as $warehouse) {
@@ -2391,17 +2392,19 @@ class MarketplaceApiService
 
                         $apiNames[] = $warehouseName;
 
-                        $created = MarketplaceWarehouse::query()->firstOrCreate(
+                        $record = MarketplaceWarehouse::query()->updateOrCreate(
                             [
                                 'name' => $warehouseName,
                                 'marketplace_id' => 1,
                             ],
                             [
                                 'cluster' => $clusterName,
+                                'warehouse_id' => $warehouse['warehouse_id'] ?? null,
+                                'macrolocal_cluster_id' => $macrolocalId,
                             ]
                         );
 
-                        if ($created->wasRecentlyCreated) {
+                        if ($record->wasRecentlyCreated) {
                             $added++;
                         }
                     }
@@ -2423,6 +2426,399 @@ class MarketplaceApiService
             );
 
             return 0;
+        }
+    }
+
+    /**
+     * Получает список складов продавца FBO из OZON API.
+     */
+    public static function getSellerWarehousesOzon(): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/warehouse/fbo/seller/list', new \stdClass);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения складов продавца FBO из OZON',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                );
+
+                return [];
+            }
+
+            return $response->json('warehouses') ?? [];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении складов продавца FBO OZON: '.$e->getMessage()
+            );
+
+            return [];
+        }
+    }
+
+    /**
+     * Получает информацию о статусе черновика поставки OZON.
+     */
+    public static function getDraftInfoOzon(int $draftId): ?array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/draft/create/info', [
+                    'draft_id' => $draftId,
+                ]);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения статуса черновика OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'draft_id' => $draftId]
+                );
+
+                return null;
+            }
+
+            return $response->json();
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении статуса черновика OZON: '.$e->getMessage()
+            );
+
+            return null;
+        }
+    }
+
+    /**
+     * Получает список доступных складов для черновика поставки OZON.
+     */
+    public static function getDraftWarehousesOzon(int $draftId): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/draft/create/info', [
+                    'draft_id' => $draftId,
+                ]);
+
+            if (! $response->ok()) {
+                $message = $response->status() === 429
+                    ? 'Слишком частый запрос к OZON. Подождите немного и попробуйте снова.'
+                    : ($response->json('message') ?: $response->body());
+
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения складов черновика OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'draft_id' => $draftId]
+                );
+
+                return ['warehouses' => [], 'error' => $message];
+            }
+
+            $clusters = $response->json('clusters') ?? [];
+
+            $warehouses = [];
+            foreach ($clusters as $cluster) {
+                foreach ($cluster['warehouses'] ?? [] as $warehouse) {
+                    if (($warehouse['availability_status']['state'] ?? '') !== 'FULL_AVAILABLE') {
+                        continue;
+                    }
+
+                    $warehouses[] = [
+                        'bundle_id' => $warehouse['bundle_id'] ?? $warehouse['restricted_bundle_id'] ?? '',
+                        'warehouse_id' => $warehouse['storage_warehouse']['warehouse_id'] ?? 0,
+                        'name' => $warehouse['storage_warehouse']['name'] ?? '',
+                        'address' => $warehouse['storage_warehouse']['address'] ?? '',
+                        'total_rank' => $warehouse['total_rank'] ?? 0,
+                        'macrolocal_cluster_id' => $cluster['macrolocal_cluster_id'] ?? 0,
+                        'supply_type' => $cluster['supply_type'] ?? 'DIRECT',
+                    ];
+                }
+            }
+
+            usort($warehouses, fn ($a, $b) => $a['total_rank'] <=> $b['total_rank']);
+
+            return ['warehouses' => $warehouses, 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении складов черновика OZON: '.$e->getMessage()
+            );
+
+            return ['warehouses' => [], 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Получает таймслоты для выбранного склада черновика OZON.
+     */
+    public static function getDraftTimeslotsOzon(int $draftId, string $supplyType, int $macrolocalClusterId, int $storageWarehouseId, string $dateFrom, string $dateTo): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/draft/timeslot/info', [
+                    'draft_id' => $draftId,
+                    'supply_type' => $supplyType,
+                    'date_from' => $dateFrom,
+                    'date_to' => $dateTo,
+                    'selected_cluster_warehouses' => [
+                        [
+                            'macrolocal_cluster_id' => $macrolocalClusterId,
+                            'storage_warehouse_id' => $storageWarehouseId,
+                        ],
+                    ],
+                ]);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения таймслотов черновика OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'draft_id' => $draftId]
+                );
+
+                return [];
+            }
+
+            return $response->json('result.drop_off_warehouse_timeslots.days') ?? [];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении таймслотов черновика OZON: '.$e->getMessage()
+            );
+
+            return [];
+        }
+    }
+
+    /**
+     * Создаёт черновик прямой поставки FBO через OZON API.
+     */
+    public static function createDraftDirectOzon(int $macrolocalClusterId, array $items): array
+    {
+        $body = [
+            'cluster_info' => [
+                'items' => $items,
+                'macrolocal_cluster_id' => $macrolocalClusterId,
+            ],
+            'deletion_sku_mode' => 'PARTIAL',
+        ];
+
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/draft/direct/create', $body);
+
+            if (! $response->ok()) {
+                $message = $response->json('message') ?: $response->body();
+
+                Log::channel('marketplace_api')->error(
+                    'Ошибка создания черновика прямой поставки OZON FBO',
+                    ['status' => $response->status(), 'body' => $response->body(), 'request' => $body]
+                );
+
+                return ['draft_id' => null, 'error' => $message];
+            }
+
+            return ['draft_id' => $response->json('draft_id'), 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при создании черновика прямой поставки OZON FBO: '.$e->getMessage()
+            );
+
+            return ['draft_id' => null, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Создаёт черновик кросс-докинг поставки FBO через OZON API.
+     */
+    public static function createDraftCrossdockOzon(int $macrolocalClusterId, int $sellerWarehouseId, array $items): array
+    {
+        $body = [
+            'cluster_info' => [
+                'items' => $items,
+                'macrolocal_cluster_id' => $macrolocalClusterId,
+            ],
+            'deletion_sku_mode' => 'PARTIAL',
+            'delivery_info' => [
+                'seller_warehouse_id' => $sellerWarehouseId,
+                'type' => 'DROPOFF',
+            ],
+        ];
+
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/draft/crossdock/create', $body);
+
+            if (! $response->ok()) {
+                $message = $response->json('message') ?: $response->body();
+
+                Log::channel('marketplace_api')->error(
+                    'Ошибка создания черновика кросс-докинг поставки OZON FBO',
+                    ['status' => $response->status(), 'body' => $response->body(), 'request' => $body]
+                );
+
+                return ['draft_id' => null, 'error' => $message];
+            }
+
+            return ['draft_id' => $response->json('draft_id'), 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при создании черновика кросс-докинг поставки OZON FBO: '.$e->getMessage()
+            );
+
+            return ['draft_id' => null, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Создаёт заявку на поставку из черновика через OZON API.
+     */
+    public static function createSupplyFromDraftOzon(int $draftId, int $macrolocalClusterId, int $storageWarehouseId, string $fromTime, string $toTime, string $supplyType): array
+    {
+        $body = [
+            'draft_id' => $draftId,
+            'selected_cluster_warehouses' => [
+                [
+                    'macrolocal_cluster_id' => $macrolocalClusterId,
+                    'storage_warehouse_id' => $storageWarehouseId,
+                ],
+            ],
+            'timeslot' => [
+                'from_in_timezone' => $fromTime,
+                'to_in_timezone' => $toTime,
+            ],
+            'supply_type' => $supplyType,
+        ];
+
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/draft/supply/create', $body);
+
+            if (! $response->ok()) {
+                $message = $response->json('message') ?: $response->body();
+
+                Log::channel('marketplace_api')->error(
+                    'Ошибка создания заявки из черновика OZON FBO',
+                    ['status' => $response->status(), 'body' => $response->body(), 'request' => $body]
+                );
+
+                return ['order_id' => null, 'error' => $message];
+            }
+
+            $errorReasons = $response->json('error_reasons') ?? [];
+
+            if (! empty($errorReasons)) {
+                Log::channel('marketplace_api')->error(
+                    'OZON вернул ошибки при создании заявки',
+                    ['error_reasons' => $errorReasons, 'draft_id' => $draftId]
+                );
+
+                return ['order_id' => null, 'error' => implode(', ', $errorReasons)];
+            }
+
+            return ['order_id' => $response->json('draft_id'), 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при создании заявки из черновика OZON FBO: '.$e->getMessage()
+            );
+
+            return ['order_id' => null, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Получает статус создания заявки на поставку из черновика OZON.
+     */
+    public static function getSupplyCreateStatusOzon(int $draftId): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/draft/supply/create/status', [
+                    'draft_id' => $draftId,
+                ]);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения статуса создания заявки OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'draft_id' => $draftId]
+                );
+
+                return ['status' => 'UNSPECIFIED', 'order_id' => null, 'error_reasons' => []];
+            }
+
+            return [
+                'status' => $response->json('status') ?? 'UNSPECIFIED',
+                'order_id' => $response->json('order_id'),
+                'error_reasons' => $response->json('error_reasons') ?? [],
+            ];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении статуса создания заявки OZON: '.$e->getMessage()
+            );
+
+            return ['status' => 'UNSPECIFIED', 'order_id' => null, 'error_reasons' => []];
+        }
+    }
+
+    /**
+     * Отменяет заявку на поставку через OZON API.
+     */
+    public static function cancelSupplyOzon(int $orderId): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/supply-order/cancel', [
+                    'order_id' => $orderId,
+                ]);
+
+            if (! $response->ok()) {
+                $message = $response->json('message') ?: $response->body();
+
+                Log::channel('marketplace_api')->error(
+                    'Ошибка отмены заявки на поставку OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'order_id' => $orderId]
+                );
+
+                return ['operation_id' => null, 'error' => $message];
+            }
+
+            return ['operation_id' => $response->json('operation_id'), 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при отмене заявки на поставку OZON: '.$e->getMessage()
+            );
+
+            return ['operation_id' => null, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Получает статус отмены заявки на поставку через OZON API.
+     */
+    public static function getCancelSupplyStatusOzon(string $operationId): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/supply-order/cancel/status', [
+                    'operation_id' => $operationId,
+                ]);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения статуса отмены заявки OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'operation_id' => $operationId]
+                );
+
+                return ['status' => 'UNSPECIFIED', 'error_reasons' => []];
+            }
+
+            return [
+                'status' => $response->json('status') ?? 'UNSPECIFIED',
+                'result' => $response->json('result'),
+                'error_reasons' => $response->json('error_reasons') ?? [],
+            ];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении статуса отмены заявки OZON: '.$e->getMessage()
+            );
+
+            return ['status' => 'UNSPECIFIED', 'error_reasons' => []];
         }
     }
 
@@ -2504,7 +2900,7 @@ class MarketplaceApiService
                     'statusIDs' => [1, 2, 3, 4],
                 ]);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     'Ошибка получения FBO-поставок из WB',
                     [
@@ -2519,7 +2915,7 @@ class MarketplaceApiService
             return $response->json() ?? [];
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка при получении FBO-поставок WB: ' . $e->getMessage()
+                'Ошибка при получении FBO-поставок WB: '.$e->getMessage()
             );
 
             return [];
@@ -2535,7 +2931,7 @@ class MarketplaceApiService
             $response = self::wbRequest()
                 ->get("https://supplies-api.wildberries.ru/api/v1/supplies/{$supplyId}");
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     "Ошибка получения деталей FBO-поставки #{$supplyId} из WB",
                     [
@@ -2550,7 +2946,7 @@ class MarketplaceApiService
             return $response->json() ?? [];
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                "Ошибка при получении деталей FBO-поставки WB #{$supplyId}: " . $e->getMessage()
+                "Ошибка при получении деталей FBO-поставки WB #{$supplyId}: ".$e->getMessage()
             );
 
             return [];
@@ -2566,7 +2962,7 @@ class MarketplaceApiService
             $response = self::wbRequest()
                 ->get("https://supplies-api.wildberries.ru/api/v1/supplies/{$supplyId}/goods");
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     "Ошибка получения товаров FBO-поставки #{$supplyId} из WB",
                     [
@@ -2581,7 +2977,7 @@ class MarketplaceApiService
             return $response->json() ?? [];
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                "Ошибка при получении товаров FBO-поставки WB #{$supplyId}: " . $e->getMessage()
+                "Ошибка при получении товаров FBO-поставки WB #{$supplyId}: ".$e->getMessage()
             );
 
             return [];

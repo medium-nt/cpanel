@@ -61,7 +61,14 @@ class MarketplaceSupplyController extends Controller
     {
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
-        if ($marketplaceSupply->type === 'FBO') {
+        if ($marketplaceSupply->type === 'FBO' && $marketplaceSupply->marketplace_id == 1) {
+            return view('marketplace_supply.show-ozon-fbo', [
+                'title' => 'Поставка для маркетплейса '.$marketplaceName,
+                'supply' => $marketplaceSupply,
+            ]);
+        }
+
+        if ($marketplaceSupply->type === 'FBO' && $marketplaceSupply->marketplace_id == 2) {
             $wbSupplies = ($marketplaceSupply->status === 0 && empty($marketplaceSupply->supply_id))
                 ? MarketplaceApiService::getFboSuppliesWb()
                 : [];
@@ -304,16 +311,17 @@ class MarketplaceSupplyController extends Controller
             }
         }
 
-        if ($marketplace_id == 1) {
+        if ($marketplace_id == 1 && $type === 'FBS') {
             $openSupplyOzon = MarketplaceSupply::query()
                 ->where('marketplace_id', 1)
+                ->where('type', 'FBS')
                 ->where('status', 0)
                 ->count();
 
             if ($openSupplyOzon > 0) {
                 return redirect()
                     ->route('marketplace_supplies.index')
-                    ->with('error', 'Уже есть открытая поставка OZON.');
+                    ->with('error', 'Уже есть открытая поставка OZON FBS.');
             }
         }
 
@@ -338,6 +346,44 @@ class MarketplaceSupplyController extends Controller
             return redirect()
                 ->route('marketplace_supplies.index')
                 ->with('error', 'Нельзя удалить поставку, которая содержит заказы.');
+        }
+
+        if ($marketplace_supply->supply_id && ! $marketplace_supply->draft_id && $marketplace_supply->marketplace_id === 1 && $marketplace_supply->type === 'FBO') {
+            $cancelResult = MarketplaceApiService::cancelSupplyOzon((int) $marketplace_supply->supply_id);
+
+            if ($cancelResult['error']) {
+                return redirect()
+                    ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                    ->with('error', 'Ошибка отмены поставки OZON: '.$cancelResult['error']);
+            }
+
+            sleep(2);
+
+            $maxAttempts = 5;
+
+            for ($i = 0; $i < $maxAttempts; $i++) {
+                $status = MarketplaceApiService::getCancelSupplyStatusOzon($cancelResult['operation_id']);
+
+                if ($status['status'] === 'SUCCESS') {
+                    break;
+                }
+
+                if ($status['status'] === 'FAILED') {
+                    $errors = implode(', ', $status['error_reasons']);
+
+                    return redirect()
+                        ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                        ->with('error', 'Отмена поставки OZON не удалась: '.$errors);
+                }
+
+                sleep(2);
+            }
+
+            if (($status['status'] ?? '') !== 'SUCCESS') {
+                return redirect()
+                    ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
+                    ->with('error', 'Не удалось получить статус отмены поставки за отведённое время.');
+            }
         }
 
         MarketplaceSupply::query()->findOrFail($marketplace_supply->id)->delete();

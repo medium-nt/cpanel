@@ -12,5 +12,7 @@ class MarketplaceWarehouse extends Model
         'name',
         'marketplace_id',
         'cluster',
+        'warehouse_id',
+        'macrolocal_cluster_id',
     ];
 }
