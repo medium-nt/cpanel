@@ -77,7 +77,7 @@
             </form>
         @endif
 
-        @if(($supply->status === 0 || $supply->status === 4) && ! $supply->supply_id)
+            @if(($supply->status === 0 || $supply->status === 4) && ! $supply->supply_id && (auth()->user()->isAdmin() || auth()->user()->isManager()))
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Параметры черновика</h3>

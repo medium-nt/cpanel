@@ -177,7 +177,7 @@
                                             <i class="fas fa-edit"></i>
                                             Редактировать
                                         </a>
-                                        @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO')))
+                                        @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || (auth()->user()->isStorekeeper() && $marketplace_supply->type == 'FBS') || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO')))
                                             <form
                                                 action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}"
                                                 method="POST">
@@ -284,7 +284,7 @@
                                                class="btn btn-primary mr-1">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO')))
+                                            @if($marketplace_supply->status == 0 && (auth()->user()->isAdmin() || (auth()->user()->isStorekeeper() && $marketplace_supply->type == 'FBS') || (auth()->user()->isManager() && $marketplace_supply->type === 'FBO')))
                                                 <form
                                                     action="{{ route('marketplace_supplies.destroy', ['marketplace_supply' => $marketplace_supply]) }}"
                                                     method="POST">
