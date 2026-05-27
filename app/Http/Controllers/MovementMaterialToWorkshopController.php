@@ -114,6 +114,25 @@ class MovementMaterialToWorkshopController extends Controller
             }
         }
 
+        // Проверка: в цехе уже есть рулон упаковочного материала (type_id=3)
+        $order->load('movementMaterials.roll.material');
+        foreach ($order->movementMaterials as $movementMaterial) {
+            if ($movementMaterial->roll && $movementMaterial->material->type_id == 3) {
+                $alreadyInWorkshop = Roll::query()
+                    ->where('material_id', $movementMaterial->material_id)
+                    ->where('status', Roll::STATUS_IN_WORKSHOP)
+                    ->where('shift_id', $order->shift_id)
+                    ->where('id', '!=', $movementMaterial->roll->id)
+                    ->exists();
+
+                if ($alreadyInWorkshop) {
+                    return redirect()
+                        ->back()
+                        ->with('error', 'У вашей смены в цехе уже есть рулон с этим материалом! Сначала завершите текущий рулон.');
+                }
+            }
+        }
+
         $order->update([
             'status' => 3,
             'completed_at' => now(),
