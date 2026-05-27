@@ -8,6 +8,7 @@ use App\Models\MarketplaceWarehouse;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\ProductSticker;
+use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\Sku;
 use App\Models\User;
@@ -107,6 +108,40 @@ class MarketplaceOrderItemController extends Controller
 
     public function done(Request $request, MarketplaceOrderItem $marketplaceOrderItem)
     {
+        $user = User::find(session('user_id'));
+
+        if (! $user) {
+            return redirect()
+                ->back()
+                ->with('error', 'Пользователь не найден. Возможно, сессия истекла.');
+        }
+
+        // Проверяем наличие упаковочных рулонов в цехе перед любыми изменениями
+        $shift = $user->currentShift();
+        $packagingConsumptions = $marketplaceOrderItem->item->consumption()
+            ->whereHas('material', fn ($q) => $q->where('type_id', 3))
+            ->with('material')
+            ->get();
+
+        $packagingRolls = [];
+        if ($packagingConsumptions->isNotEmpty() && $shift) {
+            foreach ($packagingConsumptions as $consumption) {
+                $roll = Roll::query()
+                    ->where('material_id', $consumption->material_id)
+                    ->where('status', Roll::STATUS_IN_WORKSHOP)
+                    ->where('shift_id', $shift->id)
+                    ->first();
+
+                if (! $roll) {
+                    return redirect()
+                        ->back()
+                        ->with('error', 'Нет рулона для "'.$consumption->material->title.'" в цехе');
+                }
+
+                $packagingRolls[$consumption->material_id] = $roll->id;
+            }
+        }
+
         Order::where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
             ->update([
                 'status' => 3,
@@ -117,14 +152,27 @@ class MarketplaceOrderItemController extends Controller
         $marketplaceOrderItem->marketplaceOrder->completed_at = now();
         $marketplaceOrderItem->marketplaceOrder->save();
 
-        $user = User::find(session('user_id'));
-
         $marketplaceOrderItem->otk_id = $user->id;
         $marketplaceOrderItem->packed_at = now();
 
         $marketplaceOrderItem->status = 3;
         $marketplaceOrderItem->completed_at = now();
         $marketplaceOrderItem->save();
+
+        // Привязываем roll_id к существующим MovementMaterial для упаковки
+        if (! empty($packagingRolls)) {
+            $writeOffOrderIds = Order::query()
+                ->where('type_movement', 3)
+                ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+                ->pluck('id');
+
+            foreach ($packagingRolls as $materialId => $rollId) {
+                MovementMaterial::query()
+                    ->whereIn('order_id', $writeOffOrderIds)
+                    ->where('material_id', $materialId)
+                    ->update(['roll_id' => $rollId]);
+            }
+        }
 
         $text = 'Сотрудник '.$user->name.' (id: '.$user->id.') выполнил заказ '
             .$marketplaceOrderItem->marketplaceOrder->order_id.
