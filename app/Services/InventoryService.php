@@ -34,10 +34,12 @@ class InventoryService
 
         $writeOff = self::countMaterial($materialId, 6, 3);
 
+        $returnedToStorage = self::countMaterial($materialId, 9, 3);
+
         $result = $inWorkshop - $holdWorkshopToItems - $outWorkshopToItems
             - $holdToDefectMaterials - $approvedDefectMaterials - $outToDefectMaterials
             - $holdToWriteOffMaterials - $approvedWriteOffMaterials - $outToWriteOffMaterials
-            - $writeOff;
+            - $writeOff - $returnedToStorage;
 
         return round($result, 2);
     }
@@ -54,7 +56,9 @@ class InventoryService
             ->whereNotIn('orders.status', [-1, 0])
             ->sum('quantity');
 
-        $result = $inStock - $outStock - $holdOutStockNew;
+        $returnedToStorage = self::countMaterial($materialId, 9, 3);
+
+        $result = $inStock - $outStock - $holdOutStockNew + $returnedToStorage;
 
         return round($result, 2);
     }

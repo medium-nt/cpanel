@@ -13,7 +13,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <a href="{{ back()->getTargetUrl() }}"
+                    <a href="{{ $backUrl }}"
                        class="btn btn-default mr-3">Назад</a>
 
                     @if(auth()->user()->isAdmin() && $canDelete)
@@ -24,6 +24,19 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">
                                 <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+                    @endif
+
+                    @if(auth()->user()->isAdmin() && $roll->status === \App\Models\Roll::STATUS_IN_WORKSHOP)
+                        <form
+                            action="{{ route('rolls.returnToStorage', ['roll' => $roll->id]) }}"
+                            method="POST">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn btn-warning"
+                                    onclick="return confirm('Вернуть рулон #{{ $roll->roll_code }} на склад?')">
+                                <i class="fa fa-undo mr-1"></i> Вернуть на склад
                             </button>
                         </form>
                     @endif

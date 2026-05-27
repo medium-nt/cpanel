@@ -25,4 +25,9 @@ class RollPolicy
     {
         return $user->isAdmin() || $user->isStorekeeper();
     }
+
+    public function returnToStorage(User $user): bool
+    {
+        return $user->isAdmin();
+    }
 }

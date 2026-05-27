@@ -15,6 +15,9 @@ Route::prefix('/rolls')->group(function () {
     Route::get('/print/order/{order}', [RollController::class, 'printOrder'])
         ->can('print', App\Models\Roll::class)
         ->name('rolls.printOrder');
+    Route::put('/return/{roll}', [RollController::class, 'returnToStorage'])
+        ->can('returnToStorage', 'roll')
+        ->name('rolls.returnToStorage');
     Route::delete('/delete/{roll}', [RollController::class, 'destroy'])
         ->can('delete', 'roll')
         ->name('rolls.destroy');

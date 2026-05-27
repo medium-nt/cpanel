@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Material;
+use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Shift;
 use App\Services\RollService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class RollController extends Controller
 {
@@ -51,6 +54,7 @@ class RollController extends Controller
                 ->with(['material', 'shift', 'completedBy', 'movementMaterialsNotFromSuppler.order.seamstress', 'movementMaterialsNotFromSuppler.order.cutter', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
                 ->find($roll->id),
             'canDelete' => $roll->status == 'in_storage',
+            'backUrl' => session('return_back_url', url()->previous()),
         ]);
     }
 
@@ -88,6 +92,69 @@ class RollController extends Controller
 
         return $pdf->setPaper('A4')
             ->download('roll_sticker.pdf');
+    }
+
+    /**
+     * Возвращает неиспользованный рулон из цеха обратно на склад.
+     */
+    public function returnToStorage(Roll $roll)
+    {
+        if ($roll->status !== Roll::STATUS_IN_WORKSHOP) {
+            return redirect()
+                ->route('rolls.show', $roll)
+                ->with('error', 'Вернуть можно только рулон в цехе');
+        }
+
+        $hasUsage = MovementMaterial::query()
+            ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->where('movement_materials.roll_id', $roll->id)
+            ->whereIn('orders.type_movement', [3, 4])
+            ->exists();
+
+        if ($hasUsage) {
+            return redirect()
+                ->route('rolls.show', $roll)
+                ->with('error', 'Рулон уже использовался, возврат невозможен');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $order = Order::query()->create([
+                'type_movement' => 9,
+                'status' => 3,
+                'shift_id' => $roll->shift_id,
+                'comment' => 'Возврат рулона #'.$roll->roll_code.' на склад',
+            ]);
+
+            MovementMaterial::create([
+                'material_id' => $roll->material_id,
+                'order_id' => $order->id,
+                'quantity' => $roll->initial_quantity,
+                'roll_id' => $roll->id,
+            ]);
+
+            $roll->update([
+                'status' => Roll::STATUS_IN_STORAGE,
+            ]);
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::channel('materials')->error('Ошибка при возврате рулона: '.$e->getMessage());
+
+            return redirect()
+                ->route('rolls.show', $roll)
+                ->with('error', 'Внутренняя ошибка');
+        }
+
+        Log::channel('materials')
+            ->notice('Рулон "'.$roll->roll_code.'" возвращен на склад сотрудником '.auth()->user()->name);
+
+        return redirect()
+            ->route('rolls.show', $roll)
+            ->with('success', 'Рулон возвращен на склад')
+            ->with('return_back_url', route('rolls.index'));
     }
 
     public function destroy(Roll $roll)
