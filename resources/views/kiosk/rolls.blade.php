@@ -320,7 +320,7 @@
 </script>
 
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
-<script src="{{ asset('vendor/adminlte/dist/js/adminlite.js') }}"></script>
+<script src="{{ asset('vendor/adminlte/dist/js/adminlte.js') }}"></script>
 <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
 </body>
