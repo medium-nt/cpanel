@@ -467,6 +467,7 @@ class StickerPrintingController extends Controller
             'userId' => session('user_id'),
             'roll' => $roll,
             'lowMaterialRolls' => $lowMaterialRolls,
+            'user' => $user,
         ]);
     }
 

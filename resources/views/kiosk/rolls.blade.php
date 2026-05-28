@@ -82,6 +82,14 @@
                             </div>
                             <div class="col-md-6">
                                 @if($roll->status === \App\Models\Roll::STATUS_IN_WORKSHOP)
+                                    @if($roll->current_quantity > 10 && (!$user->isAdmin() && !$user->isStorekeeper()))
+                                        <div
+                                            class="alert alert-warning text-center mt-3">
+                                            <h4>Рулон еще не заканчивается!</h4>
+                                            <h6>Принудительно закрыть может
+                                                только кладовщик или админ</h6>
+                                        </div>
+                                    @else
                                     <form
                                         action="{{ route('kiosk.complete-roll') }}"
                                         method="POST">
@@ -139,6 +147,7 @@
                                             </button>
                                         </div>
                                     </form>
+                                    @endif
                                 @elseif($roll->status === \App\Models\Roll::STATUS_COMPLETED)
                                     <div
                                         class="alert alert-secondary text-center mt-3">
