@@ -55,6 +55,7 @@ class MaterialController extends Controller
             'type_id' => 'required|integer|exists:type_materials,id',
             'unit' => 'required|string|min:1|max:10',
             'purchase_price' => 'required|numeric|min:0.01',
+            'is_active' => 'required|boolean',
         ];
 
         $validatedData = $request->validate($rules);

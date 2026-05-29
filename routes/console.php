@@ -60,6 +60,11 @@ Schedule::call(function () {
     MarketplaceSupplyService::deleteOldVideos();
 })->dailyAt('01:00');
 
+Schedule::command('auto-order:materials')
+    ->everyThirtyMinutes()
+    ->between('8:00', '20:00')
+    ->withoutOverlapping();
+
 Schedule::call(function () {
     MarketplaceSupplyService::updateStatusSupply();
 })->dailyAt('02:00');

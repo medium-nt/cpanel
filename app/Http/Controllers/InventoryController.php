@@ -20,7 +20,7 @@ class InventoryController extends Controller
 
     public function byWorkshop()
     {
-        $data = InventoryService::materialsQuantityByWorkshopPerShift();
+        $data = InventoryService::materialsQuantityByWorkshopPerShift(auth()->user());
 
         return view('inventory.workshop', [
             'title' => 'Материал на производстве',

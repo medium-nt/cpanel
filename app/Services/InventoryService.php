@@ -9,6 +9,7 @@ use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Roll;
 use App\Models\Shift;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Log;
 
@@ -243,12 +244,11 @@ class InventoryService
      *
      * @return array{shifts: \Illuminate\Support\Collection, materials: array}
      */
-    public static function materialsQuantityByWorkshopPerShift(): array
+    public static function materialsQuantityByWorkshopPerShift(?User $user = null): array
     {
         $shifts = Shift::query()->active()->get();
 
-        $user = auth()->user();
-        if ($user->isSeamstress() || $user->isCutter() || $user->isOtk()) {
+        if ($user && ($user->isSeamstress() || $user->isCutter() || $user->isOtk())) {
             $shifts = $shifts->where('id', $user->currentShift()->id);
         }
 

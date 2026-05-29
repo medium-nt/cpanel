@@ -97,6 +97,19 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="is_active">Статус</label>
+                        <select name="is_active" id="is_active"
+                                class="form-control" required>
+                            <option value="1" @selected($material->is_active)>
+                                Активен
+                            </option>
+                            <option value="0" @selected(!$material->is_active)>
+                                Неактивен
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <button type="submit" class="btn btn-success">Сохранить</button>
                     </div>
                 </div>

@@ -26,6 +26,7 @@ class Material extends Model
         'height',
         'unit',
         'purchase_price',
+        'is_active',
     ];
 
     public function type(): BelongsTo

@@ -23,6 +23,7 @@
                             <th scope="col">Название</th>
                             <th scope="col">Ед.измерения</th>
                             <th scope="col">Себестоимость</th>
+                            <th scope="col">Статус</th>
                             <th scope="col"></th>
                         </tr>
                         </thead>
@@ -34,6 +35,13 @@
                                 <td>{{ $material->title }}</td>
                                 <td>{{ $material->unit }}</td>
                                 <td>{{ $material->purchase_price }} руб.</td>
+                                <td>
+                                    @if($material->is_active)
+                                        <span class="badge badge-success">Активен</span>
+                                    @else
+                                        <span class="badge badge-secondary">Неактивен</span>
+                                    @endif
+                                </td>
 
                                 <td style="width: 100px">
                                     <div class="btn-group" role="group">
