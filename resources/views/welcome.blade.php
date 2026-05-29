@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css"/>
+    <link rel="stylesheet"
+          href="{{ asset('vendor/tailwind/tailwind.min.css') }}"/>
 
     <style>
         .bg-gray-100 {

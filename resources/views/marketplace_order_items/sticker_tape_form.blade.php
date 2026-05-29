@@ -111,7 +111,7 @@
 
 @push('css')
     <link
-        href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+        href="{{ asset('vendor/select2/select2.min.css') }}"
         rel="stylesheet"/>
     <style>
         .select2-container--default .select2-selection--single {
@@ -131,7 +131,7 @@
 
 @push('js')
     <script
-        src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        src="{{ asset('vendor/select2/select2.min.js') }}"></script>
     <script>
         $('#item_id').select2({
             width: '100%',

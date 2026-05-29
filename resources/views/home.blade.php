@@ -495,12 +495,13 @@
 @stop
 
 @push('js')
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+    <script
+        src='{{ asset('vendor/fullcalendar/index.global.min.js') }}'></script>
     <script src="{{ asset('js/fullcalendar.js') }}"></script>
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
     <script src="{{ asset('js/toggle_spoiler.js') }}"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ asset('vendor/chartjs/chart.umd.js') }}"></script>
 
     <script>
         window.seamstressesData = {!! $seamstresses !!};

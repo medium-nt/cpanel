@@ -131,7 +131,7 @@
 @stop
 
 @section('js')
-    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <script src="{{ asset('vendor/dropzone/dropzone.min.js') }}"></script>
 
     <script>
         Dropzone.autoDiscover = false;
@@ -216,7 +216,9 @@
 
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+    <link rel="stylesheet"
+          href="{{ asset('vendor/dropzone/dropzone.min.css') }}"
+          type="text/css"/>
     <link href="{{ asset('css/dropzone.css') }}" rel="stylesheet"/>
 
     <style>

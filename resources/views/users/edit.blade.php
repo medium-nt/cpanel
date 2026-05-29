@@ -657,11 +657,12 @@
 
 @push('css')
     <link href="{{ asset('css/fullcalendar.css') }}" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet"
+          href="{{ asset('vendor/choices/choices.min.css') }}"/>
 @endpush
 
 @push('js')
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="{{ asset('vendor/choices/choices.min.js') }}"></script>
 
     <script>
         // Инициализация Bootstrap collapse через jQuery
@@ -701,8 +702,9 @@
         });
     </script>
 
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script
+        src='{{ asset('vendor/fullcalendar/index.global.min.js') }}'></script>
+    <script src="{{ asset('vendor/moment/moment.min.js') }}"></script>
     <script src="{{ asset('js/fullcalendar_by_admin.js') }}"></script>
 
     <script>

@@ -56,7 +56,7 @@
     </script>
 
     <!-- Подключаем JS-файл Toastr -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
 
     @if(session('success'))
         <script>
@@ -77,7 +77,7 @@
 
 @push('css')
     <!-- Подключаем CSS-файл Toastr -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet"/>
+    <link href="{{ asset('vendor/toastr/toastr.min.css') }}" rel="stylesheet"/>
 
     <style type="text/css">
 

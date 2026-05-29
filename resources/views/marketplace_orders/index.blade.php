@@ -512,7 +512,7 @@
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
     <link href="{{ asset('css/badges.css') }}" rel="stylesheet"/>
     <link
-        href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+        href="{{ asset('vendor/select2/select2.min.css') }}"
         rel="stylesheet"/>
     <link href="{{ asset('css/marketplace_orders.css') }}" rel="stylesheet"/>
 @endpush
@@ -520,7 +520,7 @@
 @push('js')
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
     <script
-        src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        src="{{ asset('vendor/select2/select2.min.js') }}"></script>
     <script>
         $(document).ready(function () {
             const marketplaceSelect = $('#marketplace_id');

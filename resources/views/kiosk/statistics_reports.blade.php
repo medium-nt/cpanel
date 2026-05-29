@@ -131,7 +131,7 @@
 <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('js/toggle_spoiler.js') }}"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ asset('vendor/chartjs/chart.umd.js') }}"></script>
 <script>
     $(document).ready(function () {
         localStorage.removeItem('orderId');

@@ -17,7 +17,7 @@
 
     <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
     <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"
+        href="{{ asset('vendor/toastr/toastr.min.css') }}"
         rel="stylesheet">
 </head>
 <body>
@@ -150,7 +150,7 @@
 
 <!-- Подключаем JS-файл Toastr -->
 <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
 <script>
     toastr.options = {
         "closeButton": true,
