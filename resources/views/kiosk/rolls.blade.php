@@ -82,7 +82,7 @@
                             </div>
                             <div class="col-md-6">
                                 @if($roll->status === \App\Models\Roll::STATUS_IN_WORKSHOP)
-                                    @if($roll->current_quantity > 10 && (!$user->isAdmin() && !$user->isStorekeeper()))
+                                    @if($roll->current_quantity > $rollCloseMinRemaining && (!$user->isAdmin() && !$user->isStorekeeper()))
                                         <div
                                             class="alert alert-warning text-center mt-3">
                                             <h4>Рулон еще не заканчивается!</h4>

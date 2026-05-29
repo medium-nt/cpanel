@@ -385,6 +385,20 @@
                                         </option>
                                     </select>
                                 </div>
+
+                                <div class="form-group col-md-2">
+                                    <label for="roll_close_min_remaining">Остаток
+                                        для закрытия рулона (м)</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="roll_close_min_remaining"
+                                        name="roll_close_min_remaining"
+                                        value="{{ $settings->roll_close_min_remaining }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                </div>
                             </div>
 
                             <hr>

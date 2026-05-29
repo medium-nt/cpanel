@@ -468,6 +468,7 @@ class StickerPrintingController extends Controller
             'roll' => $roll,
             'lowMaterialRolls' => $lowMaterialRolls,
             'user' => $user,
+            'rollCloseMinRemaining' => (float) Setting::getValue('roll_close_min_remaining'),
         ]);
     }
 
