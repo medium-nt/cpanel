@@ -74,7 +74,7 @@
 
                     @if(auth()->user()->isStorekeeper() || auth()->user()->isAdmin())
                         <div class="form-group">
-                            <a href="{{ route('movements_to_workshop.index') }}"
+                            <a href="{{ session('movements_index_url', route('movements_to_workshop.index')) }}"
                                class="btn btn-secondary mr-1">Назад</a>
                             <a href="{{ route('movements_to_workshop.print_sticker', ['order' => $order->id]) }}"
                                class="btn btn-outline-secondary"

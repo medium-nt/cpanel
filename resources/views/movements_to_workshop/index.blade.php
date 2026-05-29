@@ -13,11 +13,38 @@
             <div class="card-body">
                 <div class="row">
                     @if(auth()->user()->isSeamstress() || auth()->user()->isCutter() || auth()->user()->isOtk())
-                        <a href="{{ route('movements_to_workshop.create') }}" class="btn btn-primary mr-1">Новый заказ</a>
+                        <a href="{{ route('movements_to_workshop.create') }}"
+                           class="btn btn-primary mr-1 mb-1">Новый заказ</a>
                     @endif
 
-                    <a href="{{ route('movements_to_workshop.index') }}" class="btn btn-link">Активные</a>
-                    <a href="{{ route('movements_to_workshop.index', ['status' => 'all']) }}" class="btn btn-link">Все заказы</a>
+                    <select class="form-control mr-2 mb-1"
+                            style="width: auto; display: inline-block;"
+                            name="status"
+                            onchange="updateStatusFilter(this)">
+                        <option value=""
+                                @if(!request()->has('status')) selected @endif>
+                            Активные
+                        </option>
+                        <option value="all"
+                                @if(request('status') === 'all') selected @endif>
+                            Все заказы
+                        </option>
+                    </select>
+
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                        <select class="form-control ml-2 mb-1"
+                                style="width: auto; display: inline-block;"
+                                name="shift_id"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">Все смены</option>
+                            @foreach($shifts as $shift)
+                                <option value="{{ $shift->id }}"
+                                        @if(request('shift_id') == $shift->id) selected @endif>
+                                    {{ $shift->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                 </div>
             </div>
         </div>
@@ -226,4 +253,19 @@
 
 @push('css')
     <link href="{{ asset('css/desktop_or_smartphone_card_style.css') }}" rel="stylesheet"/>
+@endpush
+
+@push('js')
+    <script src="{{ asset('js/PageQueryParam.js') }}"></script>
+    <script>
+        function updateStatusFilter(el) {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('status');
+            params.delete('page');
+            if (el.value) {
+                params.set('status', el.value);
+            }
+            window.location = window.location.pathname + '?' + params.toString();
+        }
+    </script>
 @endpush

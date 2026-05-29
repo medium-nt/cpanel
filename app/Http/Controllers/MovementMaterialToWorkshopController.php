@@ -8,6 +8,7 @@ use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\Material;
 use App\Models\Order;
 use App\Models\Roll;
+use App\Models\Shift;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\ShiftService;
 use App\Services\TgService;
@@ -21,16 +22,25 @@ class MovementMaterialToWorkshopController extends Controller
 {
     public function index(Request $request)
     {
-        $paginatedOrders = MovementMaterialToWorkshopService::getOrdersByStatus($request->status, auth()->user())
+        $user = auth()->user();
+
+        $paginatedOrders = MovementMaterialToWorkshopService::getOrdersByStatus($request->status, $user)
+            ->when(
+                ($user->isAdmin() || $user->isStorekeeper()) ? $request->shift_id : null,
+                fn ($query, $shiftId) => $query->where('shift_id', $shiftId)
+            )
             ->with(['shift', 'movementMaterials.material', 'movementMaterials.roll', 'seamstress', 'cutter', 'user'])
             ->latest()
             ->paginate(10);
 
         $queryParams = $request->except(['page']);
 
+        session()->put('movements_index_url', $request->fullUrl());
+
         return view('movements_to_workshop.index', [
             'title' => 'Отгрузка на производство',
             'orders' => $paginatedOrders->appends($queryParams),
+            'shifts' => ($user->isAdmin() || $user->isStorekeeper()) ? Shift::active()->get() : collect(),
         ]);
     }
 
@@ -54,8 +64,7 @@ class MovementMaterialToWorkshopController extends Controller
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
-        return redirect()
-            ->route('movements_to_workshop.index')
+        return redirect($this->getFilteredIndexUrl())
             ->with('success', 'Заказ сформирован и отправлен на склад');
     }
 
@@ -92,7 +101,7 @@ class MovementMaterialToWorkshopController extends Controller
             return back()->withErrors(['error' => 'Внутренняя ошибка']);
         }
 
-        return redirect()->route('movements_to_workshop.index')->with('success', 'Отгрузка сформирована');
+        return redirect($this->getFilteredIndexUrl())->with('success', 'Отгрузка сформирована');
     }
 
     public function receive(Order $order)
@@ -173,14 +182,13 @@ class MovementMaterialToWorkshopController extends Controller
             TgService::sendMessage($tgId, $text);
         }
 
-        return redirect()->route('movements_to_workshop.index')->with('success', 'Поставка принята');
+        return redirect($this->getFilteredIndexUrl())->with('success', 'Поставка принята');
     }
 
     public function delete(Order $order)
     {
         if ($order->status != 0) {
-            return redirect()
-                ->route('movements_to_workshop.index')
+            return redirect($this->getFilteredIndexUrl())
                 ->with('error', 'Невозможно удалить заказ, так как он уже в работе');
         }
 
@@ -188,8 +196,7 @@ class MovementMaterialToWorkshopController extends Controller
 
         $order->delete();
 
-        return redirect()
-            ->route('movements_to_workshop.index')
+        return redirect($this->getFilteredIndexUrl())
             ->with('success', 'Поставка удалена');
     }
 
@@ -214,5 +221,13 @@ class MovementMaterialToWorkshopController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream('shift_sticker_order_'.$order->id.'.pdf');
+    }
+
+    /**
+     * Получить URL индексной страницы с сохранёнными фильтрами из сессии.
+     */
+    private function getFilteredIndexUrl(): string
+    {
+        return session('movements_index_url', route('movements_to_workshop.index'));
     }
 }
