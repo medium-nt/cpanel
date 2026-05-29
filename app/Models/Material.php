@@ -20,6 +20,9 @@ class Material extends Model
 
     use SoftDeletes;
 
+    /** Тип материала: Упаковка */
+    public const TYPE_PACKAGING = 3;
+
     protected $fillable = [
         'title',
         'type_id',

@@ -114,22 +114,29 @@ class MovementMaterialToWorkshopController extends Controller
             }
         }
 
-        // Проверка: в цехе уже есть рулон упаковочного материала (type_id=3)
+        // Проверка: упаковочный материал — не более 1 рулона в поставке и в цехе
         $order->load('movementMaterials.roll.material');
-        foreach ($order->movementMaterials as $movementMaterial) {
-            if ($movementMaterial->roll && $movementMaterial->material->type_id == 3) {
-                $alreadyInWorkshop = Roll::query()
-                    ->where('material_id', $movementMaterial->material_id)
-                    ->where('status', Roll::STATUS_IN_WORKSHOP)
-                    ->where('shift_id', $order->shift_id)
-                    ->where('id', '!=', $movementMaterial->roll->id)
-                    ->exists();
+        $packagingRollsInOrder = $order->movementMaterials
+            ->filter(fn ($mm) => $mm->roll && $mm->material->type_id === Material::TYPE_PACKAGING);
 
-                if ($alreadyInWorkshop) {
-                    return redirect()
-                        ->back()
-                        ->with('error', 'У вашей смены в цехе уже есть рулон с этим материалом! Сначала завершите текущий рулон.');
-                }
+        if ($packagingRollsInOrder->count() > 1) {
+            return redirect()
+                ->back()
+                ->with('error', 'В поставке несколько рулонов упаковочного материала. Допускается только 1 рулон за смену.');
+        }
+
+        foreach ($packagingRollsInOrder as $movementMaterial) {
+            $alreadyInWorkshop = Roll::query()
+                ->where('material_id', $movementMaterial->material_id)
+                ->where('status', Roll::STATUS_IN_WORKSHOP)
+                ->where('shift_id', $order->shift_id)
+                ->where('id', '!=', $movementMaterial->roll->id)
+                ->exists();
+
+            if ($alreadyInWorkshop) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'У вашей смены в цехе уже есть рулон с этим материалом! Сначала завершите текущий рулон.');
             }
         }
 

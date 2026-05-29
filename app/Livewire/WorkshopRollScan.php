@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
@@ -74,6 +75,20 @@ class WorkshopRollScan extends Component
             $this->dispatch('scanError');
 
             return;
+        }
+
+        // Ограничение: для упаковочных материалов — только 1 рулон в поставке
+        if ($roll->material->type_id === Material::TYPE_PACKAGING) {
+            $alreadyScanned = $this->order->movementMaterials()
+                ->whereNotNull('roll_id')
+                ->exists();
+
+            if ($alreadyScanned) {
+                $this->setMessage('Для упаковочных материалов можно добавить только 1 рулон в поставку.', 'error');
+                $this->dispatch('scanError');
+
+                return;
+            }
         }
 
         $alreadyAdded = $this->order->movementMaterials()
@@ -174,6 +189,15 @@ class WorkshopRollScan extends Component
 
         if ($scannedRolls->isEmpty()) {
             $this->setMessage('Добавьте хотя бы один рулон.', 'error');
+            $this->dispatch('scanError');
+
+            return;
+        }
+
+        // Защита: для упаковочных материалов — не более 1 рулона в поставке
+        $material = Material::find($this->requestedMaterialId);
+        if ($material && $material->type_id === Material::TYPE_PACKAGING && $scannedRolls->count() > 1) {
+            $this->setMessage('Для упаковочных материалов можно отгрузить только 1 рулон за смену.', 'error');
             $this->dispatch('scanError');
 
             return;
