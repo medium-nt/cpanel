@@ -62,7 +62,7 @@ Schedule::call(function () {
 
 Schedule::command('auto-order:materials')
     ->everyThirtyMinutes()
-    ->between('8:00', '20:00')
+    ->between('7:00', '20:00')
     ->withoutOverlapping();
 
 Schedule::call(function () {
