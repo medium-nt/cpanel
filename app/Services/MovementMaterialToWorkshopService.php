@@ -27,6 +27,7 @@ class MovementMaterialToWorkshopService
 
         match ($requestStatus) {
             'all' => $status = [-1, 0, 1, 2, 3],
+            'completed' => $status = [3],
             default => $status,
         };
 

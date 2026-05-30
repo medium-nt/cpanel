@@ -25,6 +25,10 @@
                                 @if(!request()->has('status')) selected @endif>
                             Активные
                         </option>
+                        <option value="completed"
+                                @if(request('status') === 'completed') selected @endif>
+                            Завершённые
+                        </option>
                         <option value="all"
                                 @if(request('status') === 'all') selected @endif>
                             Все заказы
@@ -32,7 +36,7 @@
                     </select>
 
                     @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                        <select class="form-control ml-2 mb-1"
+                            <select class="form-control mr-4 mb-1"
                                 style="width: auto; display: inline-block;"
                                 name="shift_id"
                                 onchange="updatePageWithQueryParam(this)">
@@ -45,6 +49,19 @@
                             @endforeach
                         </select>
                     @endif
+
+                        <input type="date"
+                               name="date_start"
+                               class="form-control mr-2 mb-1"
+                               style="width: auto; display: inline-block;"
+                               onchange="updatePageWithQueryParam(this)"
+                               value="{{ request('date_start') }}">
+                        <input type="date"
+                               name="date_end"
+                               class="form-control mb-1"
+                               style="width: auto; display: inline-block;"
+                               onchange="updatePageWithQueryParam(this)"
+                               value="{{ request('date_end') }}">
                 </div>
             </div>
         </div>

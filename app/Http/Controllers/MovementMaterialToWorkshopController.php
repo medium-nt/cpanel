@@ -29,6 +29,8 @@ class MovementMaterialToWorkshopController extends Controller
                 ($user->isAdmin() || $user->isStorekeeper()) ? $request->shift_id : null,
                 fn ($query, $shiftId) => $query->where('shift_id', $shiftId)
             )
+            ->when($request->date_start, fn ($query) => $query->whereDate('created_at', '>=', $request->date_start))
+            ->when($request->date_end, fn ($query) => $query->whereDate('created_at', '<=', $request->date_end))
             ->with(['shift', 'movementMaterials.material', 'movementMaterials.roll', 'seamstress', 'cutter', 'user'])
             ->latest()
             ->paginate(10);
