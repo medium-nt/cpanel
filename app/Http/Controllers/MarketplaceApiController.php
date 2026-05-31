@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceOrder;
+use App\Models\ProductSticker;
 use App\Models\Sku;
 use App\Models\User;
 use App\Services\MarketplaceApiService;
+use App\Services\StickerService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 
 class MarketplaceApiController extends Controller
@@ -113,11 +116,59 @@ class MarketplaceApiController extends Controller
                 ->info('Стикер заказа '.$orderId.' был распечатан сотрудником '.$user->name);
         }
 
+        $itemTitle = $order->items->first()?->item?->title ?? '';
+
+        if (StickerService::resolveTemplate($itemTitle, $order->marketplace_id) === 'pdf.fbo_sticker') {
+            return $this->generateNewSticker($order);
+        }
+
         return match ($order->marketplace_id) {
             1 => $service->getBarcodeOzonFBO(collect([$order])),
             2 => $service->getBarcodeWBFBO(collect([$order])),
             default => null,
         };
+    }
+
+    /**
+     * Генерирует PDF-стикер нового формата (120×75) для товара со специальным title.
+     */
+    private function generateNewSticker(MarketplaceOrder $order): \Illuminate\Http\Response
+    {
+        $item = $order->items->first()->item;
+        $sku = Sku::query()
+            ->where('item_id', $item->id)
+            ->where('marketplace_id', $order->marketplace_id)
+            ->first();
+
+        $barcode = ($order->marketplace_id == 1)
+            ? MarketplaceApiService::getBarcodeOzonBySku($sku->sku)
+            : $sku->sku;
+
+        $productSticker = ProductSticker::query()
+            ->where('title', $item->title)
+            ->first();
+
+        $stickers = [[
+            'barcode' => $barcode,
+            'item' => $item,
+            'order' => $order,
+            'fontSizeCluster' => StickerService::resolveFontSizeCluster($order->cluster, 'pdf.fbo_sticker'),
+            'seamstressId' => $order->items[0]->seamstress?->id,
+            'cutterId' => $order->items[0]->cutter?->id,
+            'article' => ($order->marketplace_id == 2)
+                ? MarketplaceApiService::getItemWbBySku($sku->sku)?->nmID ?? ''
+                : '',
+            'color' => $productSticker?->color ?? '',
+            'country' => $productSticker?->country ?? '',
+            'material' => $productSticker?->material ?? '',
+            'fastening_type' => $productSticker?->fastening_type ?? '',
+            'marketplace_id' => $order->marketplace_id,
+        ]];
+
+        $pdf = Pdf::loadView('pdf.fbo_sticker', ['stickers' => $stickers]);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('sticker.pdf');
     }
 
     public function getFBOBarcodeHtml(MarketplaceApiService $service)

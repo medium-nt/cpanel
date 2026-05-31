@@ -16,6 +16,7 @@ use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\StackService;
+use App\Services\StickerService;
 use App\Services\TransactionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -400,17 +401,11 @@ class MarketplaceOrderItemController extends Controller
             ? MarketplaceApiService::getBarcodeOzonBySku($sku->sku)
             : $sku->sku;
 
-        $length = mb_strlen($validated['cluster']);
-
-        if ($validated['marketplace_id'] == 1) {
-            $fontSizeCluster = ($length > 25) ? 7 : (($length > 18) ? 12 : 14);
-        } else {
-            $fontSizeCluster = ($length > 25) ? 4 : (($length > 18) ? 7 : 10);
-        }
-
         $productSticker = ProductSticker::query()
             ->where('title', $item->title)
             ->first();
+
+        $template = StickerService::resolveTemplate($item->title, $validated['marketplace_id']);
 
         $stickers = [[
             'barcode' => $barcode,
@@ -419,7 +414,7 @@ class MarketplaceOrderItemController extends Controller
                 'order_id' => '',
                 'cluster' => $validated['cluster'],
             ],
-            'fontSizeCluster' => $fontSizeCluster,
+            'fontSizeCluster' => StickerService::resolveFontSizeCluster($validated['cluster'], $template),
             'seamstressId' => $validated['seamstress_id'],
             'cutterId' => $validated['cutter_id'],
             'article' => ($validated['marketplace_id'] == 2)
@@ -427,11 +422,10 @@ class MarketplaceOrderItemController extends Controller
                 : '',
             'color' => $productSticker?->color ?? '',
             'country' => $productSticker?->country ?? '',
+            'material' => $productSticker?->material ?? '',
+            'fastening_type' => $productSticker?->fastening_type ?? '',
+            'marketplace_id' => $validated['marketplace_id'],
         ]];
-
-        $template = ($validated['marketplace_id'] == 1)
-            ? 'pdf.fbo_ozon_sticker'
-            : 'pdf.fbo_wb_sticker';
 
         $pdf = Pdf::loadView($template, ['stickers' => $stickers]);
         $pdf->setPaper('A4', 'portrait');

@@ -961,21 +961,11 @@ class MarketplaceApiService
             $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
             $barcode = ($order->marketplace_id == 1) ? self::getBarcodeOzonBySku($sku) : $sku;
 
-            $length = mb_strlen($order->cluster);
-
-            if ($length > 25) {
-                $fontSizeCluster = 7;
-            } elseif ($length > 18) {
-                $fontSizeCluster = 11;
-            } else {
-                $fontSizeCluster = 14;
-            }
-
             return [
                 'barcode' => $barcode,
                 'item' => $item,
                 'order' => $order,
-                'fontSizeCluster' => $fontSizeCluster,
+                'fontSizeCluster' => StickerService::resolveFontSizeCluster($order->cluster, 'pdf.fbo_ozon_sticker'),
                 'seamstressId' => $order->items[0]->seamstress?->id,
                 'cutterId' => $order->items[0]->cutter?->id,
             ];
@@ -1017,21 +1007,11 @@ class MarketplaceApiService
                 ->where('title', $item->title)
                 ->first();
 
-            $length = mb_strlen($order->cluster);
-
-            if ($length > 25) {
-                $fontSizeCluster = 4;
-            } elseif ($length > 18) {
-                $fontSizeCluster = 7;
-            } else {
-                $fontSizeCluster = 10;
-            }
-
             return [
                 'item' => $item,
                 'barcode' => $barcode,
                 'order' => $order,
-                'fontSizeCluster' => $fontSizeCluster,
+                'fontSizeCluster' => StickerService::resolveFontSizeCluster($order->cluster, 'pdf.fbo_wb_sticker'),
                 'seamstressId' => $order->items[0]->seamstress?->id,
                 'cutterId' => $order->items[0]->cutter?->id,
                 'article' => $this->getItemWbBySku($sku)->nmID ?? '',

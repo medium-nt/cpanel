@@ -148,9 +148,9 @@
                             {{ $s['item']->width }} x {{ $s['item']->height }}
                         </b>
                     </div>
+                    <div class="text">{{ $s['fastening_type'] }}</div>
+                    <div class="text">Состав: {{ $s['material'] }}</div>
                     <div class="text">Цвет: {{ $s['color'] }}</div>
-                    <div class="text">Состав:</div>
-                    <div class="text">Шторная лента 4см 2 нити</div>
                     <div class="text">Артикул: {{ $s['article'] }}</div>
                     <div class="text">Страна: {{ $s['country'] }}</div>
                     <br>
@@ -162,7 +162,7 @@
                 </td>
 
                 <td class="barcode-col">
-                    {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.65, 80) !!}
+                    {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.55, 80) !!}
                     <div class="sku-number">{{ $s['barcode'] }}</div>
 
                     <div class="barcode-footer">
