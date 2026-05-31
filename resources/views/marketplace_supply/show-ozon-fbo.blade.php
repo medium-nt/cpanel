@@ -54,10 +54,33 @@
                         </td>
                     </tr>
                     <tr>
+                        <th>ID отгрузки в Газельку</th>
+                        <td>{{ $supply->gazelka_shipment_id ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Дата отгрузки в Газельку</th>
+                        <td>{{ $supply->gazelka_shipment_date?->format('d.m.Y') ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Тип поставки</th>
+                        <td>{{ $supply->delivery_type ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Забор Газелькой</th>
+                        <td>{{ $supply->gazelka_pickup === null ? '-' : ($supply->gazelka_pickup ? 'Да' : 'Нет') }}</td>
+                    </tr>
+                    <tr>
                         <th>Создана</th>
                         <td>{{ $supply->created_at->format('d.m.Y H:i') }}</td>
                     </tr>
                 </table>
+
+                @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))
+                    <a href="{{ route('marketplace_supplies.edit_fbo', ['marketplace_supply' => $supply]) }}"
+                       class="btn btn-outline-primary ml-2 mb-2">
+                        Редактировать
+                    </a>
+                @endif
             </div>
         </div>
 

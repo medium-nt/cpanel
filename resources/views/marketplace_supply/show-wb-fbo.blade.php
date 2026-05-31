@@ -83,7 +83,7 @@
                     </table>
 
                     @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))
-                        <a href="{{ route('marketplace_supplies.edit_wb_fbo', ['marketplace_supply' => $supply]) }}"
+                        <a href="{{ route('marketplace_supplies.edit_fbo', ['marketplace_supply' => $supply]) }}"
                            class="btn btn-outline-primary ml-2 mb-2">
                             Редактировать
                         </a>

@@ -7,12 +7,12 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Редактирование поставки WB FBO
+                <h3 class="card-title">{{ $title }}
                     #{{ $supply->supply_id }}</h3>
             </div>
             <div class="card-body">
                 <form
-                    action="{{ route('marketplace_supplies.update_wb_fbo', ['marketplace_supply' => $supply]) }}"
+                    action="{{ route('marketplace_supplies.update_fbo', ['marketplace_supply' => $supply]) }}"
                     method="POST">
                     @csrf
                     @method('PUT')

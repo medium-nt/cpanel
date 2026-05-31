@@ -22,7 +22,7 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->name('marketplace_supplies.load_fbo_goods');
 
     Route::post('/{marketplace_supply}/confirm-fbo-goods', [MarketplaceSupplyController::class, 'confirmFboGoods'])
-        ->can('updateWbFbo', 'marketplace_supply')
+        ->can('updateFbo', 'marketplace_supply')
         ->name('marketplace_supplies.confirm_fbo_goods');
 
     Route::get('/{marketplace_supply}/boxes', [SupplyBoxController::class, 'index'])
@@ -61,13 +61,13 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('manageBoxes', 'marketplace_supply')
         ->name('supply_boxes.remove_order');
 
-    Route::get('/{marketplace_supply}/edit-wb-fbo', [MarketplaceSupplyController::class, 'editWbFbo'])
-        ->can('updateWbFbo', 'marketplace_supply')
-        ->name('marketplace_supplies.edit_wb_fbo');
+    Route::get('/{marketplace_supply}/edit-fbo', [MarketplaceSupplyController::class, 'editFbo'])
+        ->can('updateFbo', 'marketplace_supply')
+        ->name('marketplace_supplies.edit_fbo');
 
-    Route::put('/{marketplace_supply}/update-wb-fbo', [MarketplaceSupplyController::class, 'updateWbFbo'])
-        ->can('updateWbFbo', 'marketplace_supply')
-        ->name('marketplace_supplies.update_wb_fbo');
+    Route::put('/{marketplace_supply}/update-fbo', [MarketplaceSupplyController::class, 'updateFbo'])
+        ->can('updateFbo', 'marketplace_supply')
+        ->name('marketplace_supplies.update_fbo');
 
     Route::get('/{marketplace_supply}/complete', [MarketplaceSupplyController::class, 'complete'])
         ->can('complete', 'marketplace_supply')

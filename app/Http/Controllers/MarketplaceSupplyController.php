@@ -191,11 +191,11 @@ class MarketplaceSupplyController extends Controller
     /**
      * Форма редактирования полей Газельки для FBO-поставки.
      */
-    public function editWbFbo(MarketplaceSupply $marketplaceSupply)
+    public function editFbo(MarketplaceSupply $marketplaceSupply)
     {
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
-        return view('marketplace_supply.edit-wb-fbo', [
+        return view('marketplace_supply.edit-fbo', [
             'title' => 'Редактирование поставки '.$marketplaceName,
             'supply' => $marketplaceSupply,
         ]);
@@ -204,7 +204,7 @@ class MarketplaceSupplyController extends Controller
     /**
      * Сохранение полей Газельки для FBO-поставки.
      */
-    public function updateWbFbo(Request $request, MarketplaceSupply $marketplaceSupply)
+    public function updateFbo(Request $request, MarketplaceSupply $marketplaceSupply)
     {
         $validated = $request->validate([
             'gazelka_shipment_id' => 'nullable|string',
