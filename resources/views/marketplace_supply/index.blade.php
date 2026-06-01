@@ -150,6 +150,10 @@
                                         @break
                                 @endswitch
                                 <b class="ml-2">{{ $marketplace_supply->supply_id }}
+                                    @if($marketplace_supply->draft_params['order_number'] ?? null)
+                                        <br><small
+                                            class="text-muted font-weight-normal">{{ $marketplace_supply->draft_params['order_number'] }}</small>
+                                    @endif
                                     <br>
                                     {{ $marketplace_supply->cluster ?? '' }}
                                 </b>
@@ -185,7 +189,7 @@
                                                 @method('DELETE')
                                                 <button type="submit"
                                                         class="btn btn-danger"
-                                                        onclick="return confirm('Вы уверены что хотите удалить данную поставку из системы?')">
+                                                        onclick="return confirm('{{$marketplace_supply->marketplace_id === 1 && $marketplace_supply->type === 'FBO' && $marketplace_supply->supply_id ? 'ВНИМАНИЕ: Это также отменит заявку на поставку на серверах OZON. ' : ''}}Вы уверены что хотите удалить данную поставку из системы?')">
                                                     <i class="fas fa-trash"></i>
                                                     Удалить
                                                 </button>
@@ -242,8 +246,12 @@
                                     @endswitch
                                 </td>
                                 <td>
-                                    <b>{{ $marketplace_supply->supply_id }} </b>
-                                    {{ $marketplace_supply->cluster ? "($marketplace_supply->cluster)" : '' }}
+                                    <b>{{ $marketplace_supply->supply_id }}</b>
+                                    @if($marketplace_supply->draft_params['order_number'] ?? null)
+                                        <br><small
+                                            class="text-muted">{{ $marketplace_supply->draft_params['order_number'] }}</small>
+                                    @endif
+                                    {{ $marketplace_supply->cluster ? "({$marketplace_supply->cluster})" : '' }}
                                 </td>
                                 <td>
                                     {{ $marketplace_supply->gazelka_shipment_id }}
@@ -292,7 +300,7 @@
                                                     @method('DELETE')
                                                     <button type="submit"
                                                             class="btn btn-danger"
-                                                            onclick="return confirm('Вы уверены что хотите удалить данную поставку из системы?')">
+                                                            onclick="return confirm('{{$marketplace_supply->marketplace_id === 1 && $marketplace_supply->type === 'FBO' && $marketplace_supply->supply_id ? 'ВНИМАНИЕ: Это также отменит заявку на поставку на серверах OZON. ' : ''}}Вы уверены что хотите удалить данную поставку из системы?')">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

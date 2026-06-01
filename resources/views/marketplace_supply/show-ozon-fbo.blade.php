@@ -12,154 +12,413 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Поставка OZON FBO</h3>
-            </div>
-            <div class="card-body">
-                <table class="table">
-                    <tr>
-                        <th>Номер поставки / Черновик</th>
-                        <td>{{ $supply->draft_id ?? $supply->supply_id ?? '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Кластер (склад)</th>
-                        <td>{{ $supply->cluster ?? '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Дата поставки</th>
-                        <td>{{ $supply->supply_date?->format('d.m.Y') ?? '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Тип отгрузки</th>
-                        <td>{{ $supply->supply_type ?? '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Статус</th>
-                        <td>
-                            @switch($supply->status)
-                                @case(0)
-                                    <span
-                                        class="badge bg-secondary">Открытая</span>
-                                    @break
-                                @case(3)
-                                    <span
-                                        class="badge bg-success">Закрытая</span>
-                                    @break
-                                @case(4)
-                                    <span
-                                        class="badge bg-warning">Отгрузка</span>
-                                    @break
-                            @endswitch
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>ID отгрузки в Газельку</th>
-                        <td>{{ $supply->gazelka_shipment_id ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Дата отгрузки в Газельку</th>
-                        <td>{{ $supply->gazelka_shipment_date?->format('d.m.Y') ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Тип поставки</th>
-                        <td>{{ $supply->delivery_type ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Забор Газелькой</th>
-                        <td>{{ $supply->gazelka_pickup === null ? '-' : ($supply->gazelka_pickup ? 'Да' : 'Нет') }}</td>
-                    </tr>
-                    <tr>
-                        <th>Создана</th>
-                        <td>{{ $supply->created_at->format('d.m.Y H:i') }}</td>
-                    </tr>
-                </table>
-
-                @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))
-                    <a href="{{ route('marketplace_supplies.edit_fbo', ['marketplace_supply' => $supply]) }}"
-                       class="btn btn-outline-primary ml-2 mb-2">
-                        Редактировать
-                    </a>
-                @endif
-            </div>
-        </div>
-
-        @if(auth()->user()->isAdmin() && $supply->supply_id && ! $supply->draft_id)
-            <form
-                action="{{ route('marketplace_supplies.destroy', $supply->id) }}"
-                method="POST"
-                onsubmit="return handleDeleteSubmit(this)">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger">
-                    <span class="delete-label"><i class="fas fa-trash"></i> Удалить поставку</span>
-                    <span class="delete-spinner" style="display:none">
-                    <i class="fas fa-spinner fa-spin"></i> Отмена на OZON...
-                </span>
-                </button>
-            </form>
-        @endif
-
-            @if(($supply->status === 0 || $supply->status === 4) && ! $supply->supply_id && (auth()->user()->isAdmin() || auth()->user()->isManager()))
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Параметры черновика</h3>
-                </div>
-                <div class="card-body"
-                     @if($supply->draft_id && $supply->draft_created_at)
-                         x-data="draftTimer('{{ $supply->draft_created_at->toIso8601String() }}')"
-                     x-init="start()"
-                    @endif>
-                    @if($supply->draft_id && $supply->draft_created_at)
-                        <div class="mb-3">
-                            <template x-if="!expired">
-                                <div
-                                    class="alert d-flex align-items-center gap-3 mb-0 py-2"
-                                    :class="{
-                                 'alert-success': remaining >= 900,
-                                 'alert-warning': remaining >= 300 && remaining < 900,
-                                 'alert-danger': remaining < 300
-                             }">
-                                    <i class="fas fa-clock"></i>
-                                    <span>До истечения черновика:</span>
-                                    <strong class="fs-5"
-                                            x-text="formatTime(remaining)"></strong>
+            @if($supply->status === 0 && empty($supply->supply_id) && empty($supply->draft_id))
+                {{-- Загрузить из существующей заявки — только когда нет ни supply_id, ни draft_id --}}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Загрузить из существующей заявки
+                            OZON</h3>
+                    </div>
+                    <div class="card-body">
+                        @if(!empty($ozonSupplyOrders))
+                            <form
+                                action="{{ route('marketplace_supplies.link_ozon_fbo', ['marketplace_supply' => $supply]) }}"
+                                method="POST" id="link_ozon_fbo_form">
+                                @csrf
+                                <div class="form-group">
+                                    <label for="ozon_supply_select">Заявка на
+                                        поставку из
+                                        OZON</label>
+                                    <select class="form-control"
+                                            id="ozon_supply_select"
+                                            name="ozon_order_id" required>
+                                        <option value="">-- Выберите заявку --
+                                        </option>
+                                        @foreach($ozonSupplyOrders as $order)
+                                            <option
+                                                value="{{ $order['order_id'] }}">
+                                                #{{ $order['order_id'] }}
+                                                @if($order['order_number'])
+                                                    —
+                                                    №{{ $order['order_number'] }}
+                                                @endif
+                                                @if($order['from_time'])
+                                                    ,
+                                                    таймслот: {{ \Carbon\Carbon::parse($order['from_time'])->format('d.m.Y H:i') }}
+                                                @endif
+                                                @if($order['cluster'])
+                                                    ({{ $order['cluster'] }})
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            </template>
-                            <template x-if="expired">
-                                <div>
-                                    <div class="alert alert-danger mb-2">
-                                        <strong>Черновик истёк!</strong>
-                                        Создайте новый.
+                                <button type="submit" class="btn btn-primary">
+                                    Выбрать
+                                </button>
+                            </form>
+                        @else
+                            <p class="text-muted">Нет доступных заявок на
+                                поставку из OZON (DATA_FILLING).</p>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            {{-- Черновик — показывается когда нет supply_id, независимо от draft_id --}}
+            @if(($supply->status === 0 || $supply->status === 4) && empty($supply->supply_id) && (auth()->user()->isAdmin() || auth()->user()->isManager()))
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Параметры черновика</h3>
+                    </div>
+                    <div class="card-body"
+                         @if($supply->draft_id && $supply->draft_created_at)
+                             x-data="draftTimer('{{ $supply->draft_created_at->toIso8601String() }}')"
+                         x-init="start()"
+                        @endif>
+                        @if($supply->draft_id && $supply->draft_created_at)
+                            <div class="mb-3">
+                                <template x-if="!expired">
+                                    <div
+                                        class="alert d-flex align-items-center gap-3 mb-0 py-2"
+                                        :class="{
+                                     'alert-success': remaining >= 900,
+                                     'alert-warning': remaining >= 300 && remaining < 900,
+                                     'alert-danger': remaining < 300
+                                 }">
+                                        <i class="fas fa-clock"></i>
+                                        <span>До истечения черновика:</span>
+                                        <strong class="fs-5"
+                                                x-text="formatTime(remaining)"></strong>
                                     </div>
-                                    <form
-                                        action="{{ route('marketplace_supplies.destroy', $supply->id) }}"
-                                        method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="btn btn-danger"
-                                                onclick="return confirm('Удалить поставку?')">
-                                            <i class="fas fa-trash"></i> Удалить
-                                            черновик
-                                        </button>
-                                    </form>
-                                </div>
-                            </template>
-                        </div>
-                        <div x-show="!expired">
+                                </template>
+                                <template x-if="expired">
+                                    <div>
+                                        <div class="alert alert-danger mb-2">
+                                            <strong>Черновик истёк!</strong>
+                                            Создайте новый.
+                                        </div>
+                                        <form
+                                            action="{{ route('marketplace_supplies.destroy', $supply->id) }}"
+                                            method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="btn btn-danger"
+                                                    onclick="return confirm('Удалить поставку?')">
+                                                <i class="fas fa-trash"></i>
+                                                Удалить
+                                                черновик
+                                            </button>
+                                        </form>
+                                    </div>
+                                </template>
+                            </div>
+                            <div x-show="!expired">
+                                @livewire('ozon-fbo-item-search', ['supply' => $supply])
+                            </div>
+                        @else
                             @livewire('ozon-fbo-item-search', ['supply' => $supply])
-                        </div>
-                    @else
-                        @livewire('ozon-fbo-item-search', ['supply' => $supply])
-                    @endif
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
+
+            {{-- Состояния 2-4: Есть привязанная заявка --}}
+            @if(!empty($supply->supply_id))
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Данные поставки OZON FBO</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table mb-3">
+                            <tr>
+                                <th>Номер поставки (ID заявки OZON)</th>
+                                <td>{{ $supply->supply_id ?? '—' }}</td>
+                            </tr>
+                            @if($supply->draft_params['order_number'] ?? null)
+                                <tr>
+                                    <th>Номер заявки OZON</th>
+                                    <td>{{ $supply->draft_params['order_number'] }}</td>
+                                </tr>
+                            @endif
+                            <tr>
+                                <th>Кластер (склад)</th>
+                                <td>{{ $supply->cluster ?? '—' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Дата поставки / Таймслот</th>
+                                <td>
+                                    @if($supply->supply_date)
+                                        {{ $supply->supply_date->format('d.m.Y') }}
+                                    @endif
+                                    @if(isset($supply->draft_params['timeslot_from']))
+                                        {{ \Carbon\Carbon::parse($supply->draft_params['timeslot_from'])->format('H:i') }}
+                                        —
+                                        @if(isset($supply->draft_params['timeslot_to']))
+                                            {{ \Carbon\Carbon::parse($supply->draft_params['timeslot_to'])->format('H:i') }}
+                                        @endif
+                                    @endif
+                                    @if(!$supply->supply_date && !isset($supply->draft_params['timeslot_from']))
+                                        —
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Тип отгрузки</th>
+                                <td>{{ $supply->supply_type ?? '—' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Статус</th>
+                                <td>
+                                    @switch($supply->status)
+                                        @case(0)
+                                            <span class="badge bg-secondary">Открытая</span>
+                                            @break
+                                        @case(3)
+                                            <span class="badge bg-success">Закрытая</span>
+                                            @break
+                                        @case(4)
+                                            <span class="badge bg-warning">Отгрузка</span>
+                                            @break
+                                        @case(13)
+                                            <span class="badge bg-info">Сформирована</span>
+                                            @break
+                                    @endswitch
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>ID отгрузки в Газельку</th>
+                                <td>{{ $supply->gazelka_shipment_id ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Дата отгрузки в Газельку</th>
+                                <td>{{ $supply->gazelka_shipment_date?->format('d.m.Y') ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Тип поставки</th>
+                                <td>{{ $supply->delivery_type ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Забор Газелькой</th>
+                                <td>{{ $supply->gazelka_pickup === null ? '-' : ($supply->gazelka_pickup ? 'Да' : 'Нет') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Создана</th>
+                                <td>{{ $supply->created_at->format('d.m.Y H:i') }}</td>
+                            </tr>
+                        </table>
+
+                        @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))
+                            <a href="{{ route('marketplace_supplies.edit_fbo', ['marketplace_supply' => $supply]) }}"
+                               class="btn btn-outline-primary ml-2 mb-2">
+                                Редактировать
+                            </a>
+                        @endif
+
+                        @if($supply->status == 13 && $hasOrders && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager()))
+                            <a href="{{ route('supply_boxes.index', ['marketplace_supply' => $supply]) }}"
+                               class="btn btn-success ml-2 mb-2">
+                                Управление коробами
+                            </a>
+                        @endif
+
+                        @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods ?? []) && (auth()->user()->isAdmin() || auth()->user()->isManager()))
+                            <a href="{{ route('marketplace_supplies.load_ozon_fbo_goods', ['marketplace_supply' => $supply]) }}"
+                               class="btn btn-primary ml-2 mb-2">
+                                Загрузить товарный состав
+                            </a>
+                        @endif
+
+                        @if($supply->sticker)
+                            @can('downloadSticker', $supply)
+                                <a href="{{ route('marketplace_supplies.download_sticker', $supply) }}"
+                                   class="btn btn-info ml-2 mb-2">
+                                    Скачать стикер пропуска
+                                </a>
+                            @endcan
+                            @if($supply->status !== 3)
+                                @can('manageSticker', $supply)
+                                    <a href="{{ route('marketplace_supplies.delete_sticker', $supply) }}"
+                                       class="btn btn-danger ml-2 mb-2"
+                                       onclick="return confirm('Удалить стикер пропуска?')">
+                                        Удалить стикер
+                                    </a>
+                                @endcan
+                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
+                                    <a href="{{ route('marketplace_supplies.mark_shipped', $supply) }}"
+                                       class="btn btn-danger ml-2 mb-2"
+                                       onclick="return confirm('Подтвердите отгрузку поставки? После этого редактирование будет недоступно.')">
+                                        Поставка отгружена
+                                    </a>
+                                @endif
+                            @endif
+                        @else
+                            @if($supply->status == 4)
+                                @can('manageSticker', $supply)
+                                    <div class="border rounded p-3 mt-3">
+                                        <strong>Стикер пропуска</strong>
+                                        <form
+                                            action="{{ route('marketplace_supplies.upload_sticker', $supply) }}"
+                                            method="POST"
+                                            enctype="multipart/form-data"
+                                            class="d-inline ml-3">
+                                            @csrf
+                                            <input type="file" name="sticker"
+                                                   accept=".pdf" required>
+                                            <button type="submit"
+                                                    class="btn btn-outline-info">
+                                                Загрузить
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endcan
+                            @endif
+                        @endif
+                </div>
+                </div>
+
+                {{-- Состояние 3: Товарный состав загружен, нет заказов --}}
+                @if(!$hasOrders && !empty($supplyGoods ?? []))
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Товарный состав</h3>
+                        </div>
+                        <div class="card-body">
+                            @if(auth()->user()->isAdmin() || auth()->user()->isManager())
+                                <a href="{{ route('marketplace_supplies.load_ozon_fbo_goods', ['marketplace_supply' => $supply]) }}"
+                                   class="btn btn-outline-primary mb-3">
+                                    Обновить товарный состав
+                                </a>
+                            @endif
+
+                            @if($allItemsFound ?? false)
+                                <form
+                                    action="{{ route('marketplace_supplies.confirm_ozon_fbo_goods', ['marketplace_supply' => $supply]) }}"
+                                    method="POST" id="confirm_ozon_fbo_form"
+                                    class="d-inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="btn btn-success mb-3">
+                                        Сформировать поставку
+                                    </button>
+                                </form>
+                            @else
+                                <div class="alert alert-warning mb-3">
+                                    Не все товары найдены в системе. Проверьте
+                                    соответствие артикулов (offer_id).
+                                </div>
+                            @endif
+
+                            <table class="table table-hover table-bordered">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>Артикул (offer_id)</th>
+                                    <th>Товар</th>
+                                    <th>Кол-во</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($supplyGoods as $good)
+                                    <tr class="{{ !$good['found'] ? 'table-danger' : '' }}">
+                                        <td>{{ $good['offer_id'] }}</td>
+                                        <td>{{ $good['name'] }}</td>
+                                        <td>{{ $good['quantity'] }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Состояние 4: Есть заказы --}}
+                @if($hasOrders)
+                    <div class="card">
+                        <div class="card-header cursor-pointer"
+                             data-toggle="collapse"
+                             data-target="#orders-collapse">
+                            <h3 class="card-title">Заказы
+                                ({{ $supplyOrders->count() }})</h3>
+                        </div>
+                        <div id="orders-collapse" class="collapse">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table
+                                        class="table table-hover table-bordered">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th>Заказ</th>
+                                            <th>Товар</th>
+                                            <th>Статус</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($supplyOrders as $order)
+                                            @foreach($order->items as $item)
+                                                <tr>
+                                                    <td>{{ $order->order_id }}</td>
+                                                    <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
+                                                        x{{ $item->item?->height }}</td>
+                                                    <td>
+                                                        @if($order->box_id)
+                                                            <a href="{{ route('supply_boxes.show', ['marketplace_supply' => $supply, 'box' => $order->box_id]) }}"
+                                                               class="badge badge-info text-white">
+                                                                Короб {{ $order->box->number }}
+                                                            </a>
+                                                        @else
+                                                            <span
+                                                                class="badge {{ $order->status_color }}">{{ $order->status_name }}</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Удаление поставки --}}
+                @if(auth()->user()->isAdmin() && $supply->supply_id && ! $supply->draft_id)
+                    <form
+                        action="{{ route('marketplace_supplies.destroy', $supply->id) }}"
+                        method="POST"
+                        onsubmit="return handleDeleteSubmit(this)"
+                        class="mt-3">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <span class="delete-label"><i
+                                    class="fas fa-trash"></i> Удалить поставку</span>
+                            <span class="delete-spinner" style="display:none">
+                        <i class="fas fa-spinner fa-spin"></i> Отмена на OZON...
+                    </span>
+                        </button>
+                    </form>
+                @endif
         @endif
     </div>
 @stop
 
 @push('scripts')
+    <script>
+        document.getElementById('link_ozon_fbo_form')?.addEventListener('submit', function (e) {
+            if (!confirm('Вы уверены, что хотите выбрать эту заявку?')) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('confirm_ozon_fbo_form')?.addEventListener('submit', function (e) {
+            if (!confirm('Сформировать поставку? Будут созданы заказы на основе товарного состава.')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('draftTimer', (createdAt) => ({
@@ -194,7 +453,7 @@
 
     <script>
         function handleDeleteSubmit(form) {
-            if (!confirm('Удалить поставку? Отмена будет отправлена в OZON.')) {
+            if (!confirm('ВНИМАНИЕ: Это также отменит заявку на поставку на серверах OZON. Продолжить?')) {
                 return false;
             }
             var btn = form.querySelector('button[type="submit"]');
@@ -204,4 +463,16 @@
             return true;
         }
     </script>
+@endpush
+
+@push('css')
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .cursor-pointer:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 @endpush

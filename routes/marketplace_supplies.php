@@ -25,6 +25,18 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('updateFbo', 'marketplace_supply')
         ->name('marketplace_supplies.confirm_fbo_goods');
 
+    Route::post('/{marketplace_supply}/link-ozon-fbo', [MarketplaceSupplyController::class, 'linkOzonFbo'])
+        ->can('linkOzonFbo', 'marketplace_supply')
+        ->name('marketplace_supplies.link_ozon_fbo');
+
+    Route::get('/{marketplace_supply}/load-ozon-fbo-goods', [MarketplaceSupplyController::class, 'loadOzonFboGoods'])
+        ->can('view', 'marketplace_supply')
+        ->name('marketplace_supplies.load_ozon_fbo_goods');
+
+    Route::post('/{marketplace_supply}/confirm-ozon-fbo-goods', [MarketplaceSupplyController::class, 'confirmOzonFboGoods'])
+        ->can('updateFbo', 'marketplace_supply')
+        ->name('marketplace_supplies.confirm_ozon_fbo_goods');
+
     Route::get('/{marketplace_supply}/boxes', [SupplyBoxController::class, 'index'])
         ->can('viewBoxes', 'marketplace_supply')
         ->name('supply_boxes.index');

@@ -2963,4 +2963,155 @@ class MarketplaceApiService
             return [];
         }
     }
+
+    /**
+     * Получает список заявок на поставку OZON в состоянии DATA_FILLING.
+     *
+     * @return array Массив order_ids или пустой массив при ошибке
+     */
+    public static function getSupplyOrderListOzon(): array
+    {
+        try {
+            $allOrderIds = [];
+            $lastId = '';
+
+            do {
+                $body = [
+                    'filter' => [
+                        'states' => ['DATA_FILLING'],
+                    ],
+                    'limit' => 100,
+                    'sort_by' => 'ORDER_CREATION',
+                    'sort_dir' => 'DESC',
+                ];
+
+                if ($lastId !== '') {
+                    $body['last_id'] = $lastId;
+                }
+
+                $response = self::ozonRequest()
+                    ->post('https://api-seller.ozon.ru/v3/supply-order/list', $body);
+
+                if (!$response->ok()) {
+                    Log::channel('marketplace_api')->error(
+                        'Ошибка получения списка заявок на поставку OZON',
+                        ['status' => $response->status(), 'body' => $response->body()]
+                    );
+
+                    return $allOrderIds;
+                }
+
+                $data = $response->json();
+                $orderIds = $data['order_ids'] ?? [];
+                $allOrderIds = array_merge($allOrderIds, $orderIds);
+                $lastId = $data['last_id'] ?? '';
+            } while ($lastId !== '');
+
+            return $allOrderIds;
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении списка заявок на поставку OZON: ' . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
+
+    /**
+     * Получает детали заявки на поставку OZON.
+     *
+     * @return array Массив с данными заявки или пустой массив при ошибке
+     */
+    public static function getSupplyOrderDetailsOzon(int $orderId): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/supply-order/details', [
+                    'order_id' => $orderId,
+                ]);
+
+            if (!$response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    "Ошибка получения деталей заявки на поставку OZON #{$orderId}",
+                    ['status' => $response->status(), 'body' => $response->body()]
+                );
+
+                return [];
+            }
+
+            return $response->json() ?? [];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                "Ошибка при получении деталей заявки на поставку OZON #{$orderId}: " . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
+
+    /**
+     * Получает товары бандлов заявки на поставку OZON с пагинацией.
+     *
+     * @param array<string> $bundleIds Массив ID бандлов
+     *
+     * @return array Плоский массив всех товаров бандла
+     */
+    public static function getSupplyOrderBundleOzon(array $bundleIds): array
+    {
+        try {
+            $allItems = [];
+            $lastId = null;
+            $maxPages = 50;
+            $page = 0;
+
+            do {
+                $body = [
+                    'bundle_ids' => $bundleIds,
+                    'is_asc' => true,
+                    'limit' => 100,
+                    'sort_field' => 'NAME',
+                ];
+
+                if ($lastId !== null) {
+                    $body['last_id'] = $lastId;
+                }
+
+                $response = self::ozonRequest()
+                    ->post('https://api-seller.ozon.ru/v1/supply-order/bundle', $body);
+
+                if (!$response->ok()) {
+                    Log::channel('marketplace_api')->error(
+                        'Ошибка получения товаров бандла заявки на поставку OZON',
+                        ['status' => $response->status(), 'body' => $response->body(), 'bundle_ids' => $bundleIds]
+                    );
+
+                    return $allItems;
+                }
+
+                $items = $response->json('items') ?? [];
+                $allItems = array_merge($allItems, $items);
+
+                $hasNext = $response->json('has_next') ?? false;
+                $lastId = $response->json('last_id');
+                $page++;
+
+                if ($page >= $maxPages) {
+                    Log::channel('marketplace_api')->warning(
+                        'Достигнут лимит страниц при получении товаров бандла OZON',
+                        ['bundle_ids' => $bundleIds, 'pages' => $page]
+                    );
+
+                    break;
+                }
+            } while ($hasNext);
+
+            return $allItems;
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении товаров бандла заявки на поставку OZON: ' . $e->getMessage()
+            );
+
+            return [];
+        }
+    }
 }

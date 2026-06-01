@@ -56,6 +56,14 @@ class MarketplaceSupplyPolicy
         return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 
+    /**
+     * Определяет, может ли пользователь привязать существующую заявку OZON FBO.
+     */
+    public function linkOzonFbo(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
+    }
+
     public function updateFbo(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
         return $user->isAdmin() || $user->isManager();

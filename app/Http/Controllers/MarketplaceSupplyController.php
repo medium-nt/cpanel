@@ -6,6 +6,7 @@ use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
+use App\Models\MarketplaceWarehouse;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderService;
 use App\Services\MarketplaceSupplyService;
@@ -62,9 +63,27 @@ class MarketplaceSupplyController extends Controller
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         if ($marketplaceSupply->type === 'FBO' && $marketplaceSupply->marketplace_id == 1) {
+            $ozonSupplyOrders = ($marketplaceSupply->status === 0 && empty($marketplaceSupply->supply_id))
+                ? self::getOzonSupplyOrdersForDropdown()
+                : [];
+
+            $hasOrders = MarketplaceOrder::query()
+                ->where('supply_id', $marketplaceSupply->id)
+                ->exists();
+
+            $supplyOrders = $hasOrders
+                ? MarketplaceOrder::query()
+                    ->with('items.item', 'box')
+                    ->where('supply_id', $marketplaceSupply->id)
+                    ->get()
+                : collect();
+
             return view('marketplace_supply.show-ozon-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
                 'supply' => $marketplaceSupply,
+                'ozonSupplyOrders' => $ozonSupplyOrders,
+                'hasOrders' => $hasOrders,
+                'supplyOrders' => $supplyOrders,
             ]);
         }
 
@@ -292,6 +311,240 @@ class MarketplaceSupplyController extends Controller
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
             ->with('success', 'Поставка сформирована ('.($orderNumber - 1).' заказов).');
+    }
+
+    /**
+     * Получает список заявок на поставку OZON с деталями для отображения в dropdown.
+     *
+     * @return array<array{order_id: int, order_number: string, from_time: string|null, to_time: string|null, cluster: string|null}>
+     */
+    private static function getOzonSupplyOrdersForDropdown(): array
+    {
+        $orderIds = MarketplaceApiService::getSupplyOrderListOzon();
+
+        if (empty($orderIds)) {
+            return [];
+        }
+
+        $result = [];
+
+        foreach ($orderIds as $orderId) {
+            $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int)$orderId);
+
+            if (empty($details)) {
+                continue;
+            }
+
+            $supply = $details['supplies'][0] ?? null;
+            $timeslot = $details['timeslot']['value']['timeslot'] ?? null;
+            $macrolocalClusterId = $supply['macrolocal_cluster_id'] ?? null;
+
+            $clusterName = null;
+            if ($macrolocalClusterId) {
+                $warehouse = MarketplaceWarehouse::query()
+                    ->where('macrolocal_cluster_id', $macrolocalClusterId)
+                    ->first();
+
+                $clusterName = $warehouse?->cluster;
+            }
+
+            $result[] = [
+                'order_id' => $details['order_id'],
+                'order_number' => $details['order_number'] ?? null,
+                'from_time' => $timeslot['from'] ?? null,
+                'to_time' => $timeslot['to'] ?? null,
+                'cluster' => $clusterName ?? $macrolocalClusterId,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Привязка выбранной FBO-заявки на поставку из OZON к поставке в системе.
+     */
+    public function linkOzonFbo(Request $request, MarketplaceSupply $marketplaceSupply)
+    {
+        $validated = $request->validate([
+            'ozon_order_id' => 'required|integer',
+        ]);
+
+        $exists = MarketplaceSupply::query()
+            ->where('supply_id', (string)$validated['ozon_order_id'])
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Заявка с номером ' . $validated['ozon_order_id'] . ' уже привязана.');
+        }
+
+        $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int)$validated['ozon_order_id']);
+
+        if (empty($details)) {
+            return back()->with('error', 'Не удалось получить данные заявки из OZON.');
+        }
+
+        $supply = $details['supplies'][0] ?? null;
+        $timeslot = $details['timeslot']['value']['timeslot'] ?? null;
+        $macrolocalClusterId = $supply['macrolocal_cluster_id'] ?? null;
+        $bundleId = $supply['content']['bundle_id'] ?? null;
+        $isCrossdock = $supply['is_crossdock'] ?? false;
+
+        $clusterName = null;
+        if ($macrolocalClusterId) {
+            $warehouse = MarketplaceWarehouse::query()
+                ->where('macrolocal_cluster_id', $macrolocalClusterId)
+                ->first();
+
+            $clusterName = $warehouse?->cluster;
+        }
+
+        $marketplaceSupply->update([
+            'supply_id' => (string)$details['order_id'],
+            'cluster' => $clusterName ?? $macrolocalClusterId,
+            'supply_date' => isset($timeslot['from']) ? Carbon::parse($timeslot['from']) : null,
+            'supply_type' => $isCrossdock ? 'Кросс-докинг' : 'Прямая поставка',
+            'draft_params' => [
+                'order_number' => $details['order_number'] ?? null,
+                'bundle_id' => $bundleId,
+                'macrolocal_cluster_id' => $macrolocalClusterId,
+                'timeslot_from' => $timeslot['from'] ?? null,
+                'timeslot_to' => $timeslot['to'] ?? null,
+            ],
+        ]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name . ' привязал FBO-заявку OZON #' . $validated['ozon_order_id'] . ' к поставке #' . $marketplaceSupply->id . '.');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Заявка на поставку привязана.');
+    }
+
+    /**
+     * Загрузка товарного состава FBO-заявки на поставку из OZON API.
+     */
+    public function loadOzonFboGoods(MarketplaceSupply $marketplaceSupply)
+    {
+        $bundleId = $marketplaceSupply->draft_params['bundle_id'] ?? null;
+
+        if (empty($bundleId)) {
+            return back()->with('error', 'Не найден bundle_id для загрузки товаров.');
+        }
+
+        $goods = MarketplaceApiService::getSupplyOrderBundleOzon([$bundleId]);
+
+        if (empty($goods)) {
+            return back()->with('error', 'Не удалось получить товарный состав из OZON.');
+        }
+
+        $offerIds = collect($goods)->pluck('offer_id')->unique()->filter()->values()->toArray();
+
+        $items = MarketplaceItem::query()
+            ->whereIn('article', $offerIds)
+            ->get()
+            ->keyBy('article');
+
+        $supplyGoods = collect($goods)->map(function (array $good) use ($items) {
+            $item = $items->get($good['offer_id']);
+
+            return [
+                'offer_id' => $good['offer_id'],
+                'name' => $item
+                    ? $item->title . ' ' . $item->width . 'x' . $item->height
+                    : $good['name'] ?? '-',
+                'quantity' => $good['quantity'],
+                'found' => $item !== null,
+            ];
+        });
+
+        $allItemsFound = $supplyGoods->every(fn($g) => $g['found']);
+
+        $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
+
+        return view('marketplace_supply.show-ozon-fbo', [
+            'title' => 'Поставка для маркетплейса ' . $marketplaceName,
+            'supply' => $marketplaceSupply,
+            'ozonSupplyOrders' => [],
+            'supplyGoods' => $supplyGoods,
+            'allItemsFound' => $allItemsFound,
+            'hasOrders' => false,
+            'supplyOrders' => collect(),
+        ]);
+    }
+
+    /**
+     * Формирование заказов из товарного состава FBO-заявки на поставку OZON.
+     */
+    public function confirmOzonFboGoods(MarketplaceSupply $marketplaceSupply)
+    {
+        $hasOrders = MarketplaceOrder::query()
+            ->where('supply_id', $marketplaceSupply->id)
+            ->exists();
+
+        if ($hasOrders) {
+            return back()->with('error', 'Заказы для этой поставки уже созданы.');
+        }
+
+        $bundleId = $marketplaceSupply->draft_params['bundle_id'] ?? null;
+
+        if (empty($bundleId)) {
+            return back()->with('error', 'Не найден bundle_id для загрузки товаров.');
+        }
+
+        $goods = MarketplaceApiService::getSupplyOrderBundleOzon([$bundleId]);
+
+        if (empty($goods)) {
+            return back()->with('error', 'Не удалось получить товарный состав из OZON.');
+        }
+
+        $offerIds = collect($goods)->pluck('offer_id')->unique()->filter()->values()->toArray();
+
+        $items = MarketplaceItem::query()
+            ->whereIn('article', $offerIds)
+            ->get()
+            ->keyBy('article');
+
+        $notFound = collect($offerIds)->diff($items->keys())->values();
+
+        if ($notFound->isNotEmpty()) {
+            return back()->with('error', 'Не найдены товары с артикулами: ' . $notFound->implode(', '));
+        }
+
+        $orderNumber = 1;
+
+        foreach ($goods as $good) {
+            $item = $items->get($good['offer_id']);
+
+            for ($i = 0; $i < $good['quantity']; $i++) {
+                $order = MarketplaceOrder::query()->create([
+                    'order_id' => $marketplaceSupply->supply_id . '-' . $orderNumber,
+                    'marketplace_id' => 1,
+                    'supply_id' => $marketplaceSupply->id,
+                    'fulfillment_type' => 'FBO',
+                    'cluster' => $marketplaceSupply->cluster,
+                    'status' => 0,
+                ]);
+
+                MarketplaceOrderItem::query()->create([
+                    'marketplace_order_id' => $order->id,
+                    'marketplace_item_id' => $item->id,
+                    'quantity' => 1,
+                    'price' => 0,
+                    'status' => 0,
+                ]);
+
+                $orderNumber++;
+            }
+        }
+
+        $marketplaceSupply->update(['status' => 13]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name . ' сформировал FBO-поставку OZON #' . $marketplaceSupply->id . ' (' . ($orderNumber - 1) . ' заказов).');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Поставка сформирована (' . ($orderNumber - 1) . ' заказов).');
     }
 
     /**
