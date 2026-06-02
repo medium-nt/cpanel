@@ -393,11 +393,39 @@ class OzonFboItemSearch extends Component
             $draftId = $this->supply->draft_id;
 
             if ($status['status'] === 'SUCCESS') {
+                $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int)$status['order_id']);
+                $supply = $details['supplies'][0] ?? null;
+                $timeslot = $details['timeslot']['value']['timeslot'] ?? null;
+                $macrolocalClusterId = $supply['macrolocal_cluster_id'] ?? null;
+                $isCrossdock = $supply['is_crossdock'] ?? false;
+                $ozonSupplyId = $supply['supply_id'] ?? null;
+
+                $clusterName = null;
+                if ($macrolocalClusterId) {
+                    $warehouse = MarketplaceWarehouse::query()
+                        ->where('macrolocal_cluster_id', $macrolocalClusterId)
+                        ->first();
+
+                    $clusterName = $warehouse?->cluster;
+                }
+
                 $this->supply->update([
                     'supply_id' => (string) $status['order_id'],
+                    'cluster' => $clusterName ?? $macrolocalClusterId,
+                    'supply_date' => isset($timeslot['from']) ? \Carbon\Carbon::parse($timeslot['from']) : null,
+                    'supply_type' => $isCrossdock ? 'Кросс-докинг' : 'Прямая поставка',
                     'draft_id' => null,
                     'draft_created_at' => null,
                 ]);
+
+                if ($ozonSupplyId) {
+                    $draftParams = $this->supply->draft_params ?? [];
+                    $draftParams['order_number'] = $ozonSupplyId;
+                    $draftParams['timeslot_from'] = $timeslot['from'] ?? null;
+                    $draftParams['timeslot_to'] = $timeslot['to'] ?? null;
+                    $draftParams['macrolocal_cluster_id'] = $macrolocalClusterId;
+                    $this->supply->update(['draft_params' => $draftParams]);
+                }
 
                 Log::channel('marketplace_supplies')
                     ->notice(auth()->user()->name.' создал заявку OZON FBO #'.$status['order_id'].' из черновика #'.$draftId.'.');

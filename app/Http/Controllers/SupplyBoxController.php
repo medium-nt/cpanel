@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
 use App\Models\SupplyBox;
+use App\Services\MarketplaceApiService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -162,7 +163,7 @@ class SupplyBoxController extends Controller
     }
 
     /**
-     * Генерация PDF-стикера короба.
+     * Генерация стикера короба — через API для OZON, через PDF для WB.
      */
     public function printSticker(MarketplaceSupply $marketplaceSupply, SupplyBox $box)
     {
@@ -172,10 +173,163 @@ class SupplyBoxController extends Controller
 
         $box->load('supply');
 
+        if ($box->supply->marketplace_id === 1) {
+            return $this->printOzonSticker($marketplaceSupply, $box);
+        }
+
         $pdf = Pdf::loadView('pdf.box_sticker', ['box' => $box]);
         $pdf->setPaper([0, 0, 75 * 2.83, 120 * 2.83], 'portrait');
 
         return $pdf->stream('box_sticker_'.$box->number.'.pdf');
+    }
+
+    /**
+     * Генерация стикера короба OZON FBO через цепочку API-запросов.
+     */
+    private function printOzonSticker(MarketplaceSupply $marketplaceSupply, SupplyBox $box)
+    {
+        if ($box->sticker_url) {
+            return redirect($box->sticker_url);
+        }
+
+        $ozonSupplyId = $box->supply->draft_params['order_number'] ?? null;
+
+        if (!$ozonSupplyId) {
+            return back()->with('error', 'Не найден order_number в параметрах поставки.');
+        }
+
+        // Если грузоместо уже создано — пропускаем его создание
+        if ($box->cargo_id) {
+            $cargoId = $box->cargo_id;
+        } else {
+            $items = $this->buildOzonCargoItems($box);
+
+            if (empty($items)) {
+                return back()->with('error', 'Нет товаров в коробе для формирования грузоместа.');
+            }
+
+            $payload = [
+                'cargoes' => [
+                    [
+                        'key' => $box->number,
+                        'value' => [
+                            'items' => $items,
+                            'type' => 'BOX',
+                        ],
+                    ],
+                ],
+                'delete_current_version' => false,
+                'supply_id' => (int)$ozonSupplyId,
+            ];
+
+            // Шаг 1: Создание грузоместа
+            $cargoResult = MarketplaceApiService::createCargoOzon($payload);
+
+            if ($cargoResult['error']) {
+                return back()->with('error', 'Ошибка создания грузоместа: ' . $cargoResult['error']);
+            }
+
+            // Шаг 2: Ожидание результата создания грузоместа
+            $cargoId = $this->pollOperation(
+                fn() => MarketplaceApiService::getCargoCreateInfoOzon($cargoResult['operation_id']),
+                'cargo_id'
+            );
+
+            if (!$cargoId) {
+                return back()->with('error', 'Не удалось получить cargo_id от OZON. Попробуйте позже.');
+            }
+
+            $box->update(['cargo_id' => $cargoId]);
+        }
+
+        // Шаг 3: Создание этикетки
+        $labelResult = MarketplaceApiService::createCargoLabelOzon(
+            $ozonSupplyId,
+            [$cargoId]
+        );
+
+        if ($labelResult['error']) {
+            return back()->with('error', 'Ошибка создания этикетки: ' . $labelResult['error']);
+        }
+
+        // Шаг 4: Ожидание результата генерации этикетки
+        $fileUrl = $this->pollOperation(
+            fn() => MarketplaceApiService::getCargoLabelOzon($labelResult['operation_id']),
+            'file_url'
+        );
+
+        if (!$fileUrl) {
+            return back()->with('error', 'Не удалось получить ссылку на стикер от OZON. Попробуйте позже.');
+        }
+
+        $box->update(['sticker_url' => $fileUrl]);
+
+        return redirect($fileUrl);
+    }
+
+    /**
+     * Формирует массив товаров для API-запроса создания грузоместа OZON.
+     */
+    private function buildOzonCargoItems(SupplyBox $box): array
+    {
+        $box->load('orders.items.item.sku');
+
+        $grouped = [];
+
+        foreach ($box->orders as $order) {
+            foreach ($order->items as $orderItem) {
+                $item = $orderItem->item;
+                if (!$item) {
+                    continue;
+                }
+
+                $article = $item->article;
+                $sku = $item->sku->first(fn(mixed $s) => $s->marketplace_id === 1);
+
+                if (!$sku) {
+                    continue;
+                }
+
+                if (!isset($grouped[$article])) {
+                    $grouped[$article] = [
+                        'barcode' => 'OZN' . $sku->sku,
+                        'offer_id' => $article,
+                        'quantity' => 0,
+                    ];
+                }
+
+                $grouped[$article]['quantity'] += $orderItem->quantity;
+            }
+        }
+
+        return array_values($grouped);
+    }
+
+    /**
+     * Опрашивает результат асинхронной операции OZON до получения значения или истечения попыток.
+     */
+    private function pollOperation(callable $apiCall, string $resultKey, int $maxAttempts = 10, int $sleepSeconds = 1): mixed
+    {
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            sleep($sleepSeconds);
+
+            $result = $apiCall();
+
+            if (isset($result['error']) && $result['error']) {
+                Log::channel('marketplace_api')->warning(
+                    'Ошибка при polling операции OZON',
+                    ['attempt' => $i + 1, 'error' => $result['error']]
+                );
+
+                continue;
+            }
+
+            if (($result['status'] ?? '') === 'SUCCESS' && $result[$resultKey] ?? null) {
+                return $result[$resultKey];
+            }
+        }
+
+        return null;
     }
 
     /**

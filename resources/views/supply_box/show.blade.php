@@ -18,6 +18,10 @@
                         <span class="badge badge-secondary ml-2">Закрыт</span>
                     @endif
                 </h4>
+                @if($box->cargo_id)
+                    <small class="text-muted">ID грузового
+                        места: {{ $box->cargo_id }}</small><br>
+                @endif
 
                 @if(!$box->closed_at && $box->orders->count() > 0 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                     <form

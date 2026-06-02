@@ -12,6 +12,8 @@ class SupplyBox extends Model
         'marketplace_supply_id',
         'number',
         'closed_at',
+        'cargo_id',
+        'sticker_url',
     ];
 
     protected function casts(): array

@@ -2992,7 +2992,7 @@ class MarketplaceApiService
                 $response = self::ozonRequest()
                     ->post('https://api-seller.ozon.ru/v3/supply-order/list', $body);
 
-                if (!$response->ok()) {
+                if (! $response->ok()) {
                     Log::channel('marketplace_api')->error(
                         'Ошибка получения списка заявок на поставку OZON',
                         ['status' => $response->status(), 'body' => $response->body()]
@@ -3010,7 +3010,7 @@ class MarketplaceApiService
             return $allOrderIds;
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка при получении списка заявок на поставку OZON: ' . $e->getMessage()
+                'Ошибка при получении списка заявок на поставку OZON: '.$e->getMessage()
             );
 
             return [];
@@ -3030,7 +3030,7 @@ class MarketplaceApiService
                     'order_id' => $orderId,
                 ]);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 Log::channel('marketplace_api')->error(
                     "Ошибка получения деталей заявки на поставку OZON #{$orderId}",
                     ['status' => $response->status(), 'body' => $response->body()]
@@ -3042,7 +3042,7 @@ class MarketplaceApiService
             return $response->json() ?? [];
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                "Ошибка при получении деталей заявки на поставку OZON #{$orderId}: " . $e->getMessage()
+                "Ошибка при получении деталей заявки на поставку OZON #{$orderId}: ".$e->getMessage()
             );
 
             return [];
@@ -3052,8 +3052,7 @@ class MarketplaceApiService
     /**
      * Получает товары бандлов заявки на поставку OZON с пагинацией.
      *
-     * @param array<string> $bundleIds Массив ID бандлов
-     *
+     * @param  array<string>  $bundleIds  Массив ID бандлов
      * @return array Плоский массив всех товаров бандла
      */
     public static function getSupplyOrderBundleOzon(array $bundleIds): array
@@ -3079,7 +3078,7 @@ class MarketplaceApiService
                 $response = self::ozonRequest()
                     ->post('https://api-seller.ozon.ru/v1/supply-order/bundle', $body);
 
-                if (!$response->ok()) {
+                if (! $response->ok()) {
                     Log::channel('marketplace_api')->error(
                         'Ошибка получения товаров бандла заявки на поставку OZON',
                         ['status' => $response->status(), 'body' => $response->body(), 'bundle_ids' => $bundleIds]
@@ -3108,10 +3107,142 @@ class MarketplaceApiService
             return $allItems;
         } catch (Throwable $e) {
             Log::channel('marketplace_api')->error(
-                'Ошибка при получении товаров бандла заявки на поставку OZON: ' . $e->getMessage()
+                'Ошибка при получении товаров бандла заявки на поставку OZON: '.$e->getMessage()
             );
 
             return [];
+        }
+    }
+
+    /**
+     * Создаёт грузоместо для короба OZON FBO-поставки.
+     */
+    public static function createCargoOzon(array $payload): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/cargoes/create', $payload);
+
+            if (! $response->ok()) {
+                $message = $response->json('message') ?: $response->body();
+
+                Log::channel('marketplace_api')->error(
+                    'Ошибка создания грузоместа OZON',
+                    ['status' => $response->status(), 'body' => $response->body()]
+                );
+
+                return ['operation_id' => null, 'error' => $message];
+            }
+
+            return ['operation_id' => $response->json('operation_id'), 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при создании грузоместа OZON: '.$e->getMessage()
+            );
+
+            return ['operation_id' => null, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Получает информацию о результате создания грузоместа OZON.
+     */
+    public static function getCargoCreateInfoOzon(string $operationId): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v2/cargoes/create/info', [
+                    'operation_id' => $operationId,
+                ]);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения информации о грузоместе OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'operation_id' => $operationId]
+                );
+
+                return ['status' => 'ERROR', 'cargo_id' => null, 'error' => $response->body()];
+            }
+
+            $status = $response->json('status') ?? 'UNSPECIFIED';
+            $cargoes = $response->json('result.cargoes') ?? [];
+            $cargoId = $cargoes[0]['value']['cargo_id'] ?? null;
+
+            return ['status' => $status, 'cargo_id' => $cargoId, 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении информации о грузоместе OZON: '.$e->getMessage()
+            );
+
+            return ['status' => 'ERROR', 'cargo_id' => null, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Создаёт этикетку (стикер) для грузоместа OZON.
+     */
+    public static function createCargoLabelOzon(string $supplyId, array $cargoIds): array
+    {
+        try {
+            $cargoes = array_map(fn (int $cargoId) => ['cargo_id' => $cargoId], $cargoIds);
+
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/cargoes-label/create', [
+                    'supply_id' => $supplyId,
+                    'cargoes' => $cargoes,
+                ]);
+
+            if (! $response->ok()) {
+                $message = $response->json('message') ?: $response->body();
+
+                Log::channel('marketplace_api')->error(
+                    'Ошибка создания этикетки грузоместа OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'supply_id' => $supplyId]
+                );
+
+                return ['operation_id' => null, 'error' => $message];
+            }
+
+            return ['operation_id' => $response->json('operation_id'), 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при создании этикетки грузоместа OZON: '.$e->getMessage()
+            );
+
+            return ['operation_id' => null, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Получает информацию об этикетке грузоместа OZON (file_url).
+     */
+    public static function getCargoLabelOzon(string $operationId): array
+    {
+        try {
+            $response = self::ozonRequest()
+                ->post('https://api-seller.ozon.ru/v1/cargoes-label/get', [
+                    'operation_id' => $operationId,
+                ]);
+
+            if (! $response->ok()) {
+                Log::channel('marketplace_api')->error(
+                    'Ошибка получения этикетки грузоместа OZON',
+                    ['status' => $response->status(), 'body' => $response->body(), 'operation_id' => $operationId]
+                );
+
+                return ['status' => 'ERROR', 'file_url' => null, 'error' => $response->body()];
+            }
+
+            $status = $response->json('status') ?? 'UNSPECIFIED';
+            $fileUrl = $response->json('result.file_url') ?? null;
+
+            return ['status' => $status, 'file_url' => $fileUrl, 'error' => null];
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Ошибка при получении этикетки грузоместа OZON: '.$e->getMessage()
+            );
+
+            return ['status' => 'ERROR', 'file_url' => null, 'error' => $e->getMessage()];
         }
     }
 }

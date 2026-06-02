@@ -596,8 +596,7 @@ class MarketplaceSupplyController extends Controller
     public function destroy(MarketplaceSupply $marketplace_supply)
     {
         if ($marketplace_supply->marketplace_orders->count() > 0) {
-            return redirect()
-                ->route('marketplace_supplies.index')
+            return back()
                 ->with('error', 'Нельзя удалить поставку, которая содержит заказы.');
         }
 
