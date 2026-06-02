@@ -24,9 +24,10 @@ class SupplyBox extends Model
     protected static function booted(): void
     {
         static::created(function (SupplyBox $box) {
+            $prefix = $box->supply->marketplace_id === 1 ? 'FBO-OZON' : 'FBO-WB';
             $datePart = now()->format('dmy');
             $idPart = str_pad((string) $box->id, 7, '0', STR_PAD_LEFT);
-            $box->update(['number' => 'FBO-WB_'.$datePart.$idPart]);
+            $box->update(['number' => $prefix.'_'.$datePart.$idPart]);
         });
     }
 

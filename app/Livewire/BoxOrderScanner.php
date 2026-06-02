@@ -54,6 +54,10 @@ class BoxOrderScanner extends Component
             return;
         }
 
+        if ($this->box->supply->marketplace_id === 1 && str_starts_with($code, 'OZN')) {
+            $code = substr($code, 3);
+        }
+
         $sku = Sku::query()
             ->where('sku', $code)
             ->where('marketplace_id', $this->box->supply->marketplace_id)

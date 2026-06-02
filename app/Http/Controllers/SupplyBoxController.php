@@ -199,9 +199,9 @@ class SupplyBoxController extends Controller
         $rows = MarketplaceOrder::query()
             ->join('marketplace_order_items', 'marketplace_orders.id', '=', 'marketplace_order_items.marketplace_order_id')
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
-            ->join('skus', function ($join) {
+            ->join('skus', function ($join) use ($marketplaceSupply) {
                 $join->on('skus.item_id', '=', 'marketplace_items.id')
-                    ->where('skus.marketplace_id', 2);
+                    ->where('skus.marketplace_id', $marketplaceSupply->marketplace_id);
             })
             ->join('supply_boxes', 'marketplace_orders.box_id', '=', 'supply_boxes.id')
             ->where('marketplace_orders.supply_id', $marketplaceSupply->id)
