@@ -230,13 +230,21 @@ class MarketplaceSupplyController extends Controller
             'gazelka_shipment_date' => 'nullable|date',
             'delivery_type' => 'nullable|string|in:'.implode(',', MarketplaceSupply::DELIVERY_TYPES),
             'gazelka_pickup' => 'nullable|boolean',
+            'boxes_count' => 'nullable|integer|min:0',
         ]);
+
+        if (isset($validated['boxes_count']) && ! $marketplaceSupply->canEditBoxesCount()) {
+            return back()
+                ->with('error', 'Редактирование кол-ва коробов недоступно: дата отгрузки уже наступила.')
+                ->withInput();
+        }
 
         $marketplaceSupply->update([
             'gazelka_shipment_id' => $validated['gazelka_shipment_id'] ?? null,
             'gazelka_shipment_date' => isset($validated['gazelka_shipment_date']) ? Carbon::parse($validated['gazelka_shipment_date']) : null,
             'delivery_type' => $validated['delivery_type'] ?? null,
             'gazelka_pickup' => $validated['gazelka_pickup'] ?? null,
+            'boxes_count' => $validated['boxes_count'] ?? null,
         ]);
 
         return redirect()
@@ -329,7 +337,7 @@ class MarketplaceSupplyController extends Controller
         $result = [];
 
         foreach ($orderIds as $orderId) {
-            $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int)$orderId);
+            $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int) $orderId);
 
             if (empty($details)) {
                 continue;
@@ -370,14 +378,14 @@ class MarketplaceSupplyController extends Controller
         ]);
 
         $exists = MarketplaceSupply::query()
-            ->where('supply_id', (string)$validated['ozon_order_id'])
+            ->where('supply_id', (string) $validated['ozon_order_id'])
             ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Заявка с номером ' . $validated['ozon_order_id'] . ' уже привязана.');
+            return back()->with('error', 'Заявка с номером '.$validated['ozon_order_id'].' уже привязана.');
         }
 
-        $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int)$validated['ozon_order_id']);
+        $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int) $validated['ozon_order_id']);
 
         if (empty($details)) {
             return back()->with('error', 'Не удалось получить данные заявки из OZON.');
@@ -399,7 +407,7 @@ class MarketplaceSupplyController extends Controller
         }
 
         $marketplaceSupply->update([
-            'supply_id' => (string)$details['order_id'],
+            'supply_id' => (string) $details['order_id'],
             'cluster' => $clusterName ?? $macrolocalClusterId,
             'supply_date' => isset($timeslot['from']) ? Carbon::parse($timeslot['from']) : null,
             'supply_type' => $isCrossdock ? 'Кросс-докинг' : 'Прямая поставка',
@@ -413,7 +421,7 @@ class MarketplaceSupplyController extends Controller
         ]);
 
         Log::channel('marketplace_supplies')
-            ->notice(auth()->user()->name . ' привязал FBO-заявку OZON #' . $validated['ozon_order_id'] . ' к поставке #' . $marketplaceSupply->id . '.');
+            ->notice(auth()->user()->name.' привязал FBO-заявку OZON #'.$validated['ozon_order_id'].' к поставке #'.$marketplaceSupply->id.'.');
 
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
@@ -450,19 +458,19 @@ class MarketplaceSupplyController extends Controller
             return [
                 'offer_id' => $good['offer_id'],
                 'name' => $item
-                    ? $item->title . ' ' . $item->width . 'x' . $item->height
+                    ? $item->title.' '.$item->width.'x'.$item->height
                     : $good['name'] ?? '-',
                 'quantity' => $good['quantity'],
                 'found' => $item !== null,
             ];
         });
 
-        $allItemsFound = $supplyGoods->every(fn($g) => $g['found']);
+        $allItemsFound = $supplyGoods->every(fn ($g) => $g['found']);
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
         return view('marketplace_supply.show-ozon-fbo', [
-            'title' => 'Поставка для маркетплейса ' . $marketplaceName,
+            'title' => 'Поставка для маркетплейса '.$marketplaceName,
             'supply' => $marketplaceSupply,
             'ozonSupplyOrders' => [],
             'supplyGoods' => $supplyGoods,
@@ -507,7 +515,7 @@ class MarketplaceSupplyController extends Controller
         $notFound = collect($offerIds)->diff($items->keys())->values();
 
         if ($notFound->isNotEmpty()) {
-            return back()->with('error', 'Не найдены товары с артикулами: ' . $notFound->implode(', '));
+            return back()->with('error', 'Не найдены товары с артикулами: '.$notFound->implode(', '));
         }
 
         $orderNumber = 1;
@@ -517,7 +525,7 @@ class MarketplaceSupplyController extends Controller
 
             for ($i = 0; $i < $good['quantity']; $i++) {
                 $order = MarketplaceOrder::query()->create([
-                    'order_id' => $marketplaceSupply->supply_id . '-' . $orderNumber,
+                    'order_id' => $marketplaceSupply->supply_id.'-'.$orderNumber,
                     'marketplace_id' => 1,
                     'supply_id' => $marketplaceSupply->id,
                     'fulfillment_type' => 'FBO',
@@ -540,11 +548,11 @@ class MarketplaceSupplyController extends Controller
         $marketplaceSupply->update(['status' => 13]);
 
         Log::channel('marketplace_supplies')
-            ->notice(auth()->user()->name . ' сформировал FBO-поставку OZON #' . $marketplaceSupply->id . ' (' . ($orderNumber - 1) . ' заказов).');
+            ->notice(auth()->user()->name.' сформировал FBO-поставку OZON #'.$marketplaceSupply->id.' ('.($orderNumber - 1).' заказов).');
 
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
-            ->with('success', 'Поставка сформирована (' . ($orderNumber - 1) . ' заказов).');
+            ->with('success', 'Поставка сформирована ('.($orderNumber - 1).' заказов).');
     }
 
     /**
@@ -860,6 +868,56 @@ class MarketplaceSupplyController extends Controller
     }
 
     /**
+     * Загрузка PDF-накладной от Газельки для поставки.
+     */
+    public function uploadGazelkaInvoice(Request $request, MarketplaceSupply $marketplaceSupply)
+    {
+        $validated = $request->validate([
+            'gazelka_invoice' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        $fileName = 'gazelka_invoice_'.$marketplaceSupply->id.'.pdf';
+
+        Storage::disk('public')->putFileAs('gazelka_invoices', $validated['gazelka_invoice'], $fileName);
+
+        $marketplaceSupply->update(['gazelka_invoice' => $fileName]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' загрузил накладную от Газельки для поставки #'.$marketplaceSupply->id.'.');
+
+        return back()->with('success', 'Накладная от Газельки загружена.');
+    }
+
+    /**
+     * Скачивание PDF-накладной от Газельки.
+     */
+    public function downloadGazelkaInvoice(MarketplaceSupply $marketplaceSupply)
+    {
+        if (! $marketplaceSupply->gazelka_invoice || ! Storage::disk('public')->exists('gazelka_invoices/'.$marketplaceSupply->gazelka_invoice)) {
+            return back()->with('error', 'Накладная от Газельки не найдена.');
+        }
+
+        return Storage::disk('public')->download('gazelka_invoices/'.$marketplaceSupply->gazelka_invoice);
+    }
+
+    /**
+     * Удаление PDF-накладной от Газельки.
+     */
+    public function deleteGazelkaInvoice(MarketplaceSupply $marketplaceSupply)
+    {
+        if (Storage::disk('public')->exists('gazelka_invoices/'.$marketplaceSupply->gazelka_invoice)) {
+            Storage::disk('public')->delete('gazelka_invoices/'.$marketplaceSupply->gazelka_invoice);
+        }
+
+        $marketplaceSupply->update(['gazelka_invoice' => null]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' удалил накладную от Газельки для поставки #'.$marketplaceSupply->id.'.');
+
+        return back()->with('success', 'Накладная от Газельки удалена.');
+    }
+
+    /**
      * Пометить FBO-поставку как отгруженную (статус 3).
      */
     public function markShipped(MarketplaceSupply $marketplaceSupply)
@@ -868,7 +926,7 @@ class MarketplaceSupplyController extends Controller
             return back()->with('error', 'Поставка уже отгружена.');
         }
 
-        if (! $marketplaceSupply->sticker) {
+        if ($marketplaceSupply->marketplace_id == 2 && ! $marketplaceSupply->sticker) {
             return back()->with('error', 'Сначала загрузите стикер пропуска.');
         }
 

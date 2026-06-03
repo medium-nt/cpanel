@@ -93,4 +93,20 @@ class MarketplaceSupplyPolicy
     {
         return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
+
+    /**
+     * Проверяет право на загрузку/удаление накладной от Газельки.
+     */
+    public function manageGazelkaInvoice(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isManager();
+    }
+
+    /**
+     * Проверяет право на скачивание накладной от Газельки.
+     */
+    public function downloadGazelkaInvoice(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
+    }
 }

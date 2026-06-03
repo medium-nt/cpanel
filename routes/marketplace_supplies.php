@@ -129,6 +129,18 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('manageSticker', 'marketplace_supply')
         ->name('marketplace_supplies.delete_sticker');
 
+    Route::post('/{marketplace_supply}/upload-gazelka-invoice', [MarketplaceSupplyController::class, 'uploadGazelkaInvoice'])
+        ->can('manageGazelkaInvoice', 'marketplace_supply')
+        ->name('marketplace_supplies.upload_gazelka_invoice');
+
+    Route::get('/{marketplace_supply}/download-gazelka-invoice', [MarketplaceSupplyController::class, 'downloadGazelkaInvoice'])
+        ->can('downloadGazelkaInvoice', 'marketplace_supply')
+        ->name('marketplace_supplies.download_gazelka_invoice');
+
+    Route::get('/{marketplace_supply}/delete-gazelka-invoice', [MarketplaceSupplyController::class, 'deleteGazelkaInvoice'])
+        ->can('manageGazelkaInvoice', 'marketplace_supply')
+        ->name('marketplace_supplies.delete_gazelka_invoice');
+
     Route::get('/{marketplace_supply}/mark-shipped', [MarketplaceSupplyController::class, 'markShipped'])
         ->can('complete', 'marketplace_supply')
         ->name('marketplace_supplies.mark_shipped');

@@ -34,6 +34,8 @@ class MarketplaceSupply extends Model
         'draft_created_at',
         'supply_type',
         'gazelka_pickup',
+        'boxes_count',
+        'gazelka_invoice',
         'status',
         'completed_at',
         'video',
@@ -55,6 +57,19 @@ class MarketplaceSupply extends Model
     public function getMarketplaceNameAttribute(): string
     {
         return Marketplace::NAME[$this->marketplace_id];
+    }
+
+    /**
+     * Проверяет, можно ли редактировать кол-во коробов.
+     * Редактирование разрешено только до даты отгрузки в Газельку (строго меньше).
+     */
+    public function canEditBoxesCount(): bool
+    {
+        if ($this->gazelka_shipment_date === null) {
+            return true;
+        }
+
+        return today()->lt($this->gazelka_shipment_date);
     }
 
     public function marketplace_orders()

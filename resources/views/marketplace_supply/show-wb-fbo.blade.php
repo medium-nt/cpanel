@@ -80,6 +80,10 @@
                             <th>Забор Газелькой</th>
                             <td>{{ $supply->gazelka_pickup === null ? '-' : ($supply->gazelka_pickup ? 'Да' : 'Нет') }}</td>
                         </tr>
+                        <tr>
+                            <th>Кол-во коробов</th>
+                            <td>{{ $supply->boxes_count ?? '-' }}</td>
+                        </tr>
                     </table>
 
                     @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isManager()))
@@ -103,13 +107,37 @@
                         </a>
                     @endif
 
-                    @if($supply->sticker)
-                        @can('downloadSticker', $supply)
-                            <a href="{{ route('marketplace_supplies.download_sticker', $supply) }}"
-                               class="btn btn-info ml-2 mb-2">
-                                Скачать стикер пропуска
-                            </a>
-                        @endcan
+                    @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods) && (auth()->user()->isAdmin() || auth()->user()->isManager()))
+                        <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
+                           class="btn btn-primary ml-2 mb-2">
+                            Загрузить товарный состав
+                        </a>
+                    @endif
+
+                    @if($supply->sticker && $supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
+                        <a href="{{ route('marketplace_supplies.mark_shipped', $supply) }}"
+                           class="btn btn-danger ml-2 mb-2"
+                           onclick="return confirm('Подтвердите отгрузку поставки? После этого редактирование будет недоступно.')">
+                            Поставка отгружена
+                        </a>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Файлы --}}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Файлы</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        @if($supply->sticker)
+                            @can('downloadSticker', $supply)
+                                <a href="{{ route('marketplace_supplies.download_sticker', $supply) }}"
+                                   class="btn btn-info ml-2 mb-2">
+                                    Скачать стикер пропуска
+                                </a>
+                            @endcan
                             @if($supply->status !== 3)
                                 @can('manageSticker', $supply)
                                     <a href="{{ route('marketplace_supplies.delete_sticker', $supply) }}"
@@ -118,26 +146,60 @@
                                         Удалить стикер
                                     </a>
                                 @endcan
-                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                                    <a href="{{ route('marketplace_supplies.mark_shipped', $supply) }}"
-                                       class="btn btn-danger ml-2 mb-2"
-                                       onclick="return confirm('Подтвердите отгрузку поставки? После этого редактирование будет недоступно.')">
-                                        Поставка отгружена
-                                    </a>
-                                @endif
                             @endif
-                    @else
-                        @if($supply->status == 4)
-                            @can('manageSticker', $supply)
+                        @else
+                            @if($supply->status == 4)
+                                @can('manageSticker', $supply)
+                                    <div class="border rounded p-3 mt-3">
+                                        <strong>Стикер пропуска</strong>
+                                        <form
+                                            action="{{ route('marketplace_supplies.upload_sticker', $supply) }}"
+                                            method="POST"
+                                            enctype="multipart/form-data"
+                                            class="d-inline ml-3">
+                                            @csrf
+                                            <input type="file" name="sticker"
+                                                   accept=".pdf" required>
+                                            <button type="submit"
+                                                    class="btn btn-outline-info">
+                                                Загрузить
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endcan
+                            @endif
+                        @endif
+                    </div>
+
+                    <div class="mb-2">
+                        @if($supply->gazelka_invoice)
+                            @can('downloadGazelkaInvoice', $supply)
+                                <a href="{{ route('marketplace_supplies.download_gazelka_invoice', $supply) }}"
+                                   class="btn btn-info ml-2 mb-2">
+                                    Скачать накладную
+                                </a>
+                            @endcan
+                            @if($supply->status !== 3)
+                                @can('manageGazelkaInvoice', $supply)
+                                    <a href="{{ route('marketplace_supplies.delete_gazelka_invoice', $supply) }}"
+                                       class="btn btn-danger ml-2 mb-2"
+                                       onclick="return confirm('Удалить накладную от Газельки?')">
+                                        Удалить накладную
+                                    </a>
+                                @endcan
+                            @endif
+                        @else
+                            @can('manageGazelkaInvoice', $supply)
                                 <div class="border rounded p-3 mt-3">
-                                    <strong>Стикер пропуска</strong>
+                                    <strong>Накладная от Газельки</strong>
                                     <form
-                                        action="{{ route('marketplace_supplies.upload_sticker', $supply) }}"
+                                        action="{{ route('marketplace_supplies.upload_gazelka_invoice', $supply) }}"
                                         method="POST"
                                         enctype="multipart/form-data"
                                         class="d-inline ml-3">
                                         @csrf
-                                        <input type="file" name="sticker"
+                                        <input type="file"
+                                               name="gazelka_invoice"
                                                accept=".pdf" required>
                                         <button type="submit"
                                                 class="btn btn-outline-info">
@@ -147,14 +209,7 @@
                                 </div>
                             @endcan
                         @endif
-                    @endif
-
-                    @if($supply->status == 0 && !empty($supply->supply_id) && !$hasOrders && empty($supplyGoods) && (auth()->user()->isAdmin() || auth()->user()->isManager()))
-                        <a href="{{ route('marketplace_supplies.load_fbo_goods', ['marketplace_supply' => $supply]) }}"
-                           class="btn btn-primary ml-2 mb-2">
-                            Загрузить товарный состав
-                        </a>
-                    @endif
+                    </div>
                 </div>
             </div>
 

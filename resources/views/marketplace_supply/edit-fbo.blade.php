@@ -68,6 +68,24 @@
                                 </option>
                             </select>
                         </div>
+
+                        <div class="form-group ml-3 mb-0">
+                            @php($canEditBoxes = $supply->canEditBoxesCount())
+                            <label for="boxes_count">Кол-во коробов</label>
+                            <input type="number" class="form-control"
+                                   id="boxes_count"
+                                   name="boxes_count"
+                                   min="0"
+                                   value="{{ old('boxes_count', $supply->boxes_count) }}"
+                                   @unless($canEditBoxes) readonly
+                                   style="background-color:#e9ecef" @endunless>
+                            @unless($canEditBoxes)
+                                <small class="form-text text-muted">
+                                    Редактирование недоступно: дата отгрузки
+                                    наступила.
+                                </small>
+                            @endunless
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary mr-2">
