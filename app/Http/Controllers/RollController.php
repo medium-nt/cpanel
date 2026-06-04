@@ -157,6 +157,9 @@ class RollController extends Controller
             ->with('return_back_url', route('rolls.index'));
     }
 
+    /**
+     * Удаляет рулон со всеми связанными записями движения материалов.
+     */
     public function destroy(Roll $roll)
     {
         if ($roll->status != 'in_storage') {
@@ -165,18 +168,42 @@ class RollController extends Controller
                 ->with('error', 'Рулон уже в работе, не может быть удален');
         }
 
-        $movementMaterial = $roll->movementMaterial;
-        $order = $movementMaterial->order;
+        try {
+            DB::beginTransaction();
 
-        $movementMaterial->delete();
+            $movementMaterials = MovementMaterial::query()
+                ->where('roll_id', $roll->id)
+                ->get();
 
-        if ($order->movementMaterials->count() == 0) {
-            $order->delete();
+            $orderIds = $movementMaterials->pluck('order_id')->unique();
+
+            MovementMaterial::query()
+                ->where('roll_id', $roll->id)
+                ->delete();
+
+            foreach ($orderIds as $orderId) {
+                $hasMoreMaterials = MovementMaterial::query()
+                    ->where('order_id', $orderId)
+                    ->exists();
+
+                if (! $hasMoreMaterials) {
+                    Order::query()->where('id', $orderId)->delete();
+                }
+            }
+
+            $rollCode = $roll->roll_code;
+
+            $roll->delete();
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::channel('materials')->error('Ошибка при удалении рулона: '.$e->getMessage());
+
+            return redirect()
+                ->route('rolls.index')
+                ->with('error', 'Внутренняя ошибка при удалении рулона');
         }
-
-        $rollCode = $roll->roll_code;
-
-        $roll->delete();
 
         Log::channel('materials')
             ->notice('Рулон "'.$rollCode.'" удален сотрудником '.auth()->user()->name);
