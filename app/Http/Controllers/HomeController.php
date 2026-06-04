@@ -10,6 +10,7 @@ use App\Services\MarketplaceOrderService;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\RollService;
 use App\Services\ScheduleService;
+use App\Services\ShiftService;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 
@@ -39,6 +40,10 @@ class HomeController extends Controller
             ->get();
 
         $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
+
+        $missingScheduleDates = auth()->user()->isAdmin()
+            ? ShiftService::getMissingScheduleDates()
+            : [];
 
         return view('home', [
             'title' => 'Дашборд',
@@ -76,6 +81,7 @@ class HomeController extends Controller
                 ->whereIn('status', [1])
                 ->paginate(5, ['*'], 'transactions')->withQueryString(),
             'gazelkaShipments' => $gazelkaShipments,
+            'missingScheduleDates' => $missingScheduleDates,
         ]);
     }
 }

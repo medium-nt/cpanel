@@ -72,6 +72,35 @@ class ShiftService
     }
 
     /**
+     * Получить даты, на которые не заполнено расписание смен.
+     *
+     * @return string[] Массив дат в формате Y-m-d
+     */
+    public static function getMissingScheduleDates(int $days = 7): array
+    {
+        $startDate = Carbon::tomorrow();
+        $endDate = Carbon::tomorrow()->addDays($days - 1);
+
+        $existingDates = ShiftSchedule::query()
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->pluck('date')
+            ->map(fn (string $date) => Carbon::parse($date)->toDateString())
+            ->toArray();
+
+        $missingDates = [];
+
+        for ($i = 0; $i < $days; $i++) {
+            $date = $startDate->copy()->addDays($i)->toDateString();
+
+            if (! in_array($date, $existingDates, true)) {
+                $missingDates[] = $date;
+            }
+        }
+
+        return $missingDates;
+    }
+
+    /**
      * Заполнить календарь: массово.
      *
      * @param  array  $data  ['2026-04-08' => shift_id, '2026-04-09' => shift_id, ...]
