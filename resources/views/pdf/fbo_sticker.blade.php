@@ -73,12 +73,12 @@
         }
 
         .data-col {
-            width: 50%;
+            width: 55%;
             padding-right: 5px;
         }
 
         .barcode-col {
-            width: 50%;
+            width: 45%;
             text-align: center;
             padding-top: 1px;
         }
@@ -145,7 +145,7 @@
                     <div class="text">
                         <b>
                             ТЮЛЬ {{ Str::upper($s['item']->title) }}
-                            {{ $s['item']->width }} x {{ $s['item']->height }}
+                            {{ $s['item']->width }}x{{ $s['item']->height }}
                         </b>
                     </div>
                     <div class="text">{{ $s['fastening_type'] }}</div>
