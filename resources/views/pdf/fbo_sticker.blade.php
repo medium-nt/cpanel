@@ -162,7 +162,7 @@
                 </td>
 
                 <td class="barcode-col">
-                    {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.55, 80) !!}
+                    {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.50, 80) !!}
                     <div class="sku-number">{{ $s['barcode'] }}</div>
 
                     <div class="barcode-footer">
