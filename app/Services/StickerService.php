@@ -7,7 +7,7 @@ class StickerService
     /**
      * Название товара, для которого применяется новый стикер 120×75.
      */
-    private const SPECIAL_STICKER_TITLE = 'Вуаль (без ут)';
+    private const SPECIAL_STICKER_TITLE = 'ВУАЛЬ (БЕЗ УТ)';
 
     /**
      * Определяет шаблон PDF-стикера по названию товара и маркетплейсу.
