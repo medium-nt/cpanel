@@ -176,6 +176,23 @@
                                value="{{ request('date_end') }}">
                     </div>
 
+                        @if($user->isAdmin() || $user->isStorekeeper() || $user->isManager())
+                            <div class="form-group col-md-2">
+                                <select name="workshop_id"
+                                        id="workshop_id"
+                                        class="form-control"
+                                        onchange="updatePageWithQueryParam(this)">
+                                    <option value="">Все цеха</option>
+                                    @foreach ($workshops as $workshop)
+                                        <option value="{{ $workshop->id }}"
+                                                @if(request('workshop_id') == $workshop->id) selected @endif>
+                                            {{ $workshop->title }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                 </div>
             </div>
         </div>

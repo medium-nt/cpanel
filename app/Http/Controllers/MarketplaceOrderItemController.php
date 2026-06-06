@@ -12,6 +12,7 @@ use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\Sku;
 use App\Models\User;
+use App\Models\Workshop;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
@@ -73,6 +74,7 @@ class MarketplaceOrderItemController extends Controller
             'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
             'widthMaterials' => MarketplaceItemService::getAllWidthMaterials(),
             'heightMaterials' => MarketplaceItemService::getAllHeightMaterials(),
+            'workshops' => Workshop::query()->active()->get(),
         ]);
     }
 
