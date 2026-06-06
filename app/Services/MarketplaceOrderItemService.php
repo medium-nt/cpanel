@@ -750,6 +750,7 @@ class MarketplaceOrderItemService
                 'type_movement' => 3,
                 'status' => 4,
                 'shift_id' => auth()->user()->currentShift()?->id,
+                'workshop_id' => auth()->user()->currentWorkshop()?->id,
                 $field => auth()->user()->id,
                 'comment' => 'По заказу No: '.$marketplaceOrderItem->marketplaceOrder->order_id,
                 'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id,

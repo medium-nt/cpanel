@@ -86,6 +86,7 @@ class MovementMaterialToWorkshopService
                 'status' => 0,
                 'comment' => $request->comment,
                 'shift_id' => auth()->user()->currentShift()?->id,
+                'workshop_id' => auth()->user()->currentWorkshop()?->id,
             ]);
 
             MovementMaterial::query()->create([
@@ -168,7 +169,8 @@ class MovementMaterialToWorkshopService
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
 
-            foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
+            $workshopId = $order->shift?->workshop_id;
+            foreach (UserService::getListSeamstressesWorkingToday($workshopId) as $tgId) {
                 TgService::sendMessage($tgId, $text);
             }
 
@@ -263,13 +265,18 @@ class MovementMaterialToWorkshopService
     /**
      * Применить фильтр по смене для швей, закройщиков и ОТК.
      */
-    private static function applyShiftFilter($query, ?User $user = null)
+    private static function applyShiftFilter($query, ?User $user = null, ?int $workshopId = null)
     {
         if ($user && in_array($user->role?->name, ShiftService::SHIFT_ROLES)) {
             $userShift = $user->currentShift();
             if ($userShift) {
                 $query->where('shift_id', $userShift->id);
             }
+        }
+
+        // Фильтр по цеху (для админских ролей через query parameter)
+        if ($workshopId) {
+            $query->whereHas('shift', fn ($q) => $q->where('workshop_id', $workshopId));
         }
 
         return $query;

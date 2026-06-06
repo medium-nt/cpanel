@@ -132,10 +132,10 @@ class InventoryService
             ->sum('quantity');
     }
 
-    public static function materialsQuantityBy(string $type): array
+    public static function materialsQuantityBy(string $type, ?int $workshopId = null): array
     {
         if ($type === 'workhouse') {
-            return self::materialsQuantityByWorkshopAggregate();
+            return self::materialsQuantityByWorkshopAggregate($workshopId);
         }
 
         if ($type === 'warehouse') {
@@ -167,11 +167,12 @@ class InventoryService
         return $materialsQuantity;
     }
 
-    private static function materialsQuantityByWorkshopAggregate(): array
+    private static function materialsQuantityByWorkshopAggregate(?int $workshopId = null): array
     {
         $data = Material::query()
             ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
             ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
+            ->when($workshopId, fn ($q) => $q->where('orders.workshop_id', $workshopId))
             ->select(
                 'materials.id',
                 'materials.title',
@@ -244,13 +245,17 @@ class InventoryService
      *
      * @return array{shifts: \Illuminate\Support\Collection, materials: array}
      */
-    public static function materialsQuantityByWorkshopPerShift(?User $user = null): array
+    public static function materialsQuantityByWorkshopPerShift(?User $user = null, ?int $workshopId = null): array
     {
-        $shifts = Shift::query()->active()->get();
+        $shifts = Shift::query()->active()
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
+            ->get();
 
         if ($user && ($user->isSeamstress() || $user->isCutter() || $user->isOtk())) {
             $shifts = $shifts->where('id', $user->currentShift()->id);
         }
+
+        $shiftIds = $shifts->pluck('id');
 
         $usedSub = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
@@ -260,6 +265,7 @@ class InventoryService
 
         $rollsData = Roll::query()
             ->where('rolls.status', Roll::STATUS_IN_WORKSHOP)
+            ->when($shiftIds->isNotEmpty(), fn ($q) => $q->whereIn('rolls.shift_id', $shiftIds))
             ->leftJoinSub($usedSub, 'used', 'used.roll_id', '=', 'rolls.id')
             ->join('materials', 'materials.id', '=', 'rolls.material_id')
             ->select(

@@ -6,6 +6,7 @@ use App\Models\Shift;
 use App\Models\ShiftSchedule;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class ShiftService
 {
@@ -35,10 +36,23 @@ class ShiftService
     }
 
     /**
+     * Получить все смены, запланированные на сегодня (по всем цехам).
+     */
+    public static function getTodayScheduledShifts(): Collection
+    {
+        return ShiftSchedule::query()
+            ->where('date', Carbon::today()->toDateString())
+            ->with('shift')
+            ->get()
+            ->pluck('shift')
+            ->filter();
+    }
+
+    /**
      * Проверка: может ли сотрудник работать сегодня.
      *
      * Роли вне смен (кладовщик, водитель, админ) → всегда true.
-     * Роли в сменах: совпадает ли смена сотрудника с календарной.
+     * Роли в сменах: совпадает ли смена сотрудника с одной из запланированных.
      */
     public static function canWorkToday(User $user): bool
     {
@@ -52,13 +66,13 @@ class ShiftService
             return true; // Не привязан к смене — не ограничиваем
         }
 
-        $todayShift = self::getTodayScheduledShift();
+        $todayShifts = self::getTodayScheduledShifts();
 
-        if (! $todayShift) {
+        if ($todayShifts->isEmpty()) {
             return true; // Нет расписания на сегодня — не ограничиваем
         }
 
-        return $userShift->id === $todayShift->id;
+        return $todayShifts->contains('id', $userShift->id);
     }
 
     /**
@@ -76,15 +90,23 @@ class ShiftService
      *
      * @return string[] Массив дат в формате Y-m-d
      */
-    public static function getMissingScheduleDates(int $days = 7): array
+    public static function getMissingScheduleDates(int $days = 7, ?int $workshopId = null): array
     {
         $startDate = Carbon::tomorrow();
         $endDate = Carbon::tomorrow()->addDays($days - 1);
 
-        $existingDates = ShiftSchedule::query()
-            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+        $query = ShiftSchedule::query()
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()]);
+
+        // Фильтр по цеху: через shift → workshop_id
+        if ($workshopId !== null) {
+            $query->whereHas('shift', fn ($q) => $q->where('workshop_id', $workshopId));
+        }
+
+        $existingDates = $query
             ->pluck('date')
             ->map(fn (string $date) => Carbon::parse($date)->toDateString())
+            ->unique()
             ->toArray();
 
         $missingDates = [];
@@ -109,7 +131,7 @@ class ShiftService
     {
         foreach ($data as $date => $shiftId) {
             ShiftSchedule::query()->updateOrCreate(
-                ['date' => $date],
+                ['shift_id' => $shiftId, 'date' => $date],
                 ['shift_id' => $shiftId],
             );
         }
