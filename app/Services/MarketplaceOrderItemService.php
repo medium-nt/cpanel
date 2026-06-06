@@ -115,6 +115,11 @@ class MarketplaceOrderItemService
             $items = $items->where('marketplace_orders.fulfillment_type', $request->fulfillment_type);
         }
 
+        // Фильтр по цеху (опционально, для всех ролей)
+        if ($request->has('workshop_id') && $request->workshop_id) {
+            $items = $items->where('marketplace_order_items.workshop_id', $request->workshop_id);
+        }
+
         return $items;
     }
 
@@ -718,6 +723,7 @@ class MarketplaceOrderItemService
                 ->update([
                     'status' => $status,
                     $field => auth()->user()->id,
+                    'workshop_id' => auth()->user()->currentWorkshop()?->id,
                 ]);
 
             if ($affected === 0) {
@@ -999,6 +1005,17 @@ class MarketplaceOrderItemService
                             $q3->where('type_id', 1);  // только ткани
                         });
                 });
+            });
+        }
+
+        // Фильтр по цеху: выбираем только товары, разрешённые в цехе сотрудника
+        $workshopId = auth()->user()->currentWorkshop()?->id;
+        if ($workshopId) {
+            $items = $items->whereExists(function ($q) use ($workshopId) {
+                $q->select(DB::raw(1))
+                    ->from('item_workshop')
+                    ->whereColumn('item_workshop.marketplace_item_id', 'marketplace_order_items.marketplace_item_id')
+                    ->where('item_workshop.workshop_id', $workshopId);
             });
         }
 

@@ -17,6 +17,7 @@ class MarketplaceOrderItem extends Model
 
     protected $fillable = [
         'marketplace_order_id',
+        'workshop_id',
         'marketplace_item_id',
         'storage_barcode',
         'shelf_id',
@@ -40,6 +41,11 @@ class MarketplaceOrderItem extends Model
     public function marketplaceOrder(): BelongsTo
     {
         return $this->belongsTo(MarketplaceOrder::class);
+    }
+
+    public function workshop(): BelongsTo
+    {
+        return $this->belongsTo(Workshop::class);
     }
 
     public function getStatusColorAttribute(): string
