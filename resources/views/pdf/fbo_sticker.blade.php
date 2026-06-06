@@ -30,7 +30,7 @@
         .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .header-table td {
@@ -162,7 +162,7 @@
                 </td>
 
                 <td class="barcode-col">
-                    {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.50, 80) !!}
+                    {!! DNS1D::getBarcodeHTML($s['barcode'], 'C128', 1.40, 80) !!}
                     <div class="sku-number">{{ $s['barcode'] }}</div>
 
                     <div class="barcode-footer">
