@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\StickerPrintingController;
 
+// Вход в киоск конкретного цеха: /kiosk/{workshop} → сохраняет в сессию → редирект на /kiosk
+Route::get('/kiosk/{workshop}', [StickerPrintingController::class, 'enterKiosk'])
+    ->name('kiosk.enter')
+    ->where('workshop', '[0-9]+');
+
 Route::prefix('/kiosk')->group(function () {
     Route::get('', [StickerPrintingController::class, 'kiosk'])
         ->name('kiosk');
