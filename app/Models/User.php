@@ -185,6 +185,20 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function currentWorkshop(): ?Workshop
+    {
+        return $this->currentShift()?->workshop;
+    }
+
+    public function belongsToWorkshop(int $workshopId): bool
+    {
+        if (in_array($this->role?->name, ['admin', 'manager', 'storekeeper', 'driver'])) {
+            return true;
+        }
+
+        return $this->currentWorkshop()?->id === $workshopId;
+    }
+
     public function currentShift(): ?Shift
     {
         return $this->shifts()

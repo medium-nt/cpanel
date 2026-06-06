@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
@@ -17,9 +18,15 @@ class Shift extends Model
     public const STATUS_INACTIVE = 'inactive';
 
     protected $fillable = [
+        'workshop_id',
         'name',
         'status',
     ];
+
+    public function workshop(): BelongsTo
+    {
+        return $this->belongsTo(Workshop::class);
+    }
 
     public function users(): BelongsToMany
     {
