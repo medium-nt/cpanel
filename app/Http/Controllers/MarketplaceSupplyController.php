@@ -50,6 +50,14 @@ class MarketplaceSupplyController extends Controller
             });
         }
 
+        if ($request->filled('date_from')) {
+            $supplies = $supplies->where('gazelka_shipment_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $supplies = $supplies->where('gazelka_shipment_date', '<=', $request->date_to);
+        }
+
         $queryParams = $request->except(['page']);
 
         return view('marketplace_supply.index', [

@@ -92,8 +92,24 @@
                     </div>
 
                     <div class="form-group col-md-2">
+                        <input type="date" name="date_from"
+                               class="form-control"
+                               value="{{ request('date_from') }}"
+                               placeholder="Отгрузка от"
+                               onchange="updatePageWithQueryParam(this)">
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <input type="date" name="date_to"
+                               class="form-control"
+                               value="{{ request('date_to') }}"
+                               placeholder="Отгрузка до"
+                               onchange="updatePageWithQueryParam(this)">
+                    </div>
+
+                    <div class="form-group col-md-2">
                         <form
-                            action="{{ route('marketplace_supplies.index', ['status' => request('status'), 'type' => request('type'), 'marketplace_id' => request('marketplace_id')]) }}"
+                            action="{{ route('marketplace_supplies.index', ['status' => request('status'), 'type' => request('type'), 'marketplace_id' => request('marketplace_id'), 'date_from' => request('date_from'), 'date_to' => request('date_to')]) }}"
                             method="GET" class="form-inline">
                             <div class="input-group">
                                 <input type="text" name="search"
