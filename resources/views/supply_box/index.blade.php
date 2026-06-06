@@ -12,6 +12,8 @@
                     &larr; Назад к поставке
                 </a>
 
+                @include('supply_box._supply_info', ['supply' => $supply])
+
                 <h4>Нераспределённых заказов: {{ $freeOrdersCount }}</h4>
             </div>
         </div>

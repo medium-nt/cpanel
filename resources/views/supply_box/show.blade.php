@@ -12,6 +12,8 @@
                     &larr; Назад к коробам
                 </a>
 
+                @include('supply_box._supply_info', ['supply' => $supply])
+
                 <h4>
                     {{ $box->number }}
                     @if($box->closed_at)
