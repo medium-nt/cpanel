@@ -18,6 +18,7 @@ class Sku extends Model
     protected $fillable = [
         'item_id',
         'sku',
+        'barcode',
         'marketplace_id',
     ];
 
