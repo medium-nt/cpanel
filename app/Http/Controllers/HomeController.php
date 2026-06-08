@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MarketplaceSupply;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Workshop;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\MarketplaceOrderService;
 use App\Services\MovementMaterialToWorkshopService;
@@ -45,6 +46,20 @@ class HomeController extends Controller
             ? ShiftService::getMissingScheduleDates()
             : [];
 
+        // Непроставленные даты по цехам
+        $workshopsMissingDates = [];
+        if (auth()->user()->isAdmin()) {
+            foreach (Workshop::query()->where('status', 'active')->get() as $workshop) {
+                $missing = ShiftService::getMissingScheduleDates(7, $workshop->id);
+                if (! empty($missing)) {
+                    $workshopsMissingDates[] = [
+                        'workshop' => $workshop,
+                        'dates' => $missing,
+                    ];
+                }
+            }
+        }
+
         return view('home', [
             'title' => 'Дашборд',
             'events' => ScheduleService::getScheduleByUserId($employeeId),
@@ -82,6 +97,7 @@ class HomeController extends Controller
                 ->paginate(5, ['*'], 'transactions')->withQueryString(),
             'gazelkaShipments' => $gazelkaShipments,
             'missingScheduleDates' => $missingScheduleDates,
+            'workshopsMissingDates' => $workshopsMissingDates,
         ]);
     }
 }

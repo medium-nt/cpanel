@@ -12,19 +12,22 @@
         $user = auth()->user();
     @endphp
 
-    @if($user->isAdmin() && count($missingScheduleDates) > 0)
+    @if($user->isAdmin() && count($workshopsMissingDates) > 0)
         <div class="callout callout-danger">
             <h5><i class="icon fas fa-exclamation-triangle"></i> Расписание смен
                 не заполнено</h5>
-            <p>В расписании смен нет записей на следующие даты:</p>
-            <div class="mb-3">
-                @foreach($missingScheduleDates as $date)
-                    <span class="badge bg-danger mr-2 mb-1"
-                          style="font-size: 0.85rem;">
-                        {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}
-                    </span>
-                @endforeach
-            </div>
+            @foreach($workshopsMissingDates as $item)
+                <p class="mb-1"><strong>{{ $item['workshop']->title }}:</strong>
+                </p>
+                <div class="mb-2">
+                    @foreach($item['dates'] as $date)
+                        <span class="badge bg-danger mr-2 mb-1"
+                              style="font-size: 0.85rem;">
+                            {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}
+                        </span>
+                    @endforeach
+                </div>
+            @endforeach
             <a href="{{ route('shift-schedule.index') }}"
                class="btn btn-sm btn-outline-danger">
                 <i class="fas fa-calendar-alt"></i> Перейти к расписанию
