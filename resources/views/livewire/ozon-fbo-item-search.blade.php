@@ -106,7 +106,7 @@
                                     <td>
                                         {{ $item->skuRecord?->item?->title ?? '—' }}
                                         {{ $item->skuRecord?->item?->width }}
-                                        x{{ $item->skuRecord?->item?->height }}
+                                        x {{ $item->skuRecord?->item?->height }}
                                     </td>
                                     <td>{{ $item->sku }}</td>
                                     <td>

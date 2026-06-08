@@ -56,7 +56,7 @@
                                 <tr>
                                     <td>{{ $order->order_id }}</td>
                                     <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
-                                        x{{ $item->item?->height }}</td>
+                                        x {{ $item->item?->height }}</td>
                                     @if(!$box->closed_at && $loop->first && !auth()->user()->isManager())
                                         <td rowspan="{{ $order->items->count() }}">
                                             <button

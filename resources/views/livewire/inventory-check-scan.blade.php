@@ -144,7 +144,7 @@
                                 <td>
                                     {{ $row->marketplaceOrderItem->item->title }}
                                     {{ $row->marketplaceOrderItem->item->width }}
-                                    x{{ $row->marketplaceOrderItem->item->height }}
+                                    x {{ $row->marketplaceOrderItem->item->height }}
                                 </td>
                                 <td>{{ optional($row->expectedShelf)->title }}</td>
                                 <td>{{ $row->marketplaceOrderItem->marketplaceOrder->returned_at }}</td>

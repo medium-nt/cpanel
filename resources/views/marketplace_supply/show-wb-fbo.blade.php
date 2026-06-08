@@ -283,7 +283,7 @@
                                         <tr>
                                             <td>{{ $order->order_id }}</td>
                                             <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
-                                                x{{ $item->item?->height }}</td>
+                                                x {{ $item->item?->height }}</td>
                                             <td>
                                                 @if($order->box_id)
                                                     <a href="{{ route('supply_boxes.show', ['marketplace_supply' => $supply, 'box' => $order->box_id]) }}"
