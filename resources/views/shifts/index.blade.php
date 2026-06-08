@@ -22,6 +22,7 @@
                         <tr>
                             <th>#</th>
                             <th>Название</th>
+                            <th>Цех</th>
                             <th>Статус</th>
                             <th>Сотрудники</th>
                             <th>Действия</th>
@@ -32,6 +33,7 @@
                             <tr>
                                 <td>{{ $shift->id }}</td>
                                 <td>{{ $shift->name }}</td>
+                                <td>{{ $shift->workshop?->title ?? '—' }}</td>
                                 <td>
                                     @if($shift->status === 'active')
                                         <span class="badge badge-success">Активна</span>
@@ -65,7 +67,7 @@
                         @endforeach
                         @if($shifts->isEmpty())
                             <tr>
-                                <td colspan="5" class="text-center text-muted">
+                                <td colspan="6" class="text-center text-muted">
                                     Смены не созданы
                                 </td>
                             </tr>

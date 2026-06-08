@@ -20,6 +20,24 @@
                         @enderror
                     </div>
 
+                    <div class="form-group">
+                        <label for="workshop_id">Цех</label>
+                        <select name="workshop_id" id="workshop_id"
+                                class="form-control @error('workshop_id') is-invalid @enderror"
+                                required>
+                            <option value="">Выберите цех</option>
+                            @foreach ($workshops as $workshop)
+                                <option value="{{ $workshop->id }}"
+                                    {{ old('workshop_id') == $workshop->id ? 'selected' : '' }}>
+                                    {{ $workshop->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('workshop_id')
+                        <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                    </div>
+
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Создать
                     </button>
