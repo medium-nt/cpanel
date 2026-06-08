@@ -257,11 +257,26 @@ class StickerPrintingController extends Controller
             $user = UserService::getUserByBarcode($request->barcode);
 
             if ($user) {
+                // Проверяем принадлежность к цеху (админ и кладовщик — в любой цех)
+                if (! $this->canAccessWorkshop($user, $workshop)) {
+                    return redirect()
+                        ->route('kiosk')
+                        ->with('error', 'Вы не принадлежите к цеху «'.$workshop->title.'»');
+                }
                 session(['user_id' => $user->id]);
             }
         } // 3. Иначе → пробуем восстановить из сессии
         else {
             $user = User::find(session('user_id'));
+
+            // Проверяем что сотрудник всё ещё принадлежит этому цеху
+            if ($user && ! $this->canAccessWorkshop($user, $workshop)) {
+                session()->forget('user_id');
+
+                return redirect()
+                    ->route('kiosk')
+                    ->with('error', 'Вы больше не принадлежите к цеху «'.$workshop->title.'»');
+            }
         }
 
         return view('kiosk.kiosk', [
@@ -269,6 +284,15 @@ class StickerPrintingController extends Controller
             'user' => $user,
             'workshop' => $workshop,
         ]);
+    }
+
+    private function canAccessWorkshop(User $user, Workshop $workshop): bool
+    {
+        if ($user->isAdmin() || $user->isStorekeeper()) {
+            return true;
+        }
+
+        return $user->currentWorkshop()?->id === $workshop->id;
     }
 
     public function opening_closing_shifts(Request $request)
