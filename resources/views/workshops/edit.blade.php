@@ -117,6 +117,14 @@
                                 </thead>
                                 <tbody>
                                 @foreach ($globalSettings as $name => $globalValue)
+                                    @php
+                                        $workshopValue = old("settings.$name", $workshopSettings[$name] ?? '');
+                                        $options = $settingOptions[$name] ?? null;
+                                        // Для select-полей: получаем текстовое представление глобального значения
+                                        $globalDisplayValue = $options && isset($options[$globalValue])
+                                            ? $options[$globalValue]
+                                            : $globalValue;
+                                    @endphp
                                     <tr>
                                         <td>
                                             <label for="setting_{{ $name }}"
@@ -125,17 +133,36 @@
                                             </label>
                                         </td>
                                         <td>
-                                            <input type="text"
-                                                   name="settings[{{ $name }}]"
-                                                   id="setting_{{ $name }}"
-                                                   class="form-control form-control-sm"
-                                                   value="{{ old("settings.$name", $workshopSettings[$name] ?? '') }}"
-                                                   placeholder="{{ $globalValue }}">
+                                            @if($options)
+                                                {{-- Select-поле с пустым вариантом по умолчанию --}}
+                                                <select
+                                                    name="settings[{{ $name }}]"
+                                                    id="setting_{{ $name }}"
+                                                    class="form-control form-control-sm">
+                                                    <option value="">—
+                                                        Глобальное —
+                                                    </option>
+                                                    @foreach ($options as $optValue => $optLabel)
+                                                        <option
+                                                            value="{{ $optValue }}"
+                                                            {{ $workshopValue === (string) $optValue ? 'selected' : '' }}>
+                                                            {{ $optLabel }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            @else
+                                                <input type="text"
+                                                       name="settings[{{ $name }}]"
+                                                       id="setting_{{ $name }}"
+                                                       class="form-control form-control-sm"
+                                                       value="{{ $workshopValue }}"
+                                                       placeholder="{{ $globalValue }}">
+                                            @endif
                                         </td>
                                         <td class="align-middle">
                                             <input type="text"
                                                    class="form-control form-control-sm"
-                                                   value="{{ $globalValue }}"
+                                                   value="{{ $globalDisplayValue }}"
                                                    readonly
                                                    style="background-color: #f8f9fa;">
                                         </td>

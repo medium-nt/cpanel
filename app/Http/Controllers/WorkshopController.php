@@ -73,8 +73,9 @@ class WorkshopController extends Controller
             }
         }
 
-        // Маппинг ключей настроек на русские названия
+        // Маппинг ключей настроек на русские названия и опции для select-полей
         $settingLabels = self::getSettingLabels();
+        $settingOptions = self::getSettingOptions();
 
         // Глобальные настройки (baseline) и цеховые переопределения
         $globalSettings = Setting::query()
@@ -85,7 +86,7 @@ class WorkshopController extends Controller
             ->where('workshop_id', $workshop->id)
             ->pluck('value', 'name');
 
-        return view('workshops.edit', compact('workshop', 'materialTitles', 'allowedTitles', 'globalSettings', 'workshopSettings', 'settingLabels'));
+        return view('workshops.edit', compact('workshop', 'materialTitles', 'allowedTitles', 'globalSettings', 'workshopSettings', 'settingLabels', 'settingOptions'));
     }
 
     /**
@@ -121,6 +122,23 @@ class WorkshopController extends Controller
             'sticking_otk' => 'Стикеровка упаковщиком',
             'sticking_seamstress' => 'Стикеровка швеей',
             'roll_close_min_remaining' => 'Остаток для закрытия рулона (м)',
+        ];
+    }
+
+    /**
+     * Возвращает опции для select-полей настроек.
+     * Ключ = имя настройки, значение = массив [value => label].
+     * Если настройки нет в этом массиве — она рендерится как input.
+     */
+    private static function getSettingOptions(): array
+    {
+        return [
+            'is_enabled_work_schedule' => ['1' => 'Да', '0' => 'Нет'],
+            'is_enabled_work_shift' => ['1' => 'Да', '0' => 'Нет'],
+            'orders_priority' => ['ozon' => 'Сначала OZON', 'wb' => 'Сначала WB', 'by_date' => 'По дате заказа'],
+            'print_qr_cutting' => ['1' => 'Включен', '0' => 'Выключен'],
+            'sticking_otk' => ['qr' => 'Сканером по QR-коду', 'filter' => 'В ручную по фильтру', 'disabled' => 'Запрещена'],
+            'sticking_seamstress' => ['qr' => 'Сканером по QR-коду', 'filter' => 'В ручную по фильтру', 'disabled' => 'Запрещена'],
         ];
     }
 
