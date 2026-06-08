@@ -7,15 +7,31 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <label for="workshop_filter"
+                           class="font-weight-bold mb-0 mr-1">
+                        <i class="fas fa-industry mr-1"></i> Цех:
+                    </label>
+                    <select id="workshop_filter" class="form-control"
+                            style="width: auto; min-width: 200px;"
+                            onchange="window.location.href = '{{ route('shift-schedule.index') }}?month={{ $currentDate->month }}&year={{ $currentDate->year }}&workshop_id=' + this.value">
+                        @foreach ($workshops as $workshop)
+                            <option value="{{ $workshop->id }}"
+                                {{ $workshopId == $workshop->id ? 'selected' : '' }}>
+                                {{ $workshop->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <a href="{{ route('shift-schedule.index', ['month' => $prevMonth->month, 'year' => $prevMonth->year]) }}"
+                    <a href="{{ route('shift-schedule.index', ['month' => $prevMonth->month, 'year' => $prevMonth->year, 'workshop_id' => $workshopId]) }}"
                        class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <h3 class="card-title mb-0">
                         {{ ucfirst($currentDate->locale('ru')->monthName) }} {{ $currentDate->year }}
                     </h3>
-                    <a href="{{ route('shift-schedule.index', ['month' => $nextMonth->month, 'year' => $nextMonth->year]) }}"
+                    <a href="{{ route('shift-schedule.index', ['month' => $nextMonth->month, 'year' => $nextMonth->year, 'workshop_id' => $workshopId]) }}"
                        class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-chevron-right"></i>
                     </a>
@@ -29,6 +45,8 @@
                            value="{{ $currentDate->month }}">
                     <input type="hidden" name="year"
                            value="{{ $currentDate->year }}">
+                    <input type="hidden" name="workshop_id"
+                           value="{{ $workshopId }}">
 
                     <div class="table-responsive">
                         <table class="table table-bordered">
@@ -50,6 +68,7 @@
                                 $startOfCalendar = $startOfMonth->copy()->startOfWeek();
                                 $endOfCalendar = $endOfMonth->copy()->endOfWeek();
                                 $existingSchedule = \App\Models\ShiftSchedule::query()
+                                    ->whereIn('shift_id', $shifts->pluck('id'))
                                     ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
                                     ->pluck('shift_id', 'date');
                                 $today = \Carbon\Carbon::today()->toDateString();

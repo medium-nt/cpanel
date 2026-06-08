@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shift;
+use App\Models\ShiftSchedule;
 use App\Models\User;
 use App\Models\Workshop;
 use App\Services\ShiftService;
@@ -178,6 +179,8 @@ class ShiftController extends Controller
 
     public function scheduleStore(Request $request): RedirectResponse
     {
+        $workshopId = $request->input('workshop_id', 1);
+
         $validated = $request->validate([
             'dates' => 'required|array',
             'dates.*.date' => 'required|date',
@@ -185,12 +188,24 @@ class ShiftController extends Controller
         ]);
 
         $data = [];
+        $dates = [];
         foreach ($validated['dates'] as $entry) {
+            $dates[] = $entry['date'];
             if ($entry['shift_id']) {
                 $data[$entry['date']] = $entry['shift_id'];
             }
         }
 
+        // Удаляем старые записи для смен текущего цеха в диапазоне сохраняемых дат
+        $shiftIds = Shift::active()->where('workshop_id', $workshopId)->pluck('id');
+        if ($dates && $shiftIds->isNotEmpty()) {
+            ShiftSchedule::query()
+                ->whereIn('shift_id', $shiftIds)
+                ->whereIn('date', $dates)
+                ->delete();
+        }
+
+        // Создаём новые записи
         ShiftService::fillSchedule($data);
 
         return redirect()->route('shift-schedule.index', [
