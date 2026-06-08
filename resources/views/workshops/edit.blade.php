@@ -62,38 +62,35 @@
                         </div>
                     @endif
 
-                    {{-- Разрешённые товары маркетплейсов --}}
+                    {{-- Разрешённые товары маркетплейсов (группировка по названию материала) --}}
                     <div class="form-group">
-                        <label>Разрешённые товары маркетплейсов</label>
+                        <label>Разрешённые материалы</label>
                         <div class="mb-2">
                             <small class="text-muted">
-                                Отмеченные товары будут доступны для взятия в
-                                работу в этом цехе.
+                                Отмеченные материалы будут доступны для взятия в
+                                работу в этом цехе (все ширины и высоты).
                             </small>
                         </div>
                         <div class="border rounded p-2"
                              style="max-height: 300px; overflow-y: auto;">
-                            @foreach ($marketplaceItems as $item)
+                            @foreach ($materialTitles as $material)
                                 <div class="form-check">
                                     <input type="checkbox"
-                                           name="allowed_items[]"
-                                           value="{{ $item->id }}"
-                                           id="item_{{ $item->id }}"
+                                           name="allowed_materials[]"
+                                           value="{{ $material->title }}"
+                                           id="material_{{ \Illuminate\Support\Str::slug($material->title) }}"
                                            class="form-check-input"
-                                        {{ in_array($item->id, $allowedItemIds) ? 'checked' : '' }}>
-                                    <label for="item_{{ $item->id }}"
+                                        {{ in_array($material->title, $allowedTitles) ? 'checked' : '' }}>
+                                    <label
+                                        for="material_{{ \Illuminate\Support\Str::slug($material->title) }}"
                                            class="form-check-label">
-                                        {{ $item->title }}
-                                        <small class="text-muted">
-                                            ({{ $item->width }}
-                                            ×{{ $item->height }})
-                                        </small>
+                                        {{ $material->title }}
                                     </label>
                                 </div>
                             @endforeach
-                            @if($marketplaceItems->isEmpty())
+                            @if($materialTitles->isEmpty())
                                 <p class="text-muted text-center mb-0">Нет
-                                    товаров</p>
+                                    материалов</p>
                             @endif
                         </div>
                     </div>
@@ -124,7 +121,7 @@
                                         <td>
                                             <label for="setting_{{ $name }}"
                                                    class="mb-0">
-                                                {{ $name }}
+                                                {{ $settingLabels[$name] ?? $name }}
                                             </label>
                                         </td>
                                         <td>
@@ -135,8 +132,12 @@
                                                    value="{{ old("settings.$name", $workshopSettings[$name] ?? '') }}"
                                                    placeholder="{{ $globalValue }}">
                                         </td>
-                                        <td class="text-muted align-middle">
-                                            <small>{{ $globalValue }}</small>
+                                        <td class="align-middle">
+                                            <input type="text"
+                                                   class="form-control form-control-sm"
+                                                   value="{{ $globalValue }}"
+                                                   readonly
+                                                   style="background-color: #f8f9fa;">
                                         </td>
                                     </tr>
                                 @endforeach

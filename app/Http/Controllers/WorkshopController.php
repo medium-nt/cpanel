@@ -49,9 +49,32 @@ class WorkshopController extends Controller
             $query->withCount('users');
         }]);
 
-        // Все товары маркетплейсов и ID товаров, разрешённых в этом цехе
-        $marketplaceItems = MarketplaceItem::query()->orderBy('title')->get();
+        // Группируем товары маркетплейсов по названию материала (без ширин и высот)
+        $materialTitles = MarketplaceItem::query()
+            ->selectRaw('title, COUNT(*) as items_count')
+            ->groupBy('title')
+            ->orderBy('title')
+            ->get();
+
+        // ID разрешённых товаров в этом цехе
         $allowedItemIds = $workshop->allowedItems()->pluck('marketplace_items.id')->toArray();
+
+        // Определяем какие НАЗВАНИЯ материалов полностью разрешены
+        // Название считается разрешённым, если ВСЕ товары с этим названием есть в allowedItemIds
+        $allowedTitles = [];
+        foreach ($materialTitles as $material) {
+            $allIdsForTitle = MarketplaceItem::query()
+                ->where('title', $material->title)
+                ->pluck('id')
+                ->toArray();
+            // Разрешён если хотя бы один товар с этим названием разрешён
+            if (count(array_intersect($allIdsForTitle, $allowedItemIds)) > 0) {
+                $allowedTitles[] = $material->title;
+            }
+        }
+
+        // Маппинг ключей настроек на русские названия
+        $settingLabels = self::getSettingLabels();
 
         // Глобальные настройки (baseline) и цеховые переопределения
         $globalSettings = Setting::query()
@@ -62,7 +85,43 @@ class WorkshopController extends Controller
             ->where('workshop_id', $workshop->id)
             ->pluck('value', 'name');
 
-        return view('workshops.edit', compact('workshop', 'marketplaceItems', 'allowedItemIds', 'globalSettings', 'workshopSettings'));
+        return view('workshops.edit', compact('workshop', 'materialTitles', 'allowedTitles', 'globalSettings', 'workshopSettings', 'settingLabels'));
+    }
+
+    /**
+     * Возвращает маппинг ключей настроек на русские названия.
+     */
+    private static function getSettingLabels(): array
+    {
+        return [
+            'working_day_start' => 'Начало рабочего дня',
+            'working_day_end' => 'Конец рабочего дня',
+            'is_enabled_work_schedule' => 'Расписание включено?',
+            'is_enabled_work_shift' => 'Функционал смен включен?',
+            'late_opened_shift_penalty' => 'Штраф за опоздание',
+            'unclosed_shift_penalty' => 'Штраф за не закрытую смену',
+            'cancel_order_penalty' => 'Штраф за отмену заказа',
+            'api_key_wb' => 'WB api key',
+            'seller_id_ozon' => 'OZON seller id',
+            'api_key_ozon' => 'OZON api key',
+            'max_quantity_orders_to_cutter' => 'Макс. кол-во заказов у закройщика',
+            'cutter_daily_limit' => 'Метраж в день у закройщика',
+            'max_quantity_orders_to_seamstress' => 'Макс. кол-во заказов у швеи',
+            'seamstress_daily_limit' => 'Метраж в день у швеи',
+            'orders_priority' => 'Порядок заказов',
+            'max_quantity_orders_without_timeout' => 'Макс. кол-во заказов без таймаута',
+            'timeout_200' => 'Таймаут на 200',
+            'timeout_300' => 'Таймаут на 300',
+            'timeout_400' => 'Таймаут на 400',
+            'timeout_500' => 'Таймаут на 500',
+            'timeout_600' => 'Таймаут на 600',
+            'timeout_700' => 'Таймаут на 700',
+            'timeout_800' => 'Таймаут на 800',
+            'print_qr_cutting' => 'QR-код на листе закройщика',
+            'sticking_otk' => 'Стикеровка упаковщиком',
+            'sticking_seamstress' => 'Стикеровка швеей',
+            'roll_close_min_remaining' => 'Остаток для закрытия рулона (м)',
+        ];
     }
 
     public function update(Request $request, Workshop $workshop): RedirectResponse
@@ -70,18 +129,31 @@ class WorkshopController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|min:2|max:255',
             'status' => 'required|in:active,inactive',
-            'allowed_items' => 'nullable|array',
-            'allowed_items.*' => 'exists:marketplace_items,id',
+            'allowed_materials' => 'nullable|array',
+            'allowed_materials.*' => 'string',
             'settings' => 'nullable|array',
         ]);
+
+        // Проверка: нельзя деактивировать цех, у которого есть смены
+        if ($validated['status'] === Workshop::STATUS_INACTIVE && $workshop->shifts()->exists()) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Нельзя деактивировать цех, у которого есть смены. Сначала перенесите или удалите смены.');
+        }
 
         $workshop->update([
             'title' => $validated['title'],
             'status' => $validated['status'],
         ]);
 
-        // Синхронизация разрешённых товаров через pivot
-        $workshop->allowedItems()->sync($validated['allowed_items'] ?? []);
+        // Синхронизация разрешённых товаров по названиям материалов
+        // Получаем все ID товаров для отмеченных названий
+        $allowedTitles = $validated['allowed_materials'] ?? [];
+        $itemIds = MarketplaceItem::query()
+            ->whereIn('title', $allowedTitles)
+            ->pluck('id')
+            ->toArray();
+        $workshop->allowedItems()->sync($itemIds);
 
         // Сохранение цеховых переопределений настроек
         $settings = $validated['settings'] ?? [];
