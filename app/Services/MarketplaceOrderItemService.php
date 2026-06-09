@@ -61,12 +61,31 @@ class MarketplaceOrderItemService
             };
         }
 
-        if (auth()->user()->isSeamstress() && $status != 'new') {
-            $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
+        if (auth()->user()->isSeamstress()) {
+            $seamstressWorkshopId = auth()->user()->currentWorkshop()?->id;
+            if ($seamstressWorkshopId) {
+                $items = $items->where('marketplace_order_items.workshop_id', $seamstressWorkshopId);
+            }
+            if ($status != 'new') {
+                $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
+            }
         }
 
-        if (auth()->user()->isCutter() && $status != 'new') {
-            $items = $items->where('marketplace_order_items.cutter_id', auth()->user()->id);
+        if (auth()->user()->isCutter()) {
+            $cutterWorkshopId = auth()->user()->currentWorkshop()?->id;
+            if ($cutterWorkshopId) {
+                $items = $items->where('marketplace_order_items.workshop_id', $cutterWorkshopId);
+            }
+            if ($status != 'new') {
+                $items = $items->where('marketplace_order_items.cutter_id', auth()->user()->id);
+            }
+        }
+
+        if (auth()->user()->isOtk()) {
+            $otkWorkshopId = auth()->user()->currentWorkshop()?->id;
+            if ($otkWorkshopId) {
+                $items = $items->where('marketplace_order_items.workshop_id', $otkWorkshopId);
+            }
         }
 
         if ($request->has('user_id') && $status != 'new') {
