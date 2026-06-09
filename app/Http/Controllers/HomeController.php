@@ -24,13 +24,21 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-        $employeeId = $request->input('employee_id') ?? auth()->id();
+        $user = auth()->user();
+
+        $employeeId = $request->input('employee_id') ?? $user->id;
 
         $daysAgo = $request->input('days_ago') ?? 0;
         $daysAgo = intval($daysAgo);
 
         if ($daysAgo < 0 || $daysAgo > 28) {
             $daysAgo = 0;
+        }
+
+        // Определяем scope цеха: null = все цеха, int = конкретный цех, 0 = нет цеха (нули)
+        $workshopScope = null;
+        if (! in_array($user->role->name, ['admin', 'storekeeper', 'manager'])) {
+            $workshopScope = $user->currentWorkshop()?->id ?? 0;
         }
 
         $gazelkaShipments = MarketplaceSupply::query()
@@ -42,13 +50,13 @@ class HomeController extends Controller
 
         $dates = MarketplaceOrderItemService::getDatesByLargeSizeRating($daysAgo);
 
-        $missingScheduleDates = auth()->user()->isAdmin()
+        $missingScheduleDates = $user->isAdmin()
             ? ShiftService::getMissingScheduleDates()
             : [];
 
         // Непроставленные даты по цехам
         $workshopsMissingDates = [];
-        if (auth()->user()->isAdmin()) {
+        if ($user->isAdmin()) {
             foreach (Workshop::query()->where('status', 'active')->get() as $workshop) {
                 $missing = ShiftService::getMissingScheduleDates(7, $workshop->id);
                 if (! empty($missing)) {
@@ -63,14 +71,14 @@ class HomeController extends Controller
         return view('home', [
             'title' => 'Дашборд',
             'events' => ScheduleService::getScheduleByUserId($employeeId),
-            'cutMarketplaceOrderItem' => MarketplaceOrderItemService::cut(),
-            'newMarketplaceOrderItem' => MarketplaceOrderItemService::new(),
-            'marketplaceOrderItemInWork' => MarketplaceOrderItemService::toWork(),
-            'marketplaceOrderItemInCutting' => MarketplaceOrderItemService::toCutting(),
-            'urgentMarketplaceOrderItem' => MarketplaceOrderItemService::urgent(),
-            'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements(auth()->user()),
-            'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements(auth()->user()),
-            'stickeredMarketplaceOrderItem' => MovementMaterialToWorkshopService::getStickeredMarketplaceOrderItem(),
+            'cutMarketplaceOrderItem' => MarketplaceOrderItemService::cut($workshopScope),
+            'newMarketplaceOrderItem' => MarketplaceOrderItemService::new($workshopScope),
+            'marketplaceOrderItemInWork' => MarketplaceOrderItemService::toWork($workshopScope),
+            'marketplaceOrderItemInCutting' => MarketplaceOrderItemService::toCutting($workshopScope),
+            'urgentMarketplaceOrderItem' => MarketplaceOrderItemService::urgent($workshopScope),
+            'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements($user),
+            'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements($user),
+            'stickeredMarketplaceOrderItem' => MovementMaterialToWorkshopService::getStickeredMarketplaceOrderItem($workshopScope),
             'employees' => User::query()
                 ->where('name', 'not like', '%Тест%')
                 ->paginate(5, ['*'], 'employees')->withQueryString(),
@@ -78,7 +86,7 @@ class HomeController extends Controller
                 ->where('name', 'not like', '%Тест%')
                 ->orderBy('name')
                 ->get(),
-            'currentUserId' => auth()->id(),
+            'currentUserId' => $user->id,
             'dates' => json_encode($dates),
             'seamstresses' => json_encode(MarketplaceOrderItemService::getSeamstressesLargeSizeRating($dates)),
             'days_ago' => $daysAgo,

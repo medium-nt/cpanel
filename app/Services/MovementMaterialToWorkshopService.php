@@ -235,38 +235,45 @@ class MovementMaterialToWorkshopService
     }
 
     /**
-     * Количество неотгруженных заказов с учётом смены.
+     * Количество не отгруженных поставок с учётом смены или цеха.
      */
-    public static function getCountNotShippedMovements(?User $user = null): int
+    public static function getCountNotShippedMovements(?User $user = null, ?int $workshopId = null): int
     {
         $query = Order::query()
             ->where('type_movement', 2)
             ->where('status', 0);
 
-        self::applyShiftFilter($query, $user);
+        self::applyShiftFilter($query, $user, $workshopId);
 
         return $query->count();
     }
 
     /**
-     * Количество непринятых заказов с учётом смены.
+     * Количество непринятых заказов с учётом смены или цеха.
      */
-    public static function getCountNotReceivedMovements(?User $user = null): int
+    public static function getCountNotReceivedMovements(?User $user = null, ?int $workshopId = null): int
     {
         $query = Order::query()
             ->where('type_movement', 2)
             ->where('status', 2);
 
-        self::applyShiftFilter($query, $user);
+        self::applyShiftFilter($query, $user, $workshopId);
 
         return $query->count();
     }
 
     /**
-     * Применить фильтр по смене для швей, закройщиков и ОТК.
+     * Применить фильтр по смене или цеху для швей, закройщиков и ОТК.
      */
     private static function applyShiftFilter($query, ?User $user = null, ?int $workshopId = null)
     {
+        // Фильтр по цеху — приоритетнее фильтра по смене
+        if ($workshopId) {
+            $query->whereHas('shift', fn ($q) => $q->where('workshop_id', $workshopId));
+
+            return $query;
+        }
+
         if ($user && in_array($user->role?->name, ShiftService::SHIFT_ROLES)) {
             $userShift = $user->currentShift();
             if ($userShift) {
@@ -274,18 +281,17 @@ class MovementMaterialToWorkshopService
             }
         }
 
-        // Фильтр по цеху (для админских ролей через query parameter)
-        if ($workshopId) {
-            $query->whereHas('shift', fn ($q) => $q->where('workshop_id', $workshopId));
-        }
-
         return $query;
     }
 
-    public static function getStickeredMarketplaceOrderItem(): int
+    /**
+     * Количество товаров на стикеровке (статус 5) с опциональной фильтрацией по цеху.
+     */
+    public static function getStickeredMarketplaceOrderItem(?int $workshopId = null): int
     {
         return MarketplaceOrderItem::query()
             ->where('status', 5)
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
             ->count();
     }
 }

@@ -233,7 +233,10 @@ class MarketplaceOrderItemService
         ];
     }
 
-    public static function toWork(): int
+    /**
+     * Количество товаров в пошиве (статус 4) с опциональной фильтрацией по цеху.
+     */
+    public static function toWork(?int $workshopId = null): int
     {
         $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
             ->where('status', 4);
@@ -243,10 +246,15 @@ class MarketplaceOrderItemService
                 ->where('seamstress_id', auth()->id());
         }
 
-        return $marketplaceOrderItemInWork->sum('quantity');
+        return $marketplaceOrderItemInWork
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
+            ->sum('quantity');
     }
 
-    public static function toCutting(): int
+    /**
+     * Количество товаров в закрое (статус 7) с опциональной фильтрацией по цеху.
+     */
+    public static function toCutting(?int $workshopId = null): int
     {
         $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
             ->where('status', 7);
@@ -256,24 +264,37 @@ class MarketplaceOrderItemService
                 ->where('cutter_id', auth()->id());
         }
 
-        return $marketplaceOrderItemInWork->sum('quantity');
+        return $marketplaceOrderItemInWork
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
+            ->sum('quantity');
     }
 
-    public static function new(): int
+    /**
+     * Количество новых заданий (статус 0) с опциональной фильтрацией по цеху.
+     */
+    public static function new(?int $workshopId = null): int
     {
         return MarketplaceOrderItem::query()
             ->where('status', 0)
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
             ->sum('quantity');
     }
 
-    public static function cut(): int
+    /**
+     * Количество раскроенных товаров (статус 8) с опциональной фильтрацией по цеху.
+     */
+    public static function cut(?int $workshopId = null): int
     {
         return MarketplaceOrderItem::query()
             ->where('status', 8)
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
             ->sum('quantity');
     }
 
-    public static function urgent(): int
+    /**
+     * Количество срочных заказов FBS (статусы 0, 4) с опциональной фильтрацией по цеху.
+     */
+    public static function urgent(?int $workshopId = null): int
     {
         return MarketplaceOrderItem::query()
             ->join('marketplace_orders',
@@ -283,6 +304,7 @@ class MarketplaceOrderItemService
             )
             ->whereIn('marketplace_order_items.status', [0, 4])
             ->where('marketplace_orders.fulfillment_type', 'FBS')
+            ->when($workshopId, fn ($q) => $q->where('marketplace_order_items.workshop_id', $workshopId))
             ->sum('quantity');
     }
 
