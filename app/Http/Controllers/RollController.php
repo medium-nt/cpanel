@@ -20,7 +20,7 @@ class RollController extends Controller
         return view('rolls.index', [
             'title' => 'Рулоны',
             'materials' => Material::all(),
-            'shifts' => Shift::all(),
+            'shifts' => Shift::active()->get(),
             'rolls' => (request('status') === 'unclosed'
                 ? RollService::lowMaterialRollsQuery()->with('shift')
                 : Roll::query()
