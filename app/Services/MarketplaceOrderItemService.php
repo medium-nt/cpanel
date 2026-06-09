@@ -539,12 +539,16 @@ class MarketplaceOrderItemService
             });
     }
 
-    public static function getItemsForLabeling(Request $request): Collection
+    /**
+     * Получить товары для стикеровки с фильтрацией по цеху киоска.
+     */
+    public static function getItemsForLabeling(Request $request, ?int $workshopId = null): Collection
     {
         $items = MarketplaceOrderItem::query()
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
-            ->select('marketplace_order_items.*');
+            ->select('marketplace_order_items.*')
+            ->when($workshopId, fn ($q) => $q->where('marketplace_order_items.workshop_id', $workshopId));
 
         // Если отсканирован order_id — фильтруем только по нему
         if ($request->filled('scan_order_id')) {

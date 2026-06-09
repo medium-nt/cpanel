@@ -79,11 +79,13 @@ class StickerPrintingController extends Controller
                 ->route('kiosk');
         }
 
+        $workshop = $this->getKioskWorkshop();
+
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
             'userId' => $request->user_id ?? 0,
             'user' => $user,
-            'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
+            'items' => MarketplaceOrderItemService::getItemsForLabeling($request, $workshop->id),
             'isOtkOnShift' => User::query()->where('role_id', 5)
                 ->where('shift_is_open', true)
                 ->exists(),
