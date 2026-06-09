@@ -26,7 +26,7 @@ class InventoryController extends Controller
             'title' => 'Материал на производстве',
             'shifts' => $data['shifts'],
             'materials' => $data['materials'],
-            'todayShiftId' => ShiftService::getTodayScheduledShift()?->id,
+            'todayShiftIds' => ShiftService::getTodayScheduledShifts()->pluck('id')->toArray(),
         ]);
     }
 
