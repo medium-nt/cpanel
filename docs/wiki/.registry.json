@@ -1,0 +1,473 @@
+{
+    "generated_at": "2026-06-10T16:32:52+03:00",
+    "counts": {
+        "models": 35,
+        "services": 23,
+        "controllers": 39,
+        "livewire": 12
+    },
+    "models": {
+        "InventoryCheck": {
+            "table": "inventory_checks",
+            "file": "app\/Models\/InventoryCheck.php",
+            "fillable_count": 3,
+            "relationships_count": 1
+        },
+        "InventoryCheckItem": {
+            "table": "inventory_check_items",
+            "file": "app\/Models\/InventoryCheckItem.php",
+            "fillable_count": 6,
+            "relationships_count": 3
+        },
+        "Marketplace": {
+            "table": "marketplaces",
+            "file": "app\/Models\/Marketplace.php",
+            "fillable_count": 0,
+            "relationships_count": 0
+        },
+        "MarketplaceItem": {
+            "table": "marketplace_items",
+            "file": "app\/Models\/MarketplaceItem.php",
+            "fillable_count": 4,
+            "relationships_count": 3
+        },
+        "MarketplaceOrder": {
+            "table": "marketplace_orders",
+            "file": "app\/Models\/MarketplaceOrder.php",
+            "fillable_count": 10,
+            "relationships_count": 4
+        },
+        "MarketplaceOrderHistory": {
+            "table": "marketplace_order_history",
+            "file": "app\/Models\/MarketplaceOrderHistory.php",
+            "fillable_count": 3,
+            "relationships_count": 2
+        },
+        "MarketplaceOrderItem": {
+            "table": "marketplace_order_items",
+            "file": "app\/Models\/MarketplaceOrderItem.php",
+            "fillable_count": 17,
+            "relationships_count": 8
+        },
+        "MarketplaceSupply": {
+            "table": "marketplace_supplies",
+            "file": "app\/Models\/MarketplaceSupply.php",
+            "fillable_count": 19,
+            "relationships_count": 0
+        },
+        "MarketplaceWarehouse": {
+            "table": "marketplace_warehouses",
+            "file": "app\/Models\/MarketplaceWarehouse.php",
+            "fillable_count": 5,
+            "relationships_count": 0
+        },
+        "Material": {
+            "table": "materials",
+            "file": "app\/Models\/Material.php",
+            "fillable_count": 6,
+            "relationships_count": 5
+        },
+        "MaterialConsumption": {
+            "table": "material_consumptions",
+            "file": "app\/Models\/MaterialConsumption.php",
+            "fillable_count": 3,
+            "relationships_count": 2
+        },
+        "Motivation": {
+            "table": "motivations",
+            "file": "app\/Models\/Motivation.php",
+            "fillable_count": 7,
+            "relationships_count": 0
+        },
+        "MovementMaterial": {
+            "table": "movement_materials",
+            "file": "app\/Models\/MovementMaterial.php",
+            "fillable_count": 6,
+            "relationships_count": 3
+        },
+        "Order": {
+            "table": "orders",
+            "file": "app\/Models\/Order.php",
+            "fillable_count": 12,
+            "relationships_count": 8
+        },
+        "OzonFboDraftSupplyItem": {
+            "table": "ozon_fbo_draft_supply_items",
+            "file": "app\/Models\/OzonFboDraftSupplyItem.php",
+            "fillable_count": 3,
+            "relationships_count": 2
+        },
+        "ProductSticker": {
+            "table": "product_stickers",
+            "file": "app\/Models\/ProductSticker.php",
+            "fillable_count": 6,
+            "relationships_count": 0
+        },
+        "Rate": {
+            "table": "rates",
+            "file": "app\/Models\/Rate.php",
+            "fillable_count": 5,
+            "relationships_count": 1
+        },
+        "Role": {
+            "table": "roles",
+            "file": "app\/Models\/Role.php",
+            "fillable_count": 1,
+            "relationships_count": 0
+        },
+        "Roll": {
+            "table": "rolls",
+            "file": "app\/Models\/Roll.php",
+            "fillable_count": 9,
+            "relationships_count": 6
+        },
+        "Schedule": {
+            "table": "schedules",
+            "file": "app\/Models\/Schedule.php",
+            "fillable_count": 3,
+            "relationships_count": 2
+        },
+        "Setting": {
+            "table": "settings",
+            "file": "app\/Models\/Setting.php",
+            "fillable_count": 2,
+            "relationships_count": 0
+        },
+        "Shelf": {
+            "table": "shelves",
+            "file": "app\/Models\/Shelf.php",
+            "fillable_count": 1,
+            "relationships_count": 0
+        },
+        "Shift": {
+            "table": "shifts",
+            "file": "app\/Models\/Shift.php",
+            "fillable_count": 2,
+            "relationships_count": 2
+        },
+        "ShiftSchedule": {
+            "table": "shift_schedule",
+            "file": "app\/Models\/ShiftSchedule.php",
+            "fillable_count": 2,
+            "relationships_count": 1
+        },
+        "Sku": {
+            "table": "skus",
+            "file": "app\/Models\/Sku.php",
+            "fillable_count": 4,
+            "relationships_count": 1
+        },
+        "Stack": {
+            "table": "stacks",
+            "file": "app\/Models\/Stack.php",
+            "fillable_count": 3,
+            "relationships_count": 0
+        },
+        "StatusMovement": {
+            "table": "status_movements",
+            "file": "app\/Models\/StatusMovement.php",
+            "fillable_count": 0,
+            "relationships_count": 0
+        },
+        "Supplier": {
+            "table": "suppliers",
+            "file": "app\/Models\/Supplier.php",
+            "fillable_count": 4,
+            "relationships_count": 1
+        },
+        "SupplyBox": {
+            "table": "supply_boxes",
+            "file": "app\/Models\/SupplyBox.php",
+            "fillable_count": 5,
+            "relationships_count": 2
+        },
+        "Tariff": {
+            "table": "tariffs",
+            "file": "app\/Models\/Tariff.php",
+            "fillable_count": 5,
+            "relationships_count": 2
+        },
+        "Transaction": {
+            "table": "transactions",
+            "file": "app\/Models\/Transaction.php",
+            "fillable_count": 9,
+            "relationships_count": 1
+        },
+        "TypeMaterial": {
+            "table": "type_materials",
+            "file": "app\/Models\/TypeMaterial.php",
+            "fillable_count": 1,
+            "relationships_count": 0
+        },
+        "TypeMovement": {
+            "table": "type_movements",
+            "file": "app\/Models\/TypeMovement.php",
+            "fillable_count": 0,
+            "relationships_count": 0
+        },
+        "User": {
+            "table": "users",
+            "file": "app\/Models\/User.php",
+            "fillable_count": 14,
+            "relationships_count": 7
+        },
+        "UserTariff": {
+            "table": "user_tariffs",
+            "file": "app\/Models\/UserTariff.php",
+            "fillable_count": 4,
+            "relationships_count": 2
+        }
+    },
+    "services": {
+        "ActionAccrualService": {
+            "file": "app\/Services\/ActionAccrualService.php",
+            "methods_count": 2
+        },
+        "AutoOrderService": {
+            "file": "app\/Services\/AutoOrderService.php",
+            "methods_count": 2
+        },
+        "DefectMaterialService": {
+            "file": "app\/Services\/DefectMaterialService.php",
+            "methods_count": 3
+        },
+        "ExcelOrderImportService": {
+            "file": "app\/Services\/ExcelOrderImportService.php",
+            "methods_count": 3
+        },
+        "InventoryService": {
+            "file": "app\/Services\/InventoryService.php",
+            "methods_count": 12
+        },
+        "MarketplaceApiService": {
+            "file": "app\/Services\/MarketplaceApiService.php",
+            "methods_count": 59
+        },
+        "MarketplaceOrderItemService": {
+            "file": "app\/Services\/MarketplaceOrderItemService.php",
+            "methods_count": 25
+        },
+        "MarketplaceOrderService": {
+            "file": "app\/Services\/MarketplaceOrderService.php",
+            "methods_count": 6
+        },
+        "MarketplaceSupplyService": {
+            "file": "app\/Services\/MarketplaceSupplyService.php",
+            "methods_count": 3
+        },
+        "MovementDefectMaterialToSupplierService": {
+            "file": "app\/Services\/MovementDefectMaterialToSupplierService.php",
+            "methods_count": 2
+        },
+        "MovementMaterialFromSupplierService": {
+            "file": "app\/Services\/MovementMaterialFromSupplierService.php",
+            "methods_count": 2
+        },
+        "MovementMaterialToWorkshopService": {
+            "file": "app\/Services\/MovementMaterialToWorkshopService.php",
+            "methods_count": 7
+        },
+        "OrderService": {
+            "file": "app\/Services\/OrderService.php",
+            "methods_count": 1
+        },
+        "RollService": {
+            "file": "app\/Services\/RollService.php",
+            "methods_count": 3
+        },
+        "ScheduleService": {
+            "file": "app\/Services\/ScheduleService.php",
+            "methods_count": 9
+        },
+        "ShiftService": {
+            "file": "app\/Services\/ShiftService.php",
+            "methods_count": 6
+        },
+        "StackService": {
+            "file": "app\/Services\/StackService.php",
+            "methods_count": 4
+        },
+        "StickerService": {
+            "file": "app\/Services\/StickerService.php",
+            "methods_count": 2
+        },
+        "TgService": {
+            "file": "app\/Services\/TgService.php",
+            "methods_count": 1
+        },
+        "TransactionService": {
+            "file": "app\/Services\/TransactionService.php",
+            "methods_count": 12
+        },
+        "UserService": {
+            "file": "app\/Services\/UserService.php",
+            "methods_count": 12
+        },
+        "WarehouseOfItemService": {
+            "file": "app\/Services\/WarehouseOfItemService.php",
+            "methods_count": 8
+        },
+        "WriteOffRemnantService": {
+            "file": "app\/Services\/WriteOffRemnantService.php",
+            "methods_count": 1
+        }
+    },
+    "controllers": {
+        "ConfirmPasswordController": {
+            "file": "app\/Http\/Controllers\/Auth\\ConfirmPasswordController.php",
+            "methods_count": 3
+        },
+        "ForgotPasswordController": {
+            "file": "app\/Http\/Controllers\/Auth\\ForgotPasswordController.php",
+            "methods_count": 3
+        },
+        "LoginController": {
+            "file": "app\/Http\/Controllers\/Auth\\LoginController.php",
+            "methods_count": 7
+        },
+        "RegisterController": {
+            "file": "app\/Http\/Controllers\/Auth\\RegisterController.php",
+            "methods_count": 3
+        },
+        "ResetPasswordController": {
+            "file": "app\/Http\/Controllers\/Auth\\ResetPasswordController.php",
+            "methods_count": 4
+        },
+        "VerificationController": {
+            "file": "app\/Http\/Controllers\/Auth\\VerificationController.php",
+            "methods_count": 4
+        },
+        "BarcodeSearchController": {
+            "file": "app\/Http\/Controllers\/BarcodeSearchController.php",
+            "methods_count": 2
+        },
+        "Controller": {
+            "file": "app\/Http\/Controllers\/Controller.php",
+            "methods_count": 6
+        },
+        "DefectMaterialController": {
+            "file": "app\/Http\/Controllers\/DefectMaterialController.php",
+            "methods_count": 8
+        },
+        "HomeController": {
+            "file": "app\/Http\/Controllers\/HomeController.php",
+            "methods_count": 1
+        },
+        "InventoryController": {
+            "file": "app\/Http\/Controllers\/InventoryController.php",
+            "methods_count": 7
+        },
+        "MarketplaceApiController": {
+            "file": "app\/Http\/Controllers\/MarketplaceApiController.php",
+            "methods_count": 7
+        },
+        "MarketplaceItemController": {
+            "file": "app\/Http\/Controllers\/MarketplaceItemController.php",
+            "methods_count": 6
+        },
+        "MarketplaceOrderController": {
+            "file": "app\/Http\/Controllers\/MarketplaceOrderController.php",
+            "methods_count": 9
+        },
+        "MarketplaceOrderItemController": {
+            "file": "app\/Http\/Controllers\/MarketplaceOrderItemController.php",
+            "methods_count": 12
+        },
+        "MarketplaceSupplyController": {
+            "file": "app\/Http\/Controllers\/MarketplaceSupplyController.php",
+            "methods_count": 27
+        },
+        "MaterialConsumptionController": {
+            "file": "app\/Http\/Controllers\/MaterialConsumptionController.php",
+            "methods_count": 1
+        },
+        "MaterialController": {
+            "file": "app\/Http\/Controllers\/MaterialController.php",
+            "methods_count": 6
+        },
+        "MaterialMovementController": {
+            "file": "app\/Http\/Controllers\/MaterialMovementController.php",
+            "methods_count": 1
+        },
+        "MovementDefectMaterialToSupplierController": {
+            "file": "app\/Http\/Controllers\/MovementDefectMaterialToSupplierController.php",
+            "methods_count": 3
+        },
+        "MovementMaterialByMarketplaceOrderController": {
+            "file": "app\/Http\/Controllers\/MovementMaterialByMarketplaceOrderController.php",
+            "methods_count": 1
+        },
+        "MovementMaterialFromSupplierController": {
+            "file": "app\/Http\/Controllers\/MovementMaterialFromSupplierController.php",
+            "methods_count": 7
+        },
+        "MovementMaterialToWorkshopController": {
+            "file": "app\/Http\/Controllers\/MovementMaterialToWorkshopController.php",
+            "methods_count": 11
+        },
+        "OzonReturnsController": {
+            "file": "app\/Http\/Controllers\/OzonReturnsController.php",
+            "methods_count": 4
+        },
+        "PageController": {
+            "file": "app\/Http\/Controllers\/PageController.php",
+            "methods_count": 1
+        },
+        "ProductStickerController": {
+            "file": "app\/Http\/Controllers\/ProductStickerController.php",
+            "methods_count": 6
+        },
+        "RollController": {
+            "file": "app\/Http\/Controllers\/RollController.php",
+            "methods_count": 6
+        },
+        "ScheduleController": {
+            "file": "app\/Http\/Controllers\/ScheduleController.php",
+            "methods_count": 1
+        },
+        "SettingController": {
+            "file": "app\/Http\/Controllers\/SettingController.php",
+            "methods_count": 6
+        },
+        "ShelfController": {
+            "file": "app\/Http\/Controllers\/ShelfController.php",
+            "methods_count": 6
+        },
+        "ShiftController": {
+            "file": "app\/Http\/Controllers\/ShiftController.php",
+            "methods_count": 13
+        },
+        "StickerPrintingController": {
+            "file": "app\/Http\/Controllers\/StickerPrintingController.php",
+            "methods_count": 22
+        },
+        "SupplierController": {
+            "file": "app\/Http\/Controllers\/SupplierController.php",
+            "methods_count": 6
+        },
+        "SupplyBoxController": {
+            "file": "app\/Http\/Controllers\/SupplyBoxController.php",
+            "methods_count": 9
+        },
+        "TelegramController": {
+            "file": "app\/Http\/Controllers\/TelegramController.php",
+            "methods_count": 1
+        },
+        "TransactionController": {
+            "file": "app\/Http\/Controllers\/TransactionController.php",
+            "methods_count": 8
+        },
+        "UsersController": {
+            "file": "app\/Http\/Controllers\/UsersController.php",
+            "methods_count": 12
+        },
+        "WarehouseOfItemController": {
+            "file": "app\/Http\/Controllers\/WarehouseOfItemController.php",
+            "methods_count": 18
+        },
+        "WriteOffRemnantsController": {
+            "file": "app\/Http\/Controllers\/WriteOffRemnantsController.php",
+            "methods_count": 3
+        }
+    }
+}

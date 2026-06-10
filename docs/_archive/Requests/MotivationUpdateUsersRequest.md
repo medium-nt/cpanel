@@ -184,11 +184,31 @@ public function updateMotivation(MotivationUpdateUsersRequest $request)
 
 ```json
 {
-    "from": ["0", "51", "101"],
-    "to": ["50", "100", "999"],
-    "bonus": ["100", "150", "200"],
-    "not_cutter_bonus": ["80", "120", "160"],
-    "cutter_bonus": ["50", "75", "100"]
+    "from": [
+        "0",
+        "51",
+        "101"
+    ],
+    "to": [
+        "50",
+        "100",
+        "999"
+    ],
+    "bonus": [
+        "100",
+        "150",
+        "200"
+    ],
+    "not_cutter_bonus": [
+        "80",
+        "120",
+        "160"
+    ],
+    "cutter_bonus": [
+        "50",
+        "75",
+        "100"
+    ]
 }
 ```
 

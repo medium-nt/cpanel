@@ -128,8 +128,14 @@ public function save(SaveDefectMaterialRequest $request)
 ```json
 {
     "comment": "Брак при кройке - дефект материала",
-    "material_id": ["456", "789"],
-    "quantity": ["5", "2"],
+    "material_id": [
+        "456",
+        "789"
+    ],
+    "quantity": [
+        "5",
+        "2"
+    ],
     "type_movement_id": "4"
 }
 ```
@@ -139,8 +145,12 @@ public function save(SaveDefectMaterialRequest $request)
 ```json
 {
     "comment": "Остатки после выполнения заказа",
-    "material_id": ["456"],
-    "quantity": ["3"],
+    "material_id": [
+        "456"
+    ],
+    "quantity": [
+        "3"
+    ],
     "type_movement_id": "7"
 }
 ```

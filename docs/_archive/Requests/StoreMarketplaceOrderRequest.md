@@ -115,7 +115,10 @@ public function store(StoreMarketplaceOrderRequest $request)
     "order_id": "12345678",
     "marketplace_id": "1",
     "item_id": "123",
-    "quantity": ["2", "5"],
+    "quantity": [
+        "2",
+        "5"
+    ],
     "fulfillment_type": "FBO"
 }
 ```

@@ -104,8 +104,14 @@ public function saveCollect(SaveCollectMovementMaterialToWorkshopRequest $reques
 
 ```json
 {
-    "material_id": ["456", "789"],
-    "quantity": ["50", "30"]
+    "material_id": [
+        "456",
+        "789"
+    ],
+    "quantity": [
+        "50",
+        "30"
+    ]
 }
 ```
 

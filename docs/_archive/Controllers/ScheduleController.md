@@ -98,19 +98,19 @@ function toggleSchedule(userId, date) {
             date: date
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.deleted) {
-            // Дата удалена из расписания
-            console.log('Дата удалена');
-        } else {
-            // Дата добавлена в расписание
-            console.log('Дата добавлена, ID:', data.id);
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.deleted) {
+                // Дата удалена из расписания
+                console.log('Дата удалена');
+            } else {
+                // Дата добавлена в расписание
+                console.log('Дата добавлена, ID:', data.id);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
 }
 ```
 

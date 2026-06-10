@@ -112,8 +112,16 @@ public function saveWriteOff(SaveWriteOffMovementMaterialToWorkshopRequest $requ
 ```json
 {
     "comment": "Списание бракованных материалов",
-    "material_id": ["123", "456", "789"],
-    "quantity": ["5", "10", "0"]
+    "material_id": [
+        "123",
+        "456",
+        "789"
+    ],
+    "quantity": [
+        "5",
+        "10",
+        "0"
+    ]
 }
 ```
 

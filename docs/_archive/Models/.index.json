@@ -307,7 +307,7 @@
             "table": "marketplace_order_history",
             "relationships": {
                 "marketplaceOrder": "belongsTo(MarketplaceOrder)",
-                "marketplaceOrderItem": "belongsTo(MarketplaceOrderItem),
+                "marketplaceOrderItem": "belongsTo(MarketplaceOrderItem)",
                 "user": "belongsTo(User)"
             },
             "key_features": [

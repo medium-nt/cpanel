@@ -167,8 +167,14 @@ public function save(SaveMarketplaceItemRequest $request)
     "height": "150",
     "ozon_sku": "OZN12345",
     "wb_sku": "WB67890",
-    "material_id": ["123", "456"],
-    "quantity": ["2", "1"]
+    "material_id": [
+        "123",
+        "456"
+    ],
+    "quantity": [
+        "2",
+        "1"
+    ]
 }
 ```
 

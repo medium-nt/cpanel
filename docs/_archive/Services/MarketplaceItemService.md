@@ -97,7 +97,9 @@ $items = $query->paginate(15);
 **SQL эквивалент:**
 
 ```sql
-SELECT DISTINCT title FROM marketplace_items ORDER BY title
+SELECT DISTINCT title
+FROM marketplace_items
+ORDER BY title
 ```
 
 ### getAllWidthMaterials(): Collection
@@ -109,7 +111,9 @@ SELECT DISTINCT title FROM marketplace_items ORDER BY title
 **SQL эквивалент:**
 
 ```sql
-SELECT DISTINCT width FROM marketplace_items ORDER BY width
+SELECT DISTINCT width
+FROM marketplace_items
+ORDER BY width
 ```
 
 ### getAllHeightMaterials(): Collection
@@ -121,7 +125,9 @@ SELECT DISTINCT width FROM marketplace_items ORDER BY width
 **SQL эквивалент:**
 
 ```sql
-SELECT DISTINCT height FROM marketplace_items ORDER BY height
+SELECT DISTINCT height
+FROM marketplace_items
+ORDER BY height
 ```
 
 ## Используемые модели и репозитории

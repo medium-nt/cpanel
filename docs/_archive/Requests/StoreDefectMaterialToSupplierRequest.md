@@ -121,8 +121,14 @@ public function store(StoreDefectMaterialToSupplierRequest $request)
 ```json
 {
     "supplier_id": "123",
-    "material_id": ["456", "789"],
-    "quantity": ["5", "10"],
+    "material_id": [
+        "456",
+        "789"
+    ],
+    "quantity": [
+        "5",
+        "10"
+    ],
     "comment": "Брак при поставке, несоответствие качества"
 }
 ```

@@ -112,8 +112,14 @@ public function store(StoreRemnantsRequest $request)
 
 ```json
 {
-    "material_id": ["456", "789"],
-    "quantity": ["15", "8"],
+    "material_id": [
+        "456",
+        "789"
+    ],
+    "quantity": [
+        "15",
+        "8"
+    ],
     "comment": "Остатки после выполнения крупного заказа"
 }
 ```
