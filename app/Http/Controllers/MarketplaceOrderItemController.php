@@ -127,7 +127,20 @@ class MarketplaceOrderItemController extends Controller
             ->get();
 
         $packagingRolls = [];
-        if ($packagingConsumptions->isNotEmpty() && $shift) {
+        if ($packagingConsumptions->isNotEmpty()) {
+            if (! $shift) {
+                Log::channel('materials')->error(
+                    'Не удалось определить смену для списания упаковки. '
+                    .'OTK-сотрудник: '.$user->name.' (id: '.$user->id.'), '
+                    .'товар #'.$marketplaceOrderItem->id.', '
+                    .'заказ '.$marketplaceOrderItem->marketplaceOrder->order_id
+                );
+
+                return redirect()
+                    ->back()
+                    ->with('error', 'Не удалось определить вашу смену для списания упаковочных материалов. Обратитесь к администратору.');
+            }
+
             foreach ($packagingConsumptions as $consumption) {
                 $roll = Roll::query()
                     ->where('material_id', $consumption->material_id)
