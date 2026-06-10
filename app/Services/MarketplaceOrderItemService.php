@@ -1063,6 +1063,12 @@ class MarketplaceOrderItemService
                     ->whereColumn('item_workshop.marketplace_item_id', 'marketplace_order_items.marketplace_item_id')
                     ->where('item_workshop.workshop_id', $workshopId);
             });
+
+            // Только товары, принадлежащие цеху сотрудника (или без цеха — старые данные)
+            $items = $items->where(function ($q) use ($workshopId) {
+                $q->where('marketplace_order_items.workshop_id', $workshopId)
+                    ->orWhereNull('marketplace_order_items.workshop_id');
+            });
         }
 
         $items = $items->with(['item.consumption.material']);
