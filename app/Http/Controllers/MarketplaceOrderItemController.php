@@ -320,7 +320,7 @@ class MarketplaceOrderItemController extends Controller
     {
         $pdf = PDF::loadView('pdf.print_cutting', [
             'orders' => $service->getOrdersGroupedByMaterial(auth()->user()),
-            'printQr' => Setting::getValue('print_qr_cutting'),
+            'printQr' => Setting::getValue('print_qr_cutting', auth()->user()->currentWorkshop()?->id),
         ]);
 
         return $pdf->setPaper('A4')

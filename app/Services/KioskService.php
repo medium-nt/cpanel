@@ -125,13 +125,13 @@ class KioskService
         }
 
         if ($user->isOtk()) {
-            if (Setting::getValue('sticking_otk') === 'filter') {
+            if (Setting::getValue('sticking_otk', session('kiosk_workshop_id')) === 'filter') {
                 return true;
             }
         }
 
         if ($user->isSeamstress()) {
-            if (Setting::getValue('sticking_seamstress') === 'filter') {
+            if (Setting::getValue('sticking_seamstress', session('kiosk_workshop_id')) === 'filter') {
                 return true;
             }
         }
@@ -145,8 +145,10 @@ class KioskService
             return true;
         }
 
+        $workshopId = session('kiosk_workshop_id');
+
         if ($user->isOtk()) {
-            if (Setting::getValue('sticking_otk') !== 'disabled') {
+            if (Setting::getValue('sticking_otk', $workshopId) !== 'disabled') {
                 return true;
             }
         }
@@ -154,10 +156,11 @@ class KioskService
         $isOtkOnShift = User::query()
             ->where('role_id', 5)
             ->where('shift_is_open', true)
+            ->whereHas('shifts', fn ($q) => $q->where('workshop_id', $workshopId))
             ->exists();
 
         if ($user->isSeamstress() && ! $isOtkOnShift) {
-            if (Setting::getValue('sticking_seamstress') !== 'disabled') {
+            if (Setting::getValue('sticking_seamstress', $workshopId) !== 'disabled') {
                 return true;
             }
         }

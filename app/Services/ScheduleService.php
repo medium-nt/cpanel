@@ -51,12 +51,12 @@ class ScheduleService
 
     public static function getStartWorkDay(): string
     {
-        return Setting::query()->where('name', 'working_day_start')->first()->value;
+        return Setting::getValue('working_day_start', auth()->user()->currentWorkshop()?->id);
     }
 
     public static function getEndWorkDay(): string
     {
-        return Setting::query()->where('name', 'working_day_end')->first()->value;
+        return Setting::getValue('working_day_end', auth()->user()->currentWorkshop()?->id);
     }
 
     public static function hasWorkDayStarted(): bool

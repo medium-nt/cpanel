@@ -88,6 +88,7 @@ class StickerPrintingController extends Controller
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request, $workshop->id),
             'isOtkOnShift' => User::query()->where('role_id', 5)
                 ->where('shift_is_open', true)
+                ->whereHas('shifts', fn($q) => $q->where('workshop_id', $workshop->id))
                 ->exists(),
             'seamstresses' => User::query()->where('role_id', 1)
                 ->where('name', 'not like', '%Тест%')

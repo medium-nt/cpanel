@@ -1084,12 +1084,10 @@ class MarketplaceOrderItemService
             default => $items
         };
 
-        // Глобальный приоритет заказов
-        $orders_priority = Setting::query()
-            ->where('name', 'orders_priority')
-            ->first();
+        // Приоритет заказов (цеховая настройка)
+        $ordersPriority = Setting::getValue('orders_priority', $workshopId);
 
-        $items = match ($orders_priority->value) {
+        $items = match ($ordersPriority) {
             'ozon' => $items->orderBy('marketplace_orders.marketplace_id', 'asc'),
             'wb' => $items->orderBy('marketplace_orders.marketplace_id', 'desc'),
             default => $items
@@ -1250,9 +1248,11 @@ class MarketplaceOrderItemService
     {
         $meters = self::getMetersTodayByUser($user) / 100;
 
+        $currentWorkshopId = $user->currentWorkshop()?->id;
+
         $dailyLimit = match ($user->role->name) {
-            'seamstress' => Setting::getValue('seamstress_daily_limit'),
-            'cutter' => Setting::getValue('cutter_daily_limit'),
+            'seamstress' => Setting::getValue('seamstress_daily_limit', $currentWorkshopId),
+            'cutter' => Setting::getValue('cutter_daily_limit', $currentWorkshopId),
             default => 0,
         };
 
@@ -1315,7 +1315,9 @@ class MarketplaceOrderItemService
             ->with('item')
             ->get();
 
-        $maxCount = Setting::getValue('max_quantity_orders_without_timeout');
+        $currentWorkshopId = $user->currentWorkshop()?->id;
+
+        $maxCount = Setting::getValue('max_quantity_orders_without_timeout', $currentWorkshopId);
 
         if ($maxCount > $inWork->count()) {
             return $success;
@@ -1323,7 +1325,7 @@ class MarketplaceOrderItemService
 
         $maxRemainingMinutes = 0;
 
-        $timeout = self::getTimeout();
+        $timeout = self::getTimeout($currentWorkshopId);
 
         foreach ($inWork as $orderItem) {
             $orderItemTimeout = $timeout[$orderItem->item->width] ?? 0;
@@ -1358,7 +1360,7 @@ class MarketplaceOrderItemService
 
     public function checkTimeoutOrderItem(MarketplaceOrderItem $marketplaceOrderItem): bool
     {
-        $timeout = self::getTimeout();
+        $timeout = self::getTimeout(auth()->user()->currentWorkshop()?->id);
 
         $orderItemTimeout = $timeout[$marketplaceOrderItem->item->width] ?? 0;
 
@@ -1377,7 +1379,10 @@ class MarketplaceOrderItemService
         return true;
     }
 
-    private static function getTimeout(): array
+    /**
+     * Получить таймауты по ширинам для цеха.
+     */
+    private static function getTimeout(?int $workshopId = null): array
     {
         $settings = Setting::getValues([
             'timeout_200',
@@ -1387,7 +1392,7 @@ class MarketplaceOrderItemService
             'timeout_600',
             'timeout_700',
             'timeout_800',
-        ]);
+        ], $workshopId);
 
         return [
             200 => (int) ($settings['timeout_200'] ?? 0),

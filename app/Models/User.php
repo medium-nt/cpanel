@@ -224,9 +224,11 @@ class User extends Authenticatable
 
         $meters = MarketplaceOrderItemService::getMetersTodayByUser($user) / 100;
 
+        $currentWorkshopId = $user->currentWorkshop()?->id;
+
         $dailyLimit = match ($user->role->name) {
-            'seamstress' => Setting::getValue('seamstress_daily_limit'),
-            'cutter' => Setting::getValue('cutter_daily_limit'),
+            'seamstress' => Setting::getValue('seamstress_daily_limit', $currentWorkshopId),
+            'cutter' => Setting::getValue('cutter_daily_limit', $currentWorkshopId),
             default => 0,
         };
 
