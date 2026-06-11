@@ -31,3 +31,15 @@
 - Фронтенд: `edit-fbo.blade.php` — `max` атрибут на input даты =
   `supply_date - 1 день`.
 - Обновлён topic: `marketplace-integration.md` (бизнес-правила, ключевые файлы).
+
+## [2026-06-11] update | telegram-notifications-supply-assembly
+
+- `SupplyBoxController::markAssembled()`: при сборке поставки (статус → 4)
+  отправляются TG-уведомления админу и менеджерам с привязанным Telegram.
+  Используется `SendTelegramMessageJob` с задержкой для rate limits.
+- `UserService::getListManagersWithTg()`: новый метод — возвращает коллекцию
+  tg_id активных менеджеров (не удалённых, с `tg_id != null`).
+- Имя маркетплейса определяется через `match` по `marketplace_id`
+  (1=OZON, 2=Wildberries), т.к. `Marketplace::NAME` содержит пути к иконкам.
+- Обновлены topics: `warehouse-operations.md` (сборка поставок),
+  `marketplace-integration.md` (TG-уведомления, идентификация маркетплейса).

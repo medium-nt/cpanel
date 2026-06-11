@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
 use App\Models\SupplyBox;
 use App\Services\MarketplaceApiService;
+use App\Services\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -76,6 +78,26 @@ class SupplyBoxController extends Controller
 
         Log::channel('marketplace_supplies')
             ->notice(auth()->user()->name.' пометил поставку #'.$marketplaceSupply->id.' как собранную.');
+
+        // Отправка уведомлений в ТГ менеджерам и админу
+        $marketplaceName = match ($marketplaceSupply->marketplace_id) {
+            1 => 'OZON',
+            2 => 'Wildberries',
+            default => '---',
+        };
+
+        $text = sprintf(
+            '✅ Поставка #%s (%s) собрана.',
+            $marketplaceSupply->supply_id,
+            $marketplaceName
+        );
+
+        SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+
+        foreach (UserService::getListManagersWithTg() as $index => $tgId) {
+            SendTelegramMessageJob::dispatch($tgId, $text)
+                ->delay(now()->addSeconds($index + 1));
+        }
 
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
@@ -194,7 +216,7 @@ class SupplyBoxController extends Controller
 
         $ozonSupplyId = $box->supply->draft_params['order_number'] ?? null;
 
-        if (!$ozonSupplyId) {
+        if (! $ozonSupplyId) {
             return back()->with('error', 'Не найден order_number в параметрах поставки.');
         }
 
@@ -219,23 +241,23 @@ class SupplyBoxController extends Controller
                     ],
                 ],
                 'delete_current_version' => false,
-                'supply_id' => (int)$ozonSupplyId,
+                'supply_id' => (int) $ozonSupplyId,
             ];
 
             // Шаг 1: Создание грузоместа
             $cargoResult = MarketplaceApiService::createCargoOzon($payload);
 
             if ($cargoResult['error']) {
-                return back()->with('error', 'Ошибка создания грузоместа: ' . $cargoResult['error']);
+                return back()->with('error', 'Ошибка создания грузоместа: '.$cargoResult['error']);
             }
 
             // Шаг 2: Ожидание результата создания грузоместа
             $cargoId = $this->pollOperation(
-                fn() => MarketplaceApiService::getCargoCreateInfoOzon($cargoResult['operation_id']),
+                fn () => MarketplaceApiService::getCargoCreateInfoOzon($cargoResult['operation_id']),
                 'cargo_id'
             );
 
-            if (!$cargoId) {
+            if (! $cargoId) {
                 return back()->with('error', 'Не удалось получить cargo_id от OZON. Попробуйте позже.');
             }
 
@@ -249,16 +271,16 @@ class SupplyBoxController extends Controller
         );
 
         if ($labelResult['error']) {
-            return back()->with('error', 'Ошибка создания этикетки: ' . $labelResult['error']);
+            return back()->with('error', 'Ошибка создания этикетки: '.$labelResult['error']);
         }
 
         // Шаг 4: Ожидание результата генерации этикетки
         $fileUrl = $this->pollOperation(
-            fn() => MarketplaceApiService::getCargoLabelOzon($labelResult['operation_id']),
+            fn () => MarketplaceApiService::getCargoLabelOzon($labelResult['operation_id']),
             'file_url'
         );
 
-        if (!$fileUrl) {
+        if (! $fileUrl) {
             return back()->with('error', 'Не удалось получить ссылку на стикер от OZON. Попробуйте позже.');
         }
 
@@ -279,20 +301,20 @@ class SupplyBoxController extends Controller
         foreach ($box->orders as $order) {
             foreach ($order->items as $orderItem) {
                 $item = $orderItem->item;
-                if (!$item) {
+                if (! $item) {
                     continue;
                 }
 
                 $article = $item->article;
-                $sku = $item->sku->first(fn(mixed $s) => $s->marketplace_id === 1);
+                $sku = $item->sku->first(fn (mixed $s) => $s->marketplace_id === 1);
 
-                if (!$sku) {
+                if (! $sku) {
                     continue;
                 }
 
-                if (!isset($grouped[$article])) {
+                if (! isset($grouped[$article])) {
                     $grouped[$article] = [
-                        'barcode' => 'OZN' . $sku->sku,
+                        'barcode' => 'OZN'.$sku->sku,
                         'offer_id' => $article,
                         'quantity' => 0,
                     ];

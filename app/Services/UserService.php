@@ -41,6 +41,17 @@ class UserService
         return self::getListEmployeesWorkingTodayByRole(2);
     }
 
+    /**
+     * Возвращает коллекцию tg_id всех активных менеджеров с привязанным Telegram.
+     */
+    public static function getListManagersWithTg(): Collection
+    {
+        return User::query()
+            ->whereHas('role', fn ($q) => $q->where('name', 'manager'))
+            ->whereNotNull('tg_id')
+            ->pluck('tg_id');
+    }
+
     private static function getListEmployeesWorkingTodayByRole($roleId): Collection
     {
         return Schedule::query()
