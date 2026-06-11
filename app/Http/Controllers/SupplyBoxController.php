@@ -196,7 +196,7 @@ class SupplyBoxController extends Controller
         $box->load('supply');
 
         if ($box->supply->marketplace_id === 1) {
-            return $this->printOzonSticker($marketplaceSupply, $box);
+            return $this->printOzonSticker($marketplaceSupply, $box, request()->boolean('regenerate'));
         }
 
         $pdf = Pdf::loadView('pdf.box_sticker', ['box' => $box]);
@@ -208,8 +208,12 @@ class SupplyBoxController extends Controller
     /**
      * Генерация стикера короба OZON FBO через цепочку API-запросов.
      */
-    private function printOzonSticker(MarketplaceSupply $marketplaceSupply, SupplyBox $box)
+    private function printOzonSticker(MarketplaceSupply $marketplaceSupply, SupplyBox $box, bool $regenerate = false)
     {
+        if ($regenerate) {
+            $box->update(['sticker_url' => null]);
+        }
+
         if ($box->sticker_url) {
             return redirect($box->sticker_url);
         }

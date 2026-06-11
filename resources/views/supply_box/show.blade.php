@@ -44,6 +44,14 @@
                        target="_blank">
                         Распечатать стикер
                     </a>
+                    @if($supply->marketplace_id === 1)
+                        <a href="{{ route('supply_boxes.print_sticker', ['marketplace_supply' => $supply, 'box' => $box, 'regenerate' => 1]) }}"
+                           class="btn btn-outline-dark btn-sm mt-2 ml-2"
+                           target="_blank"
+                           title="Перегенерировать стикер">
+                            <i class="fas fa-sync-alt p-1"></i>
+                        </a>
+                    @endif
                 @endif
             </div>
         </div>

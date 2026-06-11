@@ -74,3 +74,21 @@
 - Обновлены topics: `warehouse-operations.md` (стикеровка),
   `marketplace-integration.md`
   (MarketplaceItemService — динамические фильтры).
+
+## [2026-06-11] update | ozon-sticker-regeneration
+
+- Добавлена возможность перегенерации стикера OZON для короба поставки через
+  query-параметр `?regenerate=1`. Раньше URL стикера кешировался в `sticker_url`
+  и никогда не обновлялся — если URL протухал, пользователь застревал. Теперь
+  параметр обнуляет `sticker_url` и запускает перегенерацию этикетки через OZON
+  API (createCargoLabelOzon), без пересоздания грузоместа (используется
+  кешированный `cargo_id`).
+- Бекенд: `SupplyBoxController::printSticker()` — прокидывает флаг `regenerate`
+  в `printOzonSticker()`, который при `true` обнуляет `sticker_url` перед
+  генерацией.
+- Фронтенд: `supply_box/show.blade.php` — добавлена кнопка-иконка (🔄)
+  «Перегенерировать стикер» рядом с «Распечатать стикер», видна только для
+  OZON коробов (`marketplace_id === 1`).
+- Обновлён topic: `marketplace-integration.md` (API-методы createCargoOzon,
+  getCargoCreateInfoOzon, createCargoLabelOzon; бизнес-правило перегенерации;
+  ключевые файлы).
