@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\Workshop;
 use App\Services\KioskService;
 use App\Services\MarketplaceApiService;
+use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
 use App\Services\RollService;
 use App\Services\ScheduleService;
@@ -88,7 +89,7 @@ class StickerPrintingController extends Controller
             'items' => MarketplaceOrderItemService::getItemsForLabeling($request, $workshop->id),
             'isOtkOnShift' => User::query()->where('role_id', 5)
                 ->where('shift_is_open', true)
-                ->whereHas('shifts', fn($q) => $q->where('workshop_id', $workshop->id))
+                ->whereHas('shifts', fn ($q) => $q->where('workshop_id', $workshop->id))
                 ->exists(),
             'seamstresses' => User::query()->where('role_id', 1)
                 ->where('name', 'not like', '%Тест%')
@@ -96,6 +97,9 @@ class StickerPrintingController extends Controller
                 ->get(),
             'canUseFilter' => KioskService::canUseFilter($user),
             'canSticking' => KioskService::canSticking($user),
+            'materials' => MarketplaceItemService::getAllTitleMaterials(),
+            'widths' => MarketplaceItemService::getAllWidthMaterials(),
+            'heights' => MarketplaceItemService::getAllHeightMaterials(),
         ]);
     }
 

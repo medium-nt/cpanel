@@ -57,3 +57,20 @@
 - Добавлены 16 тестов в `KioskRollShiftIsolationTest`.
 - Обновлены topics: `shift-system.md` (изоляция рулонов), `material-flow.md`
   (жизненный цикл рулонов с привязкой к сменам).
+
+## [2026-06-11] update | dynamic-filters-sticker-printing
+
+- `StickerPrintingController::index()`: захардкоженные фильтры (материалы,
+  ширины, высоты) заменены на динамические, подтягиваемые из БД через
+  `MarketplaceItemService::getAllTitleMaterials()`,
+  `getAllWidthMaterials()`, `getAllHeightMaterials()`.
+- `resources/views/sticker_printing.blade.php`: 3 блока `<option>` заменены на
+  `@foreach` циклы с динамическими данными.
+- Паттерн уже использовался в 4 других контроллерах
+  (WarehouseOfItemController, MarketplaceOrderItemController,
+  MarketplaceItemController), теперь применён и в StickerPrintingController.
+- При добавлении нового товара в `marketplace_items` его материал/ширина/высота
+  автоматически появляются в фильтрах.
+- Обновлены topics: `warehouse-operations.md` (стикеровка),
+  `marketplace-integration.md`
+  (MarketplaceItemService — динамические фильтры).

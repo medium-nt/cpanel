@@ -63,6 +63,16 @@
 - Хранит метаданные: название, цвет, тип печати, материал, страну, тип крепления
 - Связан с конкретными товарами маркетплейса
 
+**Страница печати стикеров (`sticker_printing.blade.php`):**
+
+- Фильтрация товаров для стикеровки: материал, ширина, высота, швея, маркетплейс
+- Фильтры (материал, ширина, высота) подтягиваются динамически из БД через
+  `MarketplaceItemService::getAllTitleMaterials()`,
+  `getAllWidthMaterials()`, `getAllHeightMaterials()` — уникальные значения из
+  таблицы `marketplace_items`
+- При добавлении нового товара в `marketplace_items` его параметры автоматически
+  появляются в фильтрах
+
 ### Поиск по штрихкоду (BarcodeSearchController)
 
 Поддерживаемые форматы:
@@ -124,6 +134,9 @@
 - `app/Http/Controllers/BarcodeSearchController.php` — поиск по штрихкоду
 - `app/Http/Controllers/SupplyBoxController.php` — управление коробами поставок
   и сборкой
+- `app/Http/Controllers/StickerPrintingController.php` — страница печати
+  стикеров
+  (фильтры материалов/размеров из БД)
 - `app/Services/KioskService.php` — интерфейс киоска
 - `app/Jobs/SendTelegramMessageJob.php` — отправка TG-уведомлений при сборке
 

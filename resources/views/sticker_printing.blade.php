@@ -104,34 +104,13 @@
                                         <option value="" selected disabled>
                                             Материал
                                         </option>
-                                        <option value="Бамбук"
-                                                @if(request()->get('material') == 'Бамбук') selected @endif>
-                                            Бамбук
-                                        </option>
-                                        <option value="Вуаль"
-                                                @if(request()->get('material') == 'Вуаль') selected @endif>
-                                            Вуаль
-                                        </option>
-                                        <option value="Лен"
-                                                @if(request()->get('material') == 'Лен') selected @endif>
-                                            Лен
-                                        </option>
-                                        <option value="Молния"
-                                                @if(request()->get('material') == 'Молния') selected @endif>
-                                            Молния
-                                        </option>
-                                        <option value="Мрамор"
-                                                @if(request()->get('material') == 'Мрамор') selected @endif>
-                                            Мрамор
-                                        </option>
-                                        <option value="Сетка"
-                                                @if(request()->get('material') == 'Сетка') selected @endif>
-                                            Сетка
-                                        </option>
-                                        <option value="Шифон"
-                                                @if(request()->get('material') == 'Шифон') selected @endif>
-                                            Шифон
-                                        </option>
+                                        @foreach($materials as $material)
+                                            <option
+                                                value="{{ $material->title }}"
+                                                @if(request()->get('material') == $material->title) selected @endif>
+                                                {{ $material->title }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group col-md-2">
@@ -143,34 +122,13 @@
                                         <option value="" selected disabled>
                                             Ширина
                                         </option>
-                                        <option value="200"
-                                                @if(request()->get('width') == 200) selected @endif>
-                                            200
-                                        </option>
-                                        <option value="300"
-                                                @if(request()->get('width') == 300) selected @endif>
-                                            300
-                                        </option>
-                                        <option value="400"
-                                                @if(request()->get('width') == 400) selected @endif>
-                                            400
-                                        </option>
-                                        <option value="500"
-                                                @if(request()->get('width') == 500) selected @endif>
-                                            500
-                                        </option>
-                                        <option value="600"
-                                                @if(request()->get('width') == 600) selected @endif>
-                                            600
-                                        </option>
-                                        <option value="700"
-                                                @if(request()->get('width') == 700) selected @endif>
-                                            700
-                                        </option>
-                                        <option value="800"
-                                                @if(request()->get('width') == 800) selected @endif>
-                                            800
-                                        </option>
+                                        @foreach($widths as $widthItem)
+                                            <option
+                                                value="{{ $widthItem->width }}"
+                                                @if(request()->get('width') == $widthItem->width) selected @endif>
+                                                {{ $widthItem->width }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group col-md-2">
@@ -182,70 +140,13 @@
                                         <option value="" selected disabled>
                                             Высота
                                         </option>
-                                        <option value="220"
-                                                @if(request()->get('height') == 220) selected @endif>
-                                            220
-                                        </option>
-                                        <option value="225"
-                                                @if(request()->get('height') == 225) selected @endif>
-                                            225
-                                        </option>
-                                        <option value="230"
-                                                @if(request()->get('height') == 230) selected @endif>
-                                            230
-                                        </option>
-                                        <option value="235"
-                                                @if(request()->get('height') == 235) selected @endif>
-                                            235
-                                        </option>
-                                        <option value="240"
-                                                @if(request()->get('height') == 240) selected @endif>
-                                            240
-                                        </option>
-                                        <option value="245"
-                                                @if(request()->get('height') == 245) selected @endif>
-                                            245
-                                        </option>
-                                        <option value="250"
-                                                @if(request()->get('height') == 250) selected @endif>
-                                            250
-                                        </option>
-                                        <option value="255"
-                                                @if(request()->get('height') == 255) selected @endif>
-                                            255
-                                        </option>
-                                        <option value="260"
-                                                @if(request()->get('height') == 260) selected @endif>
-                                            260
-                                        </option>
-                                        <option value="265"
-                                                @if(request()->get('height') == 265) selected @endif>
-                                            265
-                                        </option>
-                                        <option value="270"
-                                                @if(request()->get('height') == 270) selected @endif>
-                                            270
-                                        </option>
-                                        <option value="275"
-                                                @if(request()->get('height') == 275) selected @endif>
-                                            275
-                                        </option>
-                                        <option value="280"
-                                                @if(request()->get('height') == 280) selected @endif>
-                                            280
-                                        </option>
-                                        <option value="285"
-                                                @if(request()->get('height') == 285) selected @endif>
-                                            285
-                                        </option>
-                                        <option value="290"
-                                                @if(request()->get('height') == 290) selected @endif>
-                                            290
-                                        </option>
-                                        <option value="295"
-                                                @if(request()->get('height') == 295) selected @endif>
-                                            295
-                                        </option>
+                                        @foreach($heights as $heightItem)
+                                            <option
+                                                value="{{ $heightItem->height }}"
+                                                @if(request()->get('height') == $heightItem->height) selected @endif>
+                                                {{ $heightItem->height }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 @if(!$user->isSeamstress())
