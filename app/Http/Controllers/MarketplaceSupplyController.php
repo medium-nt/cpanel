@@ -241,6 +241,15 @@ class MarketplaceSupplyController extends Controller
             'boxes_count' => 'nullable|integer|min:0',
         ]);
 
+        if (isset($validated['gazelka_shipment_date']) && $marketplaceSupply->supply_date) {
+            $gazelkaDate = Carbon::parse($validated['gazelka_shipment_date']);
+            if ($gazelkaDate->gte($marketplaceSupply->supply_date)) {
+                return back()
+                    ->with('error', 'Дата отгрузки в Газельку должна быть хотя бы на день раньше даты отгрузки в маркетплейс ('.$marketplaceSupply->supply_date->format('d.m.Y').').')
+                    ->withInput();
+            }
+        }
+
         if (isset($validated['boxes_count']) && ! $marketplaceSupply->canEditBoxesCount()) {
             return back()
                 ->with('error', 'Редактирование кол-ва коробов недоступно: дата отгрузки уже наступила.')

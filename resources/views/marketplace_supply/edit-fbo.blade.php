@@ -33,6 +33,7 @@
                             <input type="date" class="form-control"
                                    id="gazelka_shipment_date"
                                    name="gazelka_shipment_date"
+                                   max="{{ $supply->supply_date ? \Carbon\Carbon::parse($supply->supply_date)->subDay()->format('Y-m-d') : '' }}"
                                    value="{{ old('gazelka_shipment_date', $supply->gazelka_shipment_date?->format('Y-m-d')) }}">
                         </div>
 

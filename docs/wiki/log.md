@@ -20,3 +20,14 @@
   (Ozon `/posting/fbs/get`, WB `/orders/status`).
 - Обновлён topic `marketplace-integration.md` (раздел «Управление поставками»,
   cron-таблица, бизнес-правила).
+
+## [2026-06-11] update | gazelka-date-validation
+
+- Добавлена валидация даты отгрузки в Газельку при редактировании FBO-поставки:
+  `gazelka_shipment_date` должна быть строго раньше `supply_date` минимум на 1
+  день.
+- Бекенд: `MarketplaceSupplyController::updateFbo()` — проверка + редирект с
+  ошибкой.
+- Фронтенд: `edit-fbo.blade.php` — `max` атрибут на input даты =
+  `supply_date - 1 день`.
+- Обновлён topic: `marketplace-integration.md` (бизнес-правила, ключевые файлы).
