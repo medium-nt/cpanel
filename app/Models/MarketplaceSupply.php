@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class MarketplaceSupply extends Model
 {
+    use HasFactory;
+
     public const DELIVERY_TYPE_BOX = 'короба';
 
     public const DELIVERY_TYPE_PALLET = 'палета';

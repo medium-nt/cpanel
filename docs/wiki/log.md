@@ -11,3 +11,12 @@
 - Models: 35 | Services: 23 | Controllers: 39 | Livewire: 12 | Route files: 30 |
   Cron: 9
 - Topics: not yet created (Phase B pending)
+
+## [2026-06-11] update | marketplace-integration
+
+- `MarketplaceSupplyService::updateStatusSupply()`: ежедневный опрос статусов
+  поставок (02:00) теперь ограничен FBS-поставками (`->where('type', 'FBS')`).
+  FBO-поставки исключены — эндпоинты опроса статусов FBS-специфичные
+  (Ozon `/posting/fbs/get`, WB `/orders/status`).
+- Обновлён topic `marketplace-integration.md` (раздел «Управление поставками»,
+  cron-таблица, бизнес-правила).

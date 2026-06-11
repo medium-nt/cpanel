@@ -107,6 +107,7 @@ class MarketplaceSupplyService
 
         $supplies = MarketplaceSupply::query()
             ->where('status', 4)
+            ->where('type', 'FBS')
             ->get();
 
         $count = 0;
