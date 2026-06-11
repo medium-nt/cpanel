@@ -73,6 +73,10 @@
                                         </td>
                                     </tr>
                                     <tr>
+                                        <th>Смена</th>
+                                        <td>{{ $roll->shift?->name ?? '—' }}</td>
+                                    </tr>
+                                    <tr>
                                         <th>Статус</th>
                                         <td><span
                                                 class="badge {{ $roll->status_color }}"> {{ $roll->status_name }}</span>

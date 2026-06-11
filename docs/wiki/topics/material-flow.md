@@ -1,6 +1,6 @@
 # Material Flow — Движение материалов
 
-> Last reviewed: 2026-06-10
+> Last reviewed: 2026-06-11
 
 ## Обзор
 
@@ -30,6 +30,7 @@
 ```
 Поступление от поставщика (type_movement=1)
   → Создаётся рулон с уникальным кодом: {type_material_id}-{roll_id_padded}
+  → Привязка к смене через shift_id
   → Статус: in_storage
 
 Отгрузка в цех (type_movement=2)
@@ -40,6 +41,11 @@
   → Рулон расходуется на заказы
   → current_quantity уменьшается
   → При full расходе → статус: completed
+
+Изоляция по сменам
+  → Рулоны привязаны к сменам (shift_id)
+  → Каждая смена работает только со своими рулонами
+  → Админ и кладовщик имеют полный доступ ко всем рулонам
 ```
 
 ### Поставщик → Склад
@@ -91,17 +97,22 @@
 ## Ключевые файлы
 
 - `app/Models/MovementMaterial.php` — модель перемещений
-- `app/Models/Roll.php` — модель рулонов (статусы, коды)
+- `app/Models/Roll.php` — модель рулонов (статусы, коды, связь со сменами)
 - `app/Models/TypeMovement.php` — типы перемещений
 - `app/Services/MovementMaterialFromSupplierService.php` — поступление
 - `app/Services/MovementMaterialToWorkshopService.php` — отгрузка в цех
 - `app/Services/MovementDefectMaterialToSupplierService.php` — возврат брака
 - `app/Services/AutoOrderService.php` — автоматическое пополнение
 - `app/Services/WriteOffRemnantService.php` — списание остатков
+- `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами в
+  киоске (scanning, completion, defects) с изоляцией по сменам
 
 ## Бизнес-правила
 
 - Рулоны имеют уникальный код: `{type_material_id}-{id padded to N digits}`
+- Рулоны привязаны к сменам через `shift_id` — изоляция данных
+- Швеи, закройщики, ОТК работают только с рулонами своей смены
+- Админ и кладовщик имеют полный доступ ко всем рулонам (без фильтра)
 - Один запрос материалов на смену — защита от дубликатов
 - Порог автозаказа: 100 единиц при проверке каждые 30 минут
 - Все перемещения логируются через модель MovementMaterial
@@ -115,3 +126,4 @@
   инвентаризация
 - [marketplace-integration.md](marketplace-integration.md) — заказы
   маркетплейсов
+- [shift-system.md](shift-system.md) — изоляция рулонов по сменам, права доступа

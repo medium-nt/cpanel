@@ -43,3 +43,17 @@
   (1=OZON, 2=Wildberries), т.к. `Marketplace::NAME` содержит пути к иконкам.
 - Обновлены topics: `warehouse-operations.md` (сборка поставок),
   `marketplace-integration.md` (TG-уведомления, идентификация маркетплейса).
+
+## [2026-06-11] update | kiosk-roll-shift-isolation
+
+- Добавлена изоляция рулонов по сменам в киоске (`/kiosk/rolls`).
+- `StickerPrintingController`: 4 эндпоинта теперь проверяют `shift_id` рулона:
+  `rolls()`, `completeRoll()`, `getRollByCode()`, `saveDefects()`.
+- Правила: швеи, закройщики, ОТК работают только с рулонами своей смены.
+  Админ и кладовщик имеют полный доступ (без фильтра).
+- При попытке работы с рулоном другой смены → ошибка "Этот рулон принадлежит
+  другой смене".
+- В blade-шаблон добавлена колонка "Смена" перед "Статус".
+- Добавлены 16 тестов в `KioskRollShiftIsolationTest`.
+- Обновлены topics: `shift-system.md` (изоляция рулонов), `material-flow.md`
+  (жизненный цикл рулонов с привязкой к сменам).

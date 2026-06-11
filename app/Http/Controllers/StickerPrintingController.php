@@ -352,6 +352,16 @@ class StickerPrintingController extends Controller
                 ->route('kiosk');
         }
 
+        if (! $user->isAdmin() && ! $user->isStorekeeper()) {
+            $userShift = $user->currentShift();
+
+            if (! $userShift || ($roll && $roll->shift_id !== $userShift->id)) {
+                return redirect()
+                    ->route('defects.create')
+                    ->with('error', 'Этот рулон принадлежит другой смене');
+            }
+        }
+
         if ($roll == null || $quantity == 0) {
             return redirect()
                 ->route('defects.create')
@@ -419,9 +429,30 @@ class StickerPrintingController extends Controller
         ]);
     }
 
+    /**
+     * API-поиск рулона по коду с проверкой принадлежности к смене пользователя.
+     */
     public function getRollByCode(string $roll_code): JsonResponse
     {
-        $roll = Roll::where('roll_code', $roll_code)->first();
+        $user = User::find(session('user_id'));
+
+        if (! $user) {
+            return response()->json(['material_id' => null]);
+        }
+
+        $rollQuery = Roll::where('roll_code', $roll_code);
+
+        if (! $user->isAdmin() && ! $user->isStorekeeper()) {
+            $userShift = $user->currentShift();
+
+            if (! $userShift) {
+                return response()->json(['material_id' => null]);
+            }
+
+            $rollQuery->where('shift_id', $userShift->id);
+        }
+
+        $roll = $rollQuery->first();
 
         if (! $roll) {
             return response()->json(['material_id' => null]);
@@ -446,10 +477,33 @@ class StickerPrintingController extends Controller
         $roll = null;
 
         if ($request->filled('roll')) {
-            $roll = Roll::query()
+            $rollQuery = Roll::query()
                 ->with(['material', 'completedBy', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
-                ->where('roll_code', $request->roll)
-                ->first();
+                ->where('roll_code', $request->roll);
+
+            if (! $user->isAdmin() && ! $user->isStorekeeper()) {
+                $userShift = $user->currentShift();
+
+                if (! $userShift) {
+                    return redirect()
+                        ->route('kiosk')
+                        ->with('error', 'Вы не привязаны к смене. Обратитесь к администратору.');
+                }
+
+                $rollQuery->where('shift_id', $userShift->id);
+            }
+
+            $roll = $rollQuery->first();
+
+            if (! $roll && ! $user->isAdmin() && ! $user->isStorekeeper()) {
+                $otherShiftRoll = Roll::where('roll_code', $request->roll)->first();
+
+                if ($otherShiftRoll) {
+                    return redirect()
+                        ->route('kiosk.rolls')
+                        ->with('error', 'Этот рулон принадлежит другой смене');
+                }
+            }
         }
 
         $typeId = match (true) {
@@ -483,6 +537,17 @@ class StickerPrintingController extends Controller
         ]);
 
         $roll = Roll::find($request->roll_id);
+        $user = User::find(session('user_id'));
+
+        if (! $user->isAdmin() && ! $user->isStorekeeper()) {
+            $userShift = $user->currentShift();
+
+            if (! $userShift || $roll->shift_id !== $userShift->id) {
+                return redirect()
+                    ->route('kiosk.rolls')
+                    ->with('error', 'Этот рулон принадлежит другой смене');
+            }
+        }
 
         if ($roll->status !== Roll::STATUS_IN_WORKSHOP) {
             return redirect()
