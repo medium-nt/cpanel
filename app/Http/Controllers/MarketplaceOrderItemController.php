@@ -12,6 +12,7 @@ use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\Sku;
 use App\Models\User;
+use App\Models\Workshop;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
@@ -73,6 +74,7 @@ class MarketplaceOrderItemController extends Controller
             'titleMaterials' => MarketplaceItemService::getAllTitleMaterials(),
             'widthMaterials' => MarketplaceItemService::getAllWidthMaterials(),
             'heightMaterials' => MarketplaceItemService::getAllHeightMaterials(),
+            'workshops' => Workshop::query()->active()->get(),
         ]);
     }
 
@@ -125,7 +127,20 @@ class MarketplaceOrderItemController extends Controller
             ->get();
 
         $packagingRolls = [];
-        if ($packagingConsumptions->isNotEmpty() && $shift) {
+        if ($packagingConsumptions->isNotEmpty()) {
+            if (! $shift) {
+                Log::channel('materials')->error(
+                    'Не удалось определить смену для списания упаковки. '
+                    .'OTK-сотрудник: '.$user->name.' (id: '.$user->id.'), '
+                    .'товар #'.$marketplaceOrderItem->id.', '
+                    .'заказ '.$marketplaceOrderItem->marketplaceOrder->order_id
+                );
+
+                return redirect()
+                    ->back()
+                    ->with('error', 'Не удалось определить вашу смену для списания упаковочных материалов. Обратитесь к администратору.');
+            }
+
             foreach ($packagingConsumptions as $consumption) {
                 $roll = Roll::query()
                     ->where('material_id', $consumption->material_id)
@@ -318,7 +333,7 @@ class MarketplaceOrderItemController extends Controller
     {
         $pdf = PDF::loadView('pdf.print_cutting', [
             'orders' => $service->getOrdersGroupedByMaterial(auth()->user()),
-            'printQr' => Setting::getValue('print_qr_cutting'),
+            'printQr' => Setting::getValue('print_qr_cutting', auth()->user()->currentWorkshop()?->id),
         ]);
 
         return $pdf->setPaper('A4')

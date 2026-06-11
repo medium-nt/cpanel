@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shift;
+use App\Models\ShiftSchedule;
 use App\Models\User;
+use App\Models\Workshop;
 use App\Services\ShiftService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -16,24 +18,28 @@ class ShiftController extends Controller
 {
     public function index(): View
     {
-        $shifts = Shift::withCount('users')->with('rolls')->get();
+        $shifts = Shift::withCount('users')->with(['rolls', 'workshop'])->get();
 
         return view('shifts.index', compact('shifts'));
     }
 
     public function create(): View
     {
-        return view('shifts.create');
+        $workshops = Workshop::query()->where('status', Workshop::STATUS_ACTIVE)->get();
+
+        return view('shifts.create', compact('workshops'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'workshop_id' => 'required|exists:workshops,id',
         ]);
 
         Shift::create([
             'name' => $validated['name'],
+            'workshop_id' => $validated['workshop_id'],
             'status' => Shift::STATUS_ACTIVE,
         ]);
 
@@ -49,7 +55,14 @@ class ShiftController extends Controller
         $outgoing = $shift->getOutgoingUsers();
         $history = $shift->getUsersHistory();
 
-        return view('shifts.show', compact('shift', 'employees', 'incoming', 'outgoing', 'history'));
+        // Активные цеха для select и проверка наличия будущего расписания
+        $workshops = Workshop::query()->where('status', Workshop::STATUS_ACTIVE)->get();
+        $hasFutureSchedule = DB::table('shift_schedule')
+            ->where('shift_id', $shift->id)
+            ->where('date', '>=', now()->toDateString())
+            ->exists();
+
+        return view('shifts.show', compact('shift', 'employees', 'incoming', 'outgoing', 'history', 'workshops', 'hasFutureSchedule'));
     }
 
     public function update(Request $request, Shift $shift): RedirectResponse
@@ -57,7 +70,22 @@ class ShiftController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'status' => 'required|in:active,inactive',
+            'workshop_id' => 'required|exists:workshops,id',
         ]);
+
+        // Проверка: нельзя менять цех, если есть расписание на будущие дни
+        if ((int) $validated['workshop_id'] !== $shift->workshop_id) {
+            $hasFutureSchedule = DB::table('shift_schedule')
+                ->where('shift_id', $shift->id)
+                ->where('date', '>=', now()->toDateString())
+                ->exists();
+
+            if ($hasFutureSchedule) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Нельзя изменить цех: у смены есть расписание на будущие дни.');
+            }
+        }
 
         $shift->update($validated);
 
@@ -133,7 +161,11 @@ class ShiftController extends Controller
 
     public function scheduleIndex(Request $request): View
     {
-        $shifts = Shift::active()->get();
+        $workshopId = $request->input('workshop_id', 1);
+        $workshops = Workshop::query()->where('status', Workshop::STATUS_ACTIVE)->get();
+
+        // Фильтруем смены по выбранному цеху
+        $shifts = Shift::active()->where('workshop_id', $workshopId)->get();
 
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
@@ -142,11 +174,13 @@ class ShiftController extends Controller
         $prevMonth = $currentDate->copy()->subMonth();
         $nextMonth = $currentDate->copy()->addMonth();
 
-        return view('shift-schedule.index', compact('shifts', 'currentDate', 'prevMonth', 'nextMonth'));
+        return view('shift-schedule.index', compact('shifts', 'currentDate', 'prevMonth', 'nextMonth', 'workshops', 'workshopId'));
     }
 
     public function scheduleStore(Request $request): RedirectResponse
     {
+        $workshopId = $request->input('workshop_id', 1);
+
         $validated = $request->validate([
             'dates' => 'required|array',
             'dates.*.date' => 'required|date',
@@ -154,17 +188,30 @@ class ShiftController extends Controller
         ]);
 
         $data = [];
+        $dates = [];
         foreach ($validated['dates'] as $entry) {
+            $dates[] = $entry['date'];
             if ($entry['shift_id']) {
                 $data[$entry['date']] = $entry['shift_id'];
             }
         }
 
+        // Удаляем старые записи для смен текущего цеха в диапазоне сохраняемых дат
+        $shiftIds = Shift::active()->where('workshop_id', $workshopId)->pluck('id');
+        if ($dates && $shiftIds->isNotEmpty()) {
+            ShiftSchedule::query()
+                ->whereIn('shift_id', $shiftIds)
+                ->whereIn('date', $dates)
+                ->delete();
+        }
+
+        // Создаём новые записи
         ShiftService::fillSchedule($data);
 
         return redirect()->route('shift-schedule.index', [
             'month' => $request->input('month', now()->month),
             'year' => $request->input('year', now()->year),
+            'workshop_id' => $request->input('workshop_id', 1),
         ])->with('success', 'Календарь обновлён');
     }
 }

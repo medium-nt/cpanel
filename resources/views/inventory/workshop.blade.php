@@ -29,9 +29,9 @@
                             <th scope="col">Материал</th>
                             @foreach ($shifts as $shift)
                                 <th scope="col"
-                                    class="text-center @if($shift->id === $todayShiftId) today-shift-col today-shift-col-top @endif">
+                                    class="text-center @if(in_array($shift->id, $todayShiftIds)) today-shift-col today-shift-col-top @endif">
                                     {{ $shift->name }}
-                                    @if($shift->id === $todayShiftId)
+                                    @if(in_array($shift->id, $todayShiftIds))
                                         <span class="badge badge-light ml-1">Работает</span>
                                     @endif
                                 </th>
@@ -52,7 +52,7 @@
                                 <td>{{ $item['material']->title }}</td>
                                 @foreach ($shifts as $shift)
                                     @php $shiftData = $item['per_shift'][$shift->id] ?? null; @endphp
-                                    <td class="text-center {{ $shiftData && $shiftData['quantity'] > 0 ? $statusThresholds($shiftData['quantity']) : '' }} @if($shift->id === $todayShiftId) today-shift-col @if($loop->parent->last) today-shift-col-bottom @endif @endif">
+                                    <td class="text-center {{ $shiftData && $shiftData['quantity'] > 0 ? $statusThresholds($shiftData['quantity']) : '' }} @if(in_array($shift->id, $todayShiftIds)) today-shift-col @if($loop->parent->last) today-shift-col-bottom @endif @endif">
                                         @if($shiftData && ($shiftData['quantity'] > 0 || $shiftData['rolls_count'] > 0))
                                             {{ $shiftData['quantity'] }} {{ $item['material']->unit }}
                                             ,
@@ -107,7 +107,7 @@
                                                 <tr class="{{ $statusThresholds($shiftData['quantity']) }}">
                                                     <td class="p-1">
                                                         {{ $shift->name }}
-                                                        @if($shift->id === $todayShiftId)
+                                                        @if(in_array($shift->id, $todayShiftIds))
                                                             <span
                                                                 class="badge badge-primary ml-1">Сегодня</span>
                                                         @endif

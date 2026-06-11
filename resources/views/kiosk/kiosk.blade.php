@@ -27,6 +27,8 @@
                 <div class="alert alert-default-success text-center mt-3">
                     <h2>
                         Приветствую, {{ $user->name }}!
+                        <span
+                            class="badge badge-light ml-2">{{ $workshop->title }}</span>
                         <a href="{{ route('kiosk', ['idle' => true]) }}"
                            class="btn btn-sm float-right mt-1 btn-danger">
                             Выход
@@ -83,6 +85,10 @@
                         <h2>
                             Отсканируйте свой штрих-код сотрудника
                         </h2>
+                        <h4 class="mt-2">
+                            <span
+                                class="badge badge-secondary">{{ $workshop->title }}</span>
+                        </h4>
                     </div>
                 @endif
             @endif

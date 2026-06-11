@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -34,5 +35,11 @@ class MarketplaceItem extends Model
     public function consumption(): HasMany
     {
         return $this->hasMany(MaterialConsumption::class, 'item_id', 'id');
+    }
+
+    public function workshops(): BelongsToMany
+    {
+        return $this->belongsToMany(Workshop::class, 'item_workshop')
+            ->withTimestamps();
     }
 }

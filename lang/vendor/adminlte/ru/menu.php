@@ -56,6 +56,7 @@ return [
     'barcode_search' => 'Поиск по штрихкоду',
     'shifts' => 'Смены',
     'shifts_list' => 'Список смен',
+    'workshops' => 'Цеха',
     'shift_schedule' => 'Календарь смен',
     'statistics' => 'Статистика',
 ];

@@ -1,19 +1,15 @@
 @extends('layouts.app')
 
-@section('subtitle', 'Смены')
-@section('content_header_title', 'Смены')
+@section('subtitle', 'Цеха')
+@section('content_header_title', 'Цеха')
 
 @section('content_body')
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                <a href="{{ route('shifts.create') }}"
+                <a href="{{ route('workshops.create') }}"
                    class="btn btn-primary mb-3">
-                    <i class="fas fa-plus"></i> Создать смену
-                </a>
-                <a href="{{ route('shift-schedule.index') }}"
-                   class="btn btn-info mb-3">
-                    <i class="fas fa-calendar"></i> Календарь смен
+                    <i class="fas fa-plus"></i> Создать цех
                 </a>
 
                 <div class="table-responsive">
@@ -22,41 +18,43 @@
                         <tr>
                             <th>#</th>
                             <th>Название</th>
-                            <th>Цех</th>
                             <th>Статус</th>
+                            <th>Смены</th>
                             <th>Сотрудники</th>
                             <th>Действия</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach ($shifts as $shift)
+                        @foreach ($workshops as $workshop)
+                            {{-- Считаем общее количество сотрудников во всех сменах цеха --}}
+                            @php($employeesCount = $workshop->shifts->sum('users_count'))
                             <tr>
-                                <td>{{ $shift->id }}</td>
-                                <td>{{ $shift->name }}</td>
-                                <td>{{ $shift->workshop?->title ?? '—' }}</td>
+                                <td>{{ $workshop->id }}</td>
+                                <td>{{ $workshop->title }}</td>
                                 <td>
-                                    @if($shift->status === 'active')
-                                        <span class="badge badge-success">Активна</span>
+                                    @if($workshop->status === 'active')
+                                        <span class="badge badge-success">Активен</span>
                                     @else
-                                        <span class="badge badge-secondary">Неактивна</span>
+                                        <span class="badge badge-secondary">Неактивен</span>
                                     @endif
                                 </td>
-                                <td>{{ $shift->users_count }}</td>
+                                <td>{{ $workshop->shifts_count }}</td>
+                                <td>{{ $employeesCount }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('shifts.show', $shift) }}"
+                                        <a href="{{ route('workshops.edit', $workshop) }}"
                                            class="btn btn-info mr-1">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="fas fa-edit"></i>
                                         </a>
-                                        @if($shift->status === 'active')
+                                        @if($workshop->status === 'active' && $workshop->shifts_count === 0)
                                             <form
-                                                action="{{ route('shifts.destroy', $shift) }}"
+                                                action="{{ route('workshops.destroy', $workshop) }}"
                                                 method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
-                                                        class="btn btn-danger"
-                                                        onclick="return confirm('Деактивировать смену?')">
+                                                        class="btn btn-warning"
+                                                        onclick="return confirm('Деактивировать цех?')">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             </form>
@@ -65,10 +63,10 @@
                                 </td>
                             </tr>
                         @endforeach
-                        @if($shifts->isEmpty())
+                        @if($workshops->isEmpty())
                             <tr>
                                 <td colspan="6" class="text-center text-muted">
-                                    Смены не созданы
+                                    Цеха не созданы
                                 </td>
                             </tr>
                         @endif

@@ -437,6 +437,11 @@ return [
             'can' => 'is-admin',
             'submenu' => [
                 [
+                    'text' => 'workshops',
+                    'url' => 'megatulle/workshops',
+                    'icon' => 'fas fa-fw fa-building',
+                ],
+                [
                     'text' => 'shifts_list',
                     'url' => 'megatulle/shifts',
                     'icon' => 'fas fa-fw fa-users',

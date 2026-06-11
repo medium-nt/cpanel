@@ -26,6 +26,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
+            'workshop_id' => null,
             'type_movement' => $this->faker->randomElement([4, 7]),
             'status' => $this->faker->randomElement([0, 1, -1, 3]),
             'supplier_id' => null,

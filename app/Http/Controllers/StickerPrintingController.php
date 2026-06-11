@@ -13,6 +13,7 @@ use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\Sku;
 use App\Models\User;
+use App\Models\Workshop;
 use App\Services\KioskService;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderItemService;
@@ -30,6 +31,45 @@ use Throwable;
 
 class StickerPrintingController extends Controller
 {
+    /**
+     * Вход в киоск конкретного цеха. Валидирует цех, сохраняет в сессию, редиректит на /kiosk.
+     */
+    public function enterKiosk(int $workshop)
+    {
+        $workshopModel = Workshop::query()
+            ->where('id', $workshop)
+            ->where('status', Workshop::STATUS_ACTIVE)
+            ->firstOrFail();
+
+        session(['kiosk_workshop_id' => $workshopModel->id]);
+
+        return redirect()->route('kiosk');
+    }
+
+    /**
+     * Получить цех киоска из сессии. Если не найден → 404.
+     */
+    private function getKioskWorkshop(): Workshop
+    {
+        $workshopId = session('kiosk_workshop_id');
+
+        if (! $workshopId) {
+            abort(404);
+        }
+
+        $workshop = Workshop::query()
+            ->where('id', $workshopId)
+            ->where('status', Workshop::STATUS_ACTIVE)
+            ->first();
+
+        if (! $workshop) {
+            session()->forget('kiosk_workshop_id');
+            abort(404);
+        }
+
+        return $workshop;
+    }
+
     public function index(Request $request)
     {
         $user = User::query()->find(session('user_id'));
@@ -39,13 +79,16 @@ class StickerPrintingController extends Controller
                 ->route('kiosk');
         }
 
+        $workshop = $this->getKioskWorkshop();
+
         return view('sticker_printing', [
             'title' => 'Печать стикеров',
             'userId' => $request->user_id ?? 0,
             'user' => $user,
-            'items' => MarketplaceOrderItemService::getItemsForLabeling($request),
+            'items' => MarketplaceOrderItemService::getItemsForLabeling($request, $workshop->id),
             'isOtkOnShift' => User::query()->where('role_id', 5)
                 ->where('shift_is_open', true)
+                ->whereHas('shifts', fn($q) => $q->where('workshop_id', $workshop->id))
                 ->exists(),
             'seamstresses' => User::query()->where('role_id', 1)
                 ->where('name', 'not like', '%Тест%')
@@ -205,6 +248,9 @@ class StickerPrintingController extends Controller
 
     public function kiosk(Request $request)
     {
+        // Проверяем что киоск привязан к активному цеху
+        $workshop = $this->getKioskWorkshop();
+
         // 1. Idle → сбрасываем пользователя
         if ($request->boolean('idle')) {
             session()->forget('user_id');
@@ -214,17 +260,42 @@ class StickerPrintingController extends Controller
             $user = UserService::getUserByBarcode($request->barcode);
 
             if ($user) {
+                // Проверяем принадлежность к цеху (админ и кладовщик — в любой цех)
+                if (! $this->canAccessWorkshop($user, $workshop)) {
+                    return redirect()
+                        ->route('kiosk')
+                        ->with('error', 'Вы не принадлежите к цеху «'.$workshop->title.'»');
+                }
                 session(['user_id' => $user->id]);
             }
         } // 3. Иначе → пробуем восстановить из сессии
         else {
             $user = User::find(session('user_id'));
+
+            // Проверяем что сотрудник всё ещё принадлежит этому цеху
+            if ($user && ! $this->canAccessWorkshop($user, $workshop)) {
+                session()->forget('user_id');
+
+                return redirect()
+                    ->route('kiosk')
+                    ->with('error', 'Вы больше не принадлежите к цеху «'.$workshop->title.'»');
+            }
         }
 
         return view('kiosk.kiosk', [
-            'title' => 'Киоск',
+            'title' => 'Киоск — '.$workshop->title,
             'user' => $user,
+            'workshop' => $workshop,
         ]);
+    }
+
+    private function canAccessWorkshop(User $user, Workshop $workshop): bool
+    {
+        if ($user->isAdmin() || $user->isStorekeeper()) {
+            return true;
+        }
+
+        return $user->currentWorkshop()?->id === $workshop->id;
     }
 
     public function opening_closing_shifts(Request $request)

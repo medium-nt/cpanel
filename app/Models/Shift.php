@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
@@ -17,9 +18,15 @@ class Shift extends Model
     public const STATUS_INACTIVE = 'inactive';
 
     protected $fillable = [
+        'workshop_id',
         'name',
         'status',
     ];
+
+    public function workshop(): BelongsTo
+    {
+        return $this->belongsTo(Workshop::class);
+    }
 
     public function users(): BelongsToMany
     {
@@ -40,6 +47,7 @@ class Shift extends Model
 
     /**
      * Получить сотрудников, привязанных к смене на сегодня.
+     * Исключает пользователей, переведённых в другую смену с более свежей датой.
      */
     public function getCurrentUsers()
     {
@@ -47,6 +55,14 @@ class Shift extends Model
 
         return $this->users()
             ->wherePivot('effective_from', '<=', $today)
+            ->whereNotExists(function ($query) use ($today) {
+                $query->select(DB::raw(1))
+                    ->from('shift_user as su2')
+                    ->whereColumn('su2.user_id', 'shift_user.user_id')
+                    ->where('su2.shift_id', '!=', $this->id)
+                    ->where('su2.effective_from', '<=', $today)
+                    ->where('su2.effective_from', '>', DB::raw('shift_user.effective_from'));
+            })
             ->get()
             ->unique('id');
     }

@@ -61,12 +61,31 @@ class MarketplaceOrderItemService
             };
         }
 
-        if (auth()->user()->isSeamstress() && $status != 'new') {
-            $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
+        if (auth()->user()->isSeamstress()) {
+            $seamstressWorkshopId = auth()->user()->currentWorkshop()?->id;
+            if ($seamstressWorkshopId) {
+                $items = $items->where('marketplace_order_items.workshop_id', $seamstressWorkshopId);
+            }
+            if ($status != 'new') {
+                $items = $items->where('marketplace_order_items.seamstress_id', auth()->user()->id);
+            }
         }
 
-        if (auth()->user()->isCutter() && $status != 'new') {
-            $items = $items->where('marketplace_order_items.cutter_id', auth()->user()->id);
+        if (auth()->user()->isCutter()) {
+            $cutterWorkshopId = auth()->user()->currentWorkshop()?->id;
+            if ($cutterWorkshopId) {
+                $items = $items->where('marketplace_order_items.workshop_id', $cutterWorkshopId);
+            }
+            if ($status != 'new') {
+                $items = $items->where('marketplace_order_items.cutter_id', auth()->user()->id);
+            }
+        }
+
+        if (auth()->user()->isOtk()) {
+            $otkWorkshopId = auth()->user()->currentWorkshop()?->id;
+            if ($otkWorkshopId) {
+                $items = $items->where('marketplace_order_items.workshop_id', $otkWorkshopId);
+            }
         }
 
         if ($request->has('user_id') && $status != 'new') {
@@ -113,6 +132,11 @@ class MarketplaceOrderItemService
 
         if ($request->has('fulfillment_type') && $request->fulfillment_type !== '') {
             $items = $items->where('marketplace_orders.fulfillment_type', $request->fulfillment_type);
+        }
+
+        // Фильтр по цеху (опционально, для всех ролей)
+        if ($request->has('workshop_id') && $request->workshop_id) {
+            $items = $items->where('marketplace_order_items.workshop_id', $request->workshop_id);
         }
 
         return $items;
@@ -228,7 +252,10 @@ class MarketplaceOrderItemService
         ];
     }
 
-    public static function toWork(): int
+    /**
+     * Количество товаров в пошиве (статус 4) с опциональной фильтрацией по цеху.
+     */
+    public static function toWork(?int $workshopId = null): int
     {
         $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
             ->where('status', 4);
@@ -238,10 +265,15 @@ class MarketplaceOrderItemService
                 ->where('seamstress_id', auth()->id());
         }
 
-        return $marketplaceOrderItemInWork->sum('quantity');
+        return $marketplaceOrderItemInWork
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
+            ->sum('quantity');
     }
 
-    public static function toCutting(): int
+    /**
+     * Количество товаров в закрое (статус 7) с опциональной фильтрацией по цеху.
+     */
+    public static function toCutting(?int $workshopId = null): int
     {
         $marketplaceOrderItemInWork = MarketplaceOrderItem::query()
             ->where('status', 7);
@@ -251,24 +283,37 @@ class MarketplaceOrderItemService
                 ->where('cutter_id', auth()->id());
         }
 
-        return $marketplaceOrderItemInWork->sum('quantity');
+        return $marketplaceOrderItemInWork
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
+            ->sum('quantity');
     }
 
-    public static function new(): int
+    /**
+     * Количество новых заданий (статус 0) с опциональной фильтрацией по цеху.
+     */
+    public static function new(?int $workshopId = null): int
     {
         return MarketplaceOrderItem::query()
             ->where('status', 0)
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
             ->sum('quantity');
     }
 
-    public static function cut(): int
+    /**
+     * Количество раскроенных товаров (статус 8) с опциональной фильтрацией по цеху.
+     */
+    public static function cut(?int $workshopId = null): int
     {
         return MarketplaceOrderItem::query()
             ->where('status', 8)
+            ->when($workshopId, fn ($q) => $q->where('workshop_id', $workshopId))
             ->sum('quantity');
     }
 
-    public static function urgent(): int
+    /**
+     * Количество срочных заказов FBS (статусы 0, 4) с опциональной фильтрацией по цеху.
+     */
+    public static function urgent(?int $workshopId = null): int
     {
         return MarketplaceOrderItem::query()
             ->join('marketplace_orders',
@@ -278,6 +323,7 @@ class MarketplaceOrderItemService
             )
             ->whereIn('marketplace_order_items.status', [0, 4])
             ->where('marketplace_orders.fulfillment_type', 'FBS')
+            ->when($workshopId, fn ($q) => $q->where('marketplace_order_items.workshop_id', $workshopId))
             ->sum('quantity');
     }
 
@@ -493,12 +539,16 @@ class MarketplaceOrderItemService
             });
     }
 
-    public static function getItemsForLabeling(Request $request): Collection
+    /**
+     * Получить товары для стикеровки с фильтрацией по цеху киоска.
+     */
+    public static function getItemsForLabeling(Request $request, ?int $workshopId = null): Collection
     {
         $items = MarketplaceOrderItem::query()
             ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
             ->join('marketplace_items', 'marketplace_order_items.marketplace_item_id', '=', 'marketplace_items.id')
-            ->select('marketplace_order_items.*');
+            ->select('marketplace_order_items.*')
+            ->when($workshopId, fn ($q) => $q->where('marketplace_order_items.workshop_id', $workshopId));
 
         // Если отсканирован order_id — фильтруем только по нему
         if ($request->filled('scan_order_id')) {
@@ -718,6 +768,7 @@ class MarketplaceOrderItemService
                 ->update([
                     'status' => $status,
                     $field => auth()->user()->id,
+                    'workshop_id' => auth()->user()->currentWorkshop()?->id,
                 ]);
 
             if ($affected === 0) {
@@ -744,6 +795,7 @@ class MarketplaceOrderItemService
                 'type_movement' => 3,
                 'status' => 4,
                 'shift_id' => auth()->user()->currentShift()?->id,
+                'workshop_id' => auth()->user()->currentWorkshop()?->id,
                 $field => auth()->user()->id,
                 'comment' => 'По заказу No: '.$marketplaceOrderItem->marketplaceOrder->order_id,
                 'marketplace_order_id' => $marketplaceOrderItem->marketplaceOrder->id,
@@ -1002,6 +1054,23 @@ class MarketplaceOrderItemService
             });
         }
 
+        // Фильтр по цеху: выбираем только товары, разрешённые в цехе сотрудника
+        $workshopId = auth()->user()->currentWorkshop()?->id;
+        if ($workshopId) {
+            $items = $items->whereExists(function ($q) use ($workshopId) {
+                $q->select(DB::raw(1))
+                    ->from('item_workshop')
+                    ->whereColumn('item_workshop.marketplace_item_id', 'marketplace_order_items.marketplace_item_id')
+                    ->where('item_workshop.workshop_id', $workshopId);
+            });
+
+            // Только товары, принадлежащие цеху сотрудника (или без цеха — старые данные)
+            $items = $items->where(function ($q) use ($workshopId) {
+                $q->where('marketplace_order_items.workshop_id', $workshopId)
+                    ->orWhereNull('marketplace_order_items.workshop_id');
+            });
+        }
+
         $items = $items->with(['item.consumption.material']);
 
         $items = $items
@@ -1015,12 +1084,10 @@ class MarketplaceOrderItemService
             default => $items
         };
 
-        // Глобальный приоритет заказов
-        $orders_priority = Setting::query()
-            ->where('name', 'orders_priority')
-            ->first();
+        // Приоритет заказов (цеховая настройка)
+        $ordersPriority = Setting::getValue('orders_priority', $workshopId);
 
-        $items = match ($orders_priority->value) {
+        $items = match ($ordersPriority) {
             'ozon' => $items->orderBy('marketplace_orders.marketplace_id', 'asc'),
             'wb' => $items->orderBy('marketplace_orders.marketplace_id', 'desc'),
             default => $items
@@ -1181,9 +1248,11 @@ class MarketplaceOrderItemService
     {
         $meters = self::getMetersTodayByUser($user) / 100;
 
+        $currentWorkshopId = $user->currentWorkshop()?->id;
+
         $dailyLimit = match ($user->role->name) {
-            'seamstress' => Setting::getValue('seamstress_daily_limit'),
-            'cutter' => Setting::getValue('cutter_daily_limit'),
+            'seamstress' => Setting::getValue('seamstress_daily_limit', $currentWorkshopId),
+            'cutter' => Setting::getValue('cutter_daily_limit', $currentWorkshopId),
             default => 0,
         };
 
@@ -1246,7 +1315,9 @@ class MarketplaceOrderItemService
             ->with('item')
             ->get();
 
-        $maxCount = Setting::getValue('max_quantity_orders_without_timeout');
+        $currentWorkshopId = $user->currentWorkshop()?->id;
+
+        $maxCount = Setting::getValue('max_quantity_orders_without_timeout', $currentWorkshopId);
 
         if ($maxCount > $inWork->count()) {
             return $success;
@@ -1254,7 +1325,7 @@ class MarketplaceOrderItemService
 
         $maxRemainingMinutes = 0;
 
-        $timeout = self::getTimeout();
+        $timeout = self::getTimeout($currentWorkshopId);
 
         foreach ($inWork as $orderItem) {
             $orderItemTimeout = $timeout[$orderItem->item->width] ?? 0;
@@ -1289,7 +1360,7 @@ class MarketplaceOrderItemService
 
     public function checkTimeoutOrderItem(MarketplaceOrderItem $marketplaceOrderItem): bool
     {
-        $timeout = self::getTimeout();
+        $timeout = self::getTimeout(auth()->user()->currentWorkshop()?->id);
 
         $orderItemTimeout = $timeout[$marketplaceOrderItem->item->width] ?? 0;
 
@@ -1308,7 +1379,10 @@ class MarketplaceOrderItemService
         return true;
     }
 
-    private static function getTimeout(): array
+    /**
+     * Получить таймауты по ширинам для цеха.
+     */
+    private static function getTimeout(?int $workshopId = null): array
     {
         $settings = Setting::getValues([
             'timeout_200',
@@ -1318,7 +1392,7 @@ class MarketplaceOrderItemService
             'timeout_600',
             'timeout_700',
             'timeout_800',
-        ]);
+        ], $workshopId);
 
         return [
             200 => (int) ($settings['timeout_200'] ?? 0),

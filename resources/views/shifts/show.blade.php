@@ -29,6 +29,38 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="workshop_id">Цех</label>
+                            @if($hasFutureSchedule)
+                                <select name="workshop_id" id="workshop_id"
+                                        class="form-control" disabled>
+                                    @foreach ($workshops as $workshop)
+                                        <option value="{{ $workshop->id }}"
+                                            {{ $shift->workshop_id === $workshop->id ? 'selected' : '' }}>
+                                            {{ $workshop->title }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="workshop_id"
+                                       value="{{ $shift->workshop_id }}">
+                                <small class="text-danger mt-1 d-block">
+                                    <i class="fas fa-lock"></i>
+                                    Цех нельзя изменить: есть расписание на
+                                    будущие дни
+                                </small>
+                            @else
+                                <select name="workshop_id" id="workshop_id"
+                                        class="form-control">
+                                    @foreach ($workshops as $workshop)
+                                        <option value="{{ $workshop->id }}"
+                                            {{ $shift->workshop_id === $workshop->id ? 'selected' : '' }}>
+                                            {{ $workshop->title }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
                             <label for="status">Статус</label>
                             <select name="status" id="status"
                                     class="form-control">

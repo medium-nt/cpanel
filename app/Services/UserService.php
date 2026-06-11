@@ -31,9 +31,12 @@ class UserService
         return $roleName;
     }
 
-    public static function getListSeamstressesWorkingToday(): Collection
+    /**
+     * Получить tg_id работающих сегодня швей (опционально по цеху).
+     */
+    public static function getListSeamstressesWorkingToday(?int $workshopId = null): Collection
     {
-        return self::getListEmployeesWorkingTodayByRole(1);
+        return self::getListEmployeesWorkingTodayByRole(1, $workshopId);
     }
 
     public static function getListStorekeepersWorkingToday(): Collection
@@ -52,9 +55,12 @@ class UserService
             ->pluck('tg_id');
     }
 
-    private static function getListEmployeesWorkingTodayByRole($roleId): Collection
+    /**
+     * Получить tg_id работающих сегодня сотрудников по роли (опционально по цеху).
+     */
+    private static function getListEmployeesWorkingTodayByRole($roleId, ?int $workshopId = null): Collection
     {
-        return Schedule::query()
+        $users = Schedule::query()
             ->where('date', now()->toDateString())
             ->whereHas('user', function ($query) use ($roleId) {
                 $query->where('role_id', $roleId)
@@ -63,8 +69,15 @@ class UserService
             ->with('user')
             ->distinct()
             ->get()
-            ->pluck('user.tg_id')
+            ->pluck('user')
             ->unique();
+
+        // Фильтр по цеху: оставляем только сотрудников, чья текущая смена в указанном цехе
+        if ($workshopId !== null) {
+            $users = $users->filter(fn (User $user) => $user->currentWorkshop()?->id === $workshopId);
+        }
+
+        return $users->pluck('tg_id');
     }
 
     public static function sendMessageForWorkingTodayEmployees(): void

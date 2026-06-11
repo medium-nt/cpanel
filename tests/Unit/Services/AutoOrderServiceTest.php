@@ -7,6 +7,7 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Shift;
+use App\Models\Workshop;
 use App\Services\AutoOrderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,6 +15,8 @@ use Tests\TestCase;
 class AutoOrderServiceTest extends TestCase
 {
     use RefreshDatabase;
+
+    private Workshop $workshop;
 
     private Shift $shift;
 
@@ -26,7 +29,14 @@ class AutoOrderServiceTest extends TestCase
         // Отключаем сидерные материалы — тесты работают с контролируемым набором
         Material::query()->update(['is_active' => false]);
 
+        // Создаём тестовый цех — все смены и заказы привязаны к нему
+        $this->workshop = Workshop::create([
+            'title' => 'Тестовый цех',
+            'status' => Workshop::STATUS_ACTIVE,
+        ]);
+
         $this->shift = Shift::create([
+            'workshop_id' => $this->workshop->id,
             'name' => 'Тестовая смена',
             'status' => Shift::STATUS_ACTIVE,
         ]);
@@ -162,6 +172,7 @@ class AutoOrderServiceTest extends TestCase
     {
         // Один и тот же материал: у shift1 = 80 (ниже), у shift2 = 200 (выше)
         $shift2 = Shift::create([
+            'workshop_id' => $this->workshop->id,
             'name' => 'Вторая смена',
             'status' => Shift::STATUS_ACTIVE,
         ]);

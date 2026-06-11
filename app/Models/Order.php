@@ -15,6 +15,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
+        'workshop_id',
         'shift_id',
         'type_movement',
         'status',
@@ -44,6 +45,11 @@ class Order extends Model
     public function getTypeMovementNameAttribute(): string
     {
         return TypeMovement::TYPES[$this->type_movement];
+    }
+
+    public function workshop(): BelongsTo
+    {
+        return $this->belongsTo(Workshop::class);
     }
 
     public function user(): BelongsTo
