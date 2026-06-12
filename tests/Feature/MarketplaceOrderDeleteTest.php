@@ -113,17 +113,17 @@ test('destroyNewBySupply endpoint deletes new orders for admin', function () {
     $this->assertDatabaseMissing('marketplace_orders', ['id' => $order->id]);
 });
 
-test('service detachNotReadyOrdersBySupply detaches only orders without box and not new', function () {
+test('service detachNotReadyOrdersBySupply detaches only orders without box and in progress', function () {
     $supply = MarketplaceSupply::factory()->create();
 
-    // Не готовый: без короба, не новый → отвязать
+    // В работе (status=4), без короба → отвязать
     $notReady = MarketplaceOrder::factory()->create([
         'supply_id' => $supply->id,
         'box_id' => null,
         'status' => 4,
     ]);
 
-    // В коробе, не новый → НЕ отвязывать (остаётся в поставке)
+    // В коробе, в работе → НЕ отвязывать (остаётся в поставке)
     $box = SupplyBox::create(['marketplace_supply_id' => $supply->id, 'number' => 'BOX-1']);
     $inBox = MarketplaceOrder::factory()->create([
         'supply_id' => $supply->id,
@@ -131,11 +131,18 @@ test('service detachNotReadyOrdersBySupply detaches only orders without box and 
         'status' => 4,
     ]);
 
-    // Без короба, но новый → НЕ отвязывать (новые не трогаем)
+    // Без короба, но новый (status=0) → НЕ отвязывать
     $newOrder = MarketplaceOrder::factory()->create([
         'supply_id' => $supply->id,
         'box_id' => null,
         'status' => 0,
+    ]);
+
+    // Без короба, другой статус (status=6 «На поставку») → НЕ отвязывать (отвязываем только status=4)
+    $otherOrder = MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'box_id' => null,
+        'status' => 6,
     ]);
 
     $result = MarketplaceOrderService::detachNotReadyOrdersBySupply($supply->id);
@@ -145,6 +152,7 @@ test('service detachNotReadyOrdersBySupply detaches only orders without box and 
     $this->assertDatabaseHas('marketplace_orders', ['id' => $notReady->id, 'supply_id' => null]);
     $this->assertDatabaseHas('marketplace_orders', ['id' => $inBox->id, 'supply_id' => $supply->id]);
     $this->assertDatabaseHas('marketplace_orders', ['id' => $newOrder->id, 'supply_id' => $supply->id]);
+    $this->assertDatabaseHas('marketplace_orders', ['id' => $otherOrder->id, 'supply_id' => $supply->id]);
 });
 
 test('detachNotReadyBySupply endpoint requires admin', function () {

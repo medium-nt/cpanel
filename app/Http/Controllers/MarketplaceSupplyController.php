@@ -87,7 +87,7 @@ class MarketplaceSupplyController extends Controller
                 : collect();
 
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
-            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status != 0);
+            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);
 
             return view('marketplace_supply.show-ozon-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
@@ -117,7 +117,7 @@ class MarketplaceSupplyController extends Controller
                 : collect();
 
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
-            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status != 0);
+            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);
 
             $canExportExcel = $marketplaceSupply->status === 4;
 

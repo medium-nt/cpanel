@@ -238,7 +238,7 @@ class MarketplaceOrderService
     }
 
     /**
-     * Отвязывает от поставки заказы, не готовые к отгрузке: без короба и не «новые».
+     * Отвязывает от поставки заказы, не готовые к отгрузке: без короба и в работе (status = 4).
      *
      * Сам заказ не удаляется — только обнуляется supply_id, чтобы он остался
      * в системе, но не попал в отгрузку.
@@ -251,7 +251,7 @@ class MarketplaceOrderService
         $detached = MarketplaceOrder::query()
             ->where('supply_id', $supplyId)
             ->whereNull('box_id')
-            ->where('status', '!=', 0)
+            ->where('status', 4)
             ->update(['supply_id' => null]);
 
         if ($detached > 0) {
