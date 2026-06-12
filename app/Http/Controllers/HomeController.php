@@ -72,7 +72,7 @@ class HomeController extends Controller
             'title' => 'Дашборд',
             'events' => ScheduleService::getScheduleByUserId($employeeId),
             'cutMarketplaceOrderItem' => MarketplaceOrderItemService::cut($workshopScope),
-            'newMarketplaceOrderItem' => MarketplaceOrderItemService::new($workshopScope),
+            'newMarketplaceOrderItem' => MarketplaceOrderItemService::new(),
             'marketplaceOrderItemInWork' => MarketplaceOrderItemService::toWork($workshopScope),
             'marketplaceOrderItemInCutting' => MarketplaceOrderItemService::toCutting($workshopScope),
             'urgentMarketplaceOrderItem' => MarketplaceOrderItemService::urgent($workshopScope),
