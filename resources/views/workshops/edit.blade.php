@@ -95,9 +95,9 @@
                         </div>
                     </div>
 
-                    {{-- Разрешённые сырьевые материалы (ткани, фурнитура) --}}
+                    {{-- Разрешённые материалы (ткани, аксессуары и упаковка) --}}
                     <div class="form-group">
-                        <label>Разрешённые сырьевые материалы</label>
+                        <label>Разрешённые материалы</label>
                         <div class="mb-2">
                             <small class="text-muted">
                                 Отмеченные материалы будут доступны для заказа и
@@ -118,11 +118,6 @@
                                         for="raw_material_{{ $material->id }}"
                                         class="form-check-label">
                                         {{ $material->title }}
-                                        @if($material->height)
-                                            <small
-                                                class="text-muted">({{ $material->height }}
-                                                )</small>
-                                        @endif
                                     </label>
                                 </div>
                             @endforeach
