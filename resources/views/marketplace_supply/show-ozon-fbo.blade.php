@@ -396,23 +396,23 @@
                              data-target="#orders-collapse">
                             <h3 class="card-title">Заказы
                                 <span class="orders-count">({{ $supplyOrders->count() }})</span>
+                            </h3>
+                        </div>
+                        <div id="orders-collapse" class="collapse">
+                            <div class="card-body">
                                 @if($supply->status === 13 && !empty($hasNewOrders) && auth()->user()->isAdmin())
                                     <form
                                         action="{{ route('marketplace_orders.destroy_new_by_supply', $supply) }}"
                                         method="POST"
-                                        class="d-inline ml-2 delete-all-new-form">
+                                        class="d-inline delete-all-new-form">
                                         @csrf @method('DELETE')
                                         <button type="submit"
-                                                class="btn btn-danger btn-sm">
+                                                class="btn btn-danger btn-sm mb-3">
                                             <i class="fas fa-trash"></i> Удалить
                                             все новые
                                         </button>
                                     </form>
                                 @endif
-                            </h3>
-                        </div>
-                        <div id="orders-collapse" class="collapse">
-                            <div class="card-body">
                                 <div class="table-responsive">
                                     <table
                                         class="table table-hover table-bordered">
