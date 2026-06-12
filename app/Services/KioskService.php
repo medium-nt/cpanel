@@ -13,6 +13,9 @@ use Illuminate\Support\Collection;
 
 class KioskService
 {
+    /**
+     * Проверяет, есть ли у пользователя незавершённые заказы в работе.
+     */
     public function hasOrdersInWork(User $user): bool
     {
         if ($user->isSeamstress()) {
@@ -32,6 +35,9 @@ class KioskService
         return false;
     }
 
+    /**
+     * Фильтрует список расходов по типу упаковочного материала (флаер/пакет).
+     */
     public function filterConsumptionsByMaterialUsed($consumptions, string $materialUsed): Collection
     {
         $keywords = match ($materialUsed) {
@@ -56,6 +62,9 @@ class KioskService
         });
     }
 
+    /**
+     * Списывает упаковочные материалы (флаер/пакет) для товара, создавая заказ на расход.
+     */
     public function deductPackagingMaterials(MarketplaceItem $item, string $materialUsed, string $comment): void
     {
         $consumptions = $item->consumption()->with('material')->get();
@@ -76,6 +85,9 @@ class KioskService
         }
     }
 
+    /**
+     * Проверяет, что текущий пользователь имеет роль ОТК; иначе перенаправляет на главную киоска.
+     */
     public function authorizeOtk(): void
     {
         $user = User::find(session('user_id'));
@@ -85,6 +97,9 @@ class KioskService
         }
     }
 
+    /**
+     * Возвращает товары для проверки ОТК с фильтрацией по статусу, материалу, ширине и высоте.
+     */
     public function getFilteredInspectionItems(Request $request, array|int $status, bool $orderByDesc = false): Collection
     {
         $query = MarketplaceOrderItem::query()
@@ -102,6 +117,9 @@ class KioskService
         return $query->get();
     }
 
+    /**
+     * Проверяет наличие упаковочных материалов нужного типа на складе цеха.
+     */
     public function hasPackagingMaterials(MarketplaceItem $item, string $materialUsed): bool
     {
         $consumptions = $item->consumption()->with('material')->get();

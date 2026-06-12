@@ -407,6 +407,9 @@ class InventoryService
         return $result;
     }
 
+    /**
+     * Создаёт инвентаризацию: записывает все товары на складе (по полке или все) в чек-лист.
+     */
     public function createInventory($request): bool
     {
         try {

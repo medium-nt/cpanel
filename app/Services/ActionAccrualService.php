@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 class ActionAccrualService
 {
     /**
-     * Начислить за действие (обрабатывает все товары сотрудника за день)
+     * Начисляет оплату за действие (обрабатывает все товары сотрудника за указанный день).
      */
     public function accrualForAction(string $action, Carbon $date, bool $test = false): void
     {
@@ -388,7 +388,7 @@ class ActionAccrualService
     }
 
     /**
-     * Начислить оклад за день
+     * Начисляет дневной оклад сотрудникам, отработавшим минимум 3 действия за день.
      */
     public function accrualSalaryDaily(Carbon $date, bool $test = false): void
     {

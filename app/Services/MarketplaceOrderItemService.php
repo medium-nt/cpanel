@@ -1358,6 +1358,9 @@ class MarketplaceOrderItemService
         return $success;
     }
 
+    /**
+     * Проверяет, истёк ли таймаут выполнения для позиции заказа (по ширине и цеху).
+     */
     public function checkTimeoutOrderItem(MarketplaceOrderItem $marketplaceOrderItem): bool
     {
         $timeout = self::getTimeout(auth()->user()->currentWorkshop()?->id);
@@ -1405,6 +1408,9 @@ class MarketplaceOrderItemService
         ];
     }
 
+    /**
+     * Возвращает заказы пользователя, сгруппированные по материалу и отсортированные по ширине/высоте.
+     */
     public function getOrdersGroupedByMaterial(User $user): \Illuminate\Support\Collection
     {
         $items = MarketplaceOrderItem::query()

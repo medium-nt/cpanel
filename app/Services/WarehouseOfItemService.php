@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WarehouseOfItemService
 {
+    /**
+     * Возвращает запрос товаров склада хранения с применёнными фильтрами из запроса.
+     */
     public function getFiltered(Request $request): Builder
     {
         $items = MarketplaceOrderItem::query()
@@ -182,6 +185,9 @@ class WarehouseOfItemService
         );
     }
 
+    /**
+     * Возвращает штрихкод хранения товара; генерирует и сохраняет новый, если его нет.
+     */
     public function getStorageBarcode(MarketplaceOrderItem $marketplace_item): string
     {
         $barcode = $marketplace_item->storage_barcode;
@@ -210,6 +216,9 @@ class WarehouseOfItemService
         return $base.((10 - $sum % 10) % 10);
     }
 
+    /**
+     * Размещает товар на полку склада хранения и обновляет статус заказа на «возврат».
+     */
     public function saveItemToStorage(MarketplaceOrderItem $item, int $shelfId): void
     {
         $item->shelf_id = $shelfId;
@@ -227,6 +236,11 @@ class WarehouseOfItemService
             ->info('Товар с заказа '.$item->marketplace_order_id.' помещен на склад хранения на полку '.$shelfId);
     }
 
+    /**
+     * Ищет товар для возврата по штрихкоду (OZON FBS/FBO, WB, storage barcode, part_b).
+     *
+     * Возвращает массив с ключами: message, marketplace_item, marketplace_items, returnReason.
+     */
     public function findRefundItemByBarcode($barcode): array
     {
         if (! $barcode) {
@@ -317,6 +331,9 @@ class WarehouseOfItemService
         ];
     }
 
+    /**
+     * Возвращает статистику по товарам на проверке ОТК (кол-во по каждому статусу).
+     */
     public function getInspectionStats(): array
     {
         return [
@@ -341,6 +358,9 @@ class WarehouseOfItemService
         ];
     }
 
+    /**
+     * Создаёт N товаров на складе хранения (FBO-заказы «под товар») и возвращает массив ID.
+     */
     public function getCreateItems($validatedData, MarketplaceItem $item): array
     {
         $marketplaceItems = [];

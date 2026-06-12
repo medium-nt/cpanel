@@ -859,6 +859,9 @@ class MarketplaceApiService
         return $data['items'][0]['barcodes'][0] ?? null;
     }
 
+    /**
+     * Получает PDF-стикер для OZON FBS-заказа по номеру отправления.
+     */
     public function getBarcodeOzon(mixed $orderId): object|false|null
     {
         $body = [
@@ -899,6 +902,9 @@ class MarketplaceApiService
         }
     }
 
+    /**
+     * Получает стикер для WB-заказа и возвращает его как PDF-поток.
+     */
     public function getBarcodeWb(int $orderId): object|false|null
     {
         $body = [
@@ -980,6 +986,9 @@ class MarketplaceApiService
         return $pdf->stream('barcode.pdf');
     }
 
+    /**
+     * Генерирует HTML-представление стикера для OZON FBO-заказа (для предпросмотра).
+     */
     public function getBarcodeOzonFBOHtml(MarketplaceOrder $order): \Illuminate\View\View
     {
         $item = $order->items->first()->item;
