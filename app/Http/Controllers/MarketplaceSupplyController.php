@@ -86,12 +86,15 @@ class MarketplaceSupplyController extends Controller
                     ->get()
                 : collect();
 
+            $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
+
             return view('marketplace_supply.show-ozon-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
                 'supply' => $marketplaceSupply,
                 'ozonSupplyOrders' => $ozonSupplyOrders,
                 'hasOrders' => $hasOrders,
                 'supplyOrders' => $supplyOrders,
+                'hasNewOrders' => $hasNewOrders,
             ]);
         }
 
@@ -111,6 +114,8 @@ class MarketplaceSupplyController extends Controller
                     ->get()
                 : collect();
 
+            $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
+
             $canExportExcel = $marketplaceSupply->status === 4;
 
             return view('marketplace_supply.show-wb-fbo', [
@@ -119,6 +124,7 @@ class MarketplaceSupplyController extends Controller
                 'wbSupplies' => $wbSupplies,
                 'hasOrders' => $hasOrders,
                 'supplyOrders' => $supplyOrders,
+                'hasNewOrders' => $hasNewOrders,
                 'canExportExcel' => $canExportExcel,
             ]);
         }

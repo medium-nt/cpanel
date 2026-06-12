@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMarketplaceOrderRequest;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -142,17 +143,56 @@ class MarketplaceOrderController extends Controller
 
     public function destroy(MarketplaceOrder $marketplaceOrder)
     {
-        if ($marketplaceOrder->items->some(function ($item) {
-            return $item->status != 0;
-        })) {
+        if (! MarketplaceOrderService::delete($marketplaceOrder)) {
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Товары заказа уже переданы в работу. Заказ не может быть удален.',
+                ], 403);
+            }
+
             return back()
                 ->with('error', 'Товары заказа уже переданы в работу. Заказ не может быть удален.');
         }
 
-        $marketplaceOrder->delete();
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Заказ удален.',
+            ]);
+        }
 
         return back()
             ->with('success', 'Заказ удален.');
+    }
+
+    /**
+     * Удаляет все заказы в статусе "новый" из указанной поставки.
+     *
+     * @param  MarketplaceSupply  $marketplaceSupply  Поставка
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function destroyNewBySupply(MarketplaceSupply $marketplaceSupply)
+    {
+        $result = MarketplaceOrderService::deleteNewOrdersBySupply($marketplaceSupply->id);
+
+        $message = 'Удалено заказов: '.$result['deleted'];
+
+        if ($result['skipped'] > 0) {
+            $message .= ', пропущено: '.$result['skipped'];
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'deleted' => $result['deleted'],
+                'skipped' => $result['skipped'],
+            ]);
+        }
+
+        return back()
+            ->with('success', $message);
     }
 
     public function importExcel()

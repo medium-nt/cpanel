@@ -1,6 +1,6 @@
 # Order Lifecycle — Жизненный цикл заказов маркетплейса
 
-> Last reviewed: 2026-06-10
+> Last reviewed: 2026-06-20
 
 ## Обзор
 
@@ -26,6 +26,7 @@ API-синхронизацию каждые 10 минут. Каждый `Marketp
 | Брак                   | 11  | Обнаружен дефект               | —                    |
 | Готов к отправке       | 13  | Товар на складе, ждёт отправку | —                    |
 | Отменён                | 99  | Заказ отменён маркетплейсом    | —                    |
+| Отклонён ОТК           | 14  | Заказ отклонён службой ОТК     | —                    |
 
 ### Поток заказа (основной путь)
 
@@ -52,12 +53,34 @@ API синхронизация (каждые 10 мин)
 - **ОТК (otk):** видит "cut" (8) — проверяет отшитые заказы
 - **Кладовщик (storekeeper):** видит "in_work" (4) — помогает с пошивом
 - **Менеджер/Админ:** видит все статусы
+- **Администраторы:** могут удалять заказы в FBO-поставках (только статус "
+  новый", 0)
 
 **Фильтрация по цеху (workshop_id):**
 
 - Сотрудники видят только заказы **своего цеха** (с branch `feature/workshops`)
 - Реализовано в `MarketplaceOrderItemService::getFiltered()` через join с
   `marketplace_orders`
+
+### Удаление заказов
+
+**Только для администраторов:**
+
+- Удаление доступно только когда поставка в статусе 0 (формируется)
+- Можно удалять заказы по одному или массово все новые заказы в FBO-поставках
+- При удалении заказа автоматически удаляются все его позиции (
+  `marketplace_order_items`) и история (`marketplace_order_history`) через
+  каскадное удаление FK
+
+**Методы удаления:**
+
+- `MarketplaceOrderService::delete()` — удаление одного заказа (только status=0)
+- `MarketplaceOrderService::deleteNewOrdersBySupply()` — массовое удаление всех
+  заказов в статусе 0 из поставки
+- `MarketplaceOrderController::destroyNewBySupply()` — обработчик массового
+  удаления
+- UI кнопки в раздел "Заказы" на FBO-страницах поставки (
+  `show-ozon-fbo.blade.php` и `show-wb-fbo.blade.php`)
 
 ### Взятие заказа в работу
 
@@ -85,8 +108,11 @@ API синхронизация (каждые 10 мин)
 
 - `app/Services/MarketplaceOrderItemService.php` — основная бизнес-логика (25
   методов)
+- `app/Services/MarketplaceOrderService.php` — сервис удаления заказов (методы
+  `delete()` и `deleteNewOrdersBySupply()`)
 - `app/Models/MarketplaceOrderItem.php` — модель с 17 fillable-полями
 - `app/Http/Controllers/MarketplaceOrderItemController.php` — HTTP-обработчики
+- `app/Http/Controllers/MarketplaceOrderController.php` — удаление заказов
 - `app/Models/StatusMovement.php` — константы статусов и цветов
 - `app/Models/MarketplaceOrderHistory.php` — история изменений статусов
 
@@ -98,6 +124,9 @@ API синхронизация (каждые 10 мин)
   cutter_daily_limit)
 - Каждые 10 минут синхронизируются новые и отменённые заказы
 - Уведомления в Telegram при ключевых событиях (взятие заказа, завершение)
+- **Правила удаления:** администраторы могут удалять заказы только в
+  FBO-поставках,
+  только в статусе "новый" (0), только когда поставка в статусе 0 (формируется)
 
 ## Связанные topics
 
@@ -105,4 +134,4 @@ API синхронизация (каждые 10 мин)
 - [shift-system.md](shift-system.md) — как работают смены и цеха
 - [salary-system.md](salary-system.md) — как оплачивается пошив и раскрой
 - [marketplace-integration.md](marketplace-integration.md) — как заказы попадают
-  в систему
+  в систему и работа с FBO-поставками

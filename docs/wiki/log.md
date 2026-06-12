@@ -13,3 +13,18 @@
 - `WorkshopController::edit/update` — UI управления привязкой материалов к
   цеху (чекбоксы в `resources/views/workshops/edit.blade.php`)
 - Обновлены topics: material-flow.md, shift-system.md, warehouse-operations.md
+
+## [2026-06-20] update | fbo-order-deletion
+
+- Добавлена возможность удаления заказов в FBO-поставках: по одному и массово
+  все новые
+  (только статус 0, только администраторам, только когда поставка в статусе 0)
+- `MarketplaceOrderService::delete()` и `deleteNewOrdersBySupply()` — новые
+  методы удаления
+- `MarketplaceOrderController::destroyNewBySupply()` — обработчик массового
+  удаления
+- UI кнопки в `show-ozon-fbo.blade.php` и `show-wb-fbo.blade.php` — "Удалить"
+  и "Удалить все новые"
+- Каскадное удаление позиций заказов и истории через FK
+- Тесты в `MarketplaceOrderDeleteTest.php`
+- Обновлены topics: order-lifecycle.md, marketplace-integration.md

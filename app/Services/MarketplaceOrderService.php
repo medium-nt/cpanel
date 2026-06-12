@@ -179,4 +179,61 @@ class MarketplaceOrderService
 
         return false;
     }
+
+    /**
+     * Удаляет заказ, если все его позиции имеют статус 0 (новый).
+     *
+     * @param  MarketplaceOrder  $marketplaceOrder  Заказ для удаления
+     * @return bool true если заказ удалён, false если удалить нельзя (товары уже в работе)
+     */
+    public static function delete(MarketplaceOrder $marketplaceOrder): bool
+    {
+        if ($marketplaceOrder->items->some(function ($item) {
+            return $item->status != 0;
+        })) {
+            return false;
+        }
+
+        $marketplaceOrder->delete();
+
+        Log::channel('orders')
+            ->notice('Заказ №'.$marketplaceOrder->order_id.' удалён.');
+
+        return true;
+    }
+
+    /**
+     * Удаляет все заказы в статусе "новый" (status = 0) указанной поставки.
+     *
+     * @param  int  $supplyId  ID поставки
+     * @return array ['deleted' => int, 'skipped' => int]
+     */
+    public static function deleteNewOrdersBySupply(int $supplyId): array
+    {
+        $orders = MarketplaceOrder::query()
+            ->where('supply_id', $supplyId)
+            ->where('status', 0)
+            ->get();
+
+        $deleted = 0;
+        $skipped = 0;
+
+        foreach ($orders as $order) {
+            if (self::delete($order)) {
+                $deleted++;
+            } else {
+                $skipped++;
+            }
+        }
+
+        if ($deleted > 0) {
+            Log::channel('orders')
+                ->notice('Из поставки #'.$supplyId.' удалено новых заказов: '.$deleted.', пропущено: '.$skipped.'.');
+        }
+
+        return [
+            'deleted' => $deleted,
+            'skipped' => $skipped,
+        ];
+    }
 }

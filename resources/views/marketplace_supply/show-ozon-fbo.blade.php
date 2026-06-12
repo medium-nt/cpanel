@@ -395,7 +395,21 @@
                              data-toggle="collapse"
                              data-target="#orders-collapse">
                             <h3 class="card-title">Заказы
-                                ({{ $supplyOrders->count() }})</h3>
+                                <span class="orders-count">({{ $supplyOrders->count() }})</span>
+                                @if($supply->status === 13 && !empty($hasNewOrders) && auth()->user()->isAdmin())
+                                    <form
+                                        action="{{ route('marketplace_orders.destroy_new_by_supply', $supply) }}"
+                                        method="POST"
+                                        class="d-inline ml-2 delete-all-new-form">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i> Удалить
+                                            все новые
+                                        </button>
+                                    </form>
+                                @endif
+                            </h3>
                         </div>
                         <div id="orders-collapse" class="collapse">
                             <div class="card-body">
@@ -407,12 +421,14 @@
                                             <th>Заказ</th>
                                             <th>Товар</th>
                                             <th>Статус</th>
+                                            <th style="width: 90px">Действия
+                                            </th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach($supplyOrders as $order)
                                             @foreach($order->items as $item)
-                                                <tr>
+                                                <tr data-order-id="{{ $order->id }}">
                                                     <td>{{ $order->order_id }}</td>
                                                     <td>{{ $item->item?->title ?? '-' }} {{ $item->item?->width }}
                                                         x {{ $item->item?->height }}</td>
@@ -425,6 +441,22 @@
                                                         @else
                                                             <span
                                                                 class="badge {{ $order->status_color }}">{{ $order->status_name }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td style="width: 90px">
+                                                        @if($order->status == 0 && $supply->status === 13 && auth()->user()->isAdmin())
+                                                            <form
+                                                                action="{{ route('marketplace_orders.destroy', $order) }}"
+                                                                method="POST"
+                                                                class="d-inline delete-order-form">
+                                                                @csrf @method('DELETE')
+                                                                <button
+                                                                    type="submit"
+                                                                    class="btn btn-danger btn-sm"
+                                                                    data-order-id="{{ $order->order_id }}">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
                                                         @endif
                                                     </td>
                                                 </tr>
@@ -519,6 +551,8 @@
             return true;
         }
     </script>
+
+    <script src="{{ asset('js/fbo-order-delete.js') }}"></script>
 @endpush
 
 @push('css')

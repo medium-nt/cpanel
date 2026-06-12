@@ -109,4 +109,12 @@ class MarketplaceSupplyPolicy
     {
         return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
+
+    /**
+     * Проверяет право на удаление заказов в поставке.
+     */
+    public function deleteOrders(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin();
+    }
 }
