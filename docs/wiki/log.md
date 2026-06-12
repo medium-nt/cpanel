@@ -55,3 +55,15 @@
   поставки
 - Кнопки в `show-ozon-fbo.blade.php` и `show-wb-fbo.blade.php`
 - Обновлены topics: order-lifecycle.md, marketplace-integration.md, finance.md
+
+## [2026-06-24] update | new-orders-widget-fix
+
+- Исправлен виджет «Новые задания на пошив» в HomeController.php (строка 75):
+- Проблема: widget показывал нули сотрудникам смен, так как фильтровался по
+  workshop_id
+- Фикс: вызов `MarketplaceOrderItemService::new()` без аргумента (было
+  new($workshopScope))
+- Новые заказы (status=0) всегда имеют workshop_id=NULL — цех назначается позже
+- Остальные виджеты (toWork, toCutting, urgent, cut) продолжают фильтроваться
+  корректно по цеху
+- Обновлены topics: order-lifecycle.md, shift-system.md
