@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceItem;
+use App\Models\Material;
 use App\Models\Setting;
 use App\Models\Workshop;
 use Illuminate\Http\RedirectResponse;
@@ -86,7 +87,15 @@ class WorkshopController extends Controller
             ->where('workshop_id', $workshop->id)
             ->pluck('value', 'name');
 
-        return view('workshops.edit', compact('workshop', 'materialTitles', 'allowedTitles', 'globalSettings', 'workshopSettings', 'settingLabels', 'settingOptions'));
+        // Сырьевые материалы (ткани, фурнитура) — доступные для заказа в цехе
+        $rawMaterials = Material::query()
+            ->where('is_active', true)
+            ->orderBy('title')
+            ->get();
+
+        $allowedMaterialIds = $workshop->allowedMaterials()->pluck('materials.id')->toArray();
+
+        return view('workshops.edit', compact('workshop', 'materialTitles', 'allowedTitles', 'globalSettings', 'workshopSettings', 'settingLabels', 'settingOptions', 'rawMaterials', 'allowedMaterialIds'));
     }
 
     /**
@@ -149,6 +158,8 @@ class WorkshopController extends Controller
             'status' => 'required|in:active,inactive',
             'allowed_materials' => 'nullable|array',
             'allowed_materials.*' => 'string',
+            'allowed_raw_materials' => 'nullable|array',
+            'allowed_raw_materials.*' => 'exists:materials,id',
             'settings' => 'nullable|array',
         ]);
 
@@ -172,6 +183,9 @@ class WorkshopController extends Controller
             ->pluck('id')
             ->toArray();
         $workshop->allowedItems()->sync($itemIds);
+
+        // Синхронизация разрешённых сырьевых материалов (ткани, фурнитура)
+        $workshop->allowedMaterials()->sync($validated['allowed_raw_materials'] ?? []);
 
         // Сохранение цеховых переопределений настроек
         $settings = $validated['settings'] ?? [];

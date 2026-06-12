@@ -7,6 +7,7 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Shift;
+use App\Models\Workshop;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -19,11 +20,11 @@ class AutoOrderService
     private const THRESHOLD = 100;
 
     /**
-     * Проверить все активные смены и создать автозаказы для активных материалов ниже порога.
+     * Проверить все активные смены и создать автозаказы для материалов ниже порога.
      *
      * Логика:
-     * 1. Получаем все активные материалы (is_active=true)
-     * 2. Получаем все активные смены
+     * 1. Получаем все активные смены, группируем по цеху
+     * 2. Для каждого цеха — получаем только привязанные активные материалы
      * 3. Считаем остатки рулонов в цехе (status=in_workshop) по material_id + shift_id
      * 4. Материалы с остатком <= THRESHOLD или без рулонов в цехе вовсе -> автозаказ
      *
@@ -37,31 +38,38 @@ class AutoOrderService
             return [];
         }
 
-        $materials = Material::query()
-            ->where('is_active', true)
-            ->get();
-
-        if ($materials->isEmpty()) {
-            return [];
-        }
-
         $workshopQuantities = self::getWorkshopQuantities($shifts);
 
         $createdOrderIds = [];
 
-        foreach ($shifts as $shift) {
-            foreach ($materials as $material) {
-                $key = $material->id.'_'.$shift->id;
-                $quantity = $workshopQuantities[$key] ?? 0;
+        // Группируем смены по цеху — материалы загружаются один раз на цех
+        $shiftsByWorkshop = $shifts->groupBy('workshop_id');
 
-                if ($quantity > self::THRESHOLD) {
-                    continue;
-                }
+        foreach ($shiftsByWorkshop as $workshopId => $workshopShifts) {
+            $workshop = Workshop::find($workshopId);
 
-                $orderId = self::createAutoOrder($material, $shift);
+            if (! $workshop) {
+                continue;
+            }
 
-                if ($orderId) {
-                    $createdOrderIds[] = $orderId;
+            $materials = $workshop->allowedMaterials()
+                ->where('is_active', true)
+                ->get();
+
+            foreach ($workshopShifts as $shift) {
+                foreach ($materials as $material) {
+                    $key = $material->id.'_'.$shift->id;
+                    $quantity = $workshopQuantities[$key] ?? 0;
+
+                    if ($quantity > self::THRESHOLD) {
+                        continue;
+                    }
+
+                    $orderId = self::createAutoOrder($material, $shift);
+
+                    if ($orderId) {
+                        $createdOrderIds[] = $orderId;
+                    }
                 }
             }
         }

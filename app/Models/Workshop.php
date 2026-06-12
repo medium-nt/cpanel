@@ -43,6 +43,15 @@ class Workshop extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Материалы, доступные для заказа в этом цехе.
+     */
+    public function allowedMaterials(): BelongsToMany
+    {
+        return $this->belongsToMany(Material::class, 'material_workshop')
+            ->withTimestamps();
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);

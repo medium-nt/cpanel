@@ -47,6 +47,15 @@ class Material extends Model
         return $this->hasMany(MovementMaterial::class);
     }
 
+    /**
+     * Цеха, в которых доступен данный материал.
+     */
+    public function workshops(): BelongsToMany
+    {
+        return $this->belongsToMany(Workshop::class, 'material_workshop')
+            ->withTimestamps();
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class);

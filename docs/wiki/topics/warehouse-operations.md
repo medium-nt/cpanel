@@ -1,6 +1,6 @@
 # Warehouse Operations — Складские операции
 
-> Last reviewed: 2026-06-11
+> Last reviewed: 2026-06-20
 
 ## Обзор
 
@@ -134,10 +134,16 @@
 - `app/Http/Controllers/BarcodeSearchController.php` — поиск по штрихкоду
 - `app/Http/Controllers/SupplyBoxController.php` — управление коробами поставок
   и сборкой
+- `app/Http/Controllers/MovementMaterialToWorkshopController.php` — создание
+  запроса материалов (фильтрация по цеху)
+- `app/Services/MovementMaterialToWorkshopService.php` — проверка доступности
+  материала цеху
 - `app/Http/Controllers/StickerPrintingController.php` — страница печати
   стикеров
   (фильтры материалов/размеров из БД)
 - `app/Services/KioskService.php` — интерфейс киоска
+- `app/Services/AutoOrderService.php` — автоматическое пополнение (фильтрация по
+  цеху)
 - `app/Jobs/SendTelegramMessageJob.php` — отправка TG-уведомлений при сборке
 
 ## Бизнес-правила

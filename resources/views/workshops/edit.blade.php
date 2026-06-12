@@ -64,7 +64,7 @@
 
                     {{-- Разрешённые товары маркетплейсов (группировка по названию материала) --}}
                     <div class="form-group">
-                        <label>Разрешённые материалы</label>
+                        <label>Разрешённые товары маркетплейсов</label>
                         <div class="mb-2">
                             <small class="text-muted">
                                 Отмеченные материалы будут доступны для взятия в
@@ -91,6 +91,44 @@
                             @if($materialTitles->isEmpty())
                                 <p class="text-muted text-center mb-0">Нет
                                     материалов</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Разрешённые сырьевые материалы (ткани, фурнитура) --}}
+                    <div class="form-group">
+                        <label>Разрешённые сырьевые материалы</label>
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                Отмеченные материалы будут доступны для заказа и
+                                автозаказа в этом цехе.
+                            </small>
+                        </div>
+                        <div class="border rounded p-2"
+                             style="max-height: 300px; overflow-y: auto;">
+                            @foreach ($rawMaterials as $material)
+                                <div class="form-check">
+                                    <input type="checkbox"
+                                           name="allowed_raw_materials[]"
+                                           value="{{ $material->id }}"
+                                           id="raw_material_{{ $material->id }}"
+                                           class="form-check-input"
+                                        {{ in_array($material->id, $allowedMaterialIds) ? 'checked' : '' }}>
+                                    <label
+                                        for="raw_material_{{ $material->id }}"
+                                        class="form-check-label">
+                                        {{ $material->title }}
+                                        @if($material->height)
+                                            <small
+                                                class="text-muted">({{ $material->height }}
+                                                )</small>
+                                        @endif
+                                    </label>
+                                </div>
+                            @endforeach
+                            @if($rawMaterials->isEmpty())
+                                <p class="text-muted text-center mb-0">Нет
+                                    активных материалов</p>
                             @endif
                         </div>
                     </div>

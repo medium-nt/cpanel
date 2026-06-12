@@ -53,6 +53,20 @@ class MovementMaterialToWorkshopService
             ]);
         }
 
+        // Проверяем, что материал доступен цеху текущего пользователя
+        $workshop = auth()->user()->currentWorkshop();
+        if ($workshop) {
+            $isAllowed = $workshop->allowedMaterials()
+                ->where('materials.id', $materialId)
+                ->exists();
+
+            if (! $isAllowed) {
+                return back()->withInput()->withErrors([
+                    'error' => 'Этот материал недоступен для вашего цеха.',
+                ]);
+            }
+        }
+
         $shiftId = auth()->user()->currentShift()?->id;
 
         $exists = MovementMaterial::query()

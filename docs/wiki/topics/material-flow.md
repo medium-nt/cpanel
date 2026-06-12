@@ -1,6 +1,6 @@
 # Material Flow — Движение материалов
 
-> Last reviewed: 2026-06-11
+> Last reviewed: 2026-06-20
 
 ## Обзор
 
@@ -68,6 +68,18 @@
 4. Защита от дубликатов — один запрос на смену
 5. Telegram-уведомление о запросе материалов
 
+**Фильтрация материалов по цеху:**
+
+- Создана pivot-таблица `material_workshop` для связи материалов и цехов (
+  многие-ко-многим)
+- В интерфейсе создания запроса (
+  `MovementMaterialToWorkshopController::create()`) dropdown материалов
+  фильтруется по цеху пользователя
+- В методе `store()` выполняется проверка доступности материала для цеха
+- Метод `Workshop::allowedMaterials()` возвращает материалы, доступные для
+  заказа в цехе
+- Метод `Material::workshops()` предоставляет обратную связь с цехами
+
 ### Автоматическое пополнение
 
 **AutoOrderService** (каждые 30 мин, 7:00–20:00):
@@ -75,7 +87,9 @@
 1. Проверяет количество материалов в цеху по сменам
 2. Если ниже порога (100 единиц) → создаёт автозаказ
 3. Защита от дубликатов заказов
-4. Telegram-уведомление
+4. **Фильтрация по цеху:** теперь фильтрует материалы только через привязку
+   `material_workshop` (только привязанные к цеху материалы)
+5. Telegram-уведомление
 
 ### Списание материалов
 
@@ -100,10 +114,16 @@
 - `app/Models/Roll.php` — модель рулонов (статусы, коды, связь со сменами)
 - `app/Models/TypeMovement.php` — типы перемещений
 - `app/Services/MovementMaterialFromSupplierService.php` — поступление
-- `app/Services/MovementMaterialToWorkshopService.php` — отгрузка в цех
+- `app/Services/MovementMaterialToWorkshopService.php` — отгрузка в цех (
+  проверка доступности материала цеху)
 - `app/Services/MovementDefectMaterialToSupplierService.php` — возврат брака
-- `app/Services/AutoOrderService.php` — автоматическое пополнение
+- `app/Services/AutoOrderService.php` — автоматическое пополнение (фильтрация по
+  цеху)
 - `app/Services/WriteOffRemnantService.php` — списание остатков
+- `app/Http/Controllers/MovementMaterialToWorkshopController.php` — создание
+  запроса материалов (фильтрация по цеху)
+- `app/Http/Controllers/WorkshopController.php` — управление цехами (привязка
+  материалов через чекбоксы)
 - `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами в
   киоске (scanning, completion, defects) с изоляцией по сменам
 

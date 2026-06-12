@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-11
+> Last reviewed: 2026-06-20
 
 ## Обзор
 
@@ -81,6 +81,17 @@
 - `workshop_id` в `Setting` — настройки по цехам
 - Фильтрация: сотрудники видят только заказы/данные своего цеха
 
+**Привязка материалов к цехам:**
+
+- Добавлена pivot-таблица `material_workshop` для связи материалов и цехов (
+  многие-ко-многим)
+- `Workshop::allowedMaterials()` — материалы, доступные для заказа в цехе
+- `Material::workshops()` — обратная связь с цехами
+- `WorkshopController::edit/update` — UI управления привязкой материалов через
+  чекбоксы
+- `resources/views/workshops/edit.blade.php` — секция с выбором материалов для
+  цеха
+
 ### Изоляция рулонов по сменам
 
 Рулоны материалов (`Roll`) привязаны к сменам через `shift_id`. Каждая смена
@@ -112,9 +123,14 @@
 
 - `app/Models/Shift.php` — модель смены (статусы, пользователи, рулоны)
 - `app/Models/ShiftSchedule.php` — календарь смен
-- `app/Models/Workshop.php` — модель цеха
+- `app/Models/Workshop.php` — модель цеха (allowedMaterials — материалы,
+  доступные для заказа)
 - `app/Services/ShiftService.php` — управление сменами
 - `app/Services/ScheduleService.php` — открытие/закрытие рабочих смен
+- `app/Http/Controllers/WorkshopController.php` — управление цехами (привязка
+  материалов через чекбоксы)
+- `app/Services/MovementMaterialToWorkshopService.php` — проверка доступности
+  материала цеху
 - `app/Models/Schedule.php` — индивидуальное расписание
 - `app/Http/Middleware/RequireOpenShift.php` — middleware проверки смены
 - `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами

@@ -46,6 +46,9 @@ class AutoOrderServiceTest extends TestCase
             'unit' => 'м',
             'is_active' => true,
         ]);
+
+        // Привязываем материал к цеху — сервис заказывает только разрешённые материалы
+        $this->workshop->allowedMaterials()->attach($this->material);
     }
 
     /** Создать рулон в цехе у данной смены. */
