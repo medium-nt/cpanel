@@ -75,17 +75,12 @@ class MarketplaceSupplyController extends Controller
                 ? self::getOzonSupplyOrdersForDropdown()
                 : [];
 
-            $hasOrders = MarketplaceOrder::query()
+            $supplyOrders = MarketplaceOrder::query()
+                ->with('items.item', 'box')
                 ->where('supply_id', $marketplaceSupply->id)
-                ->exists();
+                ->get();
 
-            $supplyOrders = $hasOrders
-                ? MarketplaceOrder::query()
-                    ->with('items.item', 'box')
-                    ->where('supply_id', $marketplaceSupply->id)
-                    ->get()
-                : collect();
-
+            $hasOrders = $supplyOrders->isNotEmpty();
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
             $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);
 
@@ -105,16 +100,12 @@ class MarketplaceSupplyController extends Controller
                 ? MarketplaceApiService::getFboSuppliesWb()
                 : [];
 
-            $hasOrders = MarketplaceOrder::query()
+            $supplyOrders = MarketplaceOrder::query()
+                ->with('items.item', 'box')
                 ->where('supply_id', $marketplaceSupply->id)
-                ->exists();
+                ->get();
 
-            $supplyOrders = $hasOrders
-                ? MarketplaceOrder::query()
-                    ->with('items.item', 'box')
-                    ->where('supply_id', $marketplaceSupply->id)
-                    ->get()
-                : collect();
+            $hasOrders = $supplyOrders->isNotEmpty();
 
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
             $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);

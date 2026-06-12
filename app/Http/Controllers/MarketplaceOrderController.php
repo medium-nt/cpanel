@@ -220,6 +220,10 @@ class MarketplaceOrderController extends Controller
 
     public function remove(MarketplaceOrder $marketplace_order)
     {
+        if (! $marketplace_order->supply) {
+            return back()->with('error', 'Заказ не привязан к поставке.');
+        }
+
         $marketplace_supply = $marketplace_order->supply->id;
 
         $marketplace_order->supply_id = null;
@@ -228,6 +232,5 @@ class MarketplaceOrderController extends Controller
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
             ->with('success', 'Заказ удален из поставки.');
-
     }
 }
