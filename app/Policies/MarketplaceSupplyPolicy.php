@@ -117,4 +117,12 @@ class MarketplaceSupplyPolicy
     {
         return $user->isAdmin();
     }
+
+    /**
+     * Проверяет право на отвязку «не готовых» заказов от поставки.
+     */
+    public function detachOrders(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin();
+    }
 }

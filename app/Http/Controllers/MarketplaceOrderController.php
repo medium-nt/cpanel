@@ -195,6 +195,22 @@ class MarketplaceOrderController extends Controller
             ->with('success', $message);
     }
 
+    /**
+     * Отвязывает от поставки все «не готовые» заказы (без короба, не новые).
+     *
+     * Заказы не удаляются — у них обнуляется supply_id, чтобы они остались
+     * в системе, но не попали в отгрузку.
+     *
+     * @param  MarketplaceSupply  $marketplaceSupply  Поставка
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function detachNotReadyBySupply(MarketplaceSupply $marketplaceSupply)
+    {
+        $result = MarketplaceOrderService::detachNotReadyOrdersBySupply($marketplaceSupply->id);
+
+        return back()->with('success', 'Отвязано заказов: '.$result['detached']);
+    }
+
     public function importExcel()
     {
         return view('marketplace_orders.import_excel', [

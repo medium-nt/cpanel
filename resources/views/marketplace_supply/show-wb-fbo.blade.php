@@ -265,23 +265,42 @@
                          data-toggle="collapse" data-target="#orders-collapse">
                         <h3 class="card-title">Заказы
                             <span class="orders-count">({{ $supplyOrders->count() }})</span>
-                            @if($supply->status === 13 && !empty($hasNewOrders) && auth()->user()->isAdmin())
-                                <form
-                                    action="{{ route('marketplace_orders.destroy_new_by_supply', $supply) }}"
-                                    method="POST"
-                                    class="d-inline ml-2 delete-all-new-form">
-                                    @csrf @method('DELETE')
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i> Удалить все
-                                        новые
-                                    </button>
-                                </form>
-                            @endif
                         </h3>
                     </div>
                     <div id="orders-collapse" class="collapse">
                         <div class="card-body">
+                            @if(($supply->status === 13 && !empty($hasNewOrders) && auth()->user()->isAdmin()) || ($supply->status === 13 && !empty($hasNotReadyOrders) && auth()->user()->isAdmin()))
+                                <div class="mb-3">
+                                    @if($supply->status === 13 && !empty($hasNewOrders) && auth()->user()->isAdmin())
+                                        <form
+                                            action="{{ route('marketplace_orders.destroy_new_by_supply', $supply) }}"
+                                            method="POST"
+                                            class="d-inline delete-all-new-form">
+                                            @csrf @method('DELETE')
+                                            <button type="submit"
+                                                    class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                                Удалить все
+                                                новые
+                                            </button>
+                                        </form>
+                                    @endif
+                                    @if($supply->status === 13 && !empty($hasNotReadyOrders) && auth()->user()->isAdmin())
+                                        <form
+                                            action="{{ route('marketplace_orders.detach_not_ready_by_supply', $supply) }}"
+                                            method="POST"
+                                            class="d-inline ml-2">
+                                            @csrf @method('DELETE')
+                                            <button type="submit"
+                                                    class="btn btn-warning btn-sm"
+                                                    onclick="return confirm('Убрать из поставки все не готовые заказы (без короба)? Они останутся в системе, но будут отвязаны от поставки.')">
+                                                <i class="fas fa-unlink"></i>
+                                                Убрать не готовые
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
                             <div class="table-responsive">
                             <table class="table table-hover table-bordered">
                                 <thead class="thead-dark">

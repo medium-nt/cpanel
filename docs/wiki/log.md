@@ -38,3 +38,20 @@
   `MarketplaceSupplyPolicy::deleteOrders()`
 - Уточнён механизм каскадного удаления через FK constraints
 - Обновлены topics: order-lifecycle.md, marketplace-integration.md
+
+## [2026-06-23] update | fbo-order-detachment
+
+- Добавлена функциональность массовой отвязки не готовых заказов от
+  FBO-поставки:
+  жёлтая кнопка "Убрать не готовые" (только администраторам, только status=13)
+- `MarketplaceOrderService::detachNotReadyOrdersBySupply()` — массовое
+  `update()`
+  (
+  `whereNull('box_id')->where('status', '!=', 0)->update(['supply_id' => null])`)
+- `MarketplaceOrderController::detachNotReadyBySupply()` — обработчик с confirm
+- **Критерий "не готовых":** заказы без короба (box_id IS NULL) и в работе
+  (status != 0)
+- Отличие от удаления: заказы остаются в системе, только отвязываются от
+  поставки
+- Кнопки в `show-ozon-fbo.blade.php` и `show-wb-fbo.blade.php`
+- Обновлены topics: order-lifecycle.md, marketplace-integration.md, finance.md

@@ -236,4 +236,29 @@ class MarketplaceOrderService
             'skipped' => $skipped,
         ];
     }
+
+    /**
+     * Отвязывает от поставки заказы, не готовые к отгрузке: без короба и не «новые».
+     *
+     * Сам заказ не удаляется — только обнуляется supply_id, чтобы он остался
+     * в системе, но не попал в отгрузку.
+     *
+     * @param  int  $supplyId  ID поставки
+     * @return array{detached: int} Количество отвязанных заказов
+     */
+    public static function detachNotReadyOrdersBySupply(int $supplyId): array
+    {
+        $detached = MarketplaceOrder::query()
+            ->where('supply_id', $supplyId)
+            ->whereNull('box_id')
+            ->where('status', '!=', 0)
+            ->update(['supply_id' => null]);
+
+        if ($detached > 0) {
+            Log::channel('orders')
+                ->notice('От поставки #'.$supplyId.' отвязано не готовых заказов: '.$detached.'.');
+        }
+
+        return ['detached' => $detached];
+    }
 }

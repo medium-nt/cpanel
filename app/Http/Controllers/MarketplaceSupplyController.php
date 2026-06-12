@@ -87,6 +87,7 @@ class MarketplaceSupplyController extends Controller
                 : collect();
 
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
+            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status != 0);
 
             return view('marketplace_supply.show-ozon-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
@@ -95,6 +96,7 @@ class MarketplaceSupplyController extends Controller
                 'hasOrders' => $hasOrders,
                 'supplyOrders' => $supplyOrders,
                 'hasNewOrders' => $hasNewOrders,
+                'hasNotReadyOrders' => $hasNotReadyOrders,
             ]);
         }
 
@@ -115,6 +117,7 @@ class MarketplaceSupplyController extends Controller
                 : collect();
 
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
+            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status != 0);
 
             $canExportExcel = $marketplaceSupply->status === 4;
 
@@ -125,6 +128,7 @@ class MarketplaceSupplyController extends Controller
                 'hasOrders' => $hasOrders,
                 'supplyOrders' => $supplyOrders,
                 'hasNewOrders' => $hasNewOrders,
+                'hasNotReadyOrders' => $hasNotReadyOrders,
                 'canExportExcel' => $canExportExcel,
             ]);
         }

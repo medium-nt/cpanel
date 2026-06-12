@@ -43,4 +43,8 @@ Route::prefix('/marketplace_orders')->group(function () {
     Route::delete('/delete-new-by-supply/{marketplace_supply}', [MarketplaceOrderController::class, 'destroyNewBySupply'])
         ->can('deleteOrders', 'marketplace_supply')
         ->name('marketplace_orders.destroy_new_by_supply');
+
+    Route::delete('/detach-not-ready-by-supply/{marketplace_supply}', [MarketplaceOrderController::class, 'detachNotReadyBySupply'])
+        ->can('detachOrders', 'marketplace_supply')
+        ->name('marketplace_orders.detach_not_ready_by_supply');
 });

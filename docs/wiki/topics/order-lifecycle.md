@@ -1,6 +1,6 @@
 # Order Lifecycle — Жизненный цикл заказов маркетплейса
 
-> Last reviewed: 2026-06-22
+> Last reviewed: 2026-06-23
 
 ## Обзор
 
@@ -63,11 +63,17 @@ API синхронизация (каждые 10 мин)
 - Реализовано в `MarketplaceOrderItemService::getFiltered()` через join с
   `marketplace_orders`
 
+**Права доступа к операциям с заказами:**
+
+- **Администраторы:** могут выполнять все операции (удаление и отвязка заказов)
+  через политику `MarketplaceSupplyPolicy::detachOrders()` и `deleteOrders()`
+  — проверка через `isAdmin()`
+
 ### Удаление заказов
 
 **Только для администраторов:**
 
-- Удаление доступно только когда поставка в статусе 0 (формируется)
+- **Удаление доступно только когда поставка в статусе 0 (формируется)**
 - Можно удалять заказы по одному или массово все новые заказы в FBO-поставках
 - При удалении заказа автоматически удаляются все его позиции (
   `marketplace_order_items`) и история (`marketplace_order_history`) через
@@ -85,6 +91,35 @@ API синхронизация (каждые 10 мин)
   `show-ozon-fbo.blade.php` и `show-wb-fbo.blade.php`)
 - AJAX-обработчик в `public/js/fbo-order-delete.js` — удаление без перезагрузки
   страницы
+
+### Отвязка не готовых заказов
+
+**Только для администраторов:**
+
+- Отвязка доступна только когда поставка в статусе 13 ("На сборке",
+  сформирована)
+- Массовая отвязка (НЕ удаление) заказов от поставки: `supply_id = null`, но
+  сами
+  заказы остаются в системе
+- **Критерий "не готовых":** заказы без короба (`box_id IS NULL`) И в работе
+  (`status != 0`, не "Новый")
+- **Бизнес-смысл:** перед отгрузкой поставки убрать заказы, которые ещё не
+  упакованы в короб, чтобы отгрузить только готовые
+- Заказы в коробах (`box_id != null`) всегда остаются в поставке
+- "Новые" заказы (`status = 0`) не трогаются этой кнопкой
+- Только FBO (FBS не затрагиваются)
+
+**Методы отвязки:**
+
+- `MarketplaceOrderService::detachNotReadyOrdersBySupply()` — массовое
+  отвязывание
+  не готовых заказов (
+  `whereNull('box_id')->where('status', '!=', 0)->update(['supply_id' => null])`)
+- `MarketplaceOrderController::detachNotReadyBySupply()` — обработчик массовой
+  отвязки
+- UI кнопки "Убрать не готовые" в раздел "Заказы" на FBO-страницах поставки (
+  `show-ozon-fbo.blade.php` и `show-wb-fbo.blade.php`)
+- Форма с confirm + перезагрузка страницы (без AJAX)
 
 ### Взятие заказа в работу
 
@@ -113,7 +148,7 @@ API синхронизация (каждые 10 мин)
 - `app/Services/MarketplaceOrderItemService.php` — основная бизнес-логика (25
   методов)
 - `app/Services/MarketplaceOrderService.php` — сервис удаления заказов (методы
-  `delete()` и `deleteNewOrdersBySupply()`)
+  `delete()`, `deleteNewOrdersBySupply()` и `detachNotReadyOrdersBySupply()`)
 - `app/Models/MarketplaceOrderItem.php` — модель с 17 fillable-полями
 - `app/Http/Controllers/MarketplaceOrderItemController.php` — HTTP-обработчики
 - `app/Http/Controllers/MarketplaceOrderController.php` — удаление заказов (
