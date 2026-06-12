@@ -183,6 +183,7 @@ class WorkshopRollScan extends Component
      */
     public function confirmShipment(): void
     {
+        // TODO: N+1 — добавить eager loading ->with(['roll', 'material']) к запросу
         $scannedRolls = $this->order->movementMaterials()
             ->whereNotNull('roll_id')
             ->get();

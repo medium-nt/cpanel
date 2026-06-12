@@ -154,6 +154,7 @@ class MarketplaceOrderItemService
         }
 
         try {
+            // FIXME: рассмотреть разбиение длинных транзакций на более мелкие атомарные операции
             DB::beginTransaction();
 
             $logMessage = '';
@@ -759,6 +760,7 @@ class MarketplaceOrderItemService
 
             $statusFrom = ($field === 'cutter_id' || auth()->user()->is_cutter) ? 0 : 8; // 0 - новый, 8 - закроено
 
+            // FIXME: рассмотреть разбиение длинных транзакций на более мелкие атомарные операции
             DB::beginTransaction();
 
             // Атомарный UPDATE с защитой от race condition
@@ -1175,6 +1177,7 @@ class MarketplaceOrderItemService
     public static function restoreOrderFromHistory(MarketplaceOrderItem $selectedItem): void
     {
         try {
+            // FIXME: рассмотреть разбиение длинных транзакций на более мелкие атомарные операции
             DB::beginTransaction();
 
             $marketplaceOrderHistory = $selectedItem->history()

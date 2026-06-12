@@ -153,6 +153,7 @@ class MarketplaceApiService
 
     public static function getNotFoundSkus($allItems): array
     {
+        // TODO: N+1 — загрузить все SKU одним запросом и искать в коллекции вместо запроса в цикле
         $notFoundSkus = [];
         foreach ($allItems as $item) {
             $skuz = $item['skus'][0];
