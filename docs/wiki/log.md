@@ -28,3 +28,13 @@
 - Каскадное удаление позиций заказов и истории через FK
 - Тесты в `MarketplaceOrderDeleteTest.php`
 - Обновлены topics: order-lifecycle.md, marketplace-integration.md
+
+## [2026-06-22] update | fbo-order-deletion
+
+- Обновлена документация по удалению заказов в FBO-поставках: добавлены детали
+  бизнес-правил, описание методов и файлов
+- Уточнено, что удаление работает только для FBO-поставок, FBS не затронуты
+- Добавлена информация о политике доступа через
+  `MarketplaceSupplyPolicy::deleteOrders()`
+- Уточнён механизм каскадного удаления через FK constraints
+- Обновлены topics: order-lifecycle.md, marketplace-integration.md
