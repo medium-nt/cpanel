@@ -37,7 +37,9 @@ class HomeController extends Controller
 
         // Определяем scope цеха: null = все цеха, int = конкретный цех, 0 = нет цеха (нули)
         $workshopScope = null;
-        if (! in_array($user->role->name, ['admin', 'storekeeper', 'manager'])) {
+        // null-safe: у пользователя без роли (напр. битые данные) workshopScope корректно
+        // определяется как «нет цеха» (0), без падения страницы.
+        if (! in_array($user->role?->name, ['admin', 'storekeeper', 'manager'])) {
             $workshopScope = $user->currentWorkshop()?->id ?? 0;
         }
 
