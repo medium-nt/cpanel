@@ -41,6 +41,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+            $this->orderId = '';
 
             return;
         }
@@ -65,6 +66,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+            $this->orderId = '';
 
             return;
         }
@@ -74,6 +76,7 @@ class SupplyOrderSearch extends Component
             $this->message = 'Найдено несколько заказов. Выберите нужный.';
             $this->messageType = 'info';
             $this->dispatch('orderError');
+            $this->orderId = '';
 
             return;
         }
@@ -109,6 +112,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+            $this->orderId = '';
 
             return;
         }
@@ -123,6 +127,7 @@ class SupplyOrderSearch extends Component
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');
+            $this->orderId = '';
 
             return;
         }
