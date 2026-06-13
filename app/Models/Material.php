@@ -20,6 +20,12 @@ class Material extends Model
 
     use SoftDeletes;
 
+    /** Тип материала: Ткань */
+    public const TYPE_FABRIC = 1;
+
+    /** Максимум рулонов ткани одного вида на смену в цехе */
+    public const MAX_FABRIC_ROLLS_PER_SHIFT = 10;
+
     /** Тип материала: Упаковка */
     public const TYPE_PACKAGING = 3;
 

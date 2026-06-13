@@ -91,6 +91,26 @@ class WorkshopRollScan extends Component
             }
         }
 
+        // Ограничение: для тканей — не более MAX_FABRIC_ROLLS_PER_SHIFT рулонов одного материала на смену
+        if ($roll->material->type_id === Material::TYPE_FABRIC) {
+            $inWorkshopAndTransit = Roll::where('material_id', $this->requestedMaterialId)
+                ->whereIn('status', [Roll::STATUS_IN_WORKSHOP, Roll::STATUS_SHIPPED_TO_WORKSHOP])
+                ->where('shift_id', $this->order->shift_id)
+                ->count();
+
+            $alreadyScannedInOrder = $this->order->movementMaterials()
+                ->whereNotNull('roll_id')
+                ->count();
+
+            if ($inWorkshopAndTransit + $alreadyScannedInOrder >= Material::MAX_FABRIC_ROLLS_PER_SHIFT) {
+                $limit = Material::MAX_FABRIC_ROLLS_PER_SHIFT;
+                $this->setMessage("В цехе уже {$limit} рулонов этой ткани. Лимит достигнут.", 'error');
+                $this->dispatch('scanError');
+
+                return;
+            }
+        }
+
         $alreadyAdded = $this->order->movementMaterials()
             ->where('roll_id', $roll->id)
             ->exists();

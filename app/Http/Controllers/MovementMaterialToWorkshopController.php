@@ -156,6 +156,31 @@ class MovementMaterialToWorkshopController extends Controller
             }
         }
 
+        // Проверка: ткань — не более MAX_FABRIC_ROLLS_PER_SHIFT рулонов одного материала на смену
+        $fabricRollsInOrder = $order->movementMaterials
+            ->filter(fn ($mm) => $mm->roll && $mm->material->type_id === Material::TYPE_FABRIC);
+
+        $fabricGroups = $fabricRollsInOrder->groupBy('material_id');
+        foreach ($fabricGroups as $materialId => $group) {
+            $inWorkshop = Roll::query()
+                ->where('material_id', $materialId)
+                ->where('status', Roll::STATUS_IN_WORKSHOP)
+                ->where('shift_id', $order->shift_id)
+                ->whereNotIn('id', $group->pluck('roll.id'))
+                ->count();
+
+            $total = $inWorkshop + $group->count();
+            if ($total > Material::MAX_FABRIC_ROLLS_PER_SHIFT) {
+                $needToClose = $total - Material::MAX_FABRIC_ROLLS_PER_SHIFT;
+
+                $limit = Material::MAX_FABRIC_ROLLS_PER_SHIFT;
+
+                return redirect()
+                    ->back()
+                    ->with('error', "Превышен лимит рулонов ткани (максимум {$limit} на смену). Закройте ещё {$needToClose} рулонов, чтобы принять поставку.");
+            }
+        }
+
         $order->update([
             'status' => 3,
             'completed_at' => now(),
