@@ -265,6 +265,7 @@ class InventoryService
 
         $rollsData = Roll::query()
             ->where('rolls.status', Roll::STATUS_IN_WORKSHOP)
+            ->whereNotNull('rolls.shift_id')
             ->when($shiftIds->isNotEmpty(), fn ($q) => $q->whereIn('rolls.shift_id', $shiftIds))
             ->leftJoinSub($usedSub, 'used', 'used.roll_id', '=', 'rolls.id')
             ->join('materials', 'materials.id', '=', 'rolls.material_id')

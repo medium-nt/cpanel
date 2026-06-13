@@ -37,10 +37,6 @@
                                 </th>
                             @endforeach
 
-                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                                <th scope="col" class="text-center">Без смены
-                                </th>
-                            @endif
                             @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
                                 <th scope="col" class="text-center">Итого</th>
                             @endif
@@ -62,19 +58,6 @@
                                         @endif
                                     </td>
                                 @endforeach
-                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                                    @php $noShiftData = $item['per_shift'][null] ?? null; @endphp
-                                    <td class="text-center {{ $noShiftData && $noShiftData['quantity'] > 0 ? $statusThresholds($noShiftData['quantity']) : '' }}">
-                                        @if($noShiftData && ($noShiftData['quantity'] > 0 || $noShiftData['rolls_count'] > 0))
-                                            {{ $noShiftData['quantity'] }} {{ $item['material']->unit }}
-                                            ,
-                                            {{ $noShiftData['rolls_count'] }}
-                                            рул.
-                                        @else
-                                            —
-                                        @endif
-                                    </td>
-                                @endif
                                 @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
                                     <td class="text-center">
                                         <b>{{ $item['total_quantity'] }} {{ $item['material']->unit }}</b>,
@@ -121,22 +104,6 @@
                                                 </tr>
                                             @endif
                                         @endforeach
-                                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper())
-                                                @php $noShiftData = $item['per_shift'][null] ?? null; @endphp
-                                                @if($noShiftData && ($noShiftData['quantity'] > 0 || $noShiftData['rolls_count'] > 0))
-                                                    <tr class="{{ $statusThresholds($noShiftData['quantity']) }}">
-                                                        <td class="p-1">Без
-                                                            смены
-                                                        </td>
-                                                        <td class="p-1 text-right">
-                                                            {{ $noShiftData['quantity'] }} {{ $item['material']->unit }}
-                                                            ,
-                                                            {{ $noShiftData['rolls_count'] }}
-                                                            рул.
-                                                        </td>
-                                                    </tr>
-                                                @endif
-                                            @endif
                                     </table>
                                 </div>
                             </div>
