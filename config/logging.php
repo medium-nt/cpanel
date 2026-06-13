@@ -54,91 +54,91 @@ return [
 
         'marketplace_api' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/api.log'),
+            'path' => storage_path('logs/marketplace_api/api.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'erp' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/erp.log'),
+            'path' => storage_path('logs/erp/erp.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'tg' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/tg.log'),
+            'path' => storage_path('logs/tg/tg.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'orders' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/orders.log'),
+            'path' => storage_path('logs/orders/orders.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'items' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/items.log'),
+            'path' => storage_path('logs/items/items.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'materials' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/materials.log'),
+            'path' => storage_path('logs/materials/materials.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'inventory' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/inventory.log'),
+            'path' => storage_path('logs/inventory/inventory.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'marketplace_supplies' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/marketplace_supplies.log'),
+            'path' => storage_path('logs/marketplace_supplies/marketplace_supplies.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'system' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/system.log'),
+            'path' => storage_path('logs/system/system.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'salary' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/salary.log'),
+            'path' => storage_path('logs/salary/salary.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'work_shift' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/work_shift.log'),
+            'path' => storage_path('logs/work_shift/work_shift.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'worker_limits' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/worker_limits.log'),
+            'path' => storage_path('logs/worker_limits/worker_limits.log'),
             'level' => 'debug',
             'days' => 30,
         ],
 
         'queue' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/queue.log'),
+            'path' => storage_path('logs/queue/queue.log'),
             'level' => 'debug',
             'days' => 30,
         ],
