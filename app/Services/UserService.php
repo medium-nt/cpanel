@@ -200,6 +200,10 @@ class UserService
         }
     }
 
+    /**
+     * Проверяет незакрытые смены: начисляет штраф сотрудникам и закрывает смены.
+     * (админы освобождены от штрафа).
+     */
     public static function checkUnclosedWorkShifts(): void
     {
         $users = User::query()
@@ -210,19 +214,21 @@ class UserService
         $actualDate = now()->subDay();
 
         foreach ($users as $user) {
-            Transaction::query()->create([
-                'user_id' => $user->id,
-                'title' => 'Штраф за незакрытую смену '.$actualDate->format('d/m/Y'),
-                'accrual_for_date' => $actualDate->format('Y-m-d'),
-                'amount' => $amount,
-                'transaction_type' => 'in',
-                'status' => 1,
-            ]);
+            if (! $user->isAdmin()) {
+                Transaction::query()->create([
+                    'user_id' => $user->id,
+                    'title' => 'Штраф за незакрытую смену '.$actualDate->format('d/m/Y'),
+                    'accrual_for_date' => $actualDate->format('Y-m-d'),
+                    'amount' => $amount,
+                    'transaction_type' => 'in',
+                    'status' => 1,
+                ]);
 
-            Log::channel('salary')->info(
-                "Сотруднику $user->name (id $user->id) начислен штраф за незакрытую смену "
-                .$actualDate->format('d/m/Y')." в размере $amount бонусов."
-            );
+                Log::channel('salary')->info(
+                    "Сотруднику $user->name (id $user->id) начислен штраф за незакрытую смену "
+                    .$actualDate->format('d/m/Y')." в размере $amount бонусов."
+                );
+            }
 
             $user->shift_is_open = false;
             $user->closed_work_shift = '00:00:00';
@@ -230,8 +236,16 @@ class UserService
         }
     }
 
+    /**
+     * Проверяет опоздание сотрудника на смену и начисляет штраф.
+     * (админы освобождены от штрафа).
+     */
     public static function checkLateStartWorkShift(User $user): void
     {
+        if ($user->isAdmin()) {
+            return;
+        }
+
         $start_work_shift = Carbon::parse($user->start_work_shift);
         $maxLateTime = $start_work_shift->addMinutes($user->max_late_minutes);
 
