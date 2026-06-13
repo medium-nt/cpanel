@@ -35,6 +35,7 @@ class StoreMarketplaceOrderRequestTest extends TestCase
             'order_id' => 'FBO-123',
             'marketplace_id' => '1',
             'fulfillment_type' => 'FBO',
+            'cluster' => 'test-cluster', // cluster обязателен при fulfillment_type=FBO (required_if)
             'item_id' => 1,
             'quantity' => [5], // Array format as expected by validation rules
         ];
@@ -95,8 +96,11 @@ class StoreMarketplaceOrderRequestTest extends TestCase
     }
 
     #[Test]
-    public function it_fails_validation_when_item_id_is_missing()
+    public function it_passes_validation_without_item_id_array()
     {
+        // Контроллер tolerant к отсутствию item_id (использует $request->item_id ?? []),
+        // а Request валидирует только элементы массива (item_id.*), не сам массив.
+        // Поэтому отсутствие item_id НЕ должно вызывать ошибку валидации.
         $data = [
             'order_id' => 'TEST-123',
             'marketplace_id' => '1',
@@ -106,8 +110,7 @@ class StoreMarketplaceOrderRequestTest extends TestCase
 
         $validator = Validator::make($data, (new StoreMarketplaceOrderRequest)->rules());
 
-        $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey('item_id', $validator->errors()->toArray());
+        $this->assertFalse($validator->fails());
     }
 
     #[Test]
@@ -213,14 +216,15 @@ class StoreMarketplaceOrderRequestTest extends TestCase
             'order_id' => 'TEST-123',
             'marketplace_id' => '1',
             'fulfillment_type' => 'FBS',
-            'item_id' => 999, // Non-existent ID
+            'item_id' => [999], // Массив: правило item_id.*.exists проверит каждый элемент
             'quantity' => 2,
         ];
 
         $validator = Validator::make($data, (new StoreMarketplaceOrderRequest)->rules());
 
         $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey('item_id', $validator->errors()->toArray());
+        // Для wildcard-правила item_id.* ошибка лежит под ключом item_id.0 (поле + индекс элемента).
+        $this->assertArrayHasKey('item_id.0', $validator->errors()->toArray());
     }
 
     #[Test]

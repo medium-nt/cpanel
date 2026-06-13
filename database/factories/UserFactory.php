@@ -30,6 +30,9 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'role_id' => null,
+            'shift_is_open' => 0,
+            'start_work_shift' => '00:00:00',
+            'duration_work_shift' => '08:00:00',
         ];
     }
 

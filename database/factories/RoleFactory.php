@@ -23,4 +23,37 @@ class RoleFactory extends Factory
             'name' => $name.'_'.$this->faker->unique()->randomNumber(5),
         ];
     }
+
+    /**
+     * Create a specific role.
+     */
+    public function asAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'admin',
+        ]);
+    }
+
+    /**
+     * Create a shift worker role.
+     */
+    public function asShiftWorker(): static
+    {
+        $shiftRoles = ['seamstress', 'cutter', 'otk'];
+        $role = $this->faker->randomElement($shiftRoles);
+
+        return $this->state(fn (array $attributes) => [
+            'name' => $role,
+        ]);
+    }
+
+    /**
+     * Create a non-shift worker role.
+     */
+    public function asNonShiftWorker(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'storekeeper',
+        ]);
+    }
 }

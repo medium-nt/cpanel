@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Mockery;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -13,21 +12,10 @@ class TelegramWebhookTest extends TestCase
     use RefreshDatabase;
     use WithoutMiddleware;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Mock static method calls to prevent actual API calls
-        Mockery::mock('overload:GuzzleHttp\Client')
-            ->shouldReceive('post')
-            ->andReturn(new \GuzzleHttp\Psr7\Response(200));
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
-    }
+    // overload:GuzzleHttp\Client мок убран: приложение не вызывает Guzzle напрямую,
+    // а TgService::sendMessage в testing-окружении только пишет в лог (без HTTP).
+    // Мок был мёртвым кодом и загрязнял Mockery-state в полном прогоне
+    // → "There is already an active transaction".
 
     #[Test]
     public function it_handles_telegram_webhook_for_new_message()

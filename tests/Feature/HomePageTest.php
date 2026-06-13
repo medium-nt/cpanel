@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -12,8 +13,10 @@ class HomePageTest extends TestCase
 
     public function test_home_page_is_accessible_for_authenticated_user(): void
     {
-        // Arrange: создаём пользователя
-        $user = User::factory()->create();
+        // Arrange: создаём пользователя с ролью (в продакшене роль обязательна —
+        // HomeController читает $user->role->name для определения scope цеха).
+        $role = Role::firstOrCreate(['name' => 'seamstress']);
+        $user = User::factory()->create(['role_id' => $role->id]);
 
         // Act: заходим на главную страницу от имени пользователя
         $response = $this->actingAs($user)->get(route('home'));

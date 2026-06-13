@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\TypeMaterial;
 use App\Models\User;
+use App\Models\Workshop;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -54,8 +55,20 @@ class KioskRollShiftIsolationTest extends TestCase
             'shift_is_open' => true,
         ]);
 
-        $this->shiftA = Shift::create(['name' => 'Смена А', 'status' => Shift::STATUS_ACTIVE]);
-        $this->shiftB = Shift::create(['name' => 'Смена Б', 'status' => Shift::STATUS_ACTIVE]);
+        // workshop обязателен (shifts.workshop_id NOT NULL + FK). Изоляция здесь
+        // проверяется по сменам, поэтому обе смены привязываем к одному цеху.
+        $workshop = Workshop::factory()->create();
+
+        $this->shiftA = Shift::create([
+            'name' => 'Смена А',
+            'status' => Shift::STATUS_ACTIVE,
+            'workshop_id' => $workshop->id,
+        ]);
+        $this->shiftB = Shift::create([
+            'name' => 'Смена Б',
+            'status' => Shift::STATUS_ACTIVE,
+            'workshop_id' => $workshop->id,
+        ]);
 
         // Привязываем швею к Смене А (effective_from = сегодня)
         $this->seamstress->shifts()->attach($this->shiftA->id, [

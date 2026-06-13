@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Database\Factories\ShiftScheduleFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -10,6 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ShiftSchedule extends Model
 {
+    /** @use HasFactory<ShiftScheduleFactory> */
+    use HasFactory;
+
     protected $table = 'shift_schedule';
 
     protected $fillable = [

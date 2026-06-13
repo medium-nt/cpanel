@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Database\Factories\ShiftFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,6 +15,9 @@ use Illuminate\Support\Facades\DB;
  */
 class Shift extends Model
 {
+    /** @use HasFactory<ShiftFactory> */
+    use HasFactory;
+
     public const STATUS_ACTIVE = 'active';
 
     public const STATUS_INACTIVE = 'inactive';
