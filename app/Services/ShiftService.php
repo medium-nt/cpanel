@@ -66,6 +66,17 @@ class ShiftService
             return true; // Не привязан к смене — не ограничиваем
         }
 
+        // Выходной для цеха сотрудника — работать нельзя.
+        $isDayOff = ShiftSchedule::query()
+            ->where('date', Carbon::today()->toDateString())
+            ->where('workshop_id', $userShift->workshop_id)
+            ->whereNull('shift_id')
+            ->exists();
+
+        if ($isDayOff) {
+            return false;
+        }
+
         $todayShifts = self::getTodayScheduledShifts();
 
         if ($todayShifts->isEmpty()) {
@@ -88,6 +99,9 @@ class ShiftService
     /**
      * Получить даты, на которые не заполнено расписание смен.
      *
+     * Днём считается заполненным, если есть запись в календаре (рабочая смена
+     * либо явно отмеченный выходной). Missing — день без записи вовсе.
+     *
      * @return string[] Массив дат в формате Y-m-d
      */
     public static function getMissingScheduleDates(int $days = 7, ?int $workshopId = null): array
@@ -98,9 +112,8 @@ class ShiftService
         $query = ShiftSchedule::query()
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()]);
 
-        // Фильтр по цеху: через shift → workshop_id
         if ($workshopId !== null) {
-            $query->whereHas('shift', fn ($q) => $q->where('workshop_id', $workshopId));
+            $query->where('workshop_id', $workshopId);
         }
 
         $existingDates = $query
@@ -123,17 +136,25 @@ class ShiftService
     }
 
     /**
-     * Заполнить календарь: массово.
+     * Заполнить календарь цеха: массово, одна запись на (workshop_id, date).
      *
-     * @param  array  $data  ['2026-04-08' => shift_id, '2026-04-09' => shift_id, ...]
+     * @param  array  $data  ['2026-04-08' => 'day_off'|shift_id, ...]; отсутствующие даты не трогаются.
+     * @param  int  $workshopId  Цех, для которого заполняется календарь.
      */
-    public static function fillSchedule(array $data): void
+    public static function fillSchedule(array $data, int $workshopId): void
     {
-        foreach ($data as $date => $shiftId) {
-            ShiftSchedule::query()->updateOrCreate(
-                ['shift_id' => $shiftId, 'date' => $date],
-                ['shift_id' => $shiftId],
-            );
+        foreach ($data as $date => $value) {
+            if ($value === 'day_off') {
+                ShiftSchedule::query()->updateOrCreate(
+                    ['workshop_id' => $workshopId, 'date' => $date],
+                    ['shift_id' => null, 'workshop_id' => $workshopId],
+                );
+            } elseif ($value) {
+                ShiftSchedule::query()->updateOrCreate(
+                    ['workshop_id' => $workshopId, 'date' => $date],
+                    ['shift_id' => $value, 'workshop_id' => $workshopId],
+                );
+            }
         }
     }
 }

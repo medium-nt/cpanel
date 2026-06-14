@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreShiftScheduleRequest;
 use App\Models\Shift;
 use App\Models\ShiftSchedule;
 use App\Models\User;
@@ -177,41 +178,37 @@ class ShiftController extends Controller
         return view('shift-schedule.index', compact('shifts', 'currentDate', 'prevMonth', 'nextMonth', 'workshops', 'workshopId'));
     }
 
-    public function scheduleStore(Request $request): RedirectResponse
+    public function scheduleStore(StoreShiftScheduleRequest $request): RedirectResponse
     {
-        $workshopId = $request->input('workshop_id', 1);
-
-        $validated = $request->validate([
-            'dates' => 'required|array',
-            'dates.*.date' => 'required|date',
-            'dates.*.shift_id' => 'nullable|exists:shifts,id',
-        ]);
+        $validated = $request->validated();
+        $workshopId = (int) $validated['workshop_id'];
 
         $data = [];
         $dates = [];
         foreach ($validated['dates'] as $entry) {
             $dates[] = $entry['date'];
+            // Пропускаем пустые значения ('' / null) — для них не создаём запись.
+            // 'day_off' и id смены — оба truthy и проходят.
             if ($entry['shift_id']) {
                 $data[$entry['date']] = $entry['shift_id'];
             }
         }
 
-        // Удаляем старые записи для смен текущего цеха в диапазоне сохраняемых дат
-        $shiftIds = Shift::active()->where('workshop_id', $workshopId)->pluck('id');
-        if ($dates && $shiftIds->isNotEmpty()) {
+        // Удаляем старые записи цеха в диапазоне сохраняемых дат
+        // (включая прежние «выходные» — у них shift_id NULL).
+        if ($dates) {
             ShiftSchedule::query()
-                ->whereIn('shift_id', $shiftIds)
+                ->where('workshop_id', $workshopId)
                 ->whereIn('date', $dates)
                 ->delete();
         }
 
-        // Создаём новые записи
-        ShiftService::fillSchedule($data);
+        ShiftService::fillSchedule($data, $workshopId);
 
         return redirect()->route('shift-schedule.index', [
             'month' => $request->input('month', now()->month),
             'year' => $request->input('year', now()->year),
-            'workshop_id' => $request->input('workshop_id', 1),
+            'workshop_id' => $workshopId,
         ])->with('success', 'Календарь обновлён');
     }
 }

@@ -20,10 +20,27 @@ class ShiftSchedule extends Model
     protected $fillable = [
         'shift_id',
         'date',
+        'workshop_id',
     ];
 
     public function shift(): BelongsTo
     {
         return $this->belongsTo(Shift::class);
+    }
+
+    /**
+     * Цех, к которому относится запись календаря смен.
+     */
+    public function workshop(): BelongsTo
+    {
+        return $this->belongsTo(Workshop::class);
+    }
+
+    /**
+     * Является ли день выходным (запись без смены).
+     */
+    public function isDayOff(): bool
+    {
+        return $this->shift_id === null;
     }
 }

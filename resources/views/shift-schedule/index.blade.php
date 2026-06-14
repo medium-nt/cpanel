@@ -68,9 +68,10 @@
                                 $startOfCalendar = $startOfMonth->copy()->startOfWeek();
                                 $endOfCalendar = $endOfMonth->copy()->endOfWeek();
                                 $existingSchedule = \App\Models\ShiftSchedule::query()
-                                    ->whereIn('shift_id', $shifts->pluck('id'))
+                                    ->where('workshop_id', $workshopId)
                                     ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
-                                    ->pluck('shift_id', 'date');
+                                    ->get()
+                                    ->keyBy('date');
                                 $today = \Carbon\Carbon::today()->toDateString();
                             @endphp
 
@@ -82,9 +83,11 @@
                                             $isCurrentMonth = $date->month === $currentDate->month;
                                             $isPast = $date->toDateString() <= $today;
                                             $isToday = $date->toDateString() === $today;
-                                            $selectedShift = $existingSchedule[$date->toDateString()] ?? null;
+                                            $record = $existingSchedule[$date->toDateString()] ?? null;
+                                            $selectedShift = $record?->shift_id;
+                                            $isDayOff = $record !== null && $record->shift_id === null;
                                         @endphp
-                                        <td class="{{ !$isCurrentMonth ? 'text-muted' : '' }} {{ $isPast && $isCurrentMonth ? 'bg-secondary-light' : '' }}"
+                                        <td class="{{ !$isCurrentMonth ? 'text-muted' : '' }} {{ $isPast && $isCurrentMonth ? 'bg-secondary-light' : '' }} {{ $isDayOff && $isCurrentMonth ? 'bg-warning-light' : '' }}"
                                             style="min-width: 120px; {{ $isToday ? 'border: 2px solid #007bff !important;' : '' }}">
                                             <div
                                                 class="small font-weight-bold">{{ $date->format('d.m') }}</div>
@@ -94,7 +97,11 @@
                                                     <select
                                                         class="form-control form-control-sm"
                                                         disabled>
-                                                        @if($selectedShift)
+                                                        @if($isDayOff)
+                                                            <option selected>
+                                                                Выходной
+                                                            </option>
+                                                        @elseif($selectedShift)
                                                             @foreach ($shifts as $shift)
                                                                 @if($shift->id == $selectedShift)
                                                                     <option
@@ -114,6 +121,10 @@
                                                         class="form-control form-control-sm schedule-select"
                                                         data-date="{{ $date->toDateString() }}">
                                                         <option value="">--
+                                                        </option>
+                                                        <option
+                                                            value="day_off" {{ $isDayOff ? 'selected' : '' }}>
+                                                            Выходной
                                                         </option>
                                                         @foreach ($shifts as $shift)
                                                             <option

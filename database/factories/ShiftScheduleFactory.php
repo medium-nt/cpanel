@@ -20,6 +20,9 @@ class ShiftScheduleFactory extends Factory
         return [
             'shift_id' => Shift::factory(),
             'date' => now()->toDateString(),
+            // Подтягиваем цех из созданной смены — keeps обратную совместимость
+            // для тестов, задающих только shift_id.
+            'workshop_id' => fn (array $attributes) => Shift::find($attributes['shift_id'])?->workshop_id,
         ];
     }
 
@@ -30,6 +33,17 @@ class ShiftScheduleFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'date' => $date,
+        ]);
+    }
+
+    /**
+     * Создать запись выходного дня для цеха (без смены).
+     */
+    public function dayOff(int $workshopId): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'workshop_id' => $workshopId,
+            'shift_id' => null,
         ]);
     }
 

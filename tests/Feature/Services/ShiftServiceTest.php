@@ -413,7 +413,7 @@ class ShiftServiceTest extends TestCase
     }
 
     /**
-     * Test fillSchedule creates or updates shift schedules.
+     * Test fillSchedule creates shift schedules for a workshop.
      */
     public function test_fill_schedule_creates_or_updates_schedules(): void
     {
@@ -425,32 +425,36 @@ class ShiftServiceTest extends TestCase
         ];
 
         // Act
-        ShiftService::fillSchedule($scheduleData);
+        ShiftService::fillSchedule($scheduleData, $shift->workshop_id);
 
         // Assert
         $this->assertCount(2, ShiftSchedule::query()->get());
         $this->assertDatabaseHas('shift_schedule', [
             'date' => now()->toDateString(),
             'shift_id' => $shift->id,
+            'workshop_id' => $shift->workshop_id,
         ]);
         $this->assertDatabaseHas('shift_schedule', [
             'date' => now()->addDay()->toDateString(),
             'shift_id' => $shift->id,
+            'workshop_id' => $shift->workshop_id,
         ]);
     }
 
     /**
-     * Test fillSchedule updates existing schedule.
+     * Test fillSchedule replaces the record for (workshop, date) instead of creating a duplicate.
      */
     public function test_fill_schedule_updates_existing_schedule(): void
     {
         // Arrange
-        $oldShift = Shift::factory()->create();
-        $newShift = Shift::factory()->create();
+        $workshop = \App\Models\Workshop::factory()->create();
+        $oldShift = Shift::factory()->create(['workshop_id' => $workshop->id]);
+        $newShift = Shift::factory()->create(['workshop_id' => $workshop->id]);
 
-        // Create a schedule for today
+        // Existing record for today
         ShiftSchedule::factory()->forDate(now()->toDateString())->create([
             'shift_id' => $oldShift->id,
+            'workshop_id' => $workshop->id,
         ]);
 
         $scheduleData = [
@@ -458,19 +462,19 @@ class ShiftServiceTest extends TestCase
         ];
 
         // Act
-        ShiftService::fillSchedule($scheduleData);
+        ShiftService::fillSchedule($scheduleData, $workshop->id);
 
-        // Assert - there should be 2 schedules for today (old and new, since updateOrCreate doesn't replace)
+        // Assert — exactly one record for (workshop, today), updated to new shift
+        $this->assertEquals(1, ShiftSchedule::where('date', now()->toDateString())->count());
         $this->assertDatabaseHas('shift_schedule', [
             'date' => now()->toDateString(),
             'shift_id' => $newShift->id,
+            'workshop_id' => $workshop->id,
         ]);
-        $this->assertDatabaseHas('shift_schedule', [
+        $this->assertDatabaseMissing('shift_schedule', [
             'date' => now()->toDateString(),
             'shift_id' => $oldShift->id,
         ]);
-        // Check that both shifts exist for today
-        $this->assertEquals(2, ShiftSchedule::where('date', now()->toDateString())->count());
     }
 
     /**
@@ -479,8 +483,9 @@ class ShiftServiceTest extends TestCase
     public function test_fill_schedule_handles_multiple_shifts(): void
     {
         // Arrange
-        $shift1 = Shift::factory()->create();
-        $shift2 = Shift::factory()->create();
+        $workshop = \App\Models\Workshop::factory()->create();
+        $shift1 = Shift::factory()->create(['workshop_id' => $workshop->id]);
+        $shift2 = Shift::factory()->create(['workshop_id' => $workshop->id]);
 
         $scheduleData = [
             now()->toDateString() => $shift1->id,
@@ -489,22 +494,94 @@ class ShiftServiceTest extends TestCase
         ];
 
         // Act
-        ShiftService::fillSchedule($scheduleData);
+        ShiftService::fillSchedule($scheduleData, $workshop->id);
 
         // Assert
         $this->assertCount(3, ShiftSchedule::query()->get());
         $this->assertDatabaseHas('shift_schedule', [
             'date' => now()->toDateString(),
             'shift_id' => $shift1->id,
+            'workshop_id' => $workshop->id,
         ]);
         $this->assertDatabaseHas('shift_schedule', [
             'date' => now()->addDay()->toDateString(),
             'shift_id' => $shift2->id,
+            'workshop_id' => $workshop->id,
         ]);
         $this->assertDatabaseHas('shift_schedule', [
             'date' => now()->addDays(2)->toDateString(),
             'shift_id' => $shift1->id,
+            'workshop_id' => $workshop->id,
         ]);
+    }
+
+    /**
+     * Test fillSchedule creates a day-off record (shift_id = NULL).
+     */
+    public function test_fill_schedule_creates_day_off(): void
+    {
+        // Arrange
+        $workshop = \App\Models\Workshop::factory()->create();
+        $scheduleData = [
+            now()->toDateString() => 'day_off',
+        ];
+
+        // Act
+        ShiftService::fillSchedule($scheduleData, $workshop->id);
+
+        // Assert
+        $this->assertDatabaseHas('shift_schedule', [
+            'date' => now()->toDateString(),
+            'shift_id' => null,
+            'workshop_id' => $workshop->id,
+        ]);
+    }
+
+    /**
+     * Test getMissingScheduleDates ignores day-off records.
+     */
+    public function test_get_missing_schedule_dates_ignores_day_off(): void
+    {
+        // Arrange
+        $workshop = \App\Models\Workshop::factory()->create();
+        $shift = Shift::factory()->create(['workshop_id' => $workshop->id]);
+
+        // Tomorrow — day off, day after tomorrow — working shift
+        ShiftSchedule::factory()
+            ->forDate(now()->addDay()->toDateString())
+            ->dayOff($workshop->id)
+            ->create();
+        ShiftSchedule::factory()
+            ->forDate(now()->addDays(2)->toDateString())
+            ->create(['shift_id' => $shift->id, 'workshop_id' => $workshop->id]);
+
+        // Act
+        $result = ShiftService::getMissingScheduleDates(7, $workshop->id);
+
+        // Assert — both filled days excluded (day off is not "missing")
+        $this->assertNotContains(now()->addDay()->toDateString(), $result);
+        $this->assertNotContains(now()->addDays(2)->toDateString(), $result);
+        $this->assertCount(5, $result); // 7 - 2 filled
+    }
+
+    /**
+     * Test canWorkToday returns false when the user's workshop has a day off.
+     */
+    public function test_can_work_today_returns_false_for_workshop_day_off(): void
+    {
+        // Arrange
+        $workshop = \App\Models\Workshop::factory()->create();
+        $shift = Shift::factory()->create(['workshop_id' => $workshop->id]);
+        $user = User::factory()->create(['role_id' => $this->seamstressRole->id]);
+        $user->shifts()->attach($shift->id, ['effective_from' => now()->toDateString()]);
+
+        ShiftSchedule::factory()
+            ->forDate(now()->toDateString())
+            ->dayOff($workshop->id)
+            ->create();
+
+        // Act & Assert
+        $this->assertFalse(ShiftService::canWorkToday($user));
     }
 
     /**
