@@ -32,7 +32,7 @@ class SettingController extends Controller
 
         return view('settings.index', [
             'title' => 'Настройки системы',
-            'settings' => (object) Setting::query()->pluck('value', 'name')->toArray(),
+            'settings' => (object) Setting::query()->whereNull('workshop_id')->pluck('value', 'name')->toArray(),
             'hasOpenSeamstressShifts' => $hasOpenSeamstressShifts,
             'hasOpenCutterShifts' => $hasOpenCutterShifts,
         ]);
@@ -49,7 +49,10 @@ class SettingController extends Controller
             if (is_null($value)) {
                 $value = '';
             }
-            Setting::query()->where('name', $name)->update(['value' => $value]);
+            Setting::query()
+                ->where('name', $name)
+                ->whereNull('workshop_id')
+                ->update(['value' => $value]);
         }
 
         Log::channel('system')->info('Настройки сохранены', [

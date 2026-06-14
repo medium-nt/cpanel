@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-24
+> Last reviewed: 2026-06-14
 
 ## Обзор
 
@@ -144,6 +144,10 @@
 - `app/Http/Middleware/RequireOpenShift.php` — middleware проверки смены
 - `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами
   (изоляция по сменам: rolls(), completeRoll(), getRollByCode(), saveDefects())
+- `app/Models/Setting.php` — модель настроек с multi-workshop поддержкой
+- `app/Http/Controllers/SettingController.php` — управление глобальными
+  настройками
+  (строго workshop_id = NULL)
 
 ## Бизнес-правила
 
@@ -155,6 +159,15 @@
   смене)
 - Рулоны изолированы по сменам — каждая смена работает только со своими рулонами
 - Ежедневно в 00:01: проверка незакрытых смен и очистка стека заказов
+
+### Управление настройками
+
+- **Глобальные настройки** (`workshop_id = NULL`): управляются через UI
+  `/megatulle/setting` (`SettingController::index`/`save`)
+- **Цеховые настройки** (`workshop_id ≠ NULL`): не доступны через UI, читаются
+  через `Setting::getValue()`/`getValues()` с fallback "цеховая → глобальная"
+- **Multi-workshop архитектура**: модель `Setting` поддерживает оба уровня,
+  страницы настроек работают ТОЛЬКО с глобальными настройками
 
 ## Связанные topics
 
