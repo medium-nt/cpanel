@@ -358,7 +358,7 @@ class OrderWorkflowTest extends TestCase
             'quantity' => [1],
         ]);
 
-        Log::shouldReceive('channel')->with('erp')->andReturnSelf();
+        Log::shouldReceive('channel')->with('orders')->andReturnSelf();
         Log::shouldReceive('notice')->once()->with(
             'Вручную добавлен новый заказ: LOG-TEST-1 (OZON)'
         );

@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-06-10T16:32:52+03:00",
+    "generated_at": "2026-06-13T21:09:09+03:00",
     "counts": {
-        "models": 35,
+        "models": 37,
         "services": 23,
-        "controllers": 39,
+        "controllers": 40,
         "livewire": 12
     },
     "models": {
@@ -29,7 +29,7 @@
             "table": "marketplace_items",
             "file": "app\/Models\/MarketplaceItem.php",
             "fillable_count": 4,
-            "relationships_count": 3
+            "relationships_count": 4
         },
         "MarketplaceOrder": {
             "table": "marketplace_orders",
@@ -46,8 +46,8 @@
         "MarketplaceOrderItem": {
             "table": "marketplace_order_items",
             "file": "app\/Models\/MarketplaceOrderItem.php",
-            "fillable_count": 17,
-            "relationships_count": 8
+            "fillable_count": 18,
+            "relationships_count": 9
         },
         "MarketplaceSupply": {
             "table": "marketplace_supplies",
@@ -65,12 +65,18 @@
             "table": "materials",
             "file": "app\/Models\/Material.php",
             "fillable_count": 6,
-            "relationships_count": 5
+            "relationships_count": 6
         },
         "MaterialConsumption": {
             "table": "material_consumptions",
             "file": "app\/Models\/MaterialConsumption.php",
             "fillable_count": 3,
+            "relationships_count": 2
+        },
+        "MaterialWorkshop": {
+            "table": "material_workshop",
+            "file": "app\/Models\/MaterialWorkshop.php",
+            "fillable_count": 2,
             "relationships_count": 2
         },
         "Motivation": {
@@ -88,8 +94,8 @@
         "Order": {
             "table": "orders",
             "file": "app\/Models\/Order.php",
-            "fillable_count": 12,
-            "relationships_count": 8
+            "fillable_count": 13,
+            "relationships_count": 9
         },
         "OzonFboDraftSupplyItem": {
             "table": "ozon_fbo_draft_supply_items",
@@ -130,8 +136,8 @@
         "Setting": {
             "table": "settings",
             "file": "app\/Models\/Setting.php",
-            "fillable_count": 2,
-            "relationships_count": 0
+            "fillable_count": 3,
+            "relationships_count": 1
         },
         "Shelf": {
             "table": "shelves",
@@ -142,8 +148,8 @@
         "Shift": {
             "table": "shifts",
             "file": "app\/Models\/Shift.php",
-            "fillable_count": 2,
-            "relationships_count": 2
+            "fillable_count": 3,
+            "relationships_count": 3
         },
         "ShiftSchedule": {
             "table": "shift_schedule",
@@ -216,6 +222,12 @@
             "file": "app\/Models\/UserTariff.php",
             "fillable_count": 4,
             "relationships_count": 2
+        },
+        "Workshop": {
+            "table": "workshops",
+            "file": "app\/Models\/Workshop.php",
+            "fillable_count": 2,
+            "relationships_count": 6
         }
     },
     "services": {
@@ -249,7 +261,7 @@
         },
         "MarketplaceOrderService": {
             "file": "app\/Services\/MarketplaceOrderService.php",
-            "methods_count": 6
+            "methods_count": 9
         },
         "MarketplaceSupplyService": {
             "file": "app\/Services\/MarketplaceSupplyService.php",
@@ -281,7 +293,7 @@
         },
         "ShiftService": {
             "file": "app\/Services\/ShiftService.php",
-            "methods_count": 6
+            "methods_count": 7
         },
         "StackService": {
             "file": "app\/Services\/StackService.php",
@@ -301,7 +313,7 @@
         },
         "UserService": {
             "file": "app\/Services\/UserService.php",
-            "methods_count": 12
+            "methods_count": 13
         },
         "WarehouseOfItemService": {
             "file": "app\/Services\/WarehouseOfItemService.php",
@@ -367,7 +379,7 @@
         },
         "MarketplaceOrderController": {
             "file": "app\/Http\/Controllers\/MarketplaceOrderController.php",
-            "methods_count": 9
+            "methods_count": 11
         },
         "MarketplaceOrderItemController": {
             "file": "app\/Http\/Controllers\/MarketplaceOrderItemController.php",
@@ -439,7 +451,7 @@
         },
         "StickerPrintingController": {
             "file": "app\/Http\/Controllers\/StickerPrintingController.php",
-            "methods_count": 22
+            "methods_count": 23
         },
         "SupplierController": {
             "file": "app\/Http\/Controllers\/SupplierController.php",
@@ -464,6 +476,10 @@
         "WarehouseOfItemController": {
             "file": "app\/Http\/Controllers\/WarehouseOfItemController.php",
             "methods_count": 18
+        },
+        "WorkshopController": {
+            "file": "app\/Http\/Controllers\/WorkshopController.php",
+            "methods_count": 6
         },
         "WriteOffRemnantsController": {
             "file": "app\/Http\/Controllers\/WriteOffRemnantsController.php",

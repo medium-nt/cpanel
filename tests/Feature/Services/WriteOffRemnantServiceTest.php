@@ -3,14 +3,10 @@
 namespace Tests\Feature\Services;
 
 use App\Http\Requests\StoreRemnantsRequest;
-use App\Models\Material;
-use App\Models\MovementMaterial;
 use App\Models\User;
-use App\Services\InventoryService;
 use App\Services\WriteOffRemnantService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
 
@@ -34,9 +30,11 @@ class WriteOffRemnantServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Clean up all mocks to prevent class alias conflicts between tests
-        Mockery::close();
+        // Сначала откатываем транзакцию RefreshDatabase, затем чистим моки —
+        // иначе брошенное в Mockery::close() исключение пропускает rollBack
+        // и загрязняет следующие тесты ("already active transaction").
         parent::tearDown();
+        Mockery::close();
     }
 
     //    public function test_store_successfully_writes_off_remnants()

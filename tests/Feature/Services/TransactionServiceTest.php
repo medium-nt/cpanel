@@ -339,7 +339,9 @@ class TransactionServiceTest extends TestCase
             'date_end' => '2024-01-01',
         ]);
 
-        $cashflow = TransactionService::getCashflowFiltered($request);
+        // getCashflowFiltered() намеренно возвращает Eloquent Builder
+        // (контроллер делает ->paginate() на результате), поэтому вызываем ->get().
+        $cashflow = TransactionService::getCashflowFiltered($request)->get();
 
         $this->assertCount(1, $cashflow);
         $this->assertEquals(4000, $cashflow->first()->net_balance); // 5000 - 1000

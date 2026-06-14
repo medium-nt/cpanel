@@ -112,6 +112,7 @@ class MaterialControllerTest extends TestCase
             'title' => 'Test Material',
             'type_id' => 1,
             'unit' => 'шт',
+            'purchase_price' => 100,
         ];
 
         $response = $this->post(route('materials.store'), $materialData);
@@ -172,6 +173,8 @@ class MaterialControllerTest extends TestCase
             'title' => 'Updated Material',
             'type_id' => 2,
             'unit' => 'м',
+            'purchase_price' => 150,
+            'is_active' => 1,
         ];
 
         $response = $this->put(route('materials.update', $material), $updateData);
@@ -250,6 +253,7 @@ class MaterialControllerTest extends TestCase
             'title' => 'Special Material',
             'type_id' => 1,
             'unit' => 'м',
+            'purchase_price' => 200,
         ];
 
         $response = $this->post(route('materials.store'), $materialData);

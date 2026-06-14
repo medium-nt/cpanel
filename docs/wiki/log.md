@@ -75,3 +75,14 @@
 - Остальные виджеты (toWork, toCutting, urgent, cut) продолжают фильтроваться
   корректно по цеху
 - Обновлены topics: order-lifecycle.md, shift-system.md
+
+## [2026-06-13] update | wiki-sync-after-regen
+
+- Синхронизирована wiki после регенерации структуры: проверены все 37 моделей,
+  23 сервиса, 40 контроллеров, 12 Livewire-компонентов
+- Добавлено подробное описание модели Motivation в salary-system.md и
+  finance.md: тированные бонусы по объёму работы с разными ставками для
+  закройщиков/не-закройщиков
+- Детализировано описание MaterialWorkshop в material-flow.md: pivot-таблица для
+  связи материалов и цехов (многие-ко-многим), бизнес-правило привязки
+- Обновлены topics: salary-system.md, material-flow.md, finance.md

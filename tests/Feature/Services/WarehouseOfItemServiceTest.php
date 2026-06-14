@@ -142,11 +142,11 @@ class WarehouseOfItemServiceTest extends TestCase
         $this->assertSame(9, strlen($barcode));
 
         $base = substr($barcode, 0, 8);
-        $check = (int)substr($barcode, -1);
+        $check = (int) substr($barcode, -1);
 
         $sum = 0;
         foreach (str_split(strrev($base)) as $i => $d) {
-            $n = (int)$d * ($i % 2 === 0 ? 2 : 1);
+            $n = (int) $d * ($i % 2 === 0 ? 2 : 1);
             $sum += $n > 9 ? $n - 9 : $n;
         }
         $this->assertSame($check, (10 - $sum % 10) % 10);
@@ -181,10 +181,18 @@ class WarehouseOfItemServiceTest extends TestCase
     {
         $shelf = Shelf::create(['title' => 'Test Shelf']);
 
-        User::factory()->create();
+        $seamstress = User::factory()->create();
         $item = MarketplaceItem::factory()->create();
 
-        $validatedData = ['quantity' => 3, 'shelf_id' => $shelf->id];
+        // SaveGroupWarehouseOfItemRequest требует seamstress_id (required),
+        // cutter_id — nullable. В продакшене сервис получает Request (ArrayAccess),
+        // поэтому передаём массив со всеми обязательными ключами.
+        $validatedData = [
+            'quantity' => 3,
+            'shelf_id' => $shelf->id,
+            'seamstress_id' => $seamstress->id,
+            'cutter_id' => null,
+        ];
 
         $createdItems = $this->warehouseOfItemService->getCreateItems($validatedData, $item);
 

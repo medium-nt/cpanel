@@ -361,7 +361,10 @@ class DefectMaterialServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        // Сначала откатываем транзакцию RefreshDatabase, затем чистим моки —
+        // иначе брошенное в Mockery::close() исключение пропускает rollBack
+        // и загрязняет следующие тесты ("already active transaction").
         parent::tearDown();
+        Mockery::close();
     }
 }

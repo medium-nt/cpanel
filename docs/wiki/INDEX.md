@@ -1,52 +1,53 @@
 # cpanel — Project Wiki Index
 
-> Generated: 2026-06-10 16:32 | Models: 35 | Services: 23 | Controllers: 39 |
+> Generated: 2026-06-13 21:09 | Models: 37 | Services: 23 | Controllers: 40 |
 > Livewire: 12
 
 ## Quick Orientation
-
 Warehouse/inventory management with Ozon/WB marketplace integration.
 PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 
-## Models (35)
+## Models (37)
 
 | Model                   | Table                         | Key Relations                                                 | Traits                              |
 |-------------------------|-------------------------------|---------------------------------------------------------------|-------------------------------------|
 | InventoryCheck          | `inventory_checks`            | items                                                         |                                     |
 | InventoryCheckItem      | `inventory_check_items`       | expectedShelf, foundedShelf, marketplaceOrderItem             |                                     |
 | Marketplace             | `marketplaces`                |                                                               |                                     |
-| MarketplaceItem         | `marketplace_items`           | marketplaceOrderItem, sku, consumption                        | HasFactory                          |
+| MarketplaceItem         | `marketplace_items`           | marketplaceOrderItem, sku, consumption +1                     | HasFactory                          |
 | MarketplaceOrder        | `marketplace_orders`          | items, supply, box +1                                         | HasFactory                          |
 | MarketplaceOrderHistory | `marketplace_order_history`   | item, order                                                   |                                     |
-| MarketplaceOrderItem    | `marketplace_order_items`     | marketplaceOrder, item, seamstress +5                         | HasFactory                          |
-| MarketplaceSupply       | `marketplace_supplies`        |                                                               |                                     |
+| MarketplaceOrderItem    | `marketplace_order_items`     | marketplaceOrder, workshop, item +6                           | HasFactory                          |
+| MarketplaceSupply       | `marketplace_supplies`        |                                                               | HasFactory                          |
 | MarketplaceWarehouse    | `marketplace_warehouses`      |                                                               |                                     |
-| Material                | `materials`                   | type, rolls, movementMaterials +2                             | HasFactory, SoftDeletes             |
-| MaterialConsumption     | `material_consumptions`       | item, material                                                |                                     |
+| Material                | `materials`                   | type, rolls, movementMaterials +3                             | HasFactory, SoftDeletes             |
+| MaterialConsumption     | `material_consumptions`       | item, material                                                | HasFactory                          |
+| MaterialWorkshop        | `material_workshop`           | material, workshop                                            | HasFactory                          |
 | Motivation              | `motivations`                 |                                                               | HasFactory                          |
 | MovementMaterial        | `movement_materials`          | material, roll, order                                         | HasFactory                          |
-| Order                   | `orders`                      | user, seamstress, cutter +5                                   | HasFactory                          |
+| Order                   | `orders`                      | workshop, user, seamstress +6                                 | HasFactory                          |
 | OzonFboDraftSupplyItem  | `ozon_fbo_draft_supply_items` | supply, skuRecord                                             |                                     |
 | ProductSticker          | `product_stickers`            |                                                               |                                     |
 | Rate                    | `rates`                       | material                                                      | HasFactory                          |
 | Role                    | `roles`                       |                                                               | HasFactory                          |
-| Roll                    | `rolls`                       | supplyOrder, material, shift +3                               |                                     |
+| Roll                    | `rolls`                       | supplyOrder, material, shift +3                               | HasFactory                          |
 | Schedule                | `schedules`                   | user, shift                                                   | HasFactory                          |
-| Setting                 | `settings`                    |                                                               | HasFactory                          |
+| Setting                 | `settings`                    | workshop                                                      | HasFactory                          |
 | Shelf                   | `shelves`                     |                                                               |                                     |
-| Shift                   | `shifts`                      | users, rolls                                                  |                                     |
-| ShiftSchedule           | `shift_schedule`              | shift                                                         |                                     |
+| Shift                   | `shifts`                      | workshop, users, rolls                                        | HasFactory                          |
+| ShiftSchedule           | `shift_schedule`              | shift                                                         | HasFactory                          |
 | Sku                     | `skus`                        | item                                                          | HasFactory                          |
 | Stack                   | `stacks`                      |                                                               | HasFactory                          |
 | StatusMovement          | `status_movements`            |                                                               |                                     |
 | Supplier                | `suppliers`                   | orders                                                        | HasFactory, SoftDeletes             |
 | SupplyBox               | `supply_boxes`                | supply, orders                                                |                                     |
-| Tariff                  | `tariffs`                     | userTariff, material                                          |                                     |
+| Tariff                  | `tariffs`                     | userTariff, material                                          | HasFactory                          |
 | Transaction             | `transactions`                | user                                                          | HasFactory                          |
 | TypeMaterial            | `type_materials`              |                                                               | HasFactory                          |
 | TypeMovement            | `type_movements`              |                                                               |                                     |
 | User                    | `users`                       | role, marketplaceOrderItems, marketplaceOrderItemsByCutter +4 | HasFactory, Notifiable, SoftDeletes |
-| UserTariff              | `user_tariffs`                | user, tariffs                                                 |                                     |
+| UserTariff              | `user_tariffs`                | user, tariffs                                                 | HasFactory                          |
+| Workshop                | `workshops`                   | shifts, orders, marketplaceOrderItems +3                      | HasFactory                          |
 
 ## Services (23)
 
@@ -59,7 +60,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | InventoryService                        | 12      | —            |
 | MarketplaceApiService                   | 59      | —            |
 | MarketplaceOrderItemService             | 25      | —            |
-| MarketplaceOrderService                 | 6       | —            |
+| MarketplaceOrderService                 | 9       | —            |
 | MarketplaceSupplyService                | 3       | —            |
 | MovementDefectMaterialToSupplierService | 2       | —            |
 | MovementMaterialFromSupplierService     | 2       | —            |
@@ -67,16 +68,16 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | OrderService                            | 1       | —            |
 | RollService                             | 3       | —            |
 | ScheduleService                         | 9       | —            |
-| ShiftService                            | 6       | —            |
+| ShiftService                            | 7       | —            |
 | StackService                            | 4       | —            |
 | StickerService                          | 2       | —            |
 | TgService                               | 1       | —            |
 | TransactionService                      | 12      | —            |
-| UserService                             | 12      | —            |
+| UserService                             | 13      | —            |
 | WarehouseOfItemService                  | 8       | —            |
 | WriteOffRemnantService                  | 1       | —            |
 
-## Controllers (39)
+## Controllers (40)
 
 | Controller                                   | Key Methods                                                                                        |
 |----------------------------------------------|----------------------------------------------------------------------------------------------------|
@@ -93,7 +94,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | InventoryController                          | byWarehouse, byWorkshop, inventoryChecks, show, create +2                                          |
 | MarketplaceApiController                     | checkSkuz, checkDuplicateSkuz, uploadingNewProducts, uploadingCancelledProducts, getBarcodeFile +2 |
 | MarketplaceItemController                    | index, create, store, edit, update +1                                                              |
-| MarketplaceOrderController                   | index, create, store, edit, update +4                                                              |
+| MarketplaceOrderController                   | index, create, store, edit, update +6                                                              |
 | MarketplaceOrderItemController               | index, show, done, cancel, labeling +7                                                             |
 | MarketplaceSupplyController                  | index, show, linkWbFbo, loadFboGoods, editFbo +22                                                  |
 | MaterialConsumptionController                | destroy                                                                                            |
@@ -111,13 +112,14 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | SettingController                            | index, save, test, syncWarehousesOzon, syncWarehousesWb +1                                         |
 | ShelfController                              | index, create, store, edit, update +1                                                              |
 | ShiftController                              | index, create, store, show, update +8                                                              |
-| StickerPrintingController                    | index, openCloseWorkShift, openCloseWorkShiftAdmin, kiosk, opening_closing_shifts +17              |
+| StickerPrintingController                    | enterKiosk, index, openCloseWorkShift, openCloseWorkShiftAdmin, kiosk +18                          |
 | SupplierController                           | index, create, store, edit, update +1                                                              |
 | SupplyBoxController                          | index, markAssembled, store, destroy, show +4                                                      |
 | TelegramController                           | webhook                                                                                            |
 | TransactionController                        | index, create, store, destroy, createPayoutSalary +3                                               |
 | UsersController                              | index, create, store, edit, update +7                                                              |
 | WarehouseOfItemController                    | index, exportExcel, inspection, newRefunds, getStorageBarcodeFile +13                              |
+| WorkshopController                           | index, create, store, edit, update +1                                                              |
 | WriteOffRemnantsController                   | index, create, store                                                                               |
 
 ## Livewire (12)
@@ -149,7 +151,6 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
   в [maps/schedule.md](maps/schedule.md))
 
 ## Topic Guides (business logic)
-
 - [Order Lifecycle](topics/order-lifecycle.md) — статусная машина заказов
 - [Material Flow](topics/material-flow.md) — движение материалов
 - [Marketplace Integration](topics/marketplace-integration.md) — Ozon/WB API
@@ -160,7 +161,6 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 - [Finance](topics/finance.md) — транзакции, мотивация
 
 ## Detailed Maps
-
 - [Models](maps/models.md) — полные fillable, casts, relationships
 - [Services](maps/services.md) — все методы с сигнатурами
 - [Controllers](maps/controllers.md) — все методы контроллеров
