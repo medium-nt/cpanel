@@ -24,7 +24,7 @@ class Material extends Model
     public const TYPE_FABRIC = 1;
 
     /** Максимум рулонов ткани одного вида на смену в цехе */
-    public const MAX_FABRIC_ROLLS_PER_SHIFT = 10;
+    public const MAX_FABRIC_ROLLS_PER_SHIFT = 15;
 
     /** Тип материала: Упаковка */
     public const TYPE_PACKAGING = 3;
