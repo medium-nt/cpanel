@@ -1,6 +1,6 @@
 # Warehouse Operations — Складские операции
 
-> Last reviewed: 2026-06-20
+> Last reviewed: 2026-06-16
 
 ## Обзор
 
@@ -21,6 +21,7 @@
 - `remnantsMaterialInWarehouse()` — остатки/обрезки
 - `materialsQuantityByWorkshopPerShift()` — количество по цехам и сменам
 - `materialsQuantityByWarehouseFromRolls()` — через рулоны на складе
+- Группировка материалов по типам на странице склада
 
 **Процесс инвентаризации:**
 
@@ -29,6 +30,25 @@
 3. Сравнивается ожидаемый стеллаж (`expected_shelf_id`) с фактическим (
    `founded_shelf_id`)
 4. Флаг `is_found` — найден ли товар, `is_added_later` — добавлен ли позже
+
+### Визуальное разделение остатков по типам материалов
+
+На странице склада `/megatulle/inventory/` добавлено структурированное
+отображение остатков материалов по их типам:
+
+- **Секции по типам:** материалы сгруппированы в визуальные блоки по `type_id`
+- **Заголовки секций:** название типа материала и счётчик позиций
+- **Порядок секций:** определяется таблицей `type_materials` для
+  последовательного отображения
+
+**Реализация:**
+
+- `InventoryService::materialsQuantityByWarehouseFromRolls()` — добавлен
+  `type_id` в select для группировки
+- `InventoryController::groupMaterialsByType()` — приватный метод сортирует
+  материалы по типам
+- `resources/views/inventory/warehouse.blade.php` — обновлён для рендера секций
+  с заголовками
 
 ### Хранение на стеллажах (Shelf)
 
@@ -125,8 +145,11 @@
 
 ## Ключевые файлы
 
-- `app/Services/InventoryService.php` — 12 методов инвентаризации
+- `app/Services/InventoryService.php` — 12 методов инвентаризации, включая
+  группировку материалов по типам
 - `app/Services/WarehouseOfItemService.php` — управление складом товаров
+- `app/Http/Controllers/InventoryController.php` — управление инвентаризацией и
+  группировка материалов по типам
 - `app/Services/StickerService.php` — генерация стикеров
 - `app/Models/Shelf.php` — стеллажи
 - `app/Models/ProductSticker.php` — данные стикеров

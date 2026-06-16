@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreInventoryRequest;
 use App\Models\InventoryCheck;
 use App\Models\Shelf;
+use App\Models\TypeMaterial;
 use App\Services\InventoryService;
 use App\Services\ShiftService;
 
@@ -14,8 +15,36 @@ class InventoryController extends Controller
     {
         return view('inventory.warehouse', [
             'title' => 'Материал на складе',
-            'materials' => InventoryService::materialsQuantityBy('warehouse'),
+            'sections' => $this->groupMaterialsByType(
+                InventoryService::materialsQuantityBy('warehouse')
+            ),
         ]);
+    }
+
+    /**
+     * Группирует материалы склада в секции по типу материала.
+     * Порядок секций берётся из таблицы type_materials — новые типы подхватываются
+     * автоматически. Материалы без типа попадают в секцию «Прочее» в конце.
+     *
+     * @param  array  $materials  плоский массив из InventoryService::materialsQuantityBy('warehouse')
+     * @return array<int, array{title: string, items: array}>
+     */
+    private function groupMaterialsByType(array $materials): array
+    {
+        $groups = collect($materials)->groupBy(fn (array $item) => $item['material']->type_id);
+
+        $sections = [];
+        foreach (TypeMaterial::orderBy('id')->get() as $type) {
+            if ($items = $groups->get($type->id)) {
+                $sections[] = ['title' => $type->title, 'items' => $items->all()];
+            }
+        }
+        // Материалы без типа — отдельной секцией «Прочее» в конце
+        if ($items = $groups->get(null)) {
+            $sections[] = ['title' => 'Прочее', 'items' => $items->all()];
+        }
+
+        return $sections;
     }
 
     public function byWorkshop()

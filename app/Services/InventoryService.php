@@ -315,7 +315,7 @@ class InventoryService
      */
     private static function materialsQuantityByWarehouseFromRolls(): array
     {
-        $materials = Material::query()->select('id', 'title', 'unit')->get();
+        $materials = Material::query()->select('id', 'title', 'unit', 'type_id')->get();
 
         $usedSub = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')

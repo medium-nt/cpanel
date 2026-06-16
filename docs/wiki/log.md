@@ -150,3 +150,16 @@
   добавлены ссылки на user-management.md
 - Реализация использует `User::currentWorkshop()` для определения текущего цеха
   через последнюю смену с `effective_from <= сегодня`
+
+## [2026-06-16] update | warehouse-materials-grouping
+
+- Добавлено визуальное разделение остатков материалов по типам на странице
+  склада `/megatulle/inventory/warehouse`
+- `InventoryService::materialsQuantityByWarehouseFromRolls()` — добавлен
+  `type_id` в select для группировки материалов
+- `InventoryController::groupMaterialsByType()` — новый приватный метод для
+  сортировки материалов по типам с порядком из `type_materials`
+- `resources/views/inventory/warehouse.blade.php` — обновлён для рендера секций
+  с заголовками типов и счётчиками позиций
+- Обновлён topic: warehouse-operations.md — добавлено описание группировки
+  материалов по типам
