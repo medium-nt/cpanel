@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUsersRequest;
 use App\Http\Requests\TariffsUpdateRequest;
 use App\Models\Material;
+use App\Models\Role;
 use App\Models\Tariff;
 use App\Models\User;
 use App\Models\UserTariff;
+use App\Models\Workshop;
 use App\Services\ScheduleService;
 use App\Services\TgService;
 use App\Services\UserService;
@@ -20,15 +22,24 @@ use Illuminate\Support\Facades\Log;
 
 class UsersController extends Controller
 {
-    public function index()
+    /**
+     * Список сотрудников с фильтрацией по роли и текущему цеху.
+     */
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', User::class);
 
-        $data = [];
-        $data['users'] = User::query()->paginate(10);
-        $data['title'] = 'Пользователи';
+        $users = UserService::getFiltered($request)
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('users.index', $data);
+        return view('users.index', [
+            'title' => 'Пользователи',
+            'users' => $users,
+            'roles' => Role::orderBy('name')->get(),
+            'workshops' => Workshop::active()->orderBy('title')->get(),
+        ]);
     }
 
     public function create()

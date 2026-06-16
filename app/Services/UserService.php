@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,36 @@ class UserService
         };
 
         return $roleName;
+    }
+
+    /**
+     * Построить запрос пользователей с фильтрами по роли и текущему цеху.
+     *
+     * Возвращает Builder для дальнейшей пагинации в контроллере.
+     * Фильтр по цеху эквивалентен User::currentWorkshop(): берётся последняя
+     * (максимальная effective_from <= сегодня) смена сотрудника и сравнивается
+     * её workshop_id с запрошенным.
+     */
+    public static function getFiltered(Request $request): Builder
+    {
+        $today = Carbon::today()->toDateString();
+
+        return User::query()
+            ->with('role')
+            ->when($request->filled('role_id'), fn (Builder $q) => $q->where('role_id', $request->integer('role_id')))
+            ->when($request->filled('workshop_id'), function (Builder $q) use ($request, $today) {
+                $workshopId = $request->integer('workshop_id');
+                // workshop_id текущей смены сотрудника (NULL, если нет смены <= сегодня) = X
+                $q->whereRaw('(
+                    SELECT s.workshop_id
+                    FROM shift_user su
+                    JOIN shifts s ON s.id = su.shift_id
+                    WHERE su.user_id = users.id
+                      AND su.effective_from <= ?
+                    ORDER BY su.effective_from DESC
+                    LIMIT 1
+                ) = ?', [$today, $workshopId]);
+            });
     }
 
     /**

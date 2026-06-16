@@ -3,7 +3,9 @@
 namespace Tests\Feature\Controllers;
 
 use App\Models\Role;
+use App\Models\Shift;
 use App\Models\User;
+use App\Models\Workshop;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -268,5 +270,104 @@ class UserControllerTest extends TestCase
         $user = User::where('email', 'cutter@example.com')->first();
         $this->assertEquals($cutterRole->id, $user->role_id);
         $this->assertTrue($user->isCutter());
+    }
+
+    #[Test]
+    public function it_filters_users_by_role()
+    {
+        $this->actingAs($this->admin);
+
+        $seamstressRole = Role::firstOrCreate(['name' => 'seamstress']);
+        $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+
+        User::factory()->create(['name' => 'Анна Швея', 'role_id' => $seamstressRole->id]);
+        User::factory()->create(['name' => 'Борис Закройщик', 'role_id' => $cutterRole->id]);
+
+        $response = $this->get(route('users.index', ['role_id' => $seamstressRole->id]));
+
+        $response->assertOk();
+        $response->assertSee('Анна Швея');
+        $response->assertDontSee('Борис Закройщик');
+    }
+
+    #[Test]
+    public function it_filters_users_by_current_workshop()
+    {
+        $this->actingAs($this->admin);
+
+        $workshop1 = Workshop::factory()->create();
+        $workshop2 = Workshop::factory()->create();
+        $shift1 = Shift::factory()->create(['workshop_id' => $workshop1->id]);
+        $shift2 = Shift::factory()->create(['workshop_id' => $workshop2->id]);
+
+        $userInWorkshop1 = User::factory()->create(['name' => 'Виктор Вальфа']);
+        $userInWorkshop1->shifts()->attach($shift1->id, ['effective_from' => now()->toDateString()]);
+
+        $userInWorkshop2 = User::factory()->create(['name' => 'Григорий Гамма']);
+        $userInWorkshop2->shifts()->attach($shift2->id, ['effective_from' => now()->toDateString()]);
+
+        $response = $this->get(route('users.index', ['workshop_id' => $workshop1->id]));
+
+        $response->assertOk();
+        $response->assertSee('Виктор Вальфа');
+        $response->assertDontSee('Григорий Гамма');
+    }
+
+    #[Test]
+    public function it_filters_by_current_workshop_ignoring_older_shift()
+    {
+        $this->actingAs($this->admin);
+
+        $workshop1 = Workshop::factory()->create();
+        $workshop2 = Workshop::factory()->create();
+        $shift1 = Shift::factory()->create(['workshop_id' => $workshop1->id]);
+        $shift2 = Shift::factory()->create(['workshop_id' => $workshop2->id]);
+
+        // Сотрудник работал вчера в цехе 1, сегодня переведён в цех 2 — текущий цех = 2.
+        $transferredUser = User::factory()->create(['name' => 'Денис Переведенный']);
+        $transferredUser->shifts()->attach($shift1->id, ['effective_from' => now()->subDay()->toDateString()]);
+        $transferredUser->shifts()->attach($shift2->id, ['effective_from' => now()->toDateString()]);
+
+        $this->get(route('users.index', ['workshop_id' => $workshop1->id]))
+            ->assertDontSee('Денис Переведенный');
+
+        $this->get(route('users.index', ['workshop_id' => $workshop2->id]))
+            ->assertSee('Денис Переведенный');
+    }
+
+    #[Test]
+    public function it_filters_users_by_role_and_workshop_combined()
+    {
+        $this->actingAs($this->admin);
+
+        $seamstressRole = Role::firstOrCreate(['name' => 'seamstress']);
+        $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+
+        $workshop1 = Workshop::factory()->create();
+        $workshop2 = Workshop::factory()->create();
+        $shift1 = Shift::factory()->create(['workshop_id' => $workshop1->id]);
+        $shift2 = Shift::factory()->create(['workshop_id' => $workshop2->id]);
+
+        // Швея в цехе 1 — единственный, кто должен попасть в выборку.
+        $target = User::factory()->create(['name' => 'Елена Цель', 'role_id' => $seamstressRole->id]);
+        $target->shifts()->attach($shift1->id, ['effective_from' => now()->toDateString()]);
+
+        // Швея, но в другом цехе — не подходит.
+        $otherWorkshop = User::factory()->create(['name' => 'Жанна ДругойЦех', 'role_id' => $seamstressRole->id]);
+        $otherWorkshop->shifts()->attach($shift2->id, ['effective_from' => now()->toDateString()]);
+
+        // Тот же цех, но другая роль — не подходит.
+        $otherRole = User::factory()->create(['name' => 'Зина ДругаяРоль', 'role_id' => $cutterRole->id]);
+        $otherRole->shifts()->attach($shift1->id, ['effective_from' => now()->toDateString()]);
+
+        $response = $this->get(route('users.index', [
+            'role_id' => $seamstressRole->id,
+            'workshop_id' => $workshop1->id,
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Елена Цель');
+        $response->assertDontSee('Жанна ДругойЦех');
+        $response->assertDontSee('Зина ДругаяРоль');
     }
 }

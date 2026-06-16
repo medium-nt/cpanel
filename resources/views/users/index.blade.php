@@ -20,6 +20,33 @@
 
                 <a href="{{ route('users.create') }}" class="btn btn-primary mr-3 mb-3">Добавить сотрудника</a>
 
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <select name="role_id" class="form-control"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">Все роли</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->id }}"
+                                        @if(request('role_id') == $role->id) selected @endif>
+                                    {{ UserService::translateRoleName($role->name) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="workshop_id" class="form-control"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">Все цеха</option>
+                            @foreach ($workshops as $workshop)
+                                <option value="{{ $workshop->id }}"
+                                        @if(request('workshop_id') == $workshop->id) selected @endif>
+                                    {{ $workshop->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                     <thead class="thead-dark">
@@ -28,6 +55,7 @@
                             <th scope="col">Аватар</th>
                             <th scope="col">Имя</th>
                             <th scope="col">Роль</th>
+                            <th scope="col">Цех</th>
                             <th scope="col">Email / Телефон</th>
                             <th scope="col">Создан</th>
                             <th scope="col">Обновлен</th>
@@ -46,6 +74,7 @@
                                 </td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->role ? UserService::translateRoleName($user->role->name) : 'Не указана' }}</td>
+                                <td>{{ $user->currentWorkshop()?->title ?? '—' }}</td>
                                 <td>{{ $user->email }} <br> {{ $user->phone }}
                                 </td>
                                 <td>{{ $user->created_date }}</td>
@@ -89,5 +118,5 @@
 {{-- Push extra scripts --}}
 
 @push('js')
-{{--    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>--}}
+    <script src="{{ asset('js/PageQueryParam.js') }}"></script>
 @endpush
