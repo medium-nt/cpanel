@@ -597,6 +597,10 @@ class MarketplaceOrderItemService
     {
         if (ScheduleService::isEnabledSchedule()) {
             if (! ScheduleService::isWorkDay()) {
+
+                Log::channel('worker_limits')
+                    ->error('Сотрудник '.auth()->user()->name.' пытался взять заказ в нерабочий день!');
+
                 return [
                     'success' => false,
                     'message' => 'Вы не можете взять заказ в нерабочий день!',
@@ -604,6 +608,10 @@ class MarketplaceOrderItemService
             }
 
             if (! ScheduleService::hasWorkDayStarted()) {
+
+                Log::channel('worker_limits')
+                    ->error('Сотрудник '.auth()->user()->name.' пытался взять заказ в нерабочее время!');
+
                 return [
                     'success' => false,
                     'message' => 'Вы не можете взять заказ в нерабочее время!',
@@ -636,6 +644,11 @@ class MarketplaceOrderItemService
             $maxCountOrderItems = self::getMaxQuantityOrdersToUserRole();
 
             if ($orderItemsByUser->count() >= $maxCountOrderItems) {
+
+                Log::channel('worker_limits')
+                    ->error('Сотрудник '.$user->name.', id: '.$user->id.
+                        '. Пытался взять больше '.$maxCountOrderItems.', текущее количество в работе: '.$orderItemsByUser->count());
+
                 return [
                     'success' => false,
                     'message' => 'Вы не можете взять больше '.$maxCountOrderItems.' заказов!',
@@ -945,6 +958,11 @@ class MarketplaceOrderItemService
             }
         }
 
+        Log::channel('items')
+            ->info(
+                'Для сотрудника '.auth()->user()->name.' нет доступных заказов'
+            );
+
         return [
             'success' => false,
             'message' => 'Нет доступных заказов',
@@ -957,15 +975,30 @@ class MarketplaceOrderItemService
     protected static function tryProcessItem($marketplaceOrderItem): array
     {
         $item = $marketplaceOrderItem->item()->first();
+        $user = auth()->user();
 
         if (! self::hasMaterialsInWorkshop($marketplaceOrderItem)) {
             self::notifyNoMaterials($item);
 
-            return ['success' => false];
+            Log::channel('items')->warning(
+                'Заказ №'.$marketplaceOrderItem->id.' отклонён: недостаточно материала в цехе (сотрудник '.$user->name.')'
+            );
+
+            return [
+                'success' => false,
+                'message' => 'Недостаточно материала в цехе',
+            ];
         }
 
         if (! self::canUseMaterial($marketplaceOrderItem)) {
-            return ['success' => false];
+            Log::channel('items')->warning(
+                'Заказ №'.$marketplaceOrderItem->id.' отклонён: ткань товара не входит в разрешённый список сотрудника '.$user->name
+            );
+
+            return [
+                'success' => false,
+                'message' => 'Ткань этого товара не входит в ваш разрешённый список',
+            ];
         }
 
         //        if (self::isReserved($marketplaceOrderItem)) {
