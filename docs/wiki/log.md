@@ -132,3 +132,21 @@
       для обеспечения уникальности на уровне цеха
 - Обновлён topic: shift-system.md — добавлено описание модели `isDayOff()`,
   каскадного удаления и новой проверки работы
+
+## [2026-06-16] update | user-management-filters
+
+- Добавлена фильтрация на странице списка пользователей `/megatulle/users`:
+    - Фильтр по роли (`users.role_id`) — кастомные роли
+      admin/storekeeper/seamstress/cutter/otk/driver/manager
+    - Фильтр по текущему цеху — через смены (не прямое поле), реализовано через
+      коррелированный подзапрос в `UserService::getFiltered()`
+    - Колонка «Цех» в таблице — `$user->currentWorkshop()?->title`
+    - Авто-применение через `PageQueryParam.js` (onchange)
+- Ключевые файлы: `UserService::getFiltered()`, `UsersController::index()`,
+  `resources/views/users/index.blade.php`
+- Создан новый topic: user-management.md — описание ролевой системы, фильтрации
+  и связей пользователей с цехами
+- Обновлены связанные topics: shift-system.md, salary-system.md, finance.md —
+  добавлены ссылки на user-management.md
+- Реализация использует `User::currentWorkshop()` для определения текущего цеха
+  через последнюю смену с `effective_from <= сегодня`

@@ -228,3 +228,5 @@
 - [finance.md](finance.md) — транзакции и бонусы
 - [material-flow.md](material-flow.md) — изоляция рулонов по сменам, движение
   материалов
+- [user-management.md](user-management.md) — фильтрация пользователей по роли и
+  цеху

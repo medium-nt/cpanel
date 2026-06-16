@@ -1,6 +1,6 @@
 # Salary System — Начисления и тарифы
 
-> Last reviewed: 2026-06-13
+> Last reviewed: 2026-06-16
 
 ## Обзор
 
@@ -120,3 +120,5 @@
   зарплата
 - [shift-system.md](shift-system.md) — как смены влияют на начисления
 - [finance.md](finance.md) — транзакции и выплаты
+- [user-management.md](user-management.md) — фильтрация пользователей по роли и
+  цеху
