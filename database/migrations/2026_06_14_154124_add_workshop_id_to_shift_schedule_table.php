@@ -44,7 +44,9 @@ return new class extends Migration
             DB::table('shift_schedule')->whereNotIn('id', $keepIds)->delete();
         }
 
-        // 4. Делаем workshop_id NOT NULL, добавляем FK и UNIQUE, убираем старый UNIQUE.
+        // 4. workshop_id NOT NULL + FK + UNIQUE. Старый FK shift_id держит
+        //    backing-индекс shift_schedule_shift_id_date_unique — снимаем FK перед
+        //    dropUnique, иначе MySQL 1553. shift_id становится nullable (выходной).
         Schema::table('shift_schedule', function (Blueprint $table) {
             $table->unsignedBigInteger('workshop_id')->nullable(false)->change();
             $table->foreign('workshop_id')
@@ -52,10 +54,21 @@ return new class extends Migration
                 ->on('workshops')
                 ->restrictOnDelete();
             $table->unique(['workshop_id', 'date'], 'shift_schedule_workshop_date_unique');
+        });
+
+        // SQLite не поддерживает dropForeign (grammar бросает исключение) и не требует
+        // backing-индекс для FK — пропускаем. На MySQL освобождает индекс для dropUnique.
+        if (DB::getDriverName() !== 'sqlite') {
+            Schema::table('shift_schedule', function (Blueprint $table) {
+                $table->dropForeign('shift_schedule_shift_id_foreign');
+            });
+        }
+
+        Schema::table('shift_schedule', function (Blueprint $table) {
             $table->dropUnique('shift_schedule_shift_id_date_unique');
         });
 
-        // 5. shift_id → nullable (выходной = запись без смены). FK на shift_id отсутствует.
+        // 5. shift_id → nullable (выходной = запись без смены). FK shift_id снят в шаге 4.
         Schema::table('shift_schedule', function (Blueprint $table) {
             $table->unsignedBigInteger('shift_id')->nullable()->change();
         });
@@ -69,8 +82,12 @@ return new class extends Migration
         Schema::table('shift_schedule', function (Blueprint $table) {
             $table->unsignedBigInteger('shift_id')->nullable(false)->change();
             $table->unique(['shift_id', 'date'], 'shift_schedule_shift_id_date_unique');
-            $table->dropUnique('shift_schedule_workshop_date_unique');
+            $table->foreign('shift_id')
+                ->references('id')
+                ->on('shifts')
+                ->cascadeOnDelete();
             $table->dropForeign(['workshop_id']);
+            $table->dropUnique('shift_schedule_workshop_date_unique');
         });
 
         Schema::table('shift_schedule', function (Blueprint $table) {
