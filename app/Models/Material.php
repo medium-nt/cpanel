@@ -36,7 +36,20 @@ class Material extends Model
         'unit',
         'purchase_price',
         'is_active',
+        'minimum_roll_size_for_closure',
     ];
+
+    /**
+     * Приведение типов атрибутов материала.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'minimum_roll_size_for_closure' => 'decimal:2',
+        ];
+    }
 
     public function type(): BelongsTo
     {

@@ -115,6 +115,7 @@ class MaterialControllerTest extends TestCase
             'type_id' => 1,
             'unit' => 'шт',
             'purchase_price' => 100,
+            'minimum_roll_size_for_closure' => 10,
         ];
 
         $response = $this->post(route('materials.store'), $materialData);
@@ -148,7 +149,7 @@ class MaterialControllerTest extends TestCase
 
         $response = $this->post(route('materials.store'));
 
-        $response->assertSessionHasErrors(['title', 'unit']);
+        $response->assertSessionHasErrors(['title', 'unit', 'minimum_roll_size_for_closure']);
     }
 
     #[Test]
@@ -177,6 +178,7 @@ class MaterialControllerTest extends TestCase
             'unit' => 'м',
             'purchase_price' => 150,
             'is_active' => 1,
+            'minimum_roll_size_for_closure' => 8,
         ];
 
         $response = $this->put(route('materials.update', $material), $updateData);
@@ -256,6 +258,7 @@ class MaterialControllerTest extends TestCase
             'type_id' => 1,
             'unit' => 'м',
             'purchase_price' => 200,
+            'minimum_roll_size_for_closure' => 10,
         ];
 
         $response = $this->post(route('materials.store'), $materialData);

@@ -137,7 +137,6 @@ class WorkshopController extends Controller
             'print_qr_cutting' => 'QR-код на листе закройщика',
             'sticking_otk' => 'Стикеровка упаковщиком',
             'sticking_seamstress' => 'Стикеровка швеей',
-            'roll_close_min_remaining' => 'Остаток для закрытия рулона (м)',
         ];
     }
 

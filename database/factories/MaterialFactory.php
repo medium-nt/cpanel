@@ -21,6 +21,7 @@ class MaterialFactory extends Factory
             'type_id' => $this->faker->randomElement([1, 2, 3]),
             'height' => $this->faker->randomElement([200, 225, 250]),
             'unit' => $this->faker->unique()->word(),
+            'minimum_roll_size_for_closure' => 10,
         ];
     }
 }

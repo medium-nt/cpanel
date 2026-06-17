@@ -1,6 +1,6 @@
 # Warehouse Operations — Складские операции
 
-> Last reviewed: 2026-06-20
+> Last reviewed: 2026-06-17
 
 ## Обзор
 
@@ -182,6 +182,8 @@
 ## Связанные topics
 
 - [material-flow.md](material-flow.md) — поступление и движение материалов
+- [materials.md](materials.md) — материалы и их свойства (включая порог закрытия
+  рулонов)
 - [order-lifecycle.md](order-lifecycle.md) — статусы заказов
 - [marketplace-integration.md](marketplace-integration.md) — штрихкоды
   маркетплейсов

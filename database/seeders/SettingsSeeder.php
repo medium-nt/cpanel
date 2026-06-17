@@ -141,10 +141,5 @@ class SettingsSeeder extends Seeder
             ['name' => 'sticking_seamstress'],
             ['value' => 'disabled']
         );
-
-        Setting::query()->firstOrCreate(
-            ['name' => 'roll_close_min_remaining'],
-            ['value' => '10']
-        );
     }
 }

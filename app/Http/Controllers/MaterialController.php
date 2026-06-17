@@ -32,6 +32,7 @@ class MaterialController extends Controller
             'type_id' => 'required|integer|exists:type_materials,id',
             'unit' => 'required|string|min:1|max:10',
             'purchase_price' => 'required|numeric|min:0.01',
+            'minimum_roll_size_for_closure' => 'required|numeric|min:0',
         ];
 
         $validatedData = $request->validate($rules);
@@ -64,6 +65,7 @@ class MaterialController extends Controller
             'unit' => 'required|string|min:1|max:10',
             'purchase_price' => 'required|numeric|min:0.01',
             'is_active' => 'required|boolean',
+            'minimum_roll_size_for_closure' => 'required|numeric|min:0',
         ];
 
         $validatedData = $request->validate($rules);

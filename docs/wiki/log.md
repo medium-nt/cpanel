@@ -58,3 +58,17 @@
 - Файлы изменений: StickerPrintingController.php,
   resources/views/kiosk/kiosk.blade.php,
   tests/Feature/KioskCleanerAccessTest.php
+
+## [2026-06-17] update | roll-closure-threshold
+
+- Бизнес-правило "минимальный остаток для закрытия рулона" перенесено из
+  глобальной настройки `roll_close_min_remaining` в поле материала
+  `minimum_roll_size_for_closure` (decimal(8,2), NOT NULL, default 10.00)
+- Теперь у каждого материала свой порог закрытия рулона вместо единого для всех
+- Киоск (`/kiosk/rolls`): рядовой сотрудник может завершить рулон только если
+  `current_quantity <= material.minimum_roll_size_for_closure`, иначе alert
+  "Рулон еще не заканчивается!" (доступен кладовщикам/админам)
+- Проверка порога только в шаблоне kiosk/rolls.blade.php:89 (серверная проверка
+  completeRoll() отсутствует)
+- Обновлены topics: material-flow.md, shift-system.md, создан materials.md
+- Удалена настройка roll_close_min_remaining из settings/seeders/Controllers

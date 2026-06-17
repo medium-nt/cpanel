@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-20
+> Last reviewed: 2026-06-17
 
 ## Обзор
 
@@ -155,9 +155,19 @@
 **Реализация (StickerPrintingController):**
 
 - `rolls()` — при сканировании рулона проверяется `shift_id`
-- `completeRoll()` — завершение рулона только своей смены
+- `completeRoll()` — завершение рулона только своей смены с проверкой порога
+  закрытия (`current_quantity <= material.minimum_roll_size_for_closure`)
 - `getRollByCode()` — API-метод для поиска с фильтром по смене
 - `saveDefects()` — проверка смены при сохранении брака
+
+**Проверка порога закрытия рулона:**
+
+- Рядовой сотрудник может завершить рулон только если текущий остаток
+  `current_quantity <= material.minimum_roll_size_for_closure`
+- Если остаток больше порога — закрыть может только кладовщик или админ
+- Порог теперь индивидуален для каждого материала, значение по умолчанию: 10
+  метров
+- Проверка осуществляется в интерфейсе киоска (`/kiosk/rolls:89`)
 
 **Ограничения:**
 
@@ -226,6 +236,8 @@
   через `Setting::getValue()`/`getValues()` с fallback "цеховая → глобальная"
 - **Multi-workshop архитектура**: модель `Setting` поддерживает оба уровня,
   страницы настроек работают ТОЛЬКО с глобальными настройками
+- **Удалена настройка**: `roll_close_min_remaining` заменена на поле
+  `material.minimum_roll_size_for_closure`
 
 ## Связанные topics
 
@@ -235,6 +247,8 @@
 - [finance.md](finance.md) — транзакции и бонусы
 - [material-flow.md](material-flow.md) — изоляция рулонов по сменам, движение
   материалов
+- [materials.md](materials.md) — материалы и их свойства (включая порог закрытия
+  рулонов)
 - [user-management.md](user-management.md) — фильтрация пользователей по роли и
   цеху
 - [warehouse-operations.md](warehouse-operations.md) — доступ к киосу по ролям

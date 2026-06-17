@@ -87,6 +87,20 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="minimum_roll_size_for_closure">Мин. остаток
+                            для закрытия рулона</label>
+                        <input type="number"
+                               class="form-control @error('minimum_roll_size_for_closure') is-invalid @enderror"
+                               id="minimum_roll_size_for_closure"
+                               name="minimum_roll_size_for_closure"
+                               placeholder="в метрах"
+                               min="0"
+                               step="0.01"
+                               value="{{ old('minimum_roll_size_for_closure') }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
                         <button type="submit" class="btn btn-primary">Создать</button>
                     </div>
                 </div>
