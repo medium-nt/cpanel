@@ -131,6 +131,13 @@ class SupplyBoxController extends Controller
             return back()->with('error', 'Нельзя удалить короб с заказами.');
         }
 
+        Log::channel('marketplace_supplies')->warning('Удалён короб поставки', [
+            'supply_id' => $marketplaceSupply->id,
+            'box_id' => $box->id,
+            'box_number' => $box->number,
+            'deleted_by' => auth()->id(),
+        ]);
+
         $box->delete();
 
         return redirect()
@@ -159,6 +166,13 @@ class SupplyBoxController extends Controller
     {
         if ($order->box_id === $box->id) {
             $order->update(['box_id' => null]);
+
+            Log::channel('marketplace_supplies')->info('Заказ убран из короба', [
+                'supply_id' => $marketplaceSupply->id,
+                'box_id' => $box->id,
+                'order_id' => $order->id,
+                'removed_by' => auth()->id(),
+            ]);
         }
 
         return back()->with('success', 'Заказ убран из короба.');
@@ -178,6 +192,12 @@ class SupplyBoxController extends Controller
         }
 
         $box->update(['closed_at' => now()]);
+
+        Log::channel('marketplace_supplies')->info('Короб закрыт', [
+            'supply_id' => $marketplaceSupply->id,
+            'box_id' => $box->id,
+            'closed_by' => auth()->id(),
+        ]);
 
         return redirect()
             ->route('supply_boxes.show', ['marketplace_supply' => $marketplaceSupply, 'box' => $box])

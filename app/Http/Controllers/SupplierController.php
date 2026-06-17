@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SupplierController extends Controller
 {
@@ -33,7 +34,13 @@ class SupplierController extends Controller
 
         $validatedData = $request->validate($rules);
 
-        Supplier::query()->create($validatedData);
+        $supplier = Supplier::query()->create($validatedData);
+
+        Log::channel('system')->info('Создан поставщик', [
+            'supplier_id' => $supplier->id,
+            'title' => $supplier->title,
+            'created_by' => auth()->id(),
+        ]);
 
         return redirect()->route('suppliers.index')->with('success', 'Поставщик добавлен');
     }
@@ -58,6 +65,12 @@ class SupplierController extends Controller
         $validatedData = $request->validate($rules);
         $supplier->update($validatedData);
 
+        Log::channel('system')->info('Обновлён поставщик', [
+            'supplier_id' => $supplier->id,
+            'changed' => collect($supplier->getChanges())->except(['updated_at'])->keys(),
+            'updated_by' => auth()->id(),
+        ]);
+
         return redirect()->route('suppliers.index')->with('success', 'Изменения сохранены');
     }
 
@@ -67,6 +80,12 @@ class SupplierController extends Controller
             return redirect()->route('suppliers.index')
                 ->with('error', 'Невозможно удалить поставщика, так как он используется в системе');
         }
+
+        Log::channel('system')->warning('Удалён поставщик', [
+            'supplier_id' => $supplier->id,
+            'title' => $supplier->title,
+            'deleted_by' => auth()->id(),
+        ]);
 
         $supplier->delete();
 

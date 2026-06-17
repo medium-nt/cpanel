@@ -8,6 +8,7 @@ use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Services\MarketplaceItemService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MarketplaceItemController extends Controller
 {
@@ -42,6 +43,12 @@ class MarketplaceItemController extends Controller
         MarketplaceItemService::saveSkus($marketplaceItem, $request);
         MarketplaceItemService::saveMaterialsConsumption($marketplaceItem, $request);
 
+        Log::channel('items')->info('Создан товар маркетплейса', [
+            'item_id' => $marketplaceItem->id,
+            'title' => $marketplaceItem->title,
+            'created_by' => auth()->id(),
+        ]);
+
         return redirect()
             ->route('marketplace_items.index', ['title' => $request->title, 'width' => $request->width])
             ->with('success', 'Товар добавлен');
@@ -63,6 +70,12 @@ class MarketplaceItemController extends Controller
         MarketplaceItemService::saveSkus($marketplaceItem, $request);
         MarketplaceItemService::saveMaterialsConsumption($marketplaceItem, $request);
 
+        Log::channel('items')->info('Обновлён товар маркетплейса', [
+            'item_id' => $marketplaceItem->id,
+            'changed' => collect($marketplaceItem->getChanges())->except(['updated_at'])->keys(),
+            'updated_by' => auth()->id(),
+        ]);
+
         return redirect()
             ->back()
             ->with('success', 'Изменения сохранены');
@@ -74,6 +87,12 @@ class MarketplaceItemController extends Controller
             return redirect()->route('marketplace_items.index')
                 ->with('error', 'Невозможно удалить товар, так как он используется в системе');
         }
+
+        Log::channel('items')->warning('Удалён товар маркетплейса', [
+            'item_id' => $marketplaceItem->id,
+            'title' => $marketplaceItem->title,
+            'deleted_by' => auth()->id(),
+        ]);
 
         $marketplaceItem->delete();
 

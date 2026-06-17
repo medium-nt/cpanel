@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ScheduleController extends Controller
@@ -24,7 +25,7 @@ class ScheduleController extends Controller
                     'date' => $request->date,
                 ]);
 
-                if (!$scheduleDate->wasRecentlyCreated) {
+                if (! $scheduleDate->wasRecentlyCreated) {
                     $scheduleDate->delete();
                     $deleted = true;
                 }
@@ -34,6 +35,13 @@ class ScheduleController extends Controller
 
                 ]);
             }
+
+            Log::channel('work_shift')->info('Изменение расписания сотрудника', [
+                'user_id' => $request->user_id,
+                'date' => $request->date,
+                'action' => $deleted ? 'removed' : 'added',
+                'changed_by' => auth()->id(),
+            ]);
 
             return response()->json([
                 'message' => 'Расписание успешно обновлено',

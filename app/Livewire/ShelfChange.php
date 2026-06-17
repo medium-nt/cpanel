@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\MarketplaceOrderItem;
 use App\Models\Shelf;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -138,6 +139,15 @@ class ShelfChange extends Component
         }
 
         $scannedCount = count($this->scannedItems);
+
+        Log::channel('items')->info('Перемещение товаров на полку', [
+            'moved_count' => $count,
+            'scanned_count' => $scannedCount,
+            'to_shelf_id' => $this->selectedShelfId,
+            'item_ids' => array_column($this->scannedItems, 'id'),
+            'moved_by' => auth()->id(),
+        ]);
+
         $this->scannedItems = [];
 
         $this->setStatus("Успешно перемещено $count из $scannedCount товаров на полку.", 'ok');

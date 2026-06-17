@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use App\Models\TypeMaterial;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MaterialController extends Controller
 {
@@ -34,7 +35,14 @@ class MaterialController extends Controller
         ];
 
         $validatedData = $request->validate($rules);
-        Material::query()->create($validatedData);
+        $material = Material::query()->create($validatedData);
+
+        Log::channel('materials')->info('Создан материал', [
+            'material_id' => $material->id,
+            'title' => $material->title,
+            'type_id' => $material->type_id,
+            'created_by' => auth()->id(),
+        ]);
 
         return redirect()->route('materials.index')->with('success', 'Материал добавлен');
     }
@@ -61,6 +69,12 @@ class MaterialController extends Controller
         $validatedData = $request->validate($rules);
         $material->update($validatedData);
 
+        Log::channel('materials')->info('Обновлён материал', [
+            'material_id' => $material->id,
+            'changed' => collect($material->getChanges())->except(['updated_at'])->keys(),
+            'updated_by' => auth()->id(),
+        ]);
+
         return redirect()->route('materials.index')->with('success', 'Изменения сохранены');
     }
 
@@ -70,6 +84,12 @@ class MaterialController extends Controller
             return redirect()->route('materials.index')
                 ->with('error', 'Невозможно удалить материал, так как он используется в системе');
         }
+
+        Log::channel('materials')->warning('Удалён материал', [
+            'material_id' => $material->id,
+            'title' => $material->title,
+            'deleted_by' => auth()->id(),
+        ]);
 
         $material->delete();
 

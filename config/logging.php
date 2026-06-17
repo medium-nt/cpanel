@@ -115,6 +115,13 @@ return [
             'days' => 30,
         ],
 
+        'users' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/users/users.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
         'salary' => [
             'driver' => 'daily',
             'path' => storage_path('logs/salary/salary.log'),

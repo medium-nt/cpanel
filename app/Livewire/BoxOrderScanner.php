@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\MarketplaceOrder;
 use App\Models\Sku;
 use App\Models\SupplyBox;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -102,6 +103,13 @@ class BoxOrderScanner extends Component
 
         $order->update(['box_id' => $this->box->id]);
 
+        Log::channel('marketplace_supplies')->info('Заказ добавлен в короб', [
+            'supply_id' => $this->box->marketplace_supply_id,
+            'box_id' => $this->box->id,
+            'order_id' => $order->id,
+            'added_by' => auth()->id(),
+        ]);
+
         $itemTitle = $order->items->first()?->item?->title ?? '';
         $this->setStatus("Добавлен: {$itemTitle}", 'ok');
         $this->dispatch('scanSuccess');
@@ -123,6 +131,14 @@ class BoxOrderScanner extends Component
 
         if ($order) {
             $order->update(['box_id' => null]);
+
+            Log::channel('marketplace_supplies')->info('Заказ убран из короба', [
+                'supply_id' => $this->box->marketplace_supply_id,
+                'box_id' => $this->box->id,
+                'order_id' => $order->id,
+                'removed_by' => auth()->id(),
+            ]);
+
             $this->setStatus('Заказ убран из короба.', 'ok');
         }
     }

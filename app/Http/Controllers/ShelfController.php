@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Shelf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ShelfController extends Controller
 {
@@ -46,6 +47,12 @@ class ShelfController extends Controller
         $shelf->title = $request->title;
         $shelf->save();
 
+        Log::channel('system')->info('Создана полка', [
+            'shelf_id' => $shelf->id,
+            'title' => $shelf->title,
+            'created_by' => auth()->id(),
+        ]);
+
         return redirect()
             ->route('shelves.index')
             ->with('success', 'Полка добавлена');
@@ -79,6 +86,12 @@ class ShelfController extends Controller
         $shelf->title = $request->title;
         $shelf->save();
 
+        Log::channel('system')->info('Обновлена полка', [
+            'shelf_id' => $shelf->id,
+            'changed' => collect($shelf->getChanges())->except(['updated_at'])->keys(),
+            'updated_by' => auth()->id(),
+        ]);
+
         return redirect()
             ->route('shelves.index')
             ->with('success', 'Полка обновлена');
@@ -93,6 +106,12 @@ class ShelfController extends Controller
             return redirect()->route('shelves.index')
                 ->with('error', 'Нельзя удалять полку с заказами');
         }
+
+        Log::channel('system')->warning('Удалена полка', [
+            'shelf_id' => $shelf->id,
+            'title' => $shelf->title,
+            'deleted_by' => auth()->id(),
+        ]);
 
         $shelf->delete();
 

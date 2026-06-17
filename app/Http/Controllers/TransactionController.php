@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -71,6 +72,14 @@ class TransactionController extends Controller
                 ->with('error', 'Нельзя удалить выплаченную транзакцию');
         }
 
+        Log::channel('salary')->warning('Удалена транзакция', [
+            'id' => $transaction->id,
+            'user_id' => $transaction->user_id,
+            'amount' => $transaction->amount,
+            'transaction_type' => $transaction->transaction_type,
+            'deleted_by' => auth()->id(),
+        ]);
+
         $transaction->delete();
 
         return back()
@@ -113,11 +122,21 @@ class TransactionController extends Controller
             return back()->with('error', 'Недостаточно денег для выплаты');
         }
 
+        $rowsCount = (clone $query)->count();
+
         (clone $query)
             ->update([
                 'paid_at' => now(),
                 'status' => 2,
             ]);
+
+        Log::channel('salary')->info('Выплата зарплаты', [
+            'user_id' => $request->user_id,
+            'period' => [$request->start_date, $request->end_date],
+            'rows' => $rowsCount,
+            'sum' => $result,
+            'paid_by' => auth()->id(),
+        ]);
 
         return back()
             ->with('success', ' Зарплата выплачена');
@@ -157,6 +176,12 @@ class TransactionController extends Controller
         if ($updateCount == 0) {
             return back()->with('error', 'Нет бонусов для выплаты');
         }
+
+        Log::channel('salary')->info('Выплата бонусов', [
+            'user_id' => $request->user_id,
+            'rows' => $updateCount,
+            'paid_by' => auth()->id(),
+        ]);
 
         return back()
             ->with('success', ' Бонусы выплачены');

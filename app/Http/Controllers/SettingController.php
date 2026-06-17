@@ -97,6 +97,11 @@ class SettingController extends Controller
     {
         $added = MarketplaceApiService::syncWarehousesOzon();
 
+        Log::channel('system')->info('Синхронизация складов OZON', [
+            'added' => $added,
+            'synced_by' => auth()->id(),
+        ]);
+
         return redirect()->route('setting.index')
             ->with('success', "Склады OZON обновлены. Добавлено: {$added}");
     }
@@ -104,6 +109,11 @@ class SettingController extends Controller
     public function syncWarehousesWb()
     {
         $added = MarketplaceApiService::syncWarehousesWb();
+
+        Log::channel('system')->info('Синхронизация складов WB', [
+            'added' => $added,
+            'synced_by' => auth()->id(),
+        ]);
 
         return redirect()->route('setting.index')
             ->with('success', "Склады WB обновлены. Добавлено: {$added}");

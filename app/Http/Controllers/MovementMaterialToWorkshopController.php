@@ -224,6 +224,11 @@ class MovementMaterialToWorkshopController extends Controller
                 ->with('error', 'Невозможно удалить заказ, так как он уже в работе');
         }
 
+        Log::channel('materials')->warning('Удалена поставка на производство', [
+            'order_id' => $order->id,
+            'deleted_by' => auth()->id(),
+        ]);
+
         $order->movementMaterials()->delete();
 
         $order->delete();

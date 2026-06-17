@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Workshop;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
+use Mockery;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -78,6 +80,35 @@ class ShiftScheduleControllerTest extends TestCase
             'shift_id' => $shift->id,
             'workshop_id' => $workshop->id,
         ]);
+    }
+
+    /**
+     * Store: сохранение календаря логируется в канал work_shift.
+     */
+    #[Test]
+    public function storing_shift_schedule_writes_audit_log_to_work_shift_channel(): void
+    {
+        $workshop = Workshop::factory()->create(['status' => Workshop::STATUS_ACTIVE]);
+        $shift = Shift::factory()->create(['workshop_id' => $workshop->id]);
+
+        Log::shouldReceive('channel')->once()->with('work_shift')->andReturnSelf();
+        Log::shouldReceive('info')
+            ->once()
+            ->with('Сохранён календарь смен', Mockery::on(function ($context) use ($workshop) {
+                return $context['workshop_id'] === $workshop->id
+                    && $context['updated_by'] === $this->admin->id;
+            }));
+
+        $this->actingAs($this->admin)
+            ->post(route('shift-schedule.store'), [
+                'workshop_id' => $workshop->id,
+                'month' => now()->month,
+                'year' => now()->year,
+                'dates' => [
+                    ['date' => now()->addDay()->toDateString(), 'shift_id' => $shift->id],
+                ],
+            ])
+            ->assertRedirect();
     }
 
     /**

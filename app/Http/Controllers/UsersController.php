@@ -52,7 +52,16 @@ class UsersController extends Controller
     public function store(StoreUsersRequest $request): RedirectResponse
     {
         $validate = $request->safe()->toArray();
-        User::query()->create($validate);
+        $user = User::query()->create($validate);
+
+        Log::channel('users')
+            ->info('Создан пользователь', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role_id' => $user->role_id,
+                'workshop_id' => $user->workshop_id,
+                'created_by' => auth()->id(),
+            ]);
 
         return redirect()->route('users.index')->with('success', 'Пользователь добавлен');
     }
@@ -151,6 +160,13 @@ class UsersController extends Controller
             return back()
                 ->with('error', 'У сотрудника есть невыплаченная зп. Удаление невозможно.');
         }
+
+        Log::channel('users')
+            ->warning('Удалён пользователь', [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'deleted_by' => auth()->id(),
+            ]);
 
         User::query()->findOrFail($user->id)->delete();
 
@@ -318,6 +334,17 @@ class UsersController extends Controller
                 }
             }
         }
+
+        $tariffsCount = Tariff::whereHas('userTariff', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->count();
+
+        Log::channel('users')
+            ->info('Обновлены тарифы пользователя', [
+                'user_id' => $user->id,
+                'tariffs_count' => $tariffsCount,
+                'updated_by' => auth()->id(),
+            ]);
 
         return redirect()
             ->route('users.edit', ['user' => $user->id])

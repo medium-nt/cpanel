@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Workshop;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
+use Mockery;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -369,5 +371,50 @@ class UserControllerTest extends TestCase
         $response->assertSee('Елена Цель');
         $response->assertDontSee('Жанна ДругойЦех');
         $response->assertDontSee('Зина ДругаяРоль');
+    }
+
+    #[Test]
+    public function deleting_user_writes_audit_log_to_users_channel()
+    {
+        $user = User::factory()->create();
+
+        Log::shouldReceive('channel')->once()->with('users')->andReturnSelf();
+        Log::shouldReceive('warning')
+            ->once()
+            ->with('Удалён пользователь', Mockery::on(function ($context) use ($user) {
+                return $context['user_id'] === $user->id
+                    && $context['deleted_by'] === $this->admin->id;
+            }));
+
+        $this->actingAs($this->admin)
+            ->delete(route('users.destroy', $user))
+            ->assertRedirect(route('users.index'));
+    }
+
+    #[Test]
+    public function storing_user_writes_audit_log_to_users_channel()
+    {
+        $role = Role::firstOrCreate(['name' => 'seamstress']);
+
+        Log::shouldReceive('channel')->once()->with('users')->andReturnSelf();
+        Log::shouldReceive('info')
+            ->once()
+            ->with('Создан пользователь', Mockery::on(function ($context) use ($role) {
+                return $context['email'] === 'audit@example.com'
+                    && $context['role_id'] === $role->id
+                    && $context['created_by'] === $this->admin->id;
+            }));
+
+        $this->actingAs($this->admin)
+            ->post(route('users.store'), [
+                'name' => 'Audit User',
+                'email' => 'audit@example.com',
+                'phone' => '+71234567890',
+                'password' => 'password123',
+                'password_confirmation' => 'password123',
+                'role_id' => $role->id,
+                'is_cutter' => false,
+            ])
+            ->assertRedirect(route('users.index'));
     }
 }

@@ -187,7 +187,15 @@ class UserService
             $user->materials()->sync($validatedData['materials'] ?? []);
         }
 
-        return $user->update($validatedData);
+        $updated = $user->update($validatedData);
+
+        Log::channel('users')->info('Обновлён профиль пользователя', [
+            'user_id' => $user->id,
+            'changed' => collect($user->getChanges())->except(['password', 'updated_at'])->keys(),
+            'updated_by' => auth()->id(),
+        ]);
+
+        return $updated;
     }
 
     public static function getUserByBarcode($barcode): ?User

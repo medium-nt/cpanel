@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Models\Workshop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class WorkshopController extends Controller
@@ -35,9 +36,15 @@ class WorkshopController extends Controller
             'title' => 'required|string|min:2|max:255',
         ]);
 
-        Workshop::create([
+        $workshop = Workshop::create([
             'title' => $validated['title'],
             'status' => Workshop::STATUS_ACTIVE,
+        ]);
+
+        Log::channel('system')->info('Создан цех', [
+            'workshop_id' => $workshop->id,
+            'title' => $workshop->title,
+            'created_by' => auth()->id(),
         ]);
 
         return redirect()->route('workshops.index')->with('success', 'Цех создан');
@@ -205,6 +212,15 @@ class WorkshopController extends Controller
             }
         }
 
+        Log::channel('system')->info('Обновлён цех', [
+            'workshop_id' => $workshop->id,
+            'changed' => collect($workshop->getChanges())->except(['updated_at'])->keys(),
+            'allowed_items_count' => count($itemIds),
+            'allowed_materials_count' => count($validated['allowed_raw_materials'] ?? []),
+            'settings_count' => count($validated['settings'] ?? []),
+            'updated_by' => auth()->id(),
+        ]);
+
         return redirect()->route('workshops.index')->with('success', 'Цех обновлён');
     }
 
@@ -215,6 +231,12 @@ class WorkshopController extends Controller
             return redirect()->route('workshops.index')
                 ->with('error', 'Нельзя деактивировать цех, у которого есть смены. Сначала перенесите или удалите смены.');
         }
+
+        Log::channel('system')->info('Деактивирован цех', [
+            'workshop_id' => $workshop->id,
+            'title' => $workshop->title,
+            'deactivated_by' => auth()->id(),
+        ]);
 
         $workshop->update(['status' => Workshop::STATUS_INACTIVE]);
 

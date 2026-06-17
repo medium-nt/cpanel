@@ -8,6 +8,8 @@ use App\Models\Setting;
 use App\Models\TypeMaterial;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
+use Mockery;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -265,5 +267,24 @@ class MaterialControllerTest extends TestCase
         $this->assertEquals('Special Material', $material->title);
         $this->assertEquals(1, $material->type_id);
         $this->assertEquals('м', $material->unit);
+    }
+
+    #[Test]
+    public function deleting_material_writes_audit_log_to_materials_channel()
+    {
+        $this->actingAs($this->admin);
+
+        $material = Material::factory()->create(['title' => 'Audit Material']);
+
+        Log::shouldReceive('channel')->once()->with('materials')->andReturnSelf();
+        Log::shouldReceive('warning')
+            ->once()
+            ->with('Удалён материал', Mockery::on(function ($context) use ($material) {
+                return $context['material_id'] === $material->id
+                    && $context['deleted_by'] === $this->admin->id;
+            }));
+
+        $this->delete(route('materials.destroy', $material))
+            ->assertRedirect(route('materials.index'));
     }
 }

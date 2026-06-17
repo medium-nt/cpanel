@@ -163,3 +163,24 @@
   с заголовками типов и счётчиками позиций
 - Обновлён topic: warehouse-operations.md — добавлено описание группировки
   материалов по типам
+
+## [2026-06-16] add | audit-logging-high
+
+- Внедрено audit-логирование в HIGH-severity мутирующих эндпоинтах для
+  observability
+- Добавлен новый канал `users` (storage/logs/users/users.log) для
+  security-аудита
+- `UsersController` (store/destroy/tariffsUpdate) и `UserService::saved` —
+  логируют
+  операции пользователя: кто (auth()->id()), над user_id, что изменилось
+- `TransactionController` (destroy/storePayoutSalary/storePayoutBonus) → канал
+  `salary`
+- `SupplyBoxController` (destroy/removeOrder/closeBox) → канал
+  `marketplace_supplies`
+- `Livewire BoxOrderScanner` (handleScan/removeOrder) → marketplace_supplies
+- `Livewire ShelfChange` (saveChanges) → канал `items`
+- Тесты: UserControllerTest +2, TransactionControllerTest +1 (Mockery Log::
+  shouldReceive)
+- Создан новый topic: logging-channels.md — описание всех каналов и
+  audit-конвенции
+- Конвенция: actor_id + target_id + changes + old/new значения

@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ShiftController extends Controller
@@ -38,10 +39,17 @@ class ShiftController extends Controller
             'workshop_id' => 'required|exists:workshops,id',
         ]);
 
-        Shift::create([
+        $shift = Shift::create([
             'name' => $validated['name'],
             'workshop_id' => $validated['workshop_id'],
             'status' => Shift::STATUS_ACTIVE,
+        ]);
+
+        Log::channel('work_shift')->info('Создана смена', [
+            'shift_id' => $shift->id,
+            'name' => $shift->name,
+            'workshop_id' => $shift->workshop_id,
+            'created_by' => auth()->id(),
         ]);
 
         return redirect()->route('shifts.index')->with('success', 'Смена создана');
@@ -90,11 +98,23 @@ class ShiftController extends Controller
 
         $shift->update($validated);
 
+        Log::channel('work_shift')->info('Обновлена смена', [
+            'shift_id' => $shift->id,
+            'changed' => collect($shift->getChanges())->except(['updated_at'])->keys(),
+            'updated_by' => auth()->id(),
+        ]);
+
         return redirect()->route('shifts.show', $shift)->with('success', 'Смена обновлена');
     }
 
     public function destroy(Shift $shift): RedirectResponse
     {
+        Log::channel('work_shift')->info('Деактивирована смена', [
+            'shift_id' => $shift->id,
+            'name' => $shift->name,
+            'deactivated_by' => auth()->id(),
+        ]);
+
         $shift->update(['status' => Shift::STATUS_INACTIVE]);
 
         return redirect()->route('shifts.index')->with('success', 'Смена деактивирована');
@@ -110,11 +130,24 @@ class ShiftController extends Controller
             'effective_from' => now()->toDateString(),
         ]);
 
+        Log::channel('work_shift')->info('Сотрудник добавлен в смену', [
+            'shift_id' => $shift->id,
+            'user_id' => $validated['user_id'],
+            'effective_from' => now()->toDateString(),
+            'added_by' => auth()->id(),
+        ]);
+
         return redirect()->route('shifts.show', $shift)->with('success', 'Сотрудник добавлен');
     }
 
     public function detachUser(Shift $shift, User $user): RedirectResponse
     {
+        Log::channel('work_shift')->info('Сотрудник убран из смены', [
+            'shift_id' => $shift->id,
+            'user_id' => $user->id,
+            'removed_by' => auth()->id(),
+        ]);
+
         $shift->users()->wherePivot('user_id', $user->id)->detach();
 
         return redirect()->route('shifts.show', $shift)->with('success', 'Сотрудник удалён из смены');
@@ -122,6 +155,12 @@ class ShiftController extends Controller
 
     public function destroyRecord(Shift $shift, int $recordId): RedirectResponse
     {
+        Log::channel('work_shift')->warning('Удалена запись смены (shift_user)', [
+            'shift_id' => $shift->id,
+            'record_id' => $recordId,
+            'deleted_by' => auth()->id(),
+        ]);
+
         DB::table('shift_user')->where('id', $recordId)->delete();
 
         return redirect()->route('shifts.show', $shift)->with('success', 'Запись удалена');
@@ -136,6 +175,14 @@ class ShiftController extends Controller
 
         $newShift = Shift::findOrFail($validated['new_shift_id']);
         ShiftService::transferEmployee($user, $newShift, $validated['effective_from']);
+
+        Log::channel('work_shift')->info('Перевод сотрудника в другую смену', [
+            'from_shift_id' => $shift->id,
+            'to_shift_id' => $newShift->id,
+            'user_id' => $user->id,
+            'effective_from' => $validated['effective_from'],
+            'transferred_by' => auth()->id(),
+        ]);
 
         return redirect()->route('shifts.show', $shift)->with('success', 'Перевод сотрудника запланирован');
     }
@@ -204,6 +251,13 @@ class ShiftController extends Controller
         }
 
         ShiftService::fillSchedule($data, $workshopId);
+
+        Log::channel('work_shift')->info('Сохранён календарь смен', [
+            'workshop_id' => $workshopId,
+            'dates_count' => count($dates),
+            'assigned_count' => count($data),
+            'updated_by' => auth()->id(),
+        ]);
 
         return redirect()->route('shift-schedule.index', [
             'month' => $request->input('month', now()->month),
