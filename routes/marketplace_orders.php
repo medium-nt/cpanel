@@ -47,4 +47,8 @@ Route::prefix('/marketplace_orders')->group(function () {
     Route::delete('/detach-not-ready-by-supply/{marketplace_supply}', [MarketplaceOrderController::class, 'detachNotReadyBySupply'])
         ->can('detachOrders', 'marketplace_supply')
         ->name('marketplace_orders.detach_not_ready_by_supply');
+
+    Route::delete('/detach-on-supply-by-supply/{marketplace_supply}', [MarketplaceOrderController::class, 'detachOnSupplyOrdersBySupply'])
+        ->can('detachOrders', 'marketplace_supply')
+        ->name('marketplace_orders.detach_on_supply_by_supply');
 });

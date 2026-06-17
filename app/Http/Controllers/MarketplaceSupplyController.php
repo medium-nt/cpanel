@@ -70,19 +70,21 @@ class MarketplaceSupplyController extends Controller
     {
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
+        $supplyOrders = MarketplaceOrder::query()
+            ->with('items.item', 'box')
+            ->where('supply_id', $marketplaceSupply->id)
+            ->get();
+
+        $hasOrders = $supplyOrders->isNotEmpty();
+
         if ($marketplaceSupply->type === 'FBO' && $marketplaceSupply->marketplace_id == 1) {
             $ozonSupplyOrders = ($marketplaceSupply->status === 0 && empty($marketplaceSupply->supply_id))
                 ? self::getOzonSupplyOrdersForDropdown()
                 : [];
 
-            $supplyOrders = MarketplaceOrder::query()
-                ->with('items.item', 'box')
-                ->where('supply_id', $marketplaceSupply->id)
-                ->get();
-
-            $hasOrders = $supplyOrders->isNotEmpty();
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
             $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);
+            $hasOnSupplyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 6);
 
             return view('marketplace_supply.show-ozon-fbo', [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
@@ -92,6 +94,7 @@ class MarketplaceSupplyController extends Controller
                 'supplyOrders' => $supplyOrders,
                 'hasNewOrders' => $hasNewOrders,
                 'hasNotReadyOrders' => $hasNotReadyOrders,
+                'hasOnSupplyOrders' => $hasOnSupplyOrders,
             ]);
         }
 
@@ -100,15 +103,9 @@ class MarketplaceSupplyController extends Controller
                 ? MarketplaceApiService::getFboSuppliesWb()
                 : [];
 
-            $supplyOrders = MarketplaceOrder::query()
-                ->with('items.item', 'box')
-                ->where('supply_id', $marketplaceSupply->id)
-                ->get();
-
-            $hasOrders = $supplyOrders->isNotEmpty();
-
             $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
             $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);
+            $hasOnSupplyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 6);
 
             $canExportExcel = $marketplaceSupply->status === 4;
 
@@ -120,6 +117,7 @@ class MarketplaceSupplyController extends Controller
                 'supplyOrders' => $supplyOrders,
                 'hasNewOrders' => $hasNewOrders,
                 'hasNotReadyOrders' => $hasNotReadyOrders,
+                'hasOnSupplyOrders' => $hasOnSupplyOrders,
                 'canExportExcel' => $canExportExcel,
             ]);
         }

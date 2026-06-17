@@ -261,4 +261,29 @@ class MarketplaceOrderService
 
         return ['detached' => $detached];
     }
+
+    /**
+     * Отвязывает от поставки заказы в статусе "На поставку" (status = 6) без короба.
+     *
+     * Сам заказ не удаляется — только обнуляется supply_id, чтобы он остался
+     * в системе, но не попал в отгрузку.
+     *
+     * @param  int  $supplyId  ID поставки
+     * @return array{detached: int} Количество отвязанных заказов
+     */
+    public static function detachOnSupplyOrdersBySupply(int $supplyId): array
+    {
+        $detached = MarketplaceOrder::query()
+            ->where('supply_id', $supplyId)
+            ->whereNull('box_id')
+            ->where('status', 6)
+            ->update(['supply_id' => null]);
+
+        if ($detached > 0) {
+            Log::channel('orders')
+                ->notice('От поставки #'.$supplyId.' отвязано заказов «на поставку»: '.$detached.'.');
+        }
+
+        return ['detached' => $detached];
+    }
 }

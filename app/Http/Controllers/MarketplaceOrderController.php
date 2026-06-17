@@ -8,6 +8,8 @@ use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
 use App\Services\MarketplaceOrderService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -170,7 +172,7 @@ class MarketplaceOrderController extends Controller
      * Удаляет все заказы в статусе "новый" из указанной поставки.
      *
      * @param  MarketplaceSupply  $marketplaceSupply  Поставка
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @return JsonResponse|RedirectResponse
      */
     public function destroyNewBySupply(MarketplaceSupply $marketplaceSupply)
     {
@@ -202,11 +204,27 @@ class MarketplaceOrderController extends Controller
      * в системе, но не попали в отгрузку.
      *
      * @param  MarketplaceSupply  $marketplaceSupply  Поставка
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function detachNotReadyBySupply(MarketplaceSupply $marketplaceSupply)
     {
         $result = MarketplaceOrderService::detachNotReadyOrdersBySupply($marketplaceSupply->id);
+
+        return back()->with('success', 'Отвязано заказов: '.$result['detached']);
+    }
+
+    /**
+     * Отвязывает от поставки все заказы в статусе "На поставку" (без короба).
+     *
+     * Заказы не удаляются — у них обнуляется supply_id, чтобы они остались
+     * в системе, но не попали в отгрузку.
+     *
+     * @param  MarketplaceSupply  $marketplaceSupply  Поставка
+     * @return RedirectResponse
+     */
+    public function detachOnSupplyOrdersBySupply(MarketplaceSupply $marketplaceSupply)
+    {
+        $result = MarketplaceOrderService::detachOnSupplyOrdersBySupply($marketplaceSupply->id);
 
         return back()->with('success', 'Отвязано заказов: '.$result['detached']);
     }

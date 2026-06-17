@@ -186,3 +186,77 @@ test('detachNotReadyBySupply endpoint detaches not ready orders for admin', func
     $response->assertSessionHas('success');
     $this->assertDatabaseHas('marketplace_orders', ['id' => $order->id, 'supply_id' => null]);
 });
+
+test('service detachOnSupplyOrdersBySupply detaches only orders without box and on supply status', function () {
+    $supply = MarketplaceSupply::factory()->create();
+
+    // На поставку (status=6), без короба → отвязать
+    $onSupply = MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'box_id' => null,
+        'status' => 6,
+    ]);
+
+    // На поставку, но в коробе → НЕ отвязывать (остаётся в поставке)
+    $box = SupplyBox::create(['marketplace_supply_id' => $supply->id, 'number' => 'BOX-1']);
+    $inBox = MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'box_id' => $box->id,
+        'status' => 6,
+    ]);
+
+    // Без короба, но в работе (status=4) → НЕ отвязывать (отвязываем только status=6)
+    $notReadyOrder = MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'box_id' => null,
+        'status' => 4,
+    ]);
+
+    // Без короба, новый (status=0) → НЕ отвязывать
+    $newOrder = MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'box_id' => null,
+        'status' => 0,
+    ]);
+
+    $result = MarketplaceOrderService::detachOnSupplyOrdersBySupply($supply->id);
+
+    expect($result)->toBe(['detached' => 1]);
+
+    $this->assertDatabaseHas('marketplace_orders', ['id' => $onSupply->id, 'supply_id' => null]);
+    $this->assertDatabaseHas('marketplace_orders', ['id' => $inBox->id, 'supply_id' => $supply->id]);
+    $this->assertDatabaseHas('marketplace_orders', ['id' => $notReadyOrder->id, 'supply_id' => $supply->id]);
+    $this->assertDatabaseHas('marketplace_orders', ['id' => $newOrder->id, 'supply_id' => $supply->id]);
+});
+
+test('detachOnSupplyOrdersBySupply endpoint requires admin', function () {
+    $supply = MarketplaceSupply::factory()->create();
+
+    $managerRole = Role::firstOrCreate(['name' => 'manager']);
+    $manager = User::factory()->create(['role_id' => $managerRole->id]);
+
+    $response = $this->actingAs($manager)
+        ->delete(route('marketplace_orders.detach_on_supply_by_supply', $supply));
+
+    $response->assertStatus(403);
+});
+
+test('detachOnSupplyOrdersBySupply endpoint detaches on supply orders for admin', function () {
+    $supply = MarketplaceSupply::factory()->create();
+
+    $adminRole = Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+
+    $order = MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'box_id' => null,
+        'status' => 6,
+    ]);
+
+    $response = $this->actingAs($admin)
+        ->delete(route('marketplace_orders.detach_on_supply_by_supply', $supply));
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+    $this->assertDatabaseHas('marketplace_orders', ['id' => $order->id, 'supply_id' => null]);
+});
