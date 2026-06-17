@@ -1,0 +1,146 @@
+<?php
+
+use App\Models\MarketplaceOrder;
+use App\Models\MarketplaceSupply;
+use App\Models\Role;
+use App\Models\SupplyBox;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $adminRole = Role::firstOrCreate(['name' => 'admin']);
+    $this->admin = User::factory()->create(['role_id' => $adminRole->id]);
+});
+
+test('renders ozon fbo view with dropdown when supply is new', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 1,
+        'status' => 0,
+        'supply_id' => null,
+    ]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    $response->assertOk();
+    $response->assertViewIs('marketplace_supply.show-ozon-fbo');
+    $response->assertViewHasAll(['supply', 'supplyOrders', 'ozonSupplyOrders']);
+    expect($response->viewData('ozonSupplyOrders'))->toBeArray();
+});
+
+test('renders ozon fbo view without dropdown when supply has data', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 1,
+        'status' => 13,
+        'supply_id' => '12345',
+    ]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    $response->assertOk();
+    $response->assertViewIs('marketplace_supply.show-ozon-fbo');
+    $response->assertViewHas('ozonSupplyOrders', []);
+});
+
+test('renders wb fbo view with dropdown when status=0', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 2,
+        'status' => 0,
+        'supply_id' => null,
+    ]);
+
+    Http::fake(['*' => Http::response([])]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    $response->assertOk();
+    $response->assertViewIs('marketplace_supply.show-wb-fbo');
+    $response->assertViewHasAll(['wbSupplies', 'canExportExcel']);
+    expect($response->viewData('canExportExcel'))->toBeFalse();
+});
+
+test('renders wb fbo view with canExportExcel=true when status=4', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 2,
+        'status' => 4,
+    ]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    $response->assertOk();
+    $response->assertViewIs('marketplace_supply.show-wb-fbo');
+    expect($response->viewData('canExportExcel'))->toBeTrue();
+});
+
+test('renders fallback view for non-FBO supply', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBS',
+        'marketplace_id' => 1,
+    ]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    $response->assertOk();
+    $response->assertViewIs('marketplace_supply.show');
+    $response->assertViewHasAll(['hasShippedOrders', 'supply_orders']);
+});
+
+test('calculates hasNewOrders flag based on orders with status=0', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 1,
+        'status' => 13,
+    ]);
+
+    MarketplaceOrder::factory()->create(['supply_id' => $supply->id, 'status' => 0]);
+    $box = SupplyBox::create(['marketplace_supply_id' => $supply->id, 'number' => 'BOX-1']);
+    MarketplaceOrder::factory()->create(['supply_id' => $supply->id, 'status' => 4, 'box_id' => $box->id]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    expect($response->viewData('hasNewOrders'))->toBeTrue();
+    expect($response->viewData('hasNotReadyOrders'))->toBeFalse();
+    expect($response->viewData('hasOnSupplyOrders'))->toBeFalse();
+});
+
+test('calculates hasNotReadyOrders flag based on status=4 orders without box', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 1,
+        'status' => 13,
+    ]);
+
+    MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'status' => 4,
+        'box_id' => null,
+    ]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    expect($response->viewData('hasNotReadyOrders'))->toBeTrue();
+});
+
+test('calculates hasOnSupplyOrders flag based on status=6 orders without box', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 1,
+        'status' => 13,
+    ]);
+
+    MarketplaceOrder::factory()->create([
+        'supply_id' => $supply->id,
+        'status' => 6,
+        'box_id' => null,
+    ]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    expect($response->viewData('hasOnSupplyOrders'))->toBeTrue();
+});

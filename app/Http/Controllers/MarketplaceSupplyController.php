@@ -70,56 +70,36 @@ class MarketplaceSupplyController extends Controller
     {
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplaceSupply->marketplace_id);
 
-        $supplyOrders = MarketplaceOrder::query()
-            ->with('items.item', 'box')
-            ->where('supply_id', $marketplaceSupply->id)
-            ->get();
+        if ($marketplaceSupply->type === 'FBO') {
+            $needsDropdown = $marketplaceSupply->status === 0 && empty($marketplaceSupply->supply_id);
 
-        $hasOrders = $supplyOrders->isNotEmpty();
+            $supplyOrders = MarketplaceOrder::query()
+                ->with('items.item', 'box')
+                ->where('supply_id', $marketplaceSupply->id)
+                ->get();
 
-        if ($marketplaceSupply->type === 'FBO' && $marketplaceSupply->marketplace_id == 1) {
-            $ozonSupplyOrders = ($marketplaceSupply->status === 0 && empty($marketplaceSupply->supply_id))
-                ? self::getOzonSupplyOrdersForDropdown()
-                : [];
-
-            $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
-            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);
-            $hasOnSupplyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 6);
-
-            return view('marketplace_supply.show-ozon-fbo', [
+            $baseData = [
                 'title' => 'Поставка для маркетплейса '.$marketplaceName,
                 'supply' => $marketplaceSupply,
-                'ozonSupplyOrders' => $ozonSupplyOrders,
-                'hasOrders' => $hasOrders,
+                'hasOrders' => $supplyOrders->isNotEmpty(),
                 'supplyOrders' => $supplyOrders,
-                'hasNewOrders' => $hasNewOrders,
-                'hasNotReadyOrders' => $hasNotReadyOrders,
-                'hasOnSupplyOrders' => $hasOnSupplyOrders,
-            ]);
-        }
+                'hasNewOrders' => $supplyOrders->contains(fn ($order) => $order->status == 0),
+                'hasNotReadyOrders' => $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4),
+                'hasOnSupplyOrders' => $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 6),
+            ];
 
-        if ($marketplaceSupply->type === 'FBO' && $marketplaceSupply->marketplace_id == 2) {
-            $wbSupplies = ($marketplaceSupply->status === 0 && empty($marketplaceSupply->supply_id))
-                ? MarketplaceApiService::getFboSuppliesWb()
-                : [];
+            if ($marketplaceSupply->marketplace_id == 1) {
+                return view('marketplace_supply.show-ozon-fbo', $baseData + [
+                    'ozonSupplyOrders' => $needsDropdown ? self::getOzonSupplyOrdersForDropdown() : [],
+                ]);
+            }
 
-            $hasNewOrders = $supplyOrders->contains(fn ($order) => $order->status == 0);
-            $hasNotReadyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 4);
-            $hasOnSupplyOrders = $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 6);
-
-            $canExportExcel = $marketplaceSupply->status === 4;
-
-            return view('marketplace_supply.show-wb-fbo', [
-                'title' => 'Поставка для маркетплейса '.$marketplaceName,
-                'supply' => $marketplaceSupply,
-                'wbSupplies' => $wbSupplies,
-                'hasOrders' => $hasOrders,
-                'supplyOrders' => $supplyOrders,
-                'hasNewOrders' => $hasNewOrders,
-                'hasNotReadyOrders' => $hasNotReadyOrders,
-                'hasOnSupplyOrders' => $hasOnSupplyOrders,
-                'canExportExcel' => $canExportExcel,
-            ]);
+            if ($marketplaceSupply->marketplace_id == 2) {
+                return view('marketplace_supply.show-wb-fbo', $baseData + [
+                    'wbSupplies' => $needsDropdown ? MarketplaceApiService::getFboSuppliesWb() : [],
+                    'canExportExcel' => $marketplaceSupply->status === 4,
+                ]);
+            }
         }
 
         return view('marketplace_supply.show', [
