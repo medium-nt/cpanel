@@ -59,6 +59,28 @@
   resources/views/kiosk/kiosk.blade.php,
   tests/Feature/KioskCleanerAccessTest.php
 
+## [2026-06-17] update | salary-system
+
+- Новое правило для cleaner/driver: дневной окład начисляется ТОЛЬКО если
+  сотрудник
+  в день начисления открыл смену И закрыл её. Источник правды:
+  `schedules.shift_*_time` (не `users.shift_*`, которые обнуляются nightly
+  cron).
+  Проверка:
+  `if (in_array($user->role?->name, self::REQUIRES_CLOSED_SHIFT_ROLES) && ($schedule->shift_opened_time === '00:00:00' || $schedule->shift_closed_time === '00:00:00'))`.
+- Добавлена константа `REQUIRES_CLOSED_SHIFT_ROLES = ['cleaner', 'driver']` в
+  ActionAccrualService
+- Остальные роли (seamstress, cutter, otk, storekeeper, manager, admin) —
+  прежняя логика (порог действий / безусловное начисление)
+- **Технический нюанс:** cron `accrual:salary-daily` запускается в 00:30, читает
+  `Schedule::yesterday()`, где `shift_*_time` сохранены (не обнулены)
+- **Связь с shift-system.md:** cleaner/driver не участвуют в сменном графике, но
+  имеют доступ в киоск для учёта рабочего времени → логика оклада привязана к их
+  фактическому присутствию
+- Обновлены topics: salary-system.md, shift-system.md, user-management.md
+- Файлы изменений: `app/Services/ActionAccrualService.php` (константа + guard),
+  `tests/Feature/Services/ActionAccrualServiceTest.php`
+
 ## [2026-06-17] update | roll-closure-threshold
 
 - Бизнес-правило "минимальный остаток для закрытия рулона" перенесено из

@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Log;
 class ActionAccrualService
 {
     /**
+     * Роли, которым дневной оклад начисляется только при открытой И закрытой смене.
+     */
+    private const REQUIRES_CLOSED_SHIFT_ROLES = ['cleaner', 'driver'];
+
+    /**
      * Начисляет оплату за действие (обрабатывает все товары сотрудника за указанный день).
      */
     public function accrualForAction(string $action, Carbon $date, bool $test = false): void
@@ -401,6 +406,19 @@ class ActionAccrualService
         foreach ($schedules as $schedule) {
             $user = $schedule->user;
             if (! $user) {
+                continue;
+            }
+
+            // Для ролей с оплатой по факту смены (cleaner, driver) обязательны открытие и закрытие смены.
+            // Источник правды — поля schedules.shift_*_time (не обнуляются ночным cron в отличие от users.shift_*).
+            if (in_array($user->role?->name, self::REQUIRES_CLOSED_SHIFT_ROLES, true)
+                && ($schedule->shift_opened_time === '00:00:00' || $schedule->shift_closed_time === '00:00:00')
+            ) {
+                Log::channel('salary')->warning(
+                    "Пропуск начисления оклада для {$user->name} (id: {$user->id}). За {$date->format('d/m/Y')} смена не открыта и/или не закрыта "
+                    ."(opened: {$schedule->shift_opened_time}, closed: {$schedule->shift_closed_time})."
+                );
+
                 continue;
             }
 

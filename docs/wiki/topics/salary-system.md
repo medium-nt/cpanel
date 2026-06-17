@@ -1,6 +1,6 @@
 # Salary System — Начисления и тарифы
 
-> Last reviewed: 2026-06-16
+> Last reviewed: 2026-06-17
 
 ## Обзор
 
@@ -102,6 +102,34 @@
 - `app/Models/Motivation.php` — тированные бонусы
 - `app/Services/TransactionService.php` — создание транзакций
 - `routes/console.php` — расписание начислений
+- `app/Models/Schedule.php` — индивидуальное расписание (источник правды по
+  сменам)
+
+### Детализация guard-логики для cleaner и driver
+
+**ActionAccrualService::$REQUIRES_CLOSED_SHIFT_ROLES** — константа с ролями,
+которым требуется полная смена:
+
+```php
+private const REQUIRES_CLOSED_SHIFT_ROLES = ['cleaner', 'driver'];
+```
+
+**Проверка условий:**
+
+- `in_array($user->role?->name, self::REQUIRES_CLOSED_SHIFT_ROLES)` — роль
+  требует закрытой смены
+- `$schedule->shift_opened_time === '00:00:00'` — смена не открыта
+  sentinel-значение
+- `$schedule->shift_closed_time === '00:00:00'` — смена не закрыта
+  sentinel-значение
+- **Важно:** проверка идёт по `schedules.shift_*_time`, а не `users.shift_*`,
+  потому что:
+    - `schedules.shift_*_time` не обнуляются ночным cron (оставляют реальные
+      значения)
+    - `users.shift_*` обнуляются в 00:01 nightly cron → утренние начисления не
+      работают
+    - `schedules` актуальны до следующего дня (cron использует
+      `Carbon::yesterday()`)
 
 ## Бизнес-правила
 
@@ -113,6 +141,14 @@
 - Все начисления логируются как Transaction с accrual_for_date
 - **Важно:** удаление заказов в статусе "новый" (0) не влияет на начисления,
   так как за них ещё не производилось оплаты
+- **Дневной оклад для cleaner и driver:** начисляется ТОЛЬКО если сотрудник в
+  день
+  начисления открыл смену И закрыл её. Проверка по `schedules.shift_opened_time`
+  и
+  `schedules.shift_closed_time` (не путать с `users.shift_*`, которые обнуляются
+  nightly cron).
+  Если смена не открыта или не закрыта → оклад не начисляется, логируется
+  warning в канал `salary`.
 
 ## Связанные topics
 

@@ -533,6 +533,25 @@ class ActionAccrualServiceTest extends TestCase
     }
 
     #[Test]
+    public function accrual_salary_daily_requires_closed_shift_for_cleaner_and_driver(): void
+    {
+        // cleaner: смена открыта и закрыта → оклад начисляется
+        $this->assertClosedShiftRequirement('cleaner', '08:00:00', '17:00:00', true);
+        // cleaner: только открыл (не закрыл) → оклад НЕ начисляется
+        $this->assertClosedShiftRequirement('cleaner', '08:00:00', '00:00:00', false);
+        // cleaner: только закрыл, не открывал → оклад НЕ начисляется
+        $this->assertClosedShiftRequirement('cleaner', '00:00:00', '17:00:00', false);
+        // cleaner: не работал вовсе → оклад НЕ начисляется
+        $this->assertClosedShiftRequirement('cleaner', '00:00:00', '00:00:00', false);
+
+        // driver: те же 4 кейса
+        $this->assertClosedShiftRequirement('driver', '08:00:00', '17:00:00', true);
+        $this->assertClosedShiftRequirement('driver', '08:00:00', '00:00:00', false);
+        $this->assertClosedShiftRequirement('driver', '00:00:00', '17:00:00', false);
+        $this->assertClosedShiftRequirement('driver', '00:00:00', '00:00:00', false);
+    }
+
+    #[Test]
     public function accrual_for_action_test_mode_does_not_create_transactions()
     {
         // Arrange - Create user tariff
@@ -818,5 +837,49 @@ class ActionAccrualServiceTest extends TestCase
             // Meeting or exceeding minimum requirement
             $this->assertGreaterThan(0, Transaction::where('user_id', $user->id)->count());
         }
+    }
+
+    /**
+     * Проверяет правило смены для cleaner/driver: оклад только при открытой И закрытой смене.
+     *
+     * @param  string  $roleName  Имя роли (cleaner/driver/...).
+     * @param  string  $opened  Значение schedules.shift_opened_time.
+     * @param  string  $closed  Значение schedules.shift_closed_time.
+     * @param  bool  $shouldAccrue  Ожидается ли создание транзакции оклада.
+     */
+    private function assertClosedShiftRequirement(string $roleName, string $opened, string $closed, bool $shouldAccrue): void
+    {
+        $role = Role::firstOrCreate(['name' => $roleName]);
+        $user = User::factory()->create(['role_id' => $role->id]);
+
+        // shift_*_time не входят в $fillable модели Schedule — задаём через property assignment.
+        $schedule = Schedule::factory()->create([
+            'user_id' => $user->id,
+            // Строкой (Y-m-d): accrualSalaryDaily ищет where('date', 'Y-m-d');
+            // Carbon-объект сохранится с временем '00:00:00' и совпадения по строке не будет.
+            'date' => Carbon::today()->toDateString(),
+        ]);
+        $schedule->shift_opened_time = $opened;
+        $schedule->shift_closed_time = $closed;
+        $schedule->save();
+
+        $userTariff = UserTariff::factory()->create([
+            'user_id' => $user->id,
+            'action' => 'Оклад',
+            'is_bonus' => false,
+        ]);
+
+        Tariff::factory()->create([
+            'user_tariff_id' => $userTariff->id,
+            'material_id' => $this->fabricMaterial->id,
+            'value' => 1000.00,
+        ]);
+
+        (new ActionAccrualService)->accrualSalaryDaily(Carbon::today(), false);
+
+        $count = Transaction::where('user_id', $user->id)->count();
+        $shouldAccrue
+            ? $this->assertGreaterThan(0, $count, "Оклад для {$roleName} должен начислиться (opened={$opened}, closed={$closed}).")
+            : $this->assertEquals(0, $count, "Оклад для {$roleName} НЕ должен начисляться (opened={$opened}, closed={$closed}).");
     }
 }
