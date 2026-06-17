@@ -90,6 +90,16 @@ class UserTest extends TestCase
     }
 
     #[Test]
+    public function it_identifies_cleaner_role()
+    {
+        $cleanerRole = Role::firstOrCreate(['name' => 'cleaner']);
+        $user = User::factory()->create(['role_id' => $cleanerRole->id]);
+
+        $this->assertTrue($user->isCleaner());
+        $this->assertFalse($user->isAdmin());
+    }
+
+    #[Test]
     public function it_returns_short_name_correctly()
     {
         $user = User::factory()->create([

@@ -43,7 +43,7 @@
                     <a href="{{ route('opening_closing_shifts') }}"
                        class="btn-kiosk btn-kiosk-blue">Открытие / Закрытие
                         смены</a>
-                    @if($user->shift_is_open && !$user->isManager())
+                    @if($user->shift_is_open && !$user->isManager() && !$user->isCleaner())
                         <a href="{{ route('sticker_printing', ['user_id' => $user->id]) }}"
                        class="btn-kiosk btn-kiosk-green">Печать
                         заказов</a>
@@ -64,7 +64,7 @@
                            class="btn-kiosk btn-kiosk-yellow">Работа с
                             рулонами</a>
                     @endif
-                    @if(!$user->isManager())
+                    @if(!$user->isManager() && !$user->isCleaner())
                     <a href="{{ route('product_stickers') }}"
                        class="btn-kiosk btn-kiosk-gray">Печать стикеров
                         товара</a>

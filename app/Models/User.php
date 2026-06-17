@@ -166,6 +166,14 @@ class User extends Authenticatable
         return $this->role?->name === 'manager';
     }
 
+    /**
+     * Проверяет, имеет ли пользователь роль «уборщица».
+     */
+    public function isCleaner(): bool
+    {
+        return $this->role?->name === 'cleaner';
+    }
+
     public function getEndWorkShiftAttribute(): Carbon
     {
         $interval = CarbonInterval::createFromFormat('H:i:s', $this->duration_work_shift);

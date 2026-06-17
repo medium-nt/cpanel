@@ -39,5 +39,9 @@ class RoleSeeder extends Seeder
         Role::query()->firstOrCreate(
             ['name' => 'manager']
         );
+
+        Role::query()->firstOrCreate(
+            ['name' => 'cleaner']
+        );
     }
 }

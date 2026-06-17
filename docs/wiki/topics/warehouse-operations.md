@@ -1,6 +1,6 @@
 # Warehouse Operations — Складские операции
 
-> Last reviewed: 2026-06-16
+> Last reviewed: 2026-06-17
 
 ## Обзор
 
@@ -118,6 +118,8 @@
 - Управление упаковочными материалами (флаер, пакет, флаер-пакет)
 - Авторизация ОТК для проверки
 - Фильтрация товаров для стикеровки по ролям
+- **Уборщицы** имеют доступ в киоск любого цеха, но только для открытия/закрытия
+  смены, без операционного функционала
 
 ### Сборка поставок (SupplyBoxController)
 
@@ -183,3 +185,5 @@
 - [order-lifecycle.md](order-lifecycle.md) — статусы заказов
 - [marketplace-integration.md](marketplace-integration.md) — штрихкоды
   маркетплейсов
+- [shift-system.md](shift-system.md) — доступ к киосу по ролям
+- [user-management.md](user-management.md) — роли и доступ пользователей

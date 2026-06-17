@@ -13,3 +13,28 @@
     3. "Убрать на поставку" (status=6) — отвязка заказов без короба ✨ **НОВОЕ**
 - Логирование в канал `orders` при отвязке
 - Обновлены topics: order-lifecycle.md, marketplace-integration.md, finance.md
+
+## [2026-06-17] add-role | cleaner (Уборщица)
+
+- Добавлена новая роль пользователя `cleaner` (ID=8) с минимальным доступом
+- Доступ: только авторизация + базовый дашборд, не входит ни в один Gate
+- Не участвует в сменной системе (не добавлена в ShiftService::SHIFT_ROLES)
+- **Обновлены topics:** user-management.md, shift-system.md
+- Файлы изменений: RoleSeeder.php, User.php, UserService.php, create.blade.php,
+  RoleFactory.php, UserTest.php
+
+## [2026-06-17] feature | cleaner access to kiosk (any workshop, shift-only, no workshop binding)
+
+- Уборщица (cleaner) получила доступ в киоск любого цеха через
+  `StickerPrintingController::canAccessWorkshop()`: добавлен
+  `|| $user->isCleaner()`
+- В киоске для cleaner скрыт весь операционный функционал (печать заказов,
+  статистика, работа с рулонами, браком, возвратами, стикерами)
+- В виден только пункт "Открытие / Закрытие смены" для учёта рабочего времени
+- Уборщица не привязана к сменному графику (`ShiftService::SHIFT_ROLES`), но
+  `canWorkToday(cleaner) = true`
+- Middleware RequireOpenShift пропускает cleaner после открытия смены
+- Обновлены topics: shift-system.md, user-management.md, warehouse-operations.md
+- Файлы изменений: StickerPrintingController.php,
+  resources/views/kiosk/kiosk.blade.php,
+  tests/Feature/KioskCleanerAccessTest.php

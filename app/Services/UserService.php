@@ -26,6 +26,7 @@ class UserService
             'otk' => $roleName = 'Сотрудник ОТК',
             'driver' => $roleName = 'Водитель',
             'manager' => $roleName = 'Менеджер маркетплейса',
+            'cleaner' => $roleName = 'Уборщица',
             default => $roleName,
         };
 

@@ -295,7 +295,7 @@ class StickerPrintingController extends Controller
 
     private function canAccessWorkshop(User $user, Workshop $workshop): bool
     {
-        if ($user->isAdmin() || $user->isStorekeeper()) {
+        if ($user->isAdmin() || $user->isStorekeeper() || $user->isCleaner()) {
             return true;
         }
 
