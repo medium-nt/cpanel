@@ -23,12 +23,32 @@
 - Файлы изменений: RoleSeeder.php, User.php, UserService.php, create.blade.php,
   RoleFactory.php, UserTest.php
 
+## [2026-06-20] feature | driver access to kiosk (any workshop, shift-only — same as cleaner)
+
+- Водитель (driver) получил такой же ограниченный доступ в киоск любого цеха,
+  как cleaner
+- `StickerPrintingController::canAccessWorkshop()`: добавлен
+  `|| $user->isDriver()`
+- В киоске для driver видна только кнопка "Открытие / Закрытие смены", весь
+  операционный функционал скрыт
+- Водитель не привязан к цеху (`currentWorkshop() = null`), но может
+  открывать/закрывать смену в любом цехе
+- Итоговый список ролей с доступом в киоск любого цеха (canAccessWorkshop):
+    - admin, storekeeper — полный функционал киоска
+    - cleaner, driver — только "Открытие/Закрытие смены" (учёт времени), без
+      привязки к цеху
+- Обновлены topics: shift-system.md, user-management.md, warehouse-operations.md
+- Файлы изменений: StickerPrintingController.php,
+  resources/views/kiosk/kiosk.blade.php,
+  tests/Feature/KioskLimitedAccessTest.php (переименован из
+  KioskCleanerAccessTest)
+
 ## [2026-06-17] feature | cleaner access to kiosk (any workshop, shift-only, no workshop binding)
 
 - Уборщица (cleaner) получила доступ в киоск любого цеха через
   `StickerPrintingController::canAccessWorkshop()`: добавлен
   `|| $user->isCleaner()`
-- В киоске для cleaner скрыт весь операционный функционал (печать заказов,
+- В киоске для cleaner скрыт весь операциональный функционал (печать заказов,
   статистика, работа с рулонами, браком, возвратами, стикерами)
 - В виден только пункт "Открытие / Закрытие смены" для учёта рабочего времени
 - Уборщица не привязана к сменному графику (`ShiftService::SHIFT_ROLES`), но
