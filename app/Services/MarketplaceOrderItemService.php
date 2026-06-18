@@ -6,6 +6,7 @@ use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderHistory;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Models\MovementMaterial;
 use App\Models\Order;
@@ -710,7 +711,13 @@ class MarketplaceOrderItemService
         $shiftUserIds = $shift ? $shift->getCurrentUsers()->pluck('id') : collect();
 
         foreach ($materialConsumptions as $materialConsumption) {
-            if ($user->seamstressNotCut() && $materialConsumption->material->type_id == 1) {
+            if ($user->seamstressNotCut() && $materialConsumption->material->type_id === Material::TYPE_FABRIC) {
+                continue;
+            }
+
+            // Упаковка списывается отдельным потоком упаковщиком (KioskService / StickerPrintingController);
+            // швеям и закройщикам она не нужна — пропускаем проверку её наличия.
+            if ($materialConsumption->material->type_id === Material::TYPE_PACKAGING) {
                 continue;
             }
 

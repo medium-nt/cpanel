@@ -94,3 +94,18 @@
   completeRoll() отсутствует)
 - Обновлены topics: material-flow.md, shift-system.md, создан materials.md
 - Удалена настройка roll_close_min_remaining из settings/seeders/Controllers
+
+## [2026-06-18] fix | packaging-check-excluded-from-workshop-availability
+
+- `MarketplaceOrderItemService::hasMaterialsInWorkshop()`: упаковочные материалы
+  (`Material::TYPE_PACKAGING`) исключены из проверки наличия в цехе при взятии
+  заказа швеёй/закройщиком
+- Обоснование: упаковка списывается ОТДЕЛЬНЫМ потоком упаковщика через
+  `KioskService` и `StickerPrintingController`; швеи и закройщики не используют
+  упаковку — предыдущая проверка была багом
+- Ткани (`Material::TYPE_FABRIC`) теперь проверяются через константу вместо
+  магического числа `type_id == 1`
+- Швеи без кроя (`seamstressNotCut`) пропускают проверку тканей — крой делает
+  закройщик
+- Обновлены topics: order-lifecycle.md, warehouse-operations.md, materials.md,
+  material-flow.md

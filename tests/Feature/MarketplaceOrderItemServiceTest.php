@@ -3,7 +3,11 @@
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Material;
+use App\Models\MaterialConsumption;
 use App\Models\Role;
+use App\Models\Roll;
+use App\Models\Shift;
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -322,4 +326,62 @@ test('cancelToSeamstress returns error for invalid status', function () {
 
     expect($result['success'])->toBeFalse();
     expect($result['message'])->toBe('Заказ с таким статусом не может быть отменен');
+});
+
+test('hasMaterialsInWorkshop пропускает упаковку: закройщик берёт заказ без упаковочного рулона', function () {
+    $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+    $cutter = User::factory()->create(['role_id' => $cutterRole->id]);
+
+    $shift = Shift::factory()->create();
+    $cutter->shifts()->attach($shift->id, ['effective_from' => now()->subDay()->toDateString()]);
+
+    // Товар с расходом: ткань + упаковка
+    $fabric = Material::factory()->create(['type_id' => Material::TYPE_FABRIC]);
+    $packaging = Material::factory()->create(['type_id' => Material::TYPE_PACKAGING]);
+    $item = MarketplaceItem::factory()->create();
+    MaterialConsumption::factory()->forItem($item)->forMaterial($fabric)->withQuantity(2)->create();
+    MaterialConsumption::factory()->forItem($item)->forMaterial($packaging)->withQuantity(1)->create();
+
+    $orderItem = MarketplaceOrderItem::factory()->create([
+        'marketplace_item_id' => $item->id,
+        'quantity' => 3,
+    ]);
+
+    // Рулон ткани в цехе текущей смены — хватает (требуется 2 * 3 = 6).
+    Roll::factory()->inWorkshop()->create([
+        'material_id' => $fabric->id,
+        'shift_id' => $shift->id,
+        'initial_quantity' => 100,
+    ]);
+    // Рулон упаковки намеренно НЕ создаём — раньше именно это ронило проверку.
+
+    auth()->login($cutter);
+
+    $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'hasMaterialsInWorkshop');
+
+    expect($method->invoke(null, $orderItem))->toBeTrue();
+});
+
+test('hasMaterialsInWorkshop всё ещё ловит нехватку ткани — пропуск упаковки не отключил проверку', function () {
+    $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+    $cutter = User::factory()->create(['role_id' => $cutterRole->id]);
+
+    $shift = Shift::factory()->create();
+    $cutter->shifts()->attach($shift->id, ['effective_from' => now()->subDay()->toDateString()]);
+
+    // Только ткань в расходе, рулона ткани в цехе нет.
+    $fabric = Material::factory()->create(['type_id' => Material::TYPE_FABRIC]);
+    $item = MarketplaceItem::factory()->create();
+    MaterialConsumption::factory()->forItem($item)->forMaterial($fabric)->withQuantity(2)->create();
+
+    $orderItem = MarketplaceOrderItem::factory()->create([
+        'marketplace_item_id' => $item->id,
+        'quantity' => 3,
+    ]);
+
+    auth()->login($cutter);
+
+    $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'hasMaterialsInWorkshop');
+
+    expect($method->invoke(null, $orderItem))->toBeFalse();
 });
