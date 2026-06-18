@@ -345,6 +345,7 @@
                                                                                     class="form-control form-control-sm range-limit-input"
                                                                                     value="{{ $limit }}"
                                                                                     min="1"
+                                                                                    {{ $userTariffsSalary->get($action)?->type === 'per_meter' ? 'required' : '' }}
                                                                                     data-action="{{ $action }}"
                                                                                     data-bonus-type="salary"
                                                                                     data-range="{{ $range }}"
@@ -519,6 +520,7 @@
                                                                                     class="form-control form-control-sm range-limit-input"
                                                                                     value="{{ $limit }}"
                                                                                     min="1"
+                                                                                    {{ $userTariffsBonus->get($action)?->type === 'per_meter' ? 'required' : '' }}
                                                                                     data-action="{{ $action }}"
                                                                                     data-bonus-type="bonus"
                                                                                     data-range="{{ $range }}"
@@ -733,6 +735,12 @@
                         targetTable.style.display = 'block';
                     }
                 }
+
+                // Поля «до» обязательны только для видимой таблицы per_meter,
+                // иначе скрытые required-инпуты блокируют сабмит формы без видимой причины.
+                document.querySelectorAll(`.range-limit-input[data-action="${action}"][data-bonus-type="${bonusType}"]`).forEach(input => {
+                    input.required = (value === 'per_meter');
+                });
             });
         });
 
@@ -781,6 +789,7 @@
                            class="form-control form-control-sm range-limit-input"
                            value=""
                            min="1"
+                           required
                            placeholder="100"
                            data-action="${action}"
                            data-bonus-type="${bonusType}"
