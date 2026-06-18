@@ -6,10 +6,12 @@ use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderHistory;
 use App\Models\MarketplaceOrderItem;
+use App\Models\MaterialConsumption;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Setting;
+use App\Models\Shift;
 use App\Models\Sku;
 use App\Models\User;
 use Exception;
@@ -714,12 +716,13 @@ class MarketplaceOrderItemService
 
             // Сумма текущих остатков рулонов смены в цехе
             // current_quantity = initial_quantity − уже использовано (MovementMaterial с roll_id)
-            $availableInShift = Roll::query()
+            $rollsInShift = Roll::query()
                 ->where('material_id', $materialConsumption->material_id)
                 ->where('status', Roll::STATUS_IN_WORKSHOP)
                 ->when($shift, fn ($q) => $q->where('shift_id', $shift->id))
-                ->get()
-                ->sum('current_quantity');
+                ->get();
+
+            $availableInShift = $rollsInShift->sum('current_quantity');
 
             // Захолдировано: MovementMaterial без roll_id для пользователей этой смены
             $holdByShift = 0;
@@ -738,13 +741,64 @@ class MarketplaceOrderItemService
             }
 
             $materialInShift = $availableInShift - $holdByShift;
+            $required = $materialConsumption->quantity * $quantityOrderItem;
 
-            if ($materialInShift < $materialConsumption->quantity * $quantityOrderItem) {
+            if ($materialInShift < $required) {
+                self::logMaterialShortage(
+                    $marketplaceOrderItem->id,
+                    $materialConsumption,
+                    $availableInShift,
+                    $holdByShift,
+                    $required,
+                    $shift,
+                    $rollsInShift->count(),
+                );
+
                 return false;
             }
         }
 
         return true;
+    }
+
+    /**
+     * Логирование нехватки конкретного материала в смене (диагностика причины отказа).
+     *
+     * @param  int  $orderItemId  ID позиции заказа (marketplace_order_items.id).
+     * @param  MaterialConsumption  $materialConsumption  Запись расхода материала с загруженной связью material.
+     * @param  float  $availableInShift  Доступный остаток рулонов текущей смены (сумма current_quantity).
+     * @param  float  $holdByShift  Захолдированный объём по заказам смены без roll_id.
+     * @param  float  $required  Требуемый объём: расход на единицу × количество в заказе.
+     * @param  Shift|null  $shift  Текущая смена сотрудника.
+     * @param  int  $rollsInShiftCount  Число рулонов материала, найденных в текущей смене.
+     */
+    private static function logMaterialShortage(
+        int $orderItemId,
+        MaterialConsumption $materialConsumption,
+        float $availableInShift,
+        float $holdByShift,
+        float $required,
+        ?Shift $shift,
+        int $rollsInShiftCount,
+    ): void {
+        // Всего рулонов этого материала в цехе (без привязки к смене) — чтобы отличить
+        // «рулон не найден в смене» (несовпадение shift_id) от «метража просто мало».
+        $totalRolls = Roll::query()
+            ->where('material_id', $materialConsumption->material_id)
+            ->where('status', Roll::STATUS_IN_WORKSHOP)
+            ->count();
+
+        Log::channel('items')->warning(sprintf(
+            'Заказ №%d: недостаточно материала «%s» — доступно %.2f (рулонов в смене %s: %d из %d в цехе), захолдировано %.2f, требуется %.2f',
+            $orderItemId,
+            $materialConsumption->material->title,
+            $availableInShift,
+            $shift ? ('#'.$shift->id) : '---',
+            $rollsInShiftCount,
+            $totalRolls,
+            $holdByShift,
+            $required,
+        ));
     }
 
     /**
