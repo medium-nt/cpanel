@@ -715,6 +715,11 @@ class MarketplaceOrderItemService
                 continue;
             }
 
+            // Аксессуары (тесьма и т.п.) пришивает швея; если сотрудник не швея — наличие не проверяем.
+            if (! $user->isSeamstress() && $materialConsumption->material->type_id === Material::TYPE_ACCESSORY) {
+                continue;
+            }
+
             // Упаковка списывается отдельным потоком упаковщиком (KioskService / StickerPrintingController);
             // швеям и закройщикам она не нужна — пропускаем проверку её наличия.
             if ($materialConsumption->material->type_id === Material::TYPE_PACKAGING) {

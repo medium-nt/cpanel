@@ -95,6 +95,28 @@
 - Обновлены topics: material-flow.md, shift-system.md, создан materials.md
 - Удалена настройка roll_close_min_remaining из settings/seeders/Controllers
 
+## [2026-06-18] fix | accessory-check-only-for-seamstress
+
+- `Material::TYPE_ACCESSORY = 2` (НОВАЯ константа) — аксессуары (тесьма, шнурки
+  и
+  т.п.)
+- `MarketplaceOrderItemService::hasMaterialsInWorkshop()`: добавлено правило для
+  аксессуаров — проверяются ТОЛЬКО у швей (`isSeamstress()`), пропускаются для
+  закройщиков
+- **Полная матрица «роль × тип материала» в hasMaterialsInWorkshop:**
+  | Тип материала | Константа | Когда проверяется |
+  |---|---|---|
+  | Ткань (Тюль) | TYPE_FABRIC = 1 | У закройщиков и швей с кроём; ПРОПУСКАЕТСЯ
+  для швей без кроя (`seamstressNotCut`) |
+  | Аксессуары (тесьма и т.п.) | TYPE_ACCESSORY = 2 (НОВАЯ) | ТОЛЬКО у швей
+  (`isSeamstress()`); ПРОПУСКАЕТСЯ для закройщиков |
+  | Упаковка | TYPE_PACKAGING = 3 | ПРОПУСКАЕТСЯ всегда; упаковка — отдельный
+  поток упаковщика |
+- **Принцип:** материал проверяется у той роли, которая с ним физически работает
+  (ткань — у кроящего, аксессуары — у шьющей швеи, упаковка — у упаковщика)
+- Обновлены topics: order-lifecycle.md, warehouse-operations.md, materials.md,
+  material-flow.md
+
 ## [2026-06-18] fix | packaging-check-excluded-from-workshop-availability
 
 - `MarketplaceOrderItemService::hasMaterialsInWorkshop()`: упаковочные материалы
