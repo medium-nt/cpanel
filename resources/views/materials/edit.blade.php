@@ -129,5 +129,137 @@
                 </div>
             </form>
         </div>
+
+        {{-- Карточка поставщиков --}}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="card-title">Поставщики</h3>
+            </div>
+            <div class="card-body">
+                @if($suppliers->isEmpty())
+                    <p class="text-muted">Нет поставщиков в системе</p>
+                @else
+                    {{-- Таблица привязанных поставщиков --}}
+                    @if($attachedSuppliers->isNotEmpty())
+                        <form
+                            action="{{ route('materials.suppliers.update', ['material' => $material->id]) }}"
+                            method="POST">
+                            @method('PUT')
+                            @csrf
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Поставщик</th>
+                                    <th style="width: 150px;">Недосдача %</th>
+                                    <th style="width: 80px;"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($attachedSuppliers as $supplier)
+                                    <tr>
+                                        <td>{{ $supplier->title }}</td>
+                                        <td>
+                                            <input type="number"
+                                                   name="shortages[{{ $supplier->pivot->id }}]"
+                                                   class="form-control"
+                                                   value="{{ $supplier->pivot->shortage_percent }}"
+                                                   min="0"
+                                                   max="100"
+                                                   step="0.01">
+                                        </td>
+                                        <td>
+                                            <button type="button"
+                                                    class="btn btn-danger btn-sm"
+                                                    onclick="deleteSupplier({{ $supplier->pivot->id }}, '{{ $supplier->title }}')">
+                                                ×
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+
+                            <button type="submit" class="btn btn-success">
+                                Сохранить недосдачу
+                            </button>
+                        </form>
+
+                        {{-- Скрытые DELETE формы для JS --}}
+                        @foreach($attachedSuppliers as $supplier)
+                            <form id="delete-form-{{ $supplier->pivot->id }}"
+                                  action="{{ route('materials.suppliers.detach', ['material' => $material->id, 'pivotId' => $supplier->pivot->id]) }}"
+                                  method="POST"
+                                  style="display:none;">
+                                @method('DELETE')
+                                @csrf
+                            </form>
+                        @endforeach
+
+                        <script>
+                            function deleteSupplier(pivotId, supplierTitle) {
+                                if (confirm('Удалить поставщика "' + supplierTitle + '"?')) {
+                                    document.getElementById('delete-form-' + pivotId).submit();
+                                }
+                            }
+                        </script>
+                    @else
+                        <p class="text-muted">Нет привязанных поставщиков</p>
+                    @endif
+
+                    {{-- Блок добавления --}}
+                    @if($suppliers->count() > $attachedSuppliers->count())
+                        <hr>
+                        <div class="mt-3">
+                            <a href="#" id="show-add-supplier-btn">Добавить
+                                поставщика</a>
+
+                            <div id="add-supplier-form" class="form-group"
+                                 style="display:none;">
+                                <label>Выберите поставщика</label>
+                                <form
+                                    action="{{ route('materials.suppliers.attach', ['material' => $material->id]) }}"
+                                    method="POST">
+                                    @csrf
+                                    <select name="supplier_id"
+                                            class="form-control" required>
+                                        <option value="" disabled selected>---
+                                        </option>
+                                        @foreach($suppliers as $supplier)
+                                            @if(!$attachedSuppliers->contains('id', $supplier->id))
+                                                <option
+                                                    value="{{ $supplier->id }}">{{ $supplier->title }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    <div class="mt-2">
+                                        <button type="submit"
+                                                class="btn btn-success">ОК
+                                        </button>
+                                        <button type="button"
+                                                id="hide-add-supplier-btn"
+                                                class="btn btn-secondary">
+                                            Отмена
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <script>
+                            document.getElementById('show-add-supplier-btn').addEventListener('click', function (e) {
+                                e.preventDefault();
+                                document.getElementById('add-supplier-form').style.display = 'block';
+                                this.style.display = 'none';
+                            });
+
+                            document.getElementById('hide-add-supplier-btn').addEventListener('click', function () {
+                                document.getElementById('add-supplier-form').style.display = 'none';
+                                document.getElementById('show-add-supplier-btn').style.display = 'inline';
+                            });
+                        </script>
+                    @endif
+                @endif
+            </div>
+        </div>
     </div>
 @stop

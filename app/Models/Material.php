@@ -83,6 +83,17 @@ class Material extends Model
         return $this->belongsToMany(User::class);
     }
 
+    /**
+     * Поставщики материала с процентом недосдачи.
+     */
+    public function suppliers(): BelongsToMany
+    {
+        return $this->belongsToMany(Supplier::class, 'material_supplier')
+            ->withPivot('id', 'shortage_percent')
+            ->withTimestamps()
+            ->orderBy('suppliers.title');
+    }
+
     public function rates(): HasMany
     {
         return $this->hasMany(Rate::class, 'material_id', 'id');

@@ -1,6 +1,6 @@
 # Materials — Материалы
 
-> Last reviewed: 2026-06-18
+> Last reviewed: 2026-06-19
 
 ## Обзор
 
@@ -48,6 +48,17 @@
 - `Workshop::allowedMaterials()` — материалы, доступные для заказа в цехе
 - `Material::workshops()` — обратная связь с цехами
 - `WorkshopController::edit/update` — UI управления привязкой через чекбоксы
+
+**Привязка к поставщикам:**
+
+- Pivot-таблица `material_supplier` связь многие-ко-многим
+- `Material::suppliers()` — поставщики материала с процентом недосдачи
+- `Supplier::materials()` — обратная связь с материалами
+- Pivot-поля: `id`, `shortage_percent` (decimal 5,2, default 0)
+- UI: карточка «Поставщики» в `materials/edit.blade.php` с таблицей и формами
+- API: `MaterialSupplierController` — attach, updateShortages, detach
+- **Бизнес-правило:** Недосдача хранится справочно, пока не применяется в
+  расчётах
 
 ### Рулоны материалов (Roll)
 
@@ -98,19 +109,27 @@
 
 ## Ключевые файлы
 
-- `app/Models/Material.php` — модель материалов (fillable + casts decimal:2)
+- `app/Models/Material.php` — модель материалов (fillable + casts decimal:2,
+  relations: suppliers, workshops)
+- `app/Models/Supplier.php` — модель поставщиков (relation: materials)
 - `app/Http/Controllers/MaterialController.php` — валидация store/update:
   required|numeric|min:0
+- `app/Http/Controllers/MaterialSupplierController.php` — управление связями
+  материалы↔поставщики (attach, updateShortages, detach)
 - `resources/views/materials/edit.blade.php` и `create.blade.php` — поле ввода "
-  Мин. остаток для закрытия рулона"
+  Мин. остаток для закрытия рулона" + карточка «Поставщики»
 - `app/Http/Controllers/StickerPrintingController.php` — использование порога
   при закрытии рулонов
 - `app/Http/Controllers/WorkshopController.php` — привязка материалов к цехам
 -
 `database/migrations/2026_06_17_142908_add_minimum_roll_size_for_closure_to_materials_table.php` —
 миграция добавления поля
+
+- `database/migrations/2026_06_19_105327_create_material_supplier_table.php` —
+  pivot-таблица материалы↔поставщики
 - `database/seeders/SettingsSeeder.php` — удалена настройка
   `roll_close_min_remaining`
+- `routes/materials.php` — маршруты для управления связями с поставщиками
 
 ## Бизнес-правила
 
@@ -126,7 +145,7 @@
 ## Связанные topics
 
 - [material-flow.md](material-flow.md) — поступление и движение материалов,
-  жизненный цикл рулонов
+  жизненный цикл рулонов, работа с поставщиками
 - [shift-system.md](shift-system.md) — изоляция рулонов по сменам, права доступа
 - [warehouse-operations.md](warehouse-operations.md) — складские операции и
   инвентаризация

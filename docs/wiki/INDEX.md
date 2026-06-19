@@ -20,7 +20,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | MarketplaceOrderItem    | `marketplace_order_items`     | marketplaceOrder, workshop, item +6                           | HasFactory                          |
 | MarketplaceSupply       | `marketplace_supplies`        |                                                               | HasFactory                          |
 | MarketplaceWarehouse    | `marketplace_warehouses`      |                                                               |                                     |
-| Material                | `materials`                   | type, rolls, movementMaterials +3                             | HasFactory, SoftDeletes             |
+| Material                | `materials`                   | type, rolls, movementMaterials, suppliers, workshops +5       | HasFactory, SoftDeletes             |
 | MaterialConsumption     | `material_consumptions`       | item, material                                                | HasFactory                          |
 | MaterialWorkshop        | `material_workshop`           | material, workshop                                            | HasFactory                          |
 | Motivation              | `motivations`                 |                                                               | HasFactory                          |
@@ -39,7 +39,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | Sku                     | `skus`                        | item                                                          | HasFactory                          |
 | Stack                   | `stacks`                      |                                                               | HasFactory                          |
 | StatusMovement          | `status_movements`            |                                                               |                                     |
-| Supplier                | `suppliers`                   | orders                                                        | HasFactory, SoftDeletes             |
+| Supplier                | `suppliers`                   | orders, materials                                             | HasFactory, SoftDeletes             |
 | SupplyBox               | `supply_boxes`                | supply, orders                                                |                                     |
 | Tariff                  | `tariffs`                     | userTariff, material                                          | HasFactory                          |
 | Transaction             | `transactions`                | user                                                          | HasFactory                          |
@@ -98,6 +98,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | MarketplaceOrderItemController               | index, show, done, cancel, labeling +7                                                             |
 | MarketplaceSupplyController                  | index, show, linkWbFbo, loadFboGoods, editFbo +22                                                  |
 | MaterialConsumptionController                | destroy                                                                                            |
+| MaterialSupplierController                   | attach, updateShortages, detach                                                                    |
 | MaterialController                           | index, create, store, edit, update +1                                                              |
 | MaterialMovementController                   | index                                                                                              |
 | MovementDefectMaterialToSupplierController   | index, create, store                                                                               |
@@ -145,6 +146,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
   transactions, workshops)
 - `/megatulle/` + `auth` + `require_open_shift` — операционные роуты (materials,
   orders, marketplace, inventory)
+- `routes/materials.php` — управление материалами и связями с поставщиками
 - `routes/api.php` — webhooks (Telegram)
 - `routes/kiosk.php` — интерфейс киоска
 - `routes/console.php` — cron-задачи (подробнее

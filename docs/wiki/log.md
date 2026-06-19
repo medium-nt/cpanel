@@ -131,3 +131,25 @@
   закройщик
 - Обновлены topics: order-lifecycle.md, warehouse-operations.md, materials.md,
   material-flow.md
+
+## [2026-06-19] feature | material-supplier-shortage-tracking
+
+- Новая pivot-таблица `material_supplier` (material_id, supplier_id,
+  shortage_percent decimal 5,2) — связь многие-ко-многим между материалами и
+  поставщиками
+- Новые отношения: `Material::suppliers()` и `Supplier::materials()` с pivot-
+  полями id и shortage_percent
+- Новый бизнес-функционал: учёт процента недосдачи по каждому поставщику для
+  каждого материала (справочно, пока не применяется в расчётах)
+- Новый контроллер `MaterialSupplierController` с методами:
+  - `attach()` — привязать поставщика к материалу (POST
+    /materials/{material}/suppliers)
+  - `updateShortages()` — массовое обновление процента недосдачи (PUT
+    /materials/{material}/suppliers)
+  - `detach()` — отвязать поставщика от материала (DELETE
+    /materials/{material}/suppliers/{pivotId})
+- UI: карточка «Поставщики» в `resources/views/materials/edit.blade.php` с
+  таблицей
+  поставщиков и формами управления
+- Логирование операций в канал `materials` (привязка/обновление/отвязка)
+- Обновлены topics: materials.md, material-flow.md, INDEX.md

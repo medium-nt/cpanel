@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MaterialSupplierController;
 use App\Models\Material;
 
 Route::prefix('/materials')->group(function () {
@@ -27,4 +28,17 @@ Route::prefix('/materials')->group(function () {
     Route::delete('/delete/{material}', [MaterialController::class, 'destroy'])
         ->can('delete', 'material')
         ->name('materials.destroy');
+
+    // Поставщики материала (недосдача)
+    Route::post('/{material}/suppliers', [MaterialSupplierController::class, 'attach'])
+        ->can('update', 'material')
+        ->name('materials.suppliers.attach');
+
+    Route::put('/{material}/suppliers', [MaterialSupplierController::class, 'updateShortages'])
+        ->can('update', 'material')
+        ->name('materials.suppliers.update');
+
+    Route::delete('/{material}/suppliers/{pivotId}', [MaterialSupplierController::class, 'detach'])
+        ->can('update', 'material')
+        ->name('materials.suppliers.detach');
 });

@@ -1,6 +1,6 @@
 # Material Flow — Движение материалов
 
-> Last reviewed: 2026-06-18
+> Last reviewed: 2026-06-19
 
 ## Обзор
 
@@ -57,6 +57,18 @@
 ```
 
 ### Поставщик → Склад
+
+**Связь материалов с поставщиками:**
+
+- Pivot-таблица `material_supplier` связывает материалы и поставщиков
+- Каждый материал может иметь несколько поставщиков
+- Для каждой пары материал↔поставщик хранится процент недосдачи (
+  `shortage_percent`)
+- **Бизнес-правило:** Недосдача хранится справочно (0-100%), пока не применяется
+  в
+  расчётах
+- UI управления: карточка «Поставщики» в `materials/edit.blade.php`
+- API: `MaterialSupplierController` (attach, updateShortages, detach)
 
 **MovementMaterialFromSupplierService:**
 
@@ -141,7 +153,9 @@
 ## Ключевые файлы
 
 - `app/Models/Material.php` — модель материалов (название, тип, количество,
-  `minimum_roll_size_for_closure` — мин. остаток для закрытия рулона)
+  `minimum_roll_size_for_closure` — мин. остаток для закрытия рулона, relation:
+  suppliers)
+- `app/Models/Supplier.php` — модель поставщиков (relation: materials)
 - `app/Models/MovementMaterial.php` — модель перемещений
 - `app/Models/Roll.php` — модель рулонов (статусы, коды, связь со сменами)
 - `app/Models/TypeMovement.php` — типы перемещений
@@ -152,6 +166,8 @@
 - `app/Services/AutoOrderService.php` — автоматическое пополнение (фильтрация по
   цеху)
 - `app/Services/WriteOffRemnantService.php` — списание остатков
+- `app/Http/Controllers/MaterialSupplierController.php` — управление связями
+  материалы↔поставщики (attach, updateShortages, detach)
 - `app/Http/Controllers/MovementMaterialToWorkshopController.php` — создание
   запроса материалов (фильтрация по цеху)
 - `app/Http/Controllers/WorkshopController.php` — управление цехами (привязка

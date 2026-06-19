@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Material;
+use App\Models\Supplier;
 use App\Models\TypeMaterial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -54,6 +55,8 @@ class MaterialController extends Controller
             'title' => 'Изменить материал',
             'material' => $material,
             'typesMaterial' => TypeMaterial::query()->get(),
+            'suppliers' => Supplier::query()->orderBy('title')->get(),
+            'attachedSuppliers' => $material->suppliers,
         ]);
     }
 
