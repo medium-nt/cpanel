@@ -46,6 +46,7 @@ class UsersController extends Controller
     {
         return view('users.create', [
             'title' => 'Добавить сотрудника',
+            'roles' => Role::where('name', '!=', 'admin')->orderBy('name')->get(),
         ]);
     }
 

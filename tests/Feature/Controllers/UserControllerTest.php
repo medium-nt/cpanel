@@ -60,6 +60,15 @@ class UserControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertViewIs('users.create');
+        $response->assertViewHas('roles');
+
+        // Роли выводятся из БД и переводятся через UserService::translateRoleName.
+        $response->assertSee('Швея');
+
+        // Роль «admin» исключена из формы создания — проверяем на уровне данных view,
+        // т.к. в шапке layout роль текущего админа («Руководитель») всегда присутствует в HTML.
+        $roles = $response->viewData('roles');
+        $this->assertNull($roles->firstWhere('name', 'admin'));
     }
 
     #[Test]

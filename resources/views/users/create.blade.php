@@ -1,3 +1,9 @@
+@php
+
+    use App\Services\UserService;
+
+@endphp
+
 @extends('layouts.app')
 
 {{-- Customize layout sections --}}
@@ -89,34 +95,12 @@
                         <label for="role_id">Роль</label>
                         <select name="role_id" id="role_id" class="form-control" required>
                             <option value="" disabled selected>---</option>
-                            <option value="1"
-                                    @if(old('role_id') == 1) selected @endif>
-                                Швея
-                            </option>
-                            <option value="2"
-                                    @if(old('role_id') == 2) selected @endif>
-                                Кладовщик
-                            </option>
-                            <option value="4"
-                                    @if(old('role_id') == 4) selected @endif>
-                                Закройщик
-                            </option>
-                            <option value="5"
-                                    @if(old('role_id') == 5) selected @endif>
-                                Сотрудник ОТК
-                            </option>
-                            <option value="6"
-                                    @if(old('role_id') == 6) selected @endif>
-                                Водитель
-                            </option>
-                            <option value="7"
-                                    @if(old('role_id') == 7) selected @endif>
-                                Менеджер маркетплейса
-                            </option>
-                            <option value="8"
-                                    @if(old('role_id') == 8) selected @endif>
-                                Уборщица
-                            </option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->id }}"
+                                        @if(old('role_id') == $role->id) selected @endif>
+                                    {{ UserService::translateRoleName($role->name) }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
