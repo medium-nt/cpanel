@@ -104,7 +104,11 @@ class UserControllerTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $user = User::factory()->create();
+        // По бизнес-инварианту сотрудник всегда имеет роль (StoreUsersRequest:
+        // role_id required). Создаём реалистичного юзера с ролью — иначе
+        // UsersController::edit() упадёт на $user->role->name.
+        $role = Role::firstOrCreate(['name' => 'seamstress']);
+        $user = User::factory()->create(['role_id' => $role->id]);
 
         $response = $this->get(route('users.edit', $user));
 
