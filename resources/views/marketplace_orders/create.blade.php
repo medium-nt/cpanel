@@ -79,106 +79,12 @@
                                         disabled>
                                     <option value="" disabled selected>---
                                     </option>
-                                    <option value="Алматы"
-                                            @if(old('cluster') == 'Алматы') selected @endif>
-                                        Алматы
-                                    </option>
-                                    <option value="Астана"
-                                            @if(old('cluster') == 'Астана') selected @endif>
-                                        Астана
-                                    </option>
-                                    <option value="Беларусь"
-                                            @if(old('cluster') == 'Беларусь') selected @endif>
-                                        Беларусь
-                                    </option>
-                                    <option value="Воронеж"
-                                            @if(old('cluster') == 'Воронеж') selected @endif>
-                                        Воронеж
-                                    </option>
-                                    <option value="Дальний Восток"
-                                            @if(old('cluster') == 'Дальний Восток') selected @endif>
-                                        Дальний Восток
-                                    </option>
-                                    <option value="Екатеринбург"
-                                            @if(old('cluster') == 'Екатеринбург') selected @endif>
-                                        Екатеринбург
-                                    </option>
-                                    <option value="Казань"
-                                            @if(old('cluster') == 'Казань') selected @endif>
-                                        Казань
-                                    </option>
-                                    <option value="Калининград"
-                                            @if(old('cluster') == 'Калининград') selected @endif>
-                                        Калининград
-                                    </option>
-                                    <option value="Краснодар"
-                                            @if(old('cluster') == 'Краснодар') selected @endif>
-                                        Краснодар
-                                    </option>
-                                    <option value="Красноярск"
-                                            @if(old('cluster') == 'Красноярск') selected @endif>
-                                        Красноярск
-                                    </option>
-                                    <option value="Махачкала"
-                                            @if(old('cluster') == 'Махачкала') selected @endif>
-                                        Махачкала
-                                    </option>
-                                    <option value="Москва, МО и Дальние регионы"
-                                            @if(old('cluster') == 'Москва, МО и Дальние регионы') selected @endif>
-                                        Москва, МО и Дальние регионы
-                                    </option>
-                                    <option value="Невинномысск"
-                                            @if(old('cluster') == 'Невинномысск') selected @endif>
-                                        Невинномысск
-                                    </option>
-                                    <option value="Новосибирск"
-                                            @if(old('cluster') == 'Новосибирск') selected @endif>
-                                        Новосибирск
-                                    </option>
-                                    <option value="Омск"
-                                            @if(old('cluster') == 'Омск') selected @endif>
-                                        Омск
-                                    </option>
-                                    <option value="Оренбург"
-                                            @if(old('cluster') == 'Оренбург') selected @endif>
-                                        Оренбург
-                                    </option>
-                                    <option value="Пермь"
-                                            @if(old('cluster') == 'Пермь') selected @endif>
-                                        Пермь
-                                    </option>
-                                    <option value="Ростов"
-                                            @if(old('cluster') == 'Ростов') selected @endif>
-                                        Ростов
-                                    </option>
-                                    <option value="Самара"
-                                            @if(old('cluster') == 'Самара') selected @endif>
-                                        Самара
-                                    </option>
-                                    <option value="Санкт-Петербург и СЗО"
-                                            @if(old('cluster') == 'Санкт-Петербург и СЗО') selected @endif>
-                                        Санкт-Петербург и СЗО
-                                    </option>
-                                    <option value="Саратов"
-                                            @if(old('cluster') == 'Саратов') selected @endif>
-                                        Саратов
-                                    </option>
-                                    <option value="Тверь"
-                                            @if(old('cluster') == 'Тверь') selected @endif>
-                                        Тверь
-                                    </option>
-                                    <option value="Тюмень"
-                                            @if(old('cluster') == 'Тюмень') selected @endif>
-                                        Тюмень
-                                    </option>
-                                    <option value="Уфа"
-                                            @if(old('cluster') == 'Уфа') selected @endif>
-                                        Уфа
-                                    </option>
-                                    <option value="Ярославль"
-                                            @if(old('cluster') == 'Ярославль') selected @endif>
-                                        Ярославль
-                                    </option>
+                                    @foreach($warehouses[1] ?? [] as $value => $label)
+                                        <option value="{{ $value }}"
+                                                @if(old('cluster') == $value) selected @endif>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
                                 </select>
 
                                 {{-- WB --}}
@@ -187,79 +93,12 @@
                                         disabled>
                                     <option value="" disabled selected>---
                                     </option>
-                                    <option value="Алексин (Тула)"
-                                            @if(old('cluster') == 'Алексин (Тула)') selected @endif>
-                                        Алексин (Тула)
-                                    </option>
-                                    <option value="Владимир (Воршинское)"
-                                            @if(old('cluster') == 'Владимир (Воршинское)') selected @endif>
-                                        Владимир (Воршинское)
-                                    </option>
-                                    <option value="Волгоград"
-                                            @if(old('cluster') == 'Волгоград') selected @endif>
-                                        Волгоград
-                                    </option>
-                                    <option value="Екатеринбург (Испытателей)"
-                                            @if(old('cluster') == 'Екатеринбург (Испытателей)') selected @endif>
-                                        Екатеринбург (Испытателей)
-                                    </option>
-                                    <option value="Екатеринбург (Перспективный)"
-                                            @if(old('cluster') == 'Екатеринбург (Перспективный)') selected @endif>
-                                        Екатеринбург (Перспективный)
-                                    </option>
-                                    <option value="Казань"
-                                            @if(old('cluster') == 'Казань') selected @endif>
-                                        Казань
-                                    </option>
-                                    <option value="Коледино"
-                                            @if(old('cluster') == 'Коледино') selected @endif>
-                                        Коледино
-                                    </option>
-                                    <option value="Котовск"
-                                            @if(old('cluster') == 'Котовск') selected @endif>
-                                        Котовск
-                                    </option>
-                                    <option value="Краснодар"
-                                            @if(old('cluster') == 'Краснодар') selected @endif>
-                                        Краснодар
-                                    </option>
-                                    <option value="Невинномысск"
-                                            @if(old('cluster') == 'Невинномысск') selected @endif>
-                                        Невинномысск
-                                    </option>
-                                    <option value="Нижний Новгород"
-                                            @if(old('cluster') == 'Нижний Новгород') selected @endif>
-                                        Нижний Новгород
-                                    </option>
-                                    <option value="Новосибирск(Петухова)"
-                                            @if(old('cluster') == 'Новосибирск(Петухова)') selected @endif>
-                                        Новосибирск(Петухова)
-                                    </option>
-                                    <option value="Рязань"
-                                            @if(old('cluster') == 'Рязань') selected @endif>
-                                        Рязань
-                                    </option>
-                                    <option value="Самара (Новосемейкино)"
-                                            @if(old('cluster') == 'Самара (Новосемейкино)') selected @endif>
-                                        Самара (Новосемейкино)
-                                    </option>
-                                    <option
-                                        value="Санкт-Петербург(Уткина Заводь)"
-                                        @if(old('cluster') == 'Санкт-Петербург(Уткина Заводь)') selected @endif>
-                                        Санкт-Петербург(Уткина Заводь)
-                                    </option>
-                                    <option value="Санкт-Петербург(Шушары)"
-                                            @if(old('cluster') == 'Санкт-Петербург(Шушары)') selected @endif>
-                                        Санкт-Петербург(Шушары)
-                                    </option>
-                                    <option value="Сарапул"
-                                            @if(old('cluster') == 'Сарапул') selected @endif>
-                                        Сарапул
-                                    </option>
-                                    <option value="Электросталь"
-                                            @if(old('cluster') == 'Электросталь') selected @endif>
-                                        Электросталь
-                                    </option>
+                                    @foreach($warehouses[2] ?? [] as $value => $label)
+                                        <option value="{{ $value }}"
+                                                @if(old('cluster') == $value) selected @endif>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>

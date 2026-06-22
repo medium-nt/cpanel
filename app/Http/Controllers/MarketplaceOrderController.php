@@ -7,6 +7,7 @@ use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
+use App\Models\MarketplaceWarehouse;
 use App\Services\MarketplaceOrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -53,6 +54,10 @@ class MarketplaceOrderController extends Controller
         return view('marketplace_orders.create', [
             'title' => 'Добавить заказ',
             'items' => MarketplaceItem::query()->get(),
+            'warehouses' => [
+                1 => MarketplaceWarehouse::clustersByMarketplace(1), // OZON
+                2 => MarketplaceWarehouse::clustersByMarketplace(2), // WB
+            ],
         ]);
     }
 
