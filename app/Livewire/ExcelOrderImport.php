@@ -54,12 +54,13 @@ class ExcelOrderImport extends Component
             ])
             ->toArray();
 
-        $this->warehouses = MarketplaceWarehouse::query()
-            ->orderBy('name')
-            ->get()
-            ->groupBy('marketplace_id')
-            ->map(fn ($group) => $group->pluck('name', 'name')->toArray())
-            ->toArray();
+        // Склады для select по маркетплейсу. Кластерное значение:
+        // OZON — поле cluster (город-группировка), WB — поле name (склад).
+        // Именно это значение запишется в marketplace_orders.cluster.
+        $this->warehouses = [
+            1 => MarketplaceWarehouse::clustersByMarketplace(1),
+            2 => MarketplaceWarehouse::clustersByMarketplace(2),
+        ];
     }
 
     public function uploadAndParse(): void

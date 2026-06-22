@@ -1,6 +1,6 @@
 # Order Lifecycle — Жизненный цикл заказов маркетплейса
 
-> Last reviewed: 2026-06-21
+> Last reviewed: 2026-06-25
 
 ## Обзор
 
@@ -173,6 +173,19 @@ API синхронизация (каждые 10 мин)
       пересечение)
     - После фильтрации применяется цеховая настройка `orders_priority`
       (`ozon`/`wb`/`by_date`) для сортировки по маркетплейсу/дате
+  - **Цеховая настройка `orders_cluster_priority`** (значения:
+    `<marketplace_id>|<cluster>`, напр. `1|Казань`, `2|Коледино`, дефолт
+    пусто) — приоритизация FBO-заказов по кластеру. Применяется ПЕРВЫМ в цепочке
+    сортировки (CASE WHEN). Сравнение по ОБЕИМ полям (marketplace_id + cluster)
+    — защита от коллизий имён кластеров между OZON/WB. ORтогональна
+    `orders_priority` и `orders_filter`. **Кластеры маркетплейсов:** OZON (
+    marketplace_id=1)
+    — поле `cluster` = город-группировка (Казань, Краснодар), много складов
+    мапятся
+    на 1 кластер. WB (marketplace_id=2) — поле `cluster` пустое, кластером
+    служит
+    `name` (склад/город). Соответственно, "кластерное значение" = OZON→cluster,
+    WB→name.
 - **Проверка материалов в цехе (`hasMaterialsInWorkshop`):**
     - Проверяется доступность материалов при взятии заказа (только для ролей
       seamstress и cutter)
@@ -211,7 +224,8 @@ API синхронизация (каждые 10 мин)
 - `app/Services/MarketplaceOrderItemService.php` — основная бизнес-логика (25+
   методов), включая `getFilteredItems()` — фильтрацию выдачи заказов швеям по
   типу исполнения (цеховая настройка `orders_filter`) и персональному приоритету
-  (`users.orders_priority`)
+  (`users.orders_priority`) + кластерную приоритизацию (
+  `orders_cluster_priority`)
 - `app/Services/MarketplaceOrderService.php` — сервис удаления и отвязки
   заказов (методы
   `delete()`, `deleteNewOrdersBySupply()`, `detachNotReadyOrdersBySupply()` и
@@ -226,6 +240,12 @@ API синхронизация (каждые 10 мин)
   администраторы могут удалять заказы в поставках
 - `app/Models/StatusMovement.php` — константы статусов и цветов
 - `app/Models/MarketplaceOrderHistory.php` — история изменений статусов
+- `app/Models/MarketplaceWarehouse.php` — справочник складов маркетплейсов с
+  методами
+  `clustersByMarketplace()` — возвращает кластерные значения для OZON (по полю
+  cluster)
+  и WB (по полю name), и `clusterOptions()` — опции для select-настройки
+  приоритета
 
 ## Бизнес-правила
 
@@ -249,6 +269,9 @@ API синхронизация (каждые 10 мин)
       заказов
     - После фильтрации цеховая настройка `orders_priority` сортирует по
       маркетплейсу/дате
+  - Цеховая настройка `orders_cluster_priority` — приоритизация FBO-заказов по
+    кластеру (формат `<marketplace_id>|<cluster>`). Применяется ПЕРВЫМ в цепочке
+    сортировки (CASE WHEN), главнее `orders_priority`. Пусто = выключено.
 
 ## Связанные topics
 

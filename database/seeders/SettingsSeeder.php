@@ -63,6 +63,11 @@ class SettingsSeeder extends Seeder
         );
 
         Setting::query()->firstOrCreate(
+            ['name' => 'orders_cluster_priority'],
+            ['value' => '']
+        );
+
+        Setting::query()->firstOrCreate(
             ['name' => 'late_opened_shift_penalty'],
             ['value' => '0']
         );

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketplaceItem;
+use App\Models\MarketplaceWarehouse;
 use App\Models\Material;
 use App\Models\Setting;
 use App\Models\Workshop;
@@ -127,6 +128,7 @@ class WorkshopController extends Controller
             'seamstress_daily_limit' => 'Метраж в день у швеи',
             'orders_priority' => 'Порядок заказов',
             'orders_filter' => 'Фильтр заказов',
+            'orders_cluster_priority' => 'Приоритетный FBO-кластер',
             'max_quantity_orders_without_timeout' => 'Макс. кол-во заказов без таймаута',
             'timeout_200' => 'Таймаут на 200',
             'timeout_300' => 'Таймаут на 300',
@@ -153,6 +155,7 @@ class WorkshopController extends Controller
             'is_enabled_work_shift' => ['1' => 'Да', '0' => 'Нет'],
             'orders_priority' => ['ozon' => 'Сначала OZON', 'wb' => 'Сначала WB', 'by_date' => 'По дате заказа'],
             'orders_filter' => ['all' => 'Все', 'fbo' => 'Только FBO', 'fbs' => 'Только FBS'],
+            'orders_cluster_priority' => MarketplaceWarehouse::clusterOptions(),
             'print_qr_cutting' => ['1' => 'Включен', '0' => 'Выключен'],
             'sticking_otk' => ['qr' => 'Сканером по QR-коду', 'filter' => 'В ручную по фильтру', 'disabled' => 'Запрещена'],
             'sticking_seamstress' => ['qr' => 'Сканером по QR-коду', 'filter' => 'В ручную по фильтру', 'disabled' => 'Запрещена'],

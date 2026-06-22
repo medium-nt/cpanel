@@ -1,29 +1,75 @@
-## [2026-06-21] update | orders-filter-by-fulfillment-type
+## [2026-06-22] update | orders-cluster-priority
 
-- Добавлена цеховая/глобальная настройка `orders_filter` (значения:
-  `all`/`fbo`/`fbs`, дефолт `all`) — фильтр выдачи новых заказов швеям по типу
-  исполнения `marketplace_orders.fulfillment_type` (FBO/FBS)
-- Настройка ОРТОГОНАЛЬНА существующей `orders_priority` (которая только
-  сортирует по маркетплейсу/дате). `orders_filter` именно ФИЛЬТРУЕТ (where), а
-  не сортирует.
-- Порядок применения в `MarketplaceOrderItemService::getFilteredItems()`:
-  ЦЕХОВАЯ `orders_filter` (через `Setting::getValue('orders_filter',
-  $workshopId)`) — ПЕРВАЯ; ПЕРСОНАЛЬНАЯ `users.orders_priority`
-  (all/fbo/fbo_200) — ВТОРАЯ. Логика пересечения AND. Пример: цех=fbo +
-  швея=fbs → нет заказов (пустое пересечение). Цех=fbo + швея=fbo_200 → FBO
-  шириной 200.
-- Хранение: таблица `settings` (workshop_id NULL = глобальная, ID = цеховая).
-  Цех наследует глобальную если не задано своё.
-- UI: и в глобальных настройках (`resources/views/settings/index.blade.php`,
-  select `orders_filter`), и в настройках цеха (
-  `resources/views/workshops/edit.blade.php` через
-  `WorkshopController::getSettingLabels()/getSettingOptions()`).
-- Валидация: `app/Http/Requests/SaveSettingRequest.php` (`orders_filter` =>
-  sometimes|in:all,fbo,fbs).
-- Дефолт: `database/seeders/SettingsSeeder.php`.
-- Тесты: `tests/Feature/MarketplaceOrderItemServiceTest.php` — 2 теста на
-  getFilteredItems (фильтрация + пересечение).
+- Добавлена цеховая/глобальная настройка `orders_cluster_priority` (значения:
+  `<marketplace_id>|<cluster>`, напр. `1|Казань`, `2|Коледино`, дефолт пусто) —
+  приоритизация выдачи новых заказов швеям по FBO-кластеру
+- Поле `marketplace_orders.cluster` (varchar, nullable) есть только у
+  FBO-заказов;
+  у FBS = null. Заполняется при синхронизации поставок из справочника
+  `marketplace_warehouses.cluster`
+- Кластеры у OZON (marketplace_id=1) и WB (marketplace_id=2) — РАЗНЫЕ наборы
+  значений. Сравнение по ОБЕИМ полям (marketplace_id + cluster) — защита от
+  коллизий имён кластеров
+- Настройка ОРТОГОНАЛЬНА `orders_priority` (сортировка по маркетплейсу) и
+  `orders_filter` (фильтр FBO/FBS). Применяется ПЕРВЫМ в цепочке сортировки (
+  CASE
+  WHEN), главнее `orders_priority`
+- Поведение: ПРИОРИТИЗАЦИЯ (не фильтр). Заказы выбранного кластера идут ПЕРВЫМИ,
+  остальные — после, но тоже выдаются
+- Реализация в `MarketplaceOrderItemService::getFilteredItems()`:
+  `orderByRaw('CASE WHEN marketplace_orders.marketplace_id = ? AND
+  marketplace_orders.cluster = ? THEN 0 ELSE 1 END', [...])` — вставлен ПЕРВЫМ в
+  цепочке сортировки (перед fulfillment_type, orders_priority, created_at)
+- Источник опций для select: новый статический метод
+  `MarketplaceWarehouse::clusterOptions()` — возвращает `[value => label]` вида
+  `['1|Казань' => 'OZON — Казань', ...]` из таблицы `marketplace_warehouses`
+  (distinct по marketplace_id+cluster)
+- UI: и глобальные настройки (`resources/views/settings/index.blade.php`, select
+  рендерится только если clusterOptions не пуст), и цеховые
+  (`resources/views/workshops/edit.blade.php` через
+  `WorkshopController::getSettingLabels/getSettingOptions`). Label =
+  "Приоритетный FBO-кластер"
+- Валидация: `app/Http/Requests/SaveSettingRequest.php` (
+  `orders_cluster_priority`
+  => sometimes|nullable|string)
+- Дефолт: `database/seeders/SettingsSeeder.php` (пусто = выключено)
+- Тесты: `tests/Feature/MarketplaceOrderItemServiceTest.php` — 3 теста на
+  getFilteredItems (приоритизация, regression без настройки, FBS после
+  приоритетного
+  FBO)
 - Обновлены topics: order-lifecycle.md, shift-system.md
+
+## [2026-06-25] fix | marketplace-warehouses-clusters
+
+- Фикс бага с кластерами OZON/WB в контексте фичи orders_cluster_priority
+- **Ключевое бизнес-правило:** в таблице `marketplace_warehouses` структура
+  данных
+  РАЗНАЯ для маркетплейсов: OZON (marketplace_id=1) — поле `cluster` =
+  город-группировка
+  (Казань, Краснодар), много складов мапятся на 1 кластер. WB (
+  marketplace_id=2) —
+  поле `cluster` пустое, кластером служит `name` (склад/город). Соответственно,
+  "кластерное значение" = OZON→cluster, WB→name
+- `MarketplaceWarehouse::clustersByMarketplace(int $marketplaceId)` — новый
+  метод,
+  возвращает distinct кластерные значения: для mp=1 по полю `cluster`, для mp=2
+  по полю `name`
+- `MarketplaceWarehouse::clusterOptions()` — переделан, теперь использует
+  clustersByMarketplace
+  для обоих маркетплейсов (раньше фильтровал whereNotNull('cluster') и WB
+  отсекался)
+- `ExcelOrderImport::mount()` — select складов теперь строится через
+  clustersByMarketplace.
+  Для OZON в select теперь города-кластеры (раньше были конкретные склады name),
+  для WB — склады (name)
+- При импорте заказов поле `marketplace_orders.cluster` заполняется корректным
+  кластерным
+  значением (OZON=город, WB=склад), что обеспечивает работу кластерной
+  приоритизации
+  (`orders_cluster_priority`) в getFilteredItems
+- Тесты: `tests/Feature/MarketplaceOrderItemServiceTest.php` — 2 новых теста на
+  clustersByMarketplace/clusterOptions
+- Обновлены topics: order-lifecycle.md, marketplace-integration.md
 
 ## [2026-06-24] update | fbo-order-detachment-third-button
 

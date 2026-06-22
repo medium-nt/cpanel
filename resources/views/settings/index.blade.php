@@ -241,6 +241,25 @@
                                         </option>
                                     </select>
                                 </div>
+
+                                @if(!empty($clusterOptions))
+                                    <div class="form-group col-md-2">
+                                        <label for="orders_cluster_priority">Приоритетный
+                                            FBO-кластер</label>
+                                        <select name="orders_cluster_priority"
+                                                id="orders_cluster_priority"
+                                                class="form-control">
+                                            <option value="">— Не задан —
+                                            </option>
+                                            @foreach($clusterOptions as $clusterValue => $clusterLabel)
+                                                <option
+                                                    value="{{ $clusterValue }}" {{ $settings->orders_cluster_priority == $clusterValue ? 'selected' : '' }}>
+                                                    {{ $clusterLabel }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
                             </div>
                             <hr>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveSettingRequest;
+use App\Models\MarketplaceWarehouse;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\User;
@@ -35,6 +36,7 @@ class SettingController extends Controller
             'settings' => (object) Setting::query()->whereNull('workshop_id')->pluck('value', 'name')->toArray(),
             'hasOpenSeamstressShifts' => $hasOpenSeamstressShifts,
             'hasOpenCutterShifts' => $hasOpenCutterShifts,
+            'clusterOptions' => MarketplaceWarehouse::clusterOptions(),
         ]);
     }
 

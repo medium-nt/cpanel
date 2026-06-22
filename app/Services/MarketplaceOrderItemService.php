@@ -1174,6 +1174,18 @@ class MarketplaceOrderItemService
 
         $items = $items->with(['item.consumption.material']);
 
+        // Приоритет FBO-кластера (цеховая/глобальная настройка) — "в первую очередь".
+        // value = "<marketplace_id>|<cluster>". Заказы совпадающего кластера идут вверх.
+        $clusterPriority = Setting::getValue('orders_cluster_priority', $workshopId);
+
+        if ($clusterPriority !== null && $clusterPriority !== '' && str_contains($clusterPriority, '|')) {
+            [$clusterMpId, $clusterName] = explode('|', $clusterPriority, 2);
+            $items = $items->orderByRaw(
+                'CASE WHEN marketplace_orders.marketplace_id = ? AND marketplace_orders.cluster = ? THEN 0 ELSE 1 END',
+                [(int) $clusterMpId, $clusterName]
+            );
+        }
+
         $items = $items
             ->orderBy('marketplace_orders.fulfillment_type', 'asc');
 

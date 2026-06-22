@@ -3,6 +3,7 @@
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\MarketplaceWarehouse;
 use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Models\Role;
@@ -81,9 +82,12 @@ test('getOrdersGroupedByMaterial groups orders by material title for seamstress'
     expect($result->keys()->toArray())->toContain('Другой материал');
 
     // Проверяем, что заказы отсортированы по ширине/высоте
+    /** @var \Illuminate\Support\Collection $group1 */
     $group1 = $result->get($marketplaceItem->title);
-    expect($group1->first()->item->width)->toBe(300);
-    expect($group1->first()->item->height)->toBe(200);
+    /** @var \App\Models\MarketplaceOrderItem $first */
+    $first = $group1->first();
+    expect($first->item->width)->toBe(300);
+    expect($first->item->height)->toBe(200);
 });
 
 test('getOrdersGroupedByMaterial groups orders by material title for cutter', function () {
@@ -551,4 +555,153 @@ test('getFilteredItems пересечение цеховой orders_filter и п
     expect($ids)->not->toContain($orderFbs->id);
 
     auth()->logout();
+});
+
+test('getFilteredItems ставит заказ приоритетного FBO-кластера первым (orders_cluster_priority)', function () {
+    $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+    $cutter = User::factory()->create(['role_id' => $cutterRole->id, 'orders_priority' => 'all']);
+
+    $item = MarketplaceItem::factory()->create();
+
+    // Оба заказа — FBO, одинаковый маркетплейс; отличается только кластер.
+    $orderPriority = MarketplaceOrder::factory()->create([
+        'marketplace_id' => 1, 'fulfillment_type' => 'FBO', 'cluster' => 'Казань',
+        'created_at' => now(),
+    ]);
+    $orderOther = MarketplaceOrder::factory()->create([
+        'marketplace_id' => 1, 'fulfillment_type' => 'FBO', 'cluster' => 'Москва',
+        'created_at' => now()->subDay(), // раньше по дате, но приоритет должен победить
+    ]);
+
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderPriority->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0, 'workshop_id' => null, 'seamstress_id' => 0, 'cutter_id' => null,
+    ]);
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderOther->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0, 'workshop_id' => null, 'seamstress_id' => 0, 'cutter_id' => null,
+    ]);
+
+    auth()->login($cutter);
+    $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'getFilteredItems');
+
+    // value = "<marketplace_id>|<cluster>" → приоритет "1|Казань".
+    Setting::query()->where('name', 'orders_cluster_priority')->whereNull('workshop_id')->update(['value' => '1|Казань']);
+
+    // Казань (CASE=0) должна идти раньше Москвы (CASE=1), несмотря на более позднюю дату.
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect(array_search($orderPriority->id, $ids))->toBeLessThan(array_search($orderOther->id, $ids));
+
+    auth()->logout();
+});
+
+test('getFilteredItems без orders_cluster_priority сортирует по дате (regression)', function () {
+    $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+    $cutter = User::factory()->create(['role_id' => $cutterRole->id, 'orders_priority' => 'all']);
+
+    $item = MarketplaceItem::factory()->create();
+
+    // Более ранний заказ — "Москва", более поздний — "Казань".
+    $orderEarlier = MarketplaceOrder::factory()->create([
+        'marketplace_id' => 1, 'fulfillment_type' => 'FBO', 'cluster' => 'Москва',
+        'created_at' => now()->subDays(2),
+    ]);
+    $orderLater = MarketplaceOrder::factory()->create([
+        'marketplace_id' => 1, 'fulfillment_type' => 'FBO', 'cluster' => 'Казань',
+        'created_at' => now()->subDay(),
+    ]);
+
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderEarlier->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0, 'workshop_id' => null, 'seamstress_id' => 0, 'cutter_id' => null,
+    ]);
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderLater->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0, 'workshop_id' => null, 'seamstress_id' => 0, 'cutter_id' => null,
+    ]);
+
+    auth()->login($cutter);
+    $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'getFilteredItems');
+
+    // Приоритет выключен → порядок по created_at (ранняя "Москва" раньше "Казани").
+    Setting::query()->where('name', 'orders_cluster_priority')->whereNull('workshop_id')->update(['value' => '']);
+
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect(array_search($orderEarlier->id, $ids))->toBeLessThan(array_search($orderLater->id, $ids));
+
+    auth()->logout();
+});
+
+test('getFilteredItems: FBS без кластера идёт после приоритетного FBO-кластера', function () {
+    $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+    $cutter = User::factory()->create(['role_id' => $cutterRole->id, 'orders_priority' => 'all']);
+
+    $item = MarketplaceItem::factory()->create();
+
+    $orderFboKazan = MarketplaceOrder::factory()->create([
+        'marketplace_id' => 1, 'fulfillment_type' => 'FBO', 'cluster' => 'Казань',
+        'created_at' => now(),
+    ]);
+    $orderFbs = MarketplaceOrder::factory()->create([
+        'marketplace_id' => 1, 'fulfillment_type' => 'FBS', 'cluster' => null,
+        'created_at' => now()->subDay(), // раньше по дате, но приоритет/fulfillment должны победить
+    ]);
+
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderFboKazan->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0, 'workshop_id' => null, 'seamstress_id' => 0, 'cutter_id' => null,
+    ]);
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderFbs->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0, 'workshop_id' => null, 'seamstress_id' => 0, 'cutter_id' => null,
+    ]);
+
+    auth()->login($cutter);
+    $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'getFilteredItems');
+
+    Setting::query()->where('name', 'orders_cluster_priority')->whereNull('workshop_id')->update(['value' => '1|Казань']);
+
+    // FBO "Казань" — приоритетный (CASE=0), FBS без кластера — после (CASE=1).
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect(array_search($orderFboKazan->id, $ids))->toBeLessThan(array_search($orderFbs->id, $ids));
+
+    auth()->logout();
+});
+
+test('clustersByMarketplace: OZON — по полю cluster (город), WB — по полю name (склад)', function () {
+    // OZON: несколько складов мапятся на один кластер-город.
+    MarketplaceWarehouse::create(['name' => 'АПТЕКА_НИНО', 'marketplace_id' => 1, 'cluster' => 'Казань']);
+    MarketplaceWarehouse::create(['name' => 'ВЕТАПТЕКА_НИНО', 'marketplace_id' => 1, 'cluster' => 'Казань']);
+    MarketplaceWarehouse::create(['name' => 'АДЫГЕЙСК_РФЦ', 'marketplace_id' => 1, 'cluster' => 'Краснодар']);
+
+    // WB: cluster пустой — кластером служит name.
+    MarketplaceWarehouse::create(['name' => 'Казань', 'marketplace_id' => 2, 'cluster' => '']);
+    MarketplaceWarehouse::create(['name' => 'Воронеж', 'marketplace_id' => 2, 'cluster' => '']);
+
+    // OZON: distinct по cluster → 2 города (Казань не дублируется).
+    $ozon = MarketplaceWarehouse::clustersByMarketplace(1);
+    expect(array_values($ozon))->toBe(['Казань', 'Краснодар']);
+    expect($ozon)->not->toHaveKey('АПТЕКА_НИНО'); // не name
+
+    // WB: по name.
+    $wb = MarketplaceWarehouse::clustersByMarketplace(2);
+    expect(array_values($wb))->toBe(['Воронеж', 'Казань']);
+});
+
+test('clusterOptions включает OZON (по cluster) и WB (по name) с префиксом маркетплейса', function () {
+    MarketplaceWarehouse::create(['name' => 'АПТЕКА_НИНО', 'marketplace_id' => 1, 'cluster' => 'Казань']);
+    MarketplaceWarehouse::create(['name' => 'Казань', 'marketplace_id' => 2, 'cluster' => '']);
+
+    $options = MarketplaceWarehouse::clusterOptions();
+
+    expect($options)->toHaveKey('1|Казань');
+    expect($options['1|Казань'])->toBe('OZON — Казань');
+    expect($options)->toHaveKey('2|Казань');
+    expect($options['2|Казань'])->toBe('WB — Казань');
 });
