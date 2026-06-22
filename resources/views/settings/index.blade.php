@@ -220,6 +220,27 @@
                                         <option value="by_date" {{ $settings->orders_priority == 'by_date' ? 'selected' : '' }}>По дате заказа</option>
                                     </select>
                                 </div>
+
+                                <div class="form-group col-md-2">
+                                    <label for="orders_filter">Фильтр
+                                        заказов</label>
+                                    <select name="orders_filter"
+                                            id="orders_filter"
+                                            class="form-control">
+                                        <option
+                                            value="all" {{ $settings->orders_filter == 'all' ? 'selected' : '' }}>
+                                            Все
+                                        </option>
+                                        <option
+                                            value="fbo" {{ $settings->orders_filter == 'fbo' ? 'selected' : '' }}>
+                                            Только FBO
+                                        </option>
+                                        <option
+                                            value="fbs" {{ $settings->orders_filter == 'fbs' ? 'selected' : '' }}>
+                                            Только FBS
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <hr>
 

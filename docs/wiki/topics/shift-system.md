@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-17
+> Last reviewed: 2026-06-21
 
 ## Обзор
 
@@ -197,7 +197,16 @@
 - `app/Models/Setting.php` — модель настроек с multi-workshop поддержкой
 - `app/Http/Controllers/SettingController.php` — управление глобальными
   настройками
-  (строго workshop_id = NULL)
+  (строго workshop_id = NULL), валидация через `SaveSettingRequest` (
+  `orders_filter` => `sometimes|in:all,fbo,fbs`)
+- `app/Http/Controllers/WorkshopController.php` — управление цеховыми
+  настройками через `getSettingLabels()`/`getSettingOptions()` (ключи
+  `orders_filter`, `orders_priority`)
+- `database/seeders/SettingsSeeder.php` — дефолтное значение `orders_filter =
+  'all'`
+- `tests/Feature/MarketplaceOrderItemServiceTest.php` — тесты на
+  `getFilteredItems()` (фильтрация + пересечение цеховой и персональной
+  настройки)
 - `app/Http/Requests/StoreShiftScheduleRequest.php` — валидация данных календаря
   смен
 - `app/Rules/ShiftOrDayOff.php` — правило валидации: смена ИЛИ выходной
@@ -233,12 +242,25 @@
 
 - **Глобальные настройки** (`workshop_id = NULL`): управляются через UI
   `/megatulle/setting` (`SettingController::index`/`save`)
-- **Цеховые настройки** (`workshop_id ≠ NULL`): не доступны через UI, читаются
-  через `Setting::getValue()`/`getValues()` с fallback "цеховая → глобальная"
+- **Цеховые настройки** (`workshop_id ≠ NULL`):
+    - Управляются через UI `/megatulle/workshops/{id}/edit` (
+      `WorkshopController::edit`/`update`)
+    - Читаются через `Setting::getValue()`/`getValues()` с fallback
+      "цеховая → глобальная"
+    - Цех наследует глобальную настройку если не задано своё значение
 - **Multi-workshop архитектура**: модель `Setting` поддерживает оба уровня,
-  страницы настроек работают ТОЛЬКО с глобальными настройками
+  страницы глобальных настроек работают ТОЛЬКО с `workshop_id = NULL`
 - **Удалена настройка**: `roll_close_min_remaining` заменена на поле
   `material.minimum_roll_size_for_closure`
+
+**Список цеховых настроек (workshop_id ≠ NULL):**
+
+| Настройка         | Значения              | Описание                                                                |
+|-------------------|-----------------------|-------------------------------------------------------------------------|
+| `orders_filter`   | `all`/`fbo`/`fbs`     | Фильтр выдачи новых заказов швеям по типу исполнения (FBO/FBS).         |
+|                   |                       | Применяется ПЕРВОЙ в `MarketplaceOrderItemService::getFilteredItems()`. |
+|                   |                       | Дефолт: `all` (все заказы).                                             |
+| `orders_priority` | `ozon`/`wb`/`by_date` | Сортировка заказов после фильтрации. ORтогональна `orders_filter`.      |
 
 ## Связанные topics
 

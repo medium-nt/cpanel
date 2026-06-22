@@ -1177,6 +1177,16 @@ class MarketplaceOrderItemService
         $items = $items
             ->orderBy('marketplace_orders.fulfillment_type', 'asc');
 
+        // Фильтр по типу исполнения — цеховая настройка ("только FBO" / "только FBS").
+        // Применяется ПЕРВЫМ, персональная user->orders_priority — ВТОРЫМ (пересечение AND).
+        $ordersFilter = Setting::getValue('orders_filter', $workshopId);
+
+        $items = match ($ordersFilter) {
+            'fbo' => $items->where('marketplace_orders.fulfillment_type', 'FBO'),
+            'fbs' => $items->where('marketplace_orders.fulfillment_type', 'FBS'),
+            default => $items, // 'all' или null — без фильтра
+        };
+
         // Персональный приоритет заказов
         $items = match (auth()->user()->orders_priority) {
             'fbo' => $items->where('marketplace_orders.fulfillment_type', 'FBO'),

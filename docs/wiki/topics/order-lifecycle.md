@@ -1,6 +1,6 @@
 # Order Lifecycle — Жизненный цикл заказов маркетплейса
 
-> Last reviewed: 2026-06-18
+> Last reviewed: 2026-06-21
 
 ## Обзор
 
@@ -163,6 +163,16 @@ API синхронизация (каждые 10 мин)
   настраивается в Setting)
 - Если швея имеет `is_cutter=true` — она может работать как закройщик (
   `User::canSeamstressCut()`)
+- **Фильтрация выдачи заказов (`getFilteredItems`):**
+    - **Цеховая настройка `orders_filter`** (значения: `all`/`fbo`/`fbs`,
+      дефолт `all`) — фильтр по типу исполнения
+      `marketplace_orders.fulfillment_type` (FBO/FBS). Применяется ПЕРВОЙ
+    - **Персональная настройка `users.orders_priority`** (`all`/`fbo`/`fbo_200`)
+      — фильтр по типу исполнения. Применяется ВТОРОЙ
+    - Логика пересечения AND: если цех=fbo + швея=fbs → нет заказов (пустое
+      пересечение)
+    - После фильтрации применяется цеховая настройка `orders_priority`
+      (`ozon`/`wb`/`by_date`) для сортировки по маркетплейсу/дате
 - **Проверка материалов в цехе (`hasMaterialsInWorkshop`):**
     - Проверяется доступность материалов при взятии заказа (только для ролей
       seamstress и cutter)
@@ -198,12 +208,14 @@ API синхронизация (каждые 10 мин)
 
 ## Ключевые файлы
 
-- `app/Services/MarketplaceOrderItemService.php` — основная бизнес-логика (25
-  методов)
+- `app/Services/MarketplaceOrderItemService.php` — основная бизнес-логика (25+
+  методов), включая `getFilteredItems()` — фильтрацию выдачи заказов швеям по
+  типу исполнения (цеховая настройка `orders_filter`) и персональному приоритету
+  (`users.orders_priority`)
 - `app/Services/MarketplaceOrderService.php` — сервис удаления и отвязки
   заказов (методы
   `delete()`, `deleteNewOrdersBySupply()`, `detachNotReadyOrdersBySupply()` и
-  `detachOnSupplyOrdersBySupply()`) ✨ **НОВОЕ**
+  `detachOnSupplyOrdersBySupply()`)
 - `app/Models/MarketplaceOrderItem.php` — модель с 17 fillable-полями
 - `app/Http/Controllers/MarketplaceOrderItemController.php` — HTTP-обработчики
 - `app/Http/Controllers/MarketplaceOrderController.php` — удаление заказов (
@@ -228,6 +240,15 @@ API синхронизация (каждые 10 мин)
   только в статусе "новый" (0), только когда поставка в статусе 0 (формируется)
     - Проверка доступа через `MarketplaceSupplyPolicy::deleteOrders()` — только
       `isAdmin()`
+- **Фильтрация выдачи заказов швеям:**
+    - Цеховая настройка `orders_filter` — фильтр по типу исполнения
+      (FBO/FBS/все), применяется ПЕРВОЙ
+    - Персональная настройка `users.orders_priority` — фильтр по типу
+      исполнения (FBO/FBO-200/все), применяется ВТОРОЙ
+    - Логика пересечения AND: если оба фильтра применены и не пересекаются → нет
+      заказов
+    - После фильтрации цеховая настройка `orders_priority` сортирует по
+      маркетплейсу/дате
 
 ## Связанные topics
 

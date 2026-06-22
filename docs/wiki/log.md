@@ -1,3 +1,30 @@
+## [2026-06-21] update | orders-filter-by-fulfillment-type
+
+- Добавлена цеховая/глобальная настройка `orders_filter` (значения:
+  `all`/`fbo`/`fbs`, дефолт `all`) — фильтр выдачи новых заказов швеям по типу
+  исполнения `marketplace_orders.fulfillment_type` (FBO/FBS)
+- Настройка ОРТОГОНАЛЬНА существующей `orders_priority` (которая только
+  сортирует по маркетплейсу/дате). `orders_filter` именно ФИЛЬТРУЕТ (where), а
+  не сортирует.
+- Порядок применения в `MarketplaceOrderItemService::getFilteredItems()`:
+  ЦЕХОВАЯ `orders_filter` (через `Setting::getValue('orders_filter',
+  $workshopId)`) — ПЕРВАЯ; ПЕРСОНАЛЬНАЯ `users.orders_priority`
+  (all/fbo/fbo_200) — ВТОРАЯ. Логика пересечения AND. Пример: цех=fbo +
+  швея=fbs → нет заказов (пустое пересечение). Цех=fbo + швея=fbo_200 → FBO
+  шириной 200.
+- Хранение: таблица `settings` (workshop_id NULL = глобальная, ID = цеховая).
+  Цех наследует глобальную если не задано своё.
+- UI: и в глобальных настройках (`resources/views/settings/index.blade.php`,
+  select `orders_filter`), и в настройках цеха (
+  `resources/views/workshops/edit.blade.php` через
+  `WorkshopController::getSettingLabels()/getSettingOptions()`).
+- Валидация: `app/Http/Requests/SaveSettingRequest.php` (`orders_filter` =>
+  sometimes|in:all,fbo,fbs).
+- Дефолт: `database/seeders/SettingsSeeder.php`.
+- Тесты: `tests/Feature/MarketplaceOrderItemServiceTest.php` — 2 теста на
+  getFilteredItems (фильтрация + пересечение).
+- Обновлены topics: order-lifecycle.md, shift-system.md
+
 ## [2026-06-24] update | fbo-order-detachment-third-button
 
 - Добавлена ТРЕТЬЯ кнопка "Убрать на поставку" для массовой отвязки заказов

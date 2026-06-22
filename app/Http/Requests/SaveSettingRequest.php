@@ -30,6 +30,8 @@ class SaveSettingRequest extends FormRequest
             'api_key_wb' => 'sometimes|nullable|string',
             'api_key_ozon' => 'sometimes|nullable|string',
             'seller_id_ozon' => 'sometimes|nullable|string',
+            'orders_priority' => 'sometimes|in:ozon,wb,by_date',
+            'orders_filter' => 'sometimes|in:all,fbo,fbs',
         ];
     }
 

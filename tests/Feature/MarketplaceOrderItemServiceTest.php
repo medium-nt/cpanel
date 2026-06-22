@@ -7,6 +7,7 @@ use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Models\Role;
 use App\Models\Roll;
+use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\User;
 use App\Services\MarketplaceOrderItemService;
@@ -445,4 +446,109 @@ test('hasMaterialsInWorkshop проверяет аксессуары для шв
     $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'hasMaterialsInWorkshop');
 
     expect($method->invoke(null, $orderItem))->toBeFalse();
+});
+
+test('getFilteredItems фильтрует заказы по цеховой настройке orders_filter (FBO/FBS/Все)', function () {
+    $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+    $cutter = User::factory()->create(['role_id' => $cutterRole->id, 'orders_priority' => 'all']);
+
+    $item = MarketplaceItem::factory()->create();
+
+    $orderFbo = MarketplaceOrder::factory()->create(['fulfillment_type' => 'FBO']);
+    $orderFbs = MarketplaceOrder::factory()->create(['fulfillment_type' => 'FBS']);
+
+    // Заказы со статусом 0 (новый) — берутся закройщиком.
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderFbo->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0,
+        'workshop_id' => null,
+        'seamstress_id' => 0,
+        'cutter_id' => null,
+    ]);
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderFbs->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0,
+        'workshop_id' => null,
+        'seamstress_id' => 0,
+        'cutter_id' => null,
+    ]);
+
+    auth()->login($cutter);
+    $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'getFilteredItems');
+
+    $filter = fn (string $value) => Setting::query()
+        ->where('name', 'orders_filter')
+        ->whereNull('workshop_id')
+        ->update(['value' => $value]);
+
+    // orders_filter = fbo → FBO попадает, FBS нет.
+    $filter('fbo');
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect($ids)->toContain($orderFbo->id);
+    expect($ids)->not->toContain($orderFbs->id);
+
+    // orders_filter = fbs → FBS попадает, FBO нет.
+    $filter('fbs');
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect($ids)->toContain($orderFbs->id);
+    expect($ids)->not->toContain($orderFbo->id);
+
+    // orders_filter = all → оба попадают (без фильтра).
+    $filter('all');
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect($ids)->toContain($orderFbo->id);
+    expect($ids)->toContain($orderFbs->id);
+
+    auth()->logout();
+});
+
+test('getFilteredItems пересечение цеховой orders_filter и персональной user->orders_priority (AND)', function () {
+    $cutterRole = Role::firstOrCreate(['name' => 'cutter']);
+    // Персональная настройка швеи/закройщика жёстко требует FBO.
+    $cutter = User::factory()->create(['role_id' => $cutterRole->id, 'orders_priority' => 'fbo']);
+
+    $item = MarketplaceItem::factory()->create();
+    $orderFbo = MarketplaceOrder::factory()->create(['fulfillment_type' => 'FBO']);
+    $orderFbs = MarketplaceOrder::factory()->create(['fulfillment_type' => 'FBS']);
+
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderFbo->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0,
+        'workshop_id' => null,
+        'seamstress_id' => 0,
+        'cutter_id' => null,
+    ]);
+    MarketplaceOrderItem::factory()->create([
+        'marketplace_order_id' => $orderFbs->id,
+        'marketplace_item_id' => $item->id,
+        'status' => 0,
+        'workshop_id' => null,
+        'seamstress_id' => 0,
+        'cutter_id' => null,
+    ]);
+
+    auth()->login($cutter);
+    $method = new ReflectionMethod(MarketplaceOrderItemService::class, 'getFilteredItems');
+
+    $filter = fn (string $value) => Setting::query()
+        ->where('name', 'orders_filter')
+        ->whereNull('workshop_id')
+        ->update(['value' => $value]);
+
+    // Цех=fbs + персональная=fbo → пересечение пусто (ни FBO, ни FBS не проходят).
+    $filter('fbs');
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect($ids)->not->toContain($orderFbo->id);
+    expect($ids)->not->toContain($orderFbs->id);
+
+    // Цех=fbo + персональная=fbo → проходит только FBO.
+    $filter('fbo');
+    $ids = $method->invoke(null)->pluck('marketplace_order_id')->toArray();
+    expect($ids)->toContain($orderFbo->id);
+    expect($ids)->not->toContain($orderFbs->id);
+
+    auth()->logout();
 });
