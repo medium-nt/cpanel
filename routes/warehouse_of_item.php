@@ -48,6 +48,10 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('viewAny', Shelf::class)
         ->name('warehouse_of_item.to_pick_list_print');
 
+    Route::get('/pickup_scan', [WarehouseOfItemController::class, 'pickupScan'])
+        ->can('viewAny', Shelf::class)
+        ->name('warehouse_of_item.pickup_scan');
+
     Route::get('/to_pick/{order}', [WarehouseOfItemController::class, 'toPick'])
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.to_pick');

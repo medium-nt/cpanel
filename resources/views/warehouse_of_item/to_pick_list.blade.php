@@ -51,9 +51,15 @@
         <div class="card-body">
 
             <a href="{{ route('warehouse_of_item.to_pick_list_print') }}"
-               class="btn btn-secondary mb-3" target="_blank">
+               class="btn btn-secondary mb-3 mr-2" target="_blank">
                 <i class="fas fa-print mr-1"></i>
                 Печать списка
+            </a>
+
+            <a href="{{ route('warehouse_of_item.pickup_scan') }}"
+               class="btn btn-success mb-3">
+                <i class="fas fa-barcode mr-1"></i>
+                Сканер подбора
             </a>
 
             <div class="table-responsive">

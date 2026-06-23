@@ -346,6 +346,16 @@ class WarehouseOfItemController extends Controller
         ]);
     }
 
+    /**
+     * Страница сканера подбора товаров со склада (Livewire-компонент PickupScan).
+     */
+    public function pickupScan(): View
+    {
+        return view('warehouse_of_item.pickup_scan', [
+            'title' => 'Сканирование подбора',
+        ]);
+    }
+
     public function toInspection(MarketplaceOrderItem $marketplace_item)
     {
         $marketplace_item->status = 10;

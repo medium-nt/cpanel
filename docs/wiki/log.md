@@ -1,3 +1,26 @@
+## [2026-06-23] feature | warehouse-pickup-scanner
+
+- Добавлен новый сканер подбора товаров со склада готовой продукции: кладовщик
+  сканирует ШК экземпляра на полке, система определяет, годится ли артикул для
+  активного подбора.
+- Ключевая бизнес-логика: `storage_barcode` = ШК экземпляра (уникален),
+  `marketplace_item_id` = артикул. Экземпляры одного артикула взаимозаменяемы.
+- В заказ status=13 («На сборке») годится любой экземпляр того же артикула со
+  склада (status IN [11,13]).
+- Критерий успеха при скане: найти экземпляр по storage_barcode → взять
+  marketplace_item_id → активных заказов status=13 на этот артикул минус уже
+  отсканировано этого артикула в сессии. Остаток > 0 → успех (звук success).
+- Счётчик «отсканировано/нужно» (напр. «3/5») живёт только в Livewire-сессии —
+  перезагрузка страницы обнуляет его.
+- Файлы: `app/Livewire/PickupScan.php` (метод `handleScan()`),
+  `resources/views/livewire/pickup-scan.blade.php`,
+  `resources/views/warehouse_of_item/pickup_scan.blade.php`,
+  `app/Http/Controllers/WarehouseOfItemController.php`
+  (метод `pickupScan()`), `routes/warehouse_of_item.php` (маршрут `GET
+  /warehouse_of_item/pickup_scan`), `resources/views/home.blade.php` (плитка
+  меню).
+- Обновлены topics: warehouse-operations.md, order-lifecycle.md
+
 ## [2026-06-23] update | auto-reset-cluster-priority
 
 - Добавлен авто-сброс цеховой настройки `orders_cluster_priority` при исчерпании
