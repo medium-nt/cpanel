@@ -17,8 +17,8 @@
                     @csrf
                     @method('PUT')
 
-                    <div class="d-flex align-items-start mb-3">
-                        <div class="form-group mr-3 mb-0">
+                    <div class="d-flex flex-wrap align-items-start mb-3">
+                        <div class="form-group mr-3 mb-2">
                             <label for="gazelka_shipment_id">ID отгрузки в
                                 Газельку</label>
                             <input type="text" class="form-control"
@@ -27,7 +27,7 @@
                                    value="{{ old('gazelka_shipment_id', $supply->gazelka_shipment_id) }}">
                         </div>
 
-                        <div class="form-group mb-0">
+                        <div class="form-group mr-3 mb-2">
                             <label for="gazelka_shipment_date">Дата
                                 отгрузки</label>
                             <input type="date" class="form-control"
@@ -37,7 +37,7 @@
                                    value="{{ old('gazelka_shipment_date', $supply->gazelka_shipment_date?->format('Y-m-d')) }}">
                         </div>
 
-                        <div class="form-group ml-3 mb-0">
+                        <div class="form-group mr-3 mb-2">
                             <label for="delivery_type">Тип поставки</label>
                             <select class="form-control"
                                     id="delivery_type"
@@ -52,7 +52,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group ml-3 mb-0">
+                        <div class="form-group mr-3 mb-2">
                             @php($pickupVal = old('gazelka_pickup', $supply->gazelka_pickup))
                             <label for="gazelka_pickup">Забор Газелькой</label>
                             <select class="form-control"
@@ -70,7 +70,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group ml-3 mb-0">
+                        <div class="form-group mr-3 mb-2">
                             @php($canEditBoxes = $supply->canEditBoxesCount())
                             <label for="boxes_count">Кол-во коробов</label>
                             <input type="number" class="form-control"
@@ -78,7 +78,7 @@
                                    name="boxes_count"
                                    min="0"
                                    value="{{ old('boxes_count', $supply->boxes_count) }}"
-                                   @unless($canEditBoxes) readonly
+                                   @unless($canEditBoxes) disabled
                                    style="background-color:#e9ecef" @endunless>
                             @unless($canEditBoxes)
                                 <small class="form-text text-muted">

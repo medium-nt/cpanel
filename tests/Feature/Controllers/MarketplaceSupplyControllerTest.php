@@ -144,3 +144,57 @@ test('calculates hasOnSupplyOrders flag based on status=6 orders without box', f
 
     expect($response->viewData('hasOnSupplyOrders'))->toBeTrue();
 });
+
+test('update fbo preserves boxes_count when field is not submitted (disabled)', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'gazelka_shipment_date' => today()->subDay(),
+        'boxes_count' => 5,
+        'gazelka_shipment_id' => 'OLD-1',
+    ]);
+
+    expect($supply->canEditBoxesCount())->toBeFalse();
+
+    $response = $this->actingAs($this->admin)->put(
+        route('marketplace_supplies.update_fbo', $supply),
+        ['gazelka_shipment_id' => 'NEW-123'],
+    );
+
+    $response->assertRedirect(route('marketplace_supplies.show', $supply));
+    $response->assertSessionHas('success');
+
+    $supply->refresh();
+    expect($supply->boxes_count)->toBe(5)
+        ->and($supply->gazelka_shipment_id)->toBe('NEW-123');
+});
+
+test('update fbo blocks boxes_count when shipment date passed even if field is submitted', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'gazelka_shipment_date' => today()->subDay(),
+        'boxes_count' => 5,
+    ]);
+
+    $response = $this->actingAs($this->admin)->put(
+        route('marketplace_supplies.update_fbo', $supply),
+        ['boxes_count' => 99],
+    );
+
+    $response->assertSessionHas('error');
+    expect($supply->fresh()->boxes_count)->toBe(5);
+});
+
+test('update fbo updates boxes_count when editable', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'gazelka_shipment_date' => null,
+        'boxes_count' => 5,
+    ]);
+
+    expect($supply->canEditBoxesCount())->toBeTrue();
+
+    $response = $this->actingAs($this->admin)->put(
+        route('marketplace_supplies.update_fbo', $supply),
+        ['boxes_count' => 7],
+    );
+
+    $response->assertRedirect(route('marketplace_supplies.show', $supply));
+    expect($supply->fresh()->boxes_count)->toBe(7);
+});

@@ -235,13 +235,20 @@ class MarketplaceSupplyController extends Controller
                 ->withInput();
         }
 
-        $marketplaceSupply->update([
+        $data = [
             'gazelka_shipment_id' => $validated['gazelka_shipment_id'] ?? null,
             'gazelka_shipment_date' => isset($validated['gazelka_shipment_date']) ? Carbon::parse($validated['gazelka_shipment_date']) : null,
             'delivery_type' => $validated['delivery_type'] ?? null,
             'gazelka_pickup' => $validated['gazelka_pickup'] ?? null,
-            'boxes_count' => $validated['boxes_count'] ?? null,
-        ]);
+        ];
+
+        // boxes_count обновляем только если он реально передан формой
+        // (при наступлении даты отгрузки поле disabled и не отправляется — оставляем текущее значение в БД).
+        if (array_key_exists('boxes_count', $validated)) {
+            $data['boxes_count'] = $validated['boxes_count'];
+        }
+
+        $marketplaceSupply->update($data);
 
         return redirect()
             ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
