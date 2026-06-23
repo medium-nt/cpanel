@@ -61,9 +61,9 @@
                                         <td rowspan="{{ $order->items->count() }}">
                                             <button
                                                 wire:click="removeOrder({{ $order->id }})"
+                                                wire:confirm="Убрать заказ из короба?"
                                                 class="btn btn-danger btn-sm"
                                                 data-no-refocus
-                                                onclick="return confirm('Убрать заказ из короба?')"
                                             >
                                                 Удалить
                                             </button>

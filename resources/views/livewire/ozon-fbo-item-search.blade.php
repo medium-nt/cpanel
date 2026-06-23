@@ -119,8 +119,8 @@
                                     <td>
                                         <button type="button"
                                                 wire:click="removeItem({{ $item->id }})"
-                                                class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Удалить товар?')">
+                                                wire:confirm="Удалить товар?"
+                                                class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
