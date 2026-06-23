@@ -21,6 +21,16 @@
   меню).
 - Обновлены topics: warehouse-operations.md, order-lifecycle.md
 
+## [2026-06-23] fix | warehouse-pickup-scanner-navigation
+
+- Изменена точка входа на сканер подбора: плитка «Сканер подбора» УБРАНА с
+  дашборда (`home.blade.php`)
+- Кнопка «Сканер подбора» (`btn-success`, `fa-barcode`) теперь на странице
+  `/warehouse_of_item/to_pick_list` — сразу после кнопки «Печать списка»
+- Добавлена кнопка «Назад» (`btn-outline-secondary`, `fa-arrow-left`) на
+  странице сканера → ведёт на `warehouse_of_item.to_pick_list`
+- Обновлены topics: warehouse-operations.md, order-lifecycle.md
+
 ## [2026-06-23] update | auto-reset-cluster-priority
 
 - Добавлен авто-сброс цеховой настройки `orders_cluster_priority` при исчерпании

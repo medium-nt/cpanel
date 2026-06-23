@@ -156,6 +156,15 @@
 - `removeScanned()` — убрать экземпляр из таблицы
 - `clearAll()` — очистить весь список
 
+**Навигация:**
+
+- Точка входа: **кнопка «Сканер подбора»** (`btn-success`, иконка `fa-barcode`)
+  на странице `/warehouse_of_item/to_pick_list` — сразу после кнопки «Печать
+  списка»
+- Кнопка «Назад» на странице сканера (`btn-outline-secondary`,
+  `fa-arrow-left`) → ведёт на `warehouse_of_item.to_pick_list`
+- Доступ: администраторы и кладовщики (`isAdmin() || isStorekeeper()`)
+
 **Альтернативный путь подбора:**
 
 - Текущий процесс: `/warehouse_of_item/to_pick_list` → `/to_pick/{order}` (скан
@@ -167,13 +176,14 @@
 - `app/Livewire/PickupScan.php` — Livewire-компонент, метод `handleScan()`
 - `resources/views/livewire/pickup-scan.blade.php` — input-сканер + таблица +
   audio success/error
-- `resources/views/warehouse_of_item/pickup_scan.blade.php` — обёрточная view
+- `resources/views/warehouse_of_item/pickup_scan.blade.php` — обёрточная view с
+  кнопкой «Назад»
 - `app/Http/Controllers/WarehouseOfItemController.php` — метод `pickupScan()` (
   тонкая обёртка)
 - `routes/warehouse_of_item.php` — маршрут `GET /warehouse_of_item/pickup_scan`,
   name `warehouse_of_item.pickup_scan`, gate `can('viewAny', Shelf::class)`
-- `resources/views/home.blade.php` — плитка меню «Сканер подбора» (
-  isAdmin||isStorekeeper, иконка fa-barcode)
+- `resources/views/warehouse_of_item/to_pick_list.blade.php` — кнопка «Сканер
+  подбора» (точка входа)
 
 **Эталон паттерна:** `app/Livewire/BoxOrderScanner.php` (скан ШК в короб
 FBO-поставки)
