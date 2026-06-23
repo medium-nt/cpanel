@@ -259,12 +259,12 @@
   поставщиками
 - Новые отношения: `Material::suppliers()` и `Supplier::materials()` с pivot-
   полями id и shortage_percent
-- Новый бизнес-функционал: учёт процента недосдачи по каждому поставщику для
+- Новый бизнес-функционал: учёт процента недостачи по каждому поставщику для
   каждого материала (справочно, пока не применяется в расчётах)
 - Новый контроллер `MaterialSupplierController` с методами:
   - `attach()` — привязать поставщика к материалу (POST
     /materials/{material}/suppliers)
-  - `updateShortages()` — массовое обновление процента недосдачи (PUT
+  - `updateShortages()` — массовое обновление процента недостачи (PUT
     /materials/{material}/suppliers)
   - `detach()` — отвязать поставщика от материала (DELETE
     /materials/{material}/suppliers/{pivotId})

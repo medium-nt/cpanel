@@ -29,7 +29,7 @@ Route::prefix('/materials')->group(function () {
         ->can('delete', 'material')
         ->name('materials.destroy');
 
-    // Поставщики материала (недосдача)
+    // Поставщики материала (недостача)
     Route::post('/{material}/suppliers', [MaterialSupplierController::class, 'attach'])
         ->can('update', 'material')
         ->name('materials.suppliers.attach');

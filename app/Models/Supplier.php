@@ -29,7 +29,7 @@ class Supplier extends Model
     }
 
     /**
-     * Материалы поставщика с процентом недосдачи.
+     * Материалы поставщика с процентом недостачи.
      */
     public function materials(): BelongsToMany
     {

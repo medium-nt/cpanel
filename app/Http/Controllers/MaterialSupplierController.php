@@ -48,7 +48,7 @@ class MaterialSupplierController extends Controller
     }
 
     /**
-     * Массовое обновление процента недосдачи.
+     * Массовое обновление процента недостачи.
      * PUT /megatulle/materials/{material}/suppliers
      */
     public function updateShortages(Request $request, Material $material)
@@ -92,7 +92,7 @@ class MaterialSupplierController extends Controller
             }
         }
 
-        Log::channel('materials')->info('Обновлён недосдача материалов', [
+        Log::channel('materials')->info('Обновлён недостача материалов', [
             'material_id' => $material->id,
             'material_title' => $material->title,
             'changes' => $changes,
@@ -100,7 +100,7 @@ class MaterialSupplierController extends Controller
         ]);
 
         return redirect()->back()
-            ->with('success', 'Процент недосдачи обновлён');
+            ->with('success', 'Процент недостачи обновлён');
     }
 
     /**

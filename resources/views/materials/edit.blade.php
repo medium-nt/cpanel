@@ -150,7 +150,7 @@
                                 <thead>
                                 <tr>
                                     <th>Поставщик</th>
-                                    <th style="width: 150px;">Недосдача %</th>
+                                    <th style="width: 150px;">Недостача %</th>
                                     <th style="width: 80px;"></th>
                                 </tr>
                                 </thead>
@@ -180,7 +180,7 @@
                             </table>
 
                             <button type="submit" class="btn btn-success">
-                                Сохранить недосдачу
+                                Сохранить недостачу
                             </button>
                         </form>
 
