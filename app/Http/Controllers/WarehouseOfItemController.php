@@ -241,6 +241,8 @@ class WarehouseOfItemController extends Controller
         $marketplaceOrder->status = '5'; // в стикеровке
         $marketplaceOrder->save();
 
+        MarketplaceOrderItemService::resetClusterPriorityIfExhausted($marketplaceOrderItem->workshop_id);
+
         return redirect()->back()
             ->with('success', 'Заказ передан на стикеровку');
     }

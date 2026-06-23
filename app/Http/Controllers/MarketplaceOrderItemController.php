@@ -268,6 +268,8 @@ class MarketplaceOrderItemController extends Controller
             'completed_at' => now(),
         ]);
 
+        MarketplaceOrderItemService::resetClusterPriorityIfExhausted($marketplaceOrderItem->workshop_id);
+
         $this->updateRollIds($request, $marketplaceOrderItem);
 
         return redirect()->route('marketplace_order_items.index')

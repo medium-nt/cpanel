@@ -1225,6 +1225,49 @@ class MarketplaceOrderItemService
     }
 
     /**
+     * Сбрасывает цеховую настройку orders_cluster_priority, если в очереди (до стикеровки)
+     * не осталось заказов этого кластера — ни привязанных к цеху, ни новых нераспределённых.
+     *
+     * @param  int  $workshopId  ID цеха
+     */
+    public static function resetClusterPriorityIfExhausted(int $workshopId): void
+    {
+        // Читаем только цеховую настройку (глобальную не трогаем)
+        $clusterPriority = Setting::query()
+            ->where('name', 'orders_cluster_priority')
+            ->where('workshop_id', $workshopId)
+            ->value('value');
+
+        if (! $clusterPriority || ! str_contains($clusterPriority, '|')) {
+            return;  // выключено или нет данных
+        }
+
+        [$mpId, $cluster] = explode('|', $clusterPriority, 2);
+
+        // Счётчик: order_items этого кластера в статусах очереди [0,4,7,8]
+        // в этом цехе ИЛИ новые нераспределённые (workshop_id IS NULL)
+        $remaining = MarketplaceOrderItem::query()
+            ->join('marketplace_orders', 'marketplace_order_items.marketplace_order_id', '=', 'marketplace_orders.id')
+            ->where('marketplace_orders.marketplace_id', (int) $mpId)
+            ->where('marketplace_orders.cluster', $cluster)
+            ->where(fn ($q) => $q->where('marketplace_order_items.workshop_id', $workshopId)
+                ->orWhereNull('marketplace_order_items.workshop_id'))
+            ->whereIn('marketplace_order_items.status', [0, 4, 7, 8])  // всё до стикеровки
+            ->count();
+
+        if ($remaining === 0) {
+            Setting::query()
+                ->where('name', 'orders_cluster_priority')
+                ->where('workshop_id', $workshopId)
+                ->update(['value' => '']);
+
+            Log::channel('system')->info(
+                "Приоритет FBO-кластера сброшен (цех {$workshopId}): {$mpId}|{$cluster} — все заказы сданы в стикеровку."
+            );
+        }
+    }
+
+    /**
      * Проверка возможности использования материала этим сотрудником.
      */
     private static function canUseMaterial(MarketplaceOrderItem $marketplaceOrderItem): bool
