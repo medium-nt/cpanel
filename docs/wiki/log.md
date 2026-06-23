@@ -1,3 +1,17 @@
+## [2026-06-23] update | auto-reset-cluster-priority
+
+- Добавлен авто-сброс цеховой настройки `orders_cluster_priority` при исчерпании
+  очереди заказов приоритетного FBO-кластера.
+- Триггер: перевод заказа в стикеровку (status=5) в
+  `MarketplaceOrderItemController::labeling()` и `WarehouseOfItemController`.
+- Логика: метод `MarketplaceOrderItemService::resetClusterPriorityIfExhausted()`
+  считает заказы кластера в статусах [0,4,7,8] (в этом цехе ИЛИ новые с
+  workshop_id=NULL).
+- Сбрасывает только цеховые настройки, глобальную не трогает. Логирует в канал
+  `system`.
+- 5 новых тестов в `MarketplaceOrderItemServiceTest`.
+- Обновлены topics: order-lifecycle.md, marketplace-integration.md
+
 ## [2026-06-22] update | orders-cluster-priority
 
 - Добавлена цеховая/глобальная настройка `orders_cluster_priority` (значения:
