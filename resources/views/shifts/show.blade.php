@@ -87,8 +87,9 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Сотрудники ({{ $employees->count() }}
-                        )</h3>
+                    <h3 class="card-title">
+                        Сотрудники ({{ $employees->count() }})
+                    </h3>
                 </div>
                 <div class="card-body">
                     {{-- Форма добавления --}}
