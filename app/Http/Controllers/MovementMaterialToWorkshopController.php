@@ -8,6 +8,7 @@ use App\Http\Requests\StoreMovementMaterialToWorkshopRequest;
 use App\Models\Material;
 use App\Models\Order;
 use App\Models\Roll;
+use App\Models\Setting;
 use App\Models\Shift;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\ShiftService;
@@ -156,7 +157,9 @@ class MovementMaterialToWorkshopController extends Controller
             }
         }
 
-        // Проверка: ткань — не более MAX_FABRIC_ROLLS_PER_SHIFT рулонов одного материала на смену
+        // Проверка: ткань — не более max_fabric_rolls_per_shift рулонов одного материала на смену
+        $limit = (int) (Setting::getValue('max_fabric_rolls_per_shift', $order->shift?->workshop_id) ?? 99);
+
         $fabricRollsInOrder = $order->movementMaterials
             ->filter(fn ($mm) => $mm->roll && $mm->material->type_id === Material::TYPE_FABRIC);
 
@@ -170,10 +173,8 @@ class MovementMaterialToWorkshopController extends Controller
                 ->count();
 
             $total = $inWorkshop + $group->count();
-            if ($total > Material::MAX_FABRIC_ROLLS_PER_SHIFT) {
-                $needToClose = $total - Material::MAX_FABRIC_ROLLS_PER_SHIFT;
-
-                $limit = Material::MAX_FABRIC_ROLLS_PER_SHIFT;
+            if ($total > $limit) {
+                $needToClose = $total - $limit;
 
                 return redirect()
                     ->back()

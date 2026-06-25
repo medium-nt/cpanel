@@ -358,3 +358,35 @@
   обратная стрелка `3 → 4` через `unmarkShipped` (admin only).
 - Тесты: `tests/Feature/MarketplaceSupplyUnmarkShippedTest.php` — 3 pest-теста.
 - Обновлены topics: marketplace-integration.md
+
+## [2026-06-25] update | max_fabric_rolls_per_shift в настройках
+
+- Лимит «максимум рулонов ткани одного вида на смену в цехе» перенесён из
+  захардкоженной константы `Material::MAX_FABRIC_ROLLS_PER_SHIFT = 99` в
+  настройки
+  системы (25.06.2026)
+- Новая настройка `max_fabric_rolls_per_shift` со стандартной схемой settings:
+  глобальное значение (по умолчанию 99) + возможность цехового переопределения
+  через карточку цеха
+- Чтение лимита в коде:
+  `Setting::getValue('max_fabric_rolls_per_shift', $order->shift->workshop_id)` —
+  встроенный fallback "цеховая → глобальная"
+- Лимит применяется только к ткани (Material::TYPE_FABRIC)
+- Проверка лимита в двух точках:
+    1. `WorkshopRollScan::scanRoll()` — при сканировании рулонов в поставку
+    2. `MovementMaterialToWorkshopController::save_receive()` — при финальной
+       приёмке поставки
+- Считаются рулоны в статусах `IN_WORKSHOP` + `SHIPPED_TO_WORKSHOP` с тем же
+  `material_id` и `shift_id`
+- Затронутые файлы:
+    - `app/Models/Material.php` — удалена константа MAX_FABRIC_ROLLS_PER_SHIFT
+    - `app/Livewire/WorkshopRollScan.php` — проверка лимита при сканировании
+    - `app/Http/Controllers/MovementMaterialToWorkshopController.php` — проверка
+      при
+      финальной приёмке
+    - `database/seeders/SettingsSeeder.php` — глобальный дефолт = 99
+    - `app/Http/Controllers/WorkshopController.php` — лейбл для UI карточки цеха
+    - `app/Http/Requests/SaveSettingRequest.php` — правило валидации
+      (sometimes|integer|min:1)
+    - `resources/views/settings/index.blade.php` — поле в глобальном UI настроек
+- Обновлены topics: material-flow.md, materials.md, shift-system.md

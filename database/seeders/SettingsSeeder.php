@@ -151,5 +151,10 @@ class SettingsSeeder extends Seeder
             ['name' => 'sticking_seamstress'],
             ['value' => 'disabled']
         );
+
+        Setting::query()->firstOrCreate(
+            ['name' => 'max_fabric_rolls_per_shift'],
+            ['value' => '99']
+        );
     }
 }

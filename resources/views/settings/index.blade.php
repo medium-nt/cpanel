@@ -212,6 +212,19 @@
                                 </div>
 
                                 <div class="form-group col-md-2">
+                                    <label for="max_fabric_rolls_per_shift">Макс.
+                                        рулонов ткани на смену</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="max_fabric_rolls_per_shift"
+                                        name="max_fabric_rolls_per_shift"
+                                        min="1"
+                                        value="{{ $settings->max_fabric_rolls_per_shift ?? 99 }}"
+                                    >
+                                </div>
+
+                                <div class="form-group col-md-2">
                                     <label for="orders_priority">Порядок
                                         заказов</label>
                                     <select name="orders_priority" id="orders_priority" class="form-control">

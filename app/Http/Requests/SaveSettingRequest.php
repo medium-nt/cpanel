@@ -33,6 +33,7 @@ class SaveSettingRequest extends FormRequest
             'orders_priority' => 'sometimes|in:ozon,wb,by_date',
             'orders_filter' => 'sometimes|in:all,fbo,fbs',
             'orders_cluster_priority' => 'sometimes|nullable|string',
+            'max_fabric_rolls_per_shift' => 'sometimes|integer|min:1',
         ];
     }
 

@@ -7,7 +7,8 @@
 Материалы — основа производства. Система управляет поступлением материалов от
 поставщиков, их хранением на складе, распределением по цехам и отслеживанием
 остатков в виде рулонов. Каждый материал имеет индивидуальные параметры, включая
-минимальный остаток для закрытия рулона.
+минимальный остаток для закрытия рулона. Лимит рулонов ткани на смену теперь
+настраивается через систему settings (глобально + по цехам), а не захардкожен.
 
 ## Как это работает
 
@@ -118,8 +119,11 @@
 ## Ключевые файлы
 
 - `app/Models/Material.php` — модель материалов (fillable + casts decimal:2,
-  relations: suppliers, workshops)
+  relations: suppliers, workshops, константы
+  TYPE_FABRIC/TYPE_ACCESSORY/TYPE_PACKAGING)
 - `app/Models/Supplier.php` — модель поставщиков (relation: materials)
+- `app/Models/Setting.php` — модель настроек (getValue с fallback "цеховая →
+  глобальная")
 - `app/Http/Controllers/MaterialController.php` — валидация store/update:
   required|numeric|min:0
 - `app/Http/Controllers/MaterialSupplierController.php` — управление связями
@@ -128,15 +132,22 @@
   Мин. остаток для закрытия рулона" + карточка «Поставщики»
 - `app/Http/Controllers/StickerPrintingController.php` — использование порога
   при закрытии рулонов
-- `app/Http/Controllers/WorkshopController.php` — привязка материалов к цехам
+- `app/Http/Controllers/WorkshopController.php` — привязка материалов к цехам,
+  getSettingLabels для UI настроек (включая max_fabric_rolls_per_shift)
+- `app/Livewire/WorkshopRollScan.php` — сканирование рулонов с проверкой лимита
+  тканей (scanRoll)
+- `app/Http/Controllers/MovementMaterialToWorkshopController.php` — финальная
+  приёмка поставки с проверкой лимита тканей (save_receive)
+- `database/seeders/SettingsSeeder.php` — дефолтное значение
+  max_fabric_rolls_per_shift = 99
+- `app/Http/Requests/SaveSettingRequest.php` — валидация настройки
+  (sometimes|integer|min:1)
+- `resources/views/settings/index.blade.php` — поле в глобальном UI настроек
 -
 `database/migrations/2026_06_17_142908_add_minimum_roll_size_for_closure_to_materials_table.php` —
 миграция добавления поля
-
 - `database/migrations/2026_06_19_105327_create_material_supplier_table.php` —
   pivot-таблица материалы↔поставщики
-- `database/seeders/SettingsSeeder.php` — удалена настройка
-  `roll_close_min_remaining`
 - `routes/materials.php` — маршруты для управления связями с поставщиками
 
 ## Бизнес-правила
@@ -149,6 +160,16 @@
 - Админ и кладовщик имеют полный доступ ко всем рулонам (без фильтра)
 - Автоматическое пополнение при падении запасов ниже 100 единиц
 - Все перемещения логируются через модель `MovementMaterial`
+- **Лимит рулонов ткани на смену (`max_fabric_rolls_per_shift`):**
+    - Перенесён из константы `Material::MAX_FABRIC_ROLLS_PER_SHIFT` в настройки
+      системы (25.06.2026)
+    - Значение по умолчанию: 99 рулонов на смену (глобальная настройка)
+    - Поддерживает цеховое переопределение через карточку цеха
+    - Чтение: `Setting::getValue('max_fabric_rolls_per_shift', $workshop_id)`
+    - Применяется только к материалам типа `TYPE_FABRIC` (ткань)
+    - Проверка в двух точках: сканирование рулонов (WorkshopRollScan) и
+      финальная
+      приёмка поставки (MovementMaterialToWorkshopController)
 
 ## Связанные topics
 

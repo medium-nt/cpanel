@@ -8,7 +8,11 @@
 рулонов. Система отслеживает каждый рулон от поступления до использования.
 Автоматическое пополнение запускается каждые 30 минут при падении запасов ниже
 порога (100 единиц). Порог закрытия рулона теперь определяется индивидуально для
-каждого материала через поле `minimum_roll_size_for_closure`.
+каждого материала через поле `minimum_roll_size_for_closure`. Лимит рулонов
+ткани
+на смену перенесён из константы в настраиваемое поле
+`max_fabric_rolls_per_shift`
+(глобальное + цеховое override).
 
 ## Как это работает
 
@@ -175,11 +179,14 @@
 
 - `app/Models/Material.php` — модель материалов (название, тип, количество,
   `minimum_roll_size_for_closure` — мин. остаток для закрытия рулона, relation:
-  suppliers)
+  suppliers, константы TYPE_FABRIC/TYPE_ACCESSORY/TYPE_PACKAGING)
 - `app/Models/Supplier.php` — модель поставщиков (relation: materials)
 - `app/Models/MovementMaterial.php` — модель перемещений
 - `app/Models/Roll.php` — модель рулонов (статусы, коды, связь со сменами)
 - `app/Models/TypeMovement.php` — типы перемещений
+- `app/Models/Setting.php` — модель настроек (чтение через `getValue()` с
+  fallback
+  "цеховая → глобальная")
 - `app/Services/MovementMaterialFromSupplierService.php` — поступление
 - `app/Services/MovementMaterialToWorkshopService.php` — отгрузка в цех (
   проверка доступности материала цеху)
@@ -190,13 +197,17 @@
 - `app/Http/Controllers/MaterialSupplierController.php` — управление связями
   материалы↔поставщики (attach, updateShortages, detach)
 - `app/Http/Controllers/MovementMaterialToWorkshopController.php` — создание
-  запроса материалов (фильтрация по цеху)
+  запроса материалов (фильтрация по цеху), финальная приёмка поставки с
+  проверкой
+  лимита рулонов ткани (save_receive)
 - `app/Http/Controllers/WorkshopController.php` — управление цехами (привязка
-  материалов через чекбоксы)
-- `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами в
+  материалов через чекбоксы, getSettingLabels для UI настроек)
+- `app/Http/Controllers\StickerPrintingController.php` — работа с рулонами в
   киоске (scanning, completion, defects) с изоляцией по сменам, включая
   переупаковку (processRepack) и подмену товара (processReplace) с правильным
   списанием упаковки с рулона текущей смены
+- `app/Livewire/WorkshopRollScan.php` — сканирование рулонов при сборке поставки
+  с проверкой лимита рулонов ткани (scanRoll)
 
 ## Бизнес-правила
 
@@ -208,6 +219,19 @@
 - Порог автозаказа: 100 единиц при проверке каждые 30 минут
 - Все перемещения логируются через модель MovementMaterial
 - Telegram-уведомления при ключевых операциях
+- **Лимит рулонов ткани на смену (`max_fabric_rolls_per_shift`):**
+    - Настраиваемое ограничение на количество рулонов ткани одного вида на смену
+    - Читается через
+      `Setting::getValue('max_fabric_rolls_per_shift', $workshop_id)`
+      с fallback "цеховая → глобальная" (дефолт 99)
+    - Применяется в двух точках:
+        1. `WorkshopRollScan::scanRoll()` — при сканировании рулонов в поставку
+        2. `MovementMaterialToWorkshopController::save_receive()` — при
+           финальной
+           приёмке поставки
+    - Считаются рулоны в статусах `IN_WORKSHOP` + `SHIPPED_TO_WORKSHOP` с тем же
+      `material_id` и `shift_id`
+    - Для упаковки — строго 1 рулон на смену в цехе (отдельная проверка)
 
 ## Связанные topics
 

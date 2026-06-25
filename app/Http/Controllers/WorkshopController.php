@@ -140,6 +140,7 @@ class WorkshopController extends Controller
             'print_qr_cutting' => 'QR-код на листе закройщика',
             'sticking_otk' => 'Стикеровка упаковщиком',
             'sticking_seamstress' => 'Стикеровка швеей',
+            'max_fabric_rolls_per_shift' => 'Макс. рулонов ткани на смену',
         ];
     }
 

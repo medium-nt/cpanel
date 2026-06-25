@@ -26,9 +26,6 @@ class Material extends Model
     /** Тип материала: Аксессуары (тесьма и т.п.) */
     public const TYPE_ACCESSORY = 2;
 
-    /** Максимум рулонов ткани одного вида на смену в цехе */
-    public const MAX_FABRIC_ROLLS_PER_SHIFT = 99;
-
     /** Тип материала: Упаковка */
     public const TYPE_PACKAGING = 3;
 

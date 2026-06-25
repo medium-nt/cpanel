@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-22
+> Last reviewed: 2026-06-25
 
 ## Обзор
 
@@ -174,6 +174,15 @@
 - Если сотрудник не привязан к смене → ошибка "Вы не привязаны к смене"
 - Попытка работы с рулоном другой смены → ошибка "Этот рулон принадлежит другой
   смене"
+- **Лимит рулонов ткани (`max_fabric_rolls_per_shift`):**
+  - Настраиваемое ограничение на количество рулонов ткани одного вида на смену
+  - Читается через
+    `Setting::getValue('max_fabric_rolls_per_shift', $workshop_id)`
+    с fallback "цеховая → глобальная" (дефолт 99)
+  - Проверяется при сканировании рулонов (WorkshopRollScan) и финальной приёмке
+    поставки (MovementMaterialToWorkshopController)
+  - Считаются рулоны в статусах `IN_WORKSHOP` + `SHIPPED_TO_WORKSHOP` с тем же
+    `material_id` и `shift_id`
 
 ## Ключевые файлы
 
@@ -187,7 +196,8 @@
   canWorkToday, getMissingScheduleDates)
 - `app/Services/ScheduleService.php` — открытие/закрытие рабочих смен
 - `app/Http/Controllers/WorkshopController.php` — управление цехами (привязка
-  материалов через чекбоксы)
+  материалов через чекбоксы, getSettingLabels/getSettingOptions для настроек
+  включая max_fabric_rolls_per_shift)
 - `app/Services/MovementMaterialToWorkshopService.php` — проверка доступности
   материала цеху
 - `app/Models/Schedule.php` — индивидуальное расписание
@@ -195,21 +205,24 @@
 - `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами
   (изоляция по сменам: rolls(), completeRoll(), getRollByCode(), saveDefects())
 - `app/Models/Setting.php` — модель настроек с multi-workshop поддержкой
+  (getValue с fallback "цеховая → глобальная")
 - `app/Http/Controllers/SettingController.php` — управление глобальными
   настройками
   (строго workshop_id = NULL), валидация через `SaveSettingRequest` (
-  `orders_filter` => `sometimes|in:all,fbo,fbs`)
-- `app/Http/Controllers/WorkshopController.php` — управление цеховыми
-  настройками через `getSettingLabels()`/`getSettingOptions()` (ключи
-  `orders_filter`, `orders_priority`)
-- `database/seeders/SettingsSeeder.php` — дефолтное значение `orders_filter =
-  'all'`
+  `orders_filter` => `sometimes|in:all,fbo,fbs`,
+  `max_fabric_rolls_per_shift` => `sometimes|integer|min:1`)
+- `database/seeders/SettingsSeeder.php` — дефолтные значения настроек (
+  orders_filter = 'all', max_fabric_rolls_per_shift = 99)
 - `tests/Feature/MarketplaceOrderItemServiceTest.php` — тесты на
   `getFilteredItems()` (фильтрация + пересечение цеховой и персональной
   настройки)
 - `app/Http/Requests/StoreShiftScheduleRequest.php` — валидация данных календаря
   смен
 - `app/Rules/ShiftOrDayOff.php` — правило валидации: смена ИЛИ выходной
+- `app/Livewire/WorkshopRollScan.php` — сканирование рулонов с проверкой лимита
+  тканей на смену
+- `app/Http/Controllers/MovementMaterialToWorkshopController.php` — финальная
+  приёмка поставки с проверкой лимита тканей (save_receive)
 
 ## Бизнес-правила
 
@@ -252,18 +265,26 @@
   страницы глобальных настроек работают ТОЛЬКО с `workshop_id = NULL`
 - **Удалена настройка**: `roll_close_min_remaining` заменена на поле
   `material.minimum_roll_size_for_closure`
+- **Новая настройка** (25.06.2026): `max_fabric_rolls_per_shift` — лимит рулонов
+  ткани одного вида на смену (глобальная + цеховая). Заменила константу
+  `Material::MAX_FABRIC_ROLLS_PER_SHIFT`.
 
 **Список цеховых настроек (workshop_id ≠ NULL):**
 
-| Настройка                 | Значения              | Описание                                                                |
-|---------------------------|-----------------------|-------------------------------------------------------------------------|
-| `orders_filter`           | `all`/`fbo`/`fbs`     | Фильтр выдачи новых заказов швеям по типу исполнения (FBO/FBS).         |
-|                           |                       | Применяется ПЕРВОЙ в `MarketplaceOrderItemService::getFilteredItems()`. |
-|                           |                       | Дефолт: `all` (все заказы).                                             |
-| `orders_priority`         | `ozon`/`wb`/`by_date` | Сортировка заказов после фильтрации. ORтогональна `orders_filter`.      |
-| `orders_cluster_priority` | `<marketplace_id>     | <cluster>`                                                              | Приоритетный FBO-кластер (напр. `1|Казань`, `2|Коледино`).            |
-|                           |                       | Применяется ПЕРВЫМ в цепочке сортировки (CASE WHEN), главнее            |
-|                           |                       | `orders_priority`. Пусто = выключено.                                   |
+| Настройка                    | Значения              | Описание                                                                                               |
+|------------------------------|-----------------------|--------------------------------------------------------------------------------------------------------|
+| `orders_filter`              | `all`/`fbo`/`fbs`     | Фильтр выдачи новых заказов швеям по типу исполнения (FBO/FBS).                                        |
+|                              |                       | Применяется ПЕРВОЙ в `MarketplaceOrderItemService::getFilteredItems()`.                                |
+|                              |                       | Дефолт: `all` (все заказы).                                                                            |
+| `orders_priority`            | `ozon`/`wb`/`by_date` | Сортировка заказов после фильтрации. ORтогональна `orders_filter`.                                     |
+| `orders_cluster_priority`    | `<marketplace_id>     | <cluster>`                                                                                             | Приоритетный FBO-кластер (напр. `1|Казань`, `2|Коледино`).            |
+|                              |                       | Применяется ПЕРВЫМ в цепочке сортировки (CASE WHEN), главнее                                           |
+|                              |                       | `orders_priority`. Пусто = выключено.                                                                  |
+| `max_fabric_rolls_per_shift` | `1`-`∞` (integer)     | Лимит рулонов ткани одного вида на смену в цехе.                                                       |
+|                              |                       | Читается через `Setting::getValue()` с fallback "цеховая → глобальная".                                |
+|                              |                       | Дефолт: `99` (глобальная настройка).                                                                   |
+|                              |                       | Применяется только к ткани (Material::TYPE_FABRIC).                                                    |
+|                              |                       | Проверка в WorkshopRollScan (сканирование) и MovementMaterialToWorkshopController (финальная приёмка). |
 
 ## Связанные topics
 

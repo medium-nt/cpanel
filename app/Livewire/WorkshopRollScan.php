@@ -6,6 +6,7 @@ use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
+use App\Models\Setting;
 use App\Services\TgService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
@@ -91,8 +92,10 @@ class WorkshopRollScan extends Component
             }
         }
 
-        // Ограничение: для тканей — не более MAX_FABRIC_ROLLS_PER_SHIFT рулонов одного материала на смену
+        // Ограничение: для тканей — не более max_fabric_rolls_per_shift рулонов одного материала на смену
         if ($roll->material->type_id === Material::TYPE_FABRIC) {
+            $limit = (int) (Setting::getValue('max_fabric_rolls_per_shift', $this->order->shift?->workshop_id) ?? 99);
+
             $inWorkshopAndTransit = Roll::where('material_id', $this->requestedMaterialId)
                 ->whereIn('status', [Roll::STATUS_IN_WORKSHOP, Roll::STATUS_SHIPPED_TO_WORKSHOP])
                 ->where('shift_id', $this->order->shift_id)
@@ -102,8 +105,7 @@ class WorkshopRollScan extends Component
                 ->whereNotNull('roll_id')
                 ->count();
 
-            if ($inWorkshopAndTransit + $alreadyScannedInOrder >= Material::MAX_FABRIC_ROLLS_PER_SHIFT) {
-                $limit = Material::MAX_FABRIC_ROLLS_PER_SHIFT;
+            if ($inWorkshopAndTransit + $alreadyScannedInOrder >= $limit) {
                 $this->setMessage("В цехе уже {$limit} рулонов этой ткани. Лимит достигнут.", 'error');
                 $this->dispatch('scanError');
 
