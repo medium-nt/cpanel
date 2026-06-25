@@ -234,7 +234,7 @@
                             </a>
                         @endif
 
-                        @if($supply->status !== 3 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
+                        @if($supply->status == 4 && (auth()->user()->isAdmin() || auth()->user()->isStorekeeper()))
                             <a href="{{ route('marketplace_supplies.mark_shipped', $supply) }}"
                                class="btn btn-danger ml-2 mb-2"
                                onclick="return confirm('Подтвердите отгрузку поставки? После этого редактирование будет недоступно.')">

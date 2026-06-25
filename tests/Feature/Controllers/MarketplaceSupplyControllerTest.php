@@ -44,6 +44,23 @@ test('renders ozon fbo view without dropdown when supply has data', function () 
     $response->assertOk();
     $response->assertViewIs('marketplace_supply.show-ozon-fbo');
     $response->assertViewHas('ozonSupplyOrders', []);
+    $response->assertDontSee(route('marketplace_supplies.mark_shipped', $supply));
+});
+
+test('ozon fbo shows mark shipped button only when status=4', function () {
+    Http::fake(['*' => Http::response([])]);
+
+    $supply = MarketplaceSupply::factory()->create([
+        'type' => 'FBO',
+        'marketplace_id' => 1,
+        'status' => 4,
+        'supply_id' => '12345',
+    ]);
+
+    $response = $this->actingAs($this->admin)->get(route('marketplace_supplies.show', $supply));
+
+    $response->assertOk();
+    $response->assertSee(route('marketplace_supplies.mark_shipped', $supply));
 });
 
 test('renders wb fbo view with dropdown when status=0', function () {
