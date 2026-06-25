@@ -953,6 +953,26 @@ class MarketplaceSupplyController extends Controller
             ->with('success', 'Поставка отгружена.');
     }
 
+    /**
+     * Отменить отгрузку FBO-поставки: вернуть статус из 3 (Закрытая) в 4 (Отгрузка).
+     * Доступно только админу. completed_at не затрагивается.
+     */
+    public function unmarkShipped(MarketplaceSupply $marketplaceSupply)
+    {
+        if ($marketplaceSupply->status !== 3) {
+            return back()->with('error', 'Поставка не отгружена.');
+        }
+
+        $marketplaceSupply->update(['status' => 4]);
+
+        Log::channel('marketplace_supplies')
+            ->notice(auth()->user()->name.' отменил отгрузку поставки #'.$marketplaceSupply->id.'.');
+
+        return redirect()
+            ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplaceSupply])
+            ->with('success', 'Отгрузка поставки отменена.');
+    }
+
     public function close(MarketplaceSupply $marketplace_supply)
     {
         $marketplace_supply->update([

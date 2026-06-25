@@ -302,3 +302,40 @@
   `tests/Feature/Controllers/ProcessRepackTest.php` (новый).
 - Обновлены topics: material-flow.md, materials.md, warehouse-operations.md,
   order-lifecycle.md
+
+## [2026-06-25] update | fbo-supply-date-editable
+
+- В форме редактирования FBO-поставки (
+  `/megatulle/marketplace_supplies/{id}/edit-fbo`)
+  поле `supply_date` («Дата поставки в МП») теперь редактируется вручную
+  пользователем (раньше редактировались только gazelka-поля).
+- Проверка валидации дат в `MarketplaceSupplyController::updateFbo()`
+  перестроена:
+  теперь она опирается на НОВЫЕ значения обоих полей (gazelka_shipment_date и
+  supply_date), а не на старое supply_date из БД.
+- Фронтенд-валидация: input `supply_date` имеет атрибут `min = gazelka_shipment_date + 1
+  день`.
+- Обновлён topic: marketplace-integration.md
+
+## [2026-06-25] feature | fbo-supply-unmark-shipped
+
+- Добавлен механизм отката отгрузки FBO-поставки: метод
+  `MarketplaceSupplyController::unmarkShipped()`
+  позволяет администратору вернуть поставку из статуса 3 (Закрытая/Отгружена)
+  обратно в статус 4 (Отгрузка),
+  чтобы снова стало доступно редактирование (стикер, накладная, состав).
+- Меняет ТОЛЬКО `marketplace_supplies.status`: 3 → 4. `completed_at` НЕ
+  трогается (сохраняется значение из markShipped).
+- НЕ затрагивает заказы (marketplace_orders уже в status=3), короба, остатки,
+  историю.
+- Доступ: только админ (policy `unmarkShipped` → isAdmin()). Guard: если
+  `status !== 3` → redirect back с error «Поставка не отгружена.»
+- UI: кнопка «Отменить отгрузку» на страницах show-wb-fbo.blade.php и
+  show-ozon-fbo.blade.php при `status===3 && admin`.
+- Лог: `Log::channel('marketplace_supplies')->notice(...)` — «отменил отгрузку
+  поставки #ID».
+- Поток статусов FBO:
+  `0 (Открытая) → 13 (Сформирована) → 4 (Отгрузка) → 3 (Закрытая)` добавлена
+  обратная стрелка `3 → 4` через `unmarkShipped` (admin only).
+- Тесты: `tests/Feature/MarketplaceSupplyUnmarkShippedTest.php` — 3 pest-теста.
+- Обновлены topics: marketplace-integration.md

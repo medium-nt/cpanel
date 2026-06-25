@@ -41,6 +41,14 @@ class MarketplaceSupplyPolicy
         return $user->isAdmin();
     }
 
+    /**
+     * Откат отгрузки поставки — только админ.
+     */
+    public function unmarkShipped(User $user, MarketplaceSupply $marketplaceSupply): bool
+    {
+        return $user->isAdmin();
+    }
+
     public function download_video(User $user, MarketplaceSupply $marketplaceSupply): bool
     {
         return $user->isAdmin() || $user->isStorekeeper();

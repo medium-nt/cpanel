@@ -145,6 +145,10 @@ Route::prefix('/marketplace_supplies')->group(function () {
         ->can('complete', 'marketplace_supply')
         ->name('marketplace_supplies.mark_shipped');
 
+    Route::get('/{marketplace_supply}/unmark-shipped', [MarketplaceSupplyController::class, 'unmarkShipped'])
+        ->can('unmarkShipped', 'marketplace_supply')
+        ->name('marketplace_supplies.unmark_shipped');
+
     Route::post('/upload-chunk', [MarketplaceSupplyController::class, 'chunkedUpload'])
         ->name('marketplace_supplies.upload-chunk');
 

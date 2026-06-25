@@ -121,6 +121,14 @@
                             Поставка отгружена
                         </a>
                     @endif
+
+                    @if($supply->status === 3 && auth()->user()->isAdmin())
+                        <a href="{{ route('marketplace_supplies.unmark_shipped', $supply) }}"
+                           class="btn btn-warning ml-2 mb-2"
+                           onclick="return confirm('Отменить отгрузку поставки? Статус вернётся в «Отгрузка», редактирование снова станет доступно.')">
+                            Отменить отгрузку
+                        </a>
+                    @endif
                 </div>
             </div>
 
