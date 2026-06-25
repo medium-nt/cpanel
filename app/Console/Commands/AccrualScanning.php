@@ -12,6 +12,7 @@ class AccrualScanning extends Command
 
     protected $description = 'Начисление за сканирование (scanning)';
 
+    /** Заглушка: логика начисления за сканирование пока не реализована (требует уточнения). */
     public function handle(ActionAccrualService $service): int
     {
         $date = Carbon::yesterday();

@@ -27,6 +27,7 @@ class SupplyOrderSearch extends Component
         'orderId' => 'required',
     ];
 
+    /** Инициализирует компонент переданной поставкой для добавления заказов. */
     public function mount($supply): void
     {
         $this->supply = $supply;
@@ -85,6 +86,7 @@ class SupplyOrderSearch extends Component
         $this->dispatch('focusOrderInput');
     }
 
+    /** Очищает сообщение через диспетчеризацию события при наличии текста. */
     public function updatedMessage(): void
     {
         if ($this->message) {
@@ -92,17 +94,20 @@ class SupplyOrderSearch extends Component
         }
     }
 
+    /** Сбрасывает сообщение по событию resetMessage из других компонентов. */
     #[On('resetMessage')]
     public function resetMessage(): void
     {
         $this->message = null;
     }
 
+    /** Отображает форму поиска заказов для добавления в поставку. */
     public function render(): View
     {
         return view('livewire.supply-order-search');
     }
 
+    /** Подтверждает выбор заказа из списка нескольких найденных и прикрепляет к поставке. */
     public function confirmSelectedOrder(): void
     {
         $order = MarketplaceOrder::find($this->selectedOrderId);
@@ -120,6 +125,7 @@ class SupplyOrderSearch extends Component
         $this->attachOrder($order);
     }
 
+    /** Прикрепляет заказ к поставке: проверяет дубликаты, обновляет supply_id и статусы маркетплейса. */
     protected function attachOrder(MarketplaceOrder $order): void
     {
         if ($order->supply_id === $this->supply->id) {

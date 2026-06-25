@@ -32,11 +32,13 @@ class DefectMaterialScan extends Component
     /** общее количество доступных для сканирования заявок */
     public int $totalAvailableOrders = 0;
 
+    /** Инициализирует компонент: пустой список отсканированных заявок на брак. */
     public function mount(): void
     {
         $this->scannedOrders = new Collection;
     }
 
+    /** Обновляет список отсканированных заявок и отображает форму сканирования брака. */
     public function render(): View
     {
         $this->totalAvailableOrders = Order::query()
@@ -54,6 +56,7 @@ class DefectMaterialScan extends Component
         return view('livewire.defect-material-scan');
     }
 
+    /** Обрабатывает сканирование кода заявки на брак (формат DEF-123) и добавляет в список. */
     public function handleScan(): void
     {
         $code = trim($this->scanCode);
@@ -111,6 +114,7 @@ class DefectMaterialScan extends Component
         $this->dispatch('scanSuccess');
     }
 
+    /** Удаляет заявку из списка отсканированных по ID. */
     public function removeFromList(int $orderId): void
     {
         $this->scannedOrderIds = array_values(array_filter(
@@ -121,6 +125,7 @@ class DefectMaterialScan extends Component
         $this->setStatus("Заявка #$orderId удалена из списка", 'ok');
     }
 
+    /** Принимает все отсканированные заявки на брак: переводит в статус "забран кладовщиком" и уведомляет в Telegram. */
     public function acceptAll(): void
     {
         if ($this->scannedOrders->isEmpty()) {

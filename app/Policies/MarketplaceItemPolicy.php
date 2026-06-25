@@ -7,57 +7,43 @@ use App\Models\User;
 
 class MarketplaceItemPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Доступ к списку товаров маркетплейса — только админ. */
     public function viewAny(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр отдельного товара не используется. */
     public function view(User $user, MarketplaceItem $marketplaceItem): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создавать товар может только админ. */
     public function create(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактировать товар может только админ. */
     public function update(User $user, MarketplaceItem $marketplaceItem): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удалять товар может только админ. */
     public function delete(User $user, MarketplaceItem $marketplaceItem): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    /** Восстановление товара не поддерживается. */
     public function restore(User $user, MarketplaceItem $marketplaceItem): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
+    /** Окончательное удаление товара не поддерживается. */
     public function forceDelete(User $user, MarketplaceItem $marketplaceItem): bool
     {
         return false;

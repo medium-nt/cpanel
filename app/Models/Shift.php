@@ -45,6 +45,7 @@ class Shift extends Model
         return $this->hasMany(Roll::class);
     }
 
+    /** Фильтрует запрос по активным сменам. */
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
@@ -54,6 +55,7 @@ class Shift extends Model
      * Получить сотрудников, привязанных к смене на сегодня.
      * Исключает пользователей, переведённых в другую смену с более свежей датой.
      */
+    /** Возвращает сотрудников, привязанных к смене на сегодня без будущих переводов. */
     public function getCurrentUsers()
     {
         $today = now()->toDateString();

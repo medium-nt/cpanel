@@ -23,6 +23,7 @@ class TypeMovement extends Model
         9 => 'Возврат на склад',
     ];
 
+    /** Название типа движения по status_id из справочника TYPES. */
     public function getTypeNameAttribute(): string
     {
         return self::TYPES[$this->status_id] ?? '';

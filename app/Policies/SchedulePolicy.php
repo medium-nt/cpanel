@@ -7,62 +7,49 @@ use App\Models\User;
 
 class SchedulePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Доступ к графику (schedule) через политику закрыт — регулируется маршрутом. */
     public function viewAny(User $user): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр отдельной записи графика не используется. */
     public function view(User $user, Schedule $schedule): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создание записи графика через политику закрыто. */
     public function create(User $user): bool
     {
         return false;
     }
 
+    /** Перенести дату смены может только админ. */
     public function changeDate(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактирование записи графика через политику закрыто. */
     public function update(User $user, Schedule $schedule): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удаление записи графика через политику закрыто. */
     public function delete(User $user, Schedule $schedule): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    /** Восстановление записи графика не поддерживается. */
     public function restore(User $user, Schedule $schedule): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
+    /** Окончательное удаление записи графика не поддерживается. */
     public function forceDelete(User $user, Schedule $schedule): bool
     {
         return false;

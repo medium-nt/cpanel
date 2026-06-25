@@ -6,46 +6,37 @@ use App\Models\User;
 
 class ShelfPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Доступ к списку полок: админ, кладовщик, менеджер. */
     public function viewAny(User $user): bool
     {
         return $user->isAdmin() || $user->isStorekeeper() || $user->isManager();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр полки: админ и кладовщик. */
     public function view(User $user): bool
     {
         return $user->isAdmin() || $user->isStorekeeper();
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создавать полку может админ или кладовщик. */
     public function create(User $user): bool
     {
         return $user->isAdmin() || $user->isStorekeeper();
     }
 
+    /** Создавать полку через админ-панель может только админ. */
     public function createAdmin(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактировать полку может админ или кладовщик. */
     public function update(User $user): bool
     {
         return $user->isAdmin() || $user->isStorekeeper();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удалять полку может админ или кладовщик. */
     public function delete(User $user): bool
     {
         return $user->isAdmin() || $user->isStorekeeper();

@@ -48,6 +48,7 @@ class MarketplaceOrderItem extends Model
         return $this->belongsTo(Workshop::class);
     }
 
+    /** Возвращает цвет бейджа для статуса позиции заказа. */
     public function getStatusColorAttribute(): string
     {
         return StatusMovement::BADGE_COLORS[$this->status];
@@ -78,6 +79,7 @@ class MarketplaceOrderItem extends Model
         return $this->hasOne(User::class, 'id', 'repacker_id')->withTrashed();
     }
 
+    /** Возвращает текстовое название статуса позиции заказа. */
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status];

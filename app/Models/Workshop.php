@@ -57,6 +57,7 @@ class Workshop extends Model
             ->withTimestamps();
     }
 
+    /** Фильтрует запрос по активным цехам. */
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);

@@ -21,6 +21,7 @@ class GenerateMarketplaceItemArticles extends Command
         'Шифон' => 'krep',
     ];
 
+    /** Генерирует артикулы товаров по маппингу названий (префикс + ширина/высота). */
     public function handle(): int
     {
         $items = MarketplaceItem::query()->get();

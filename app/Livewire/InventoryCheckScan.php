@@ -34,6 +34,7 @@ class InventoryCheckScan extends Component
     /** справочники */
     public $shelves;
 
+    /** Инициализирует компонент инвентаризации, загружает список полок и счётчики. */
     public function mount(InventoryCheck $inventoryCheck): void
     {
         $this->inventory = $inventoryCheck->fresh();
@@ -43,6 +44,7 @@ class InventoryCheckScan extends Component
         $this->refreshCounters();
     }
 
+    /** Отображает view с таблицей найденных и не найденных товаров инвентаризации. */
     public function render(): View
     {
         $foundRows = InventoryCheckItem::with([
@@ -74,6 +76,7 @@ class InventoryCheckScan extends Component
         ]);
     }
 
+    /** Обновляет статусное сообщение при выборе полки в выпадающем списке. */
     public function updatedSelectedShelfId(): void
     {
         $this->setStatus(
@@ -84,6 +87,7 @@ class InventoryCheckScan extends Component
         );
     }
 
+    /** Обрабатывает сканирование штрихкода, отмечает товар как найденный на выбранной полке и фиксирует расхождение с ожидаемой полкой. */
     public function handleScan(): void
     {
         $code = trim($this->scanCode);
@@ -158,6 +162,7 @@ class InventoryCheckScan extends Component
         );
     }
 
+    /** Закрывает инвентаризацию, обновляет полки товаров и меняет статусы найденных и потерянных товаров. */
     public function closeCheck(): void
     {
         if ($this->inventory->status === 'closed') {
@@ -175,6 +180,7 @@ class InventoryCheckScan extends Component
         $this->setStatus('Инвентаризация закрыта', 'ok');
     }
 
+    /** Меняет полку хранения на найденную для всех товаров, которые обнаружены не на своих местах. */
     protected function changeShelf(): void
     {
         //  Все товары не на своих полках меняем на новую полку, где нашли товар
@@ -194,6 +200,7 @@ class InventoryCheckScan extends Component
         }
     }
 
+    /** Меняет статус товаров, не найденных в инвентаризации, на "утерян". */
     protected function setStatusLost(): void
     {
         /** @var Collection<int, InventoryCheckItem> $notFoundItems */
@@ -213,6 +220,7 @@ class InventoryCheckScan extends Component
         }
     }
 
+    /** Возвращает статус "найден" товарам, которые ранее были отмечены как потерянные. */
     private function setStatusFound(): void
     {
         /** @var Collection<int, InventoryCheckItem> $foundItems */
@@ -232,6 +240,7 @@ class InventoryCheckScan extends Component
         }
     }
 
+    /** Обновляет счётчики общего количества товаров и количества найденных товаров. */
     protected function refreshCounters(): void
     {
         $this->totalItems = InventoryCheckItem::query()
@@ -243,6 +252,7 @@ class InventoryCheckScan extends Component
             ->where('is_found', true)->count();
     }
 
+    /** Снимает отметку "найден" с товара и удаляет его из инвентаризации, если был добавлен вручную. */
     public function unmarkFound(int $rowId): void
     {
         if ($this->inventory->status === 'closed') {
@@ -280,6 +290,7 @@ class InventoryCheckScan extends Component
         $this->setStatus('Товар удален из найденных.', 'ok');
     }
 
+    /** Устанавливает статусное сообщение и его тип для отображения пользователю. */
     protected function setStatus(string $message, string $type = 'info'): void
     {
         $this->statusMessage = $message;

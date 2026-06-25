@@ -38,7 +38,7 @@ class Roll extends Model
 
     public const STATUS_COMPLETED = 'completed';
 
-    // Список всех статусов
+    /** Возвращает список всех возможных статусов рулона. */
     public static function statuses(): array
     {
         return [
@@ -93,6 +93,7 @@ class Roll extends Model
         return $this->hasOne(MovementMaterial::class);
     }
 
+    /** Возвращает текстовое название статуса рулона. */
     public function getStatusNameAttribute(): string
     {
         $map = [
@@ -105,6 +106,7 @@ class Roll extends Model
         return $map[$this->status] ?? $this->status;
     }
 
+    /** Возвращает цвет бейджа для статуса рулона. */
     public function getStatusColorAttribute(): string
     {
         $map = [
@@ -117,6 +119,7 @@ class Roll extends Model
         return $map[$this->status] ?? 'badge-danger';
     }
 
+    /** Возвращает текущее количество материала в рулоне с учётом списаний. */
     public function getCurrentQuantityAttribute(): float
     {
         $used = MovementMaterial::query()

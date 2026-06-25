@@ -32,6 +32,7 @@ class StatusChangeScan extends Component
 
     public Collection $shelves;
 
+    /** Инициализирует компонент: загружает параметры из URL и подготавливает списки товаров и полок. */
     public function mount(): void
     {
         $this->fromStatus = (int) request('from', 0);
@@ -45,11 +46,13 @@ class StatusChangeScan extends Component
         }
     }
 
+    /** Отображает страницу сканирования товаров для смены статуса. */
     public function render(): View
     {
         return view('livewire.status-change-scan');
     }
 
+    /** Загружает список товаров с исходящим статусом для отображения на странице. */
     protected function loadItems(): void
     {
         $this->items = MarketplaceOrderItem::with(['item'])
@@ -57,16 +60,19 @@ class StatusChangeScan extends Component
             ->get();
     }
 
+    /** Проверяет, является ли сценарий размещением товаров на складе (18→11). */
     protected function isStorageScenario(): bool
     {
         return $this->fromStatus === 18 && $this->toStatus === 11;
     }
 
+    /** Загружает список полок склада для выбора при размещении товаров. */
     protected function loadShelves(): void
     {
         $this->shelves = Shelf::orderBy('title')->get();
     }
 
+    /** Обрабатывает сканирование штрихкода товара и добавляет его в список для смены статуса. */
     public function handleScan(): void
     {
         $code = trim($this->scanCode);
@@ -107,6 +113,7 @@ class StatusChangeScan extends Component
         $this->dispatch('scanSuccess');
     }
 
+    /** Удаляет товар из списка отсканированных по ID. */
     public function removeFromList(int $itemId): void
     {
         if (! isset($this->scannedItems[$itemId])) {
@@ -121,6 +128,7 @@ class StatusChangeScan extends Component
         $this->setStatus("Удален из списка: $title", 'ok');
     }
 
+    /** Завершает процесс: меняет статус всем отсканированным товарам и сохраняет полку (для размещения на склад). */
     public function complete(): void
     {
         if (empty($this->scannedItems)) {
@@ -183,6 +191,7 @@ class StatusChangeScan extends Component
         return $this->items->count() - $this->getScannedCountProperty();
     }
 
+    /** Устанавливает статусное сообщение и определяет CSS-класс для отображения. */
     protected function setStatus(string $message, string $type = 'info'): void
     {
         $this->statusMessage = $message;

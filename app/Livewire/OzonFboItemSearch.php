@@ -49,6 +49,7 @@ class OzonFboItemSearch extends Component
 
     public $selectedTimeslot = '';
 
+    /** Инициализирует компонент, загружает поставку, список складов продавца и параметры черновика. */
     public function mount($supply): void
     {
         $this->supply = $supply;
@@ -62,30 +63,25 @@ class OzonFboItemSearch extends Component
         }
     }
 
-    /**
-     * Сохраняет параметры черновика при изменении типа поставки.
-     */
+    /** Сохраняет параметры черновика в базу при изменении типа поставки. */
     public function updatedSupplyType(): void
     {
         $this->saveDraftParams();
     }
 
-    /**
-     * Сохраняет параметры черновика при изменении кластера.
-     */
+    /** Сохраняет параметры черновика в базу при изменении кластера. */
     public function updatedClusterId(): void
     {
         $this->saveDraftParams();
     }
 
-    /**
-     * Сохраняет параметры черновика при изменении склада продавца.
-     */
+    /** Сохраняет параметры черновика в базу при изменении склада продавца. */
     public function updatedSellerWarehouseId(): void
     {
         $this->saveDraftParams();
     }
 
+    /** Выполняет поиск товаров по артикулу, названию и размерам с поддержкой фильтров 50x50. */
     public function updatedSearch(): void
     {
         if (mb_strlen(trim($this->search)) < 2) {
@@ -130,9 +126,7 @@ class OzonFboItemSearch extends Component
             ->get();
     }
 
-    /**
-     * Добавляет товар в черновик поставки.
-     */
+    /** Добавляет товар с указанным SKU в черновик поставки с заданным количеством. */
     public function addItem(int $skuId): void
     {
         $sku = Sku::query()->with('item')->find($skuId);
@@ -161,17 +155,13 @@ class OzonFboItemSearch extends Component
         $this->quantity = 1;
     }
 
-    /**
-     * Удаляет товар из черновика.
-     */
+    /** Удаляет товар из черновика поставки по идентификатору записи. */
     public function removeItem(int $itemId): void
     {
         OzonFboDraftSupplyItem::query()->where('id', $itemId)->delete();
     }
 
-    /**
-     * Обновляет количество товара в черновике.
-     */
+    /** Обновляет количество товара в черновике поставки. */
     public function updateQuantity(int $itemId, int $quantity): void
     {
         if ($quantity < 1) {
@@ -181,9 +171,7 @@ class OzonFboItemSearch extends Component
         OzonFboDraftSupplyItem::query()->where('id', $itemId)->update(['quantity' => $quantity]);
     }
 
-    /**
-     * Создаёт черновик поставки через OZON API.
-     */
+    /** Создаёт черновик поставки через OZON API и сохраняет его идентификатор в базе. */
     public function createDraft(): void
     {
         $this->validate([
@@ -270,9 +258,7 @@ class OzonFboItemSearch extends Component
         $this->redirect(route('marketplace_supplies.show', ['marketplace_supply' => $this->supply->id]));
     }
 
-    /**
-     * Загружает список доступных складов для черновика.
-     */
+    /** Загружает список доступных складов для выбранного черновика через OZON API. */
     public function loadDraftWarehouses(): void
     {
         if (! $this->supply->draft_id) {
@@ -290,9 +276,7 @@ class OzonFboItemSearch extends Component
         $this->draftWarehouses = $result['warehouses'];
     }
 
-    /**
-     * При выборе склада — сохраняет данные.
-     */
+    /** Сохраняет параметры выбранного склада и сбрасывает выбранную дату и таймслот. */
     public function updatedSelectedWarehouseId(): void
     {
         $warehouse = collect($this->draftWarehouses)
@@ -312,9 +296,7 @@ class OzonFboItemSearch extends Component
         $this->timeslotDays = [];
     }
 
-    /**
-     * Загружает таймслоты для выбранного склада и диапазона дат.
-     */
+    /** Загружает доступные таймслоты для выбранного склада и диапазона дат через OZON API. */
     public function loadTimeslots(): void
     {
         if (! $this->selectedWarehouseId || ! $this->macrolocalClusterId || ! $this->dateFrom || ! $this->dateTo) {
@@ -341,9 +323,7 @@ class OzonFboItemSearch extends Component
         $this->selectedTimeslot = '';
     }
 
-    /**
-     * Отправляет заявку на создание поставки из черновика через OZON API.
-     */
+    /** Отправляет заявку на создание поставки из черновика через OZON API и ждёт подтверждения. */
     public function submitDraft(): void
     {
         if (! $this->selectedWarehouseId || ! $this->selectedDate || ! $this->selectedTimeslot) {
@@ -393,7 +373,7 @@ class OzonFboItemSearch extends Component
             $draftId = $this->supply->draft_id;
 
             if ($status['status'] === 'SUCCESS') {
-                $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int)$status['order_id']);
+                $details = MarketplaceApiService::getSupplyOrderDetailsOzon((int) $status['order_id']);
                 $supply = $details['supplies'][0] ?? null;
                 $timeslot = $details['timeslot']['value']['timeslot'] ?? null;
                 $macrolocalClusterId = $supply['macrolocal_cluster_id'] ?? null;
@@ -451,6 +431,7 @@ class OzonFboItemSearch extends Component
         $this->redirect(route('marketplace_supplies.show', ['marketplace_supply' => $this->supply->id]));
     }
 
+    /** Сохраняет параметры черновика в базу данных для последующего восстановления. */
     private function saveDraftParams(): void
     {
         $this->supply->update([
@@ -462,6 +443,7 @@ class OzonFboItemSearch extends Component
         ]);
     }
 
+    /** Отображает view поиска товаров, черновика поставки и формы создания заявки OZON FBO. */
     public function render(): View
     {
         $draftItems = OzonFboDraftSupplyItem::query()

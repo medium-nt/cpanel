@@ -32,11 +32,13 @@ class InventoryCheck extends Model
         return $this->hasMany(InventoryCheckItem::class);
     }
 
+    /** Дата создания инвентаризации в формате d/m/Y H:i:s. */
     public function getCreatedDateAttribute(): ?string
     {
         return $this->created_at?->format('d/m/Y H:i:s');
     }
 
+    /** Дата завершения инвентаризации в формате d/m/Y H:i:s. */
     public function getFinishedDateAttribute(): ?string
     {
         return $this->finished_at?->format('d/m/Y H:i:s');

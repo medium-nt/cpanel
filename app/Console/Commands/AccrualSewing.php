@@ -12,6 +12,7 @@ class AccrualSewing extends Command
 
     protected $description = 'Начисление за пошив (sewing)';
 
+    /** Начисляет оплату за пошив за вчерашний день (через ActionAccrualService). */
     public function handle(ActionAccrualService $service): int
     {
         $date = Carbon::yesterday();

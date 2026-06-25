@@ -12,6 +12,7 @@ class AccrualRepacking extends Command
 
     protected $description = 'Начисление за перепаковку (repacking)';
 
+    /** Начисляет оплату за перепаковку за вчерашний день (через ActionAccrualService). */
     public function handle(ActionAccrualService $service): int
     {
         $date = Carbon::yesterday();

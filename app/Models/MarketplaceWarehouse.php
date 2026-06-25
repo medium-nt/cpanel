@@ -16,13 +16,7 @@ class MarketplaceWarehouse extends Model
         'macrolocal_cluster_id',
     ];
 
-    /**
-     * Уникальные "кластерные" значения для маркетплейса.
-     * OZON (id=1): кластер — поле `cluster` (город-группировка складов).
-     * WB (id=2): отдельного cluster нет — кластером служит `name` (склад).
-     *
-     * @return array<string, string> [значение => значение]
-     */
+    /** Возвращает уникальные кластеры складов для маркетплейса (OZON — по cluster, WB — по name). */
     public static function clustersByMarketplace(int $marketplaceId): array
     {
         $column = $marketplaceId === 1 ? 'cluster' : 'name';
@@ -38,13 +32,7 @@ class MarketplaceWarehouse extends Model
             ->toArray();
     }
 
-    /**
-     * Список FBO-кластеров для select-настройки приоритета заказов (оба маркетплейса).
-     * Возвращает [value => label], где value = "<marketplace_id>|<кластер>",
-     * label = "<ИМЯ МП> — <кластер>". OZON — по полю cluster, WB — по полю name.
-     *
-     * @return array<string, string>
-     */
+    /** Возвращает опции кластеров всех маркетплейсов в формате «marketplaceId|cluster» → подпись. */
     public static function clusterOptions(): array
     {
         $names = [1 => 'OZON', 2 => 'WB'];

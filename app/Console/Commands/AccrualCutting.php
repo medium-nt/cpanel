@@ -12,6 +12,7 @@ class AccrualCutting extends Command
 
     protected $description = 'Начисление за раскрой (cutting)';
 
+    /** Начисляет оплату за раскрой за вчерашний день (через ActionAccrualService). */
     public function handle(ActionAccrualService $service): int
     {
         $date = Carbon::yesterday();

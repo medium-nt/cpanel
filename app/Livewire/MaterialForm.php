@@ -30,6 +30,7 @@ class MaterialForm extends Component
         'orderedQuantity' => 'nullable|numeric|min:0|max:maxQuantity',
     ];
 
+    /** Инициализирует компонент формой material: загружает материалы, устанавливает параметры движения и источника. */
     public function mount(string $typeMovement = '', string $sourceType = 'warehouse', $isFirst = false, $isMovementToWorkshop = false): void
     {
         $this->materials = Material::all();
@@ -40,6 +41,7 @@ class MaterialForm extends Component
         $this->isMovementToWorkshop = $isMovementToWorkshop;
     }
 
+    /** Обновляет максимальное доступное количество материала при выборе материала из выпадающего списка. */
     public function updatedSelectedMaterialId(): void
     {
         if ($this->selectedMaterialId) {
@@ -59,6 +61,7 @@ class MaterialForm extends Component
         }
     }
 
+    /** Отображает форму выбора материала и ввода количества. */
     public function render(): View
     {
         return view('livewire.material-form');

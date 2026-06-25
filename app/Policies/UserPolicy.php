@@ -6,57 +6,43 @@ use App\Models\User;
 
 class UserPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Доступ к списку пользователей — только админ. */
     public function viewAny(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр профиля пользователя не используется (есть profile-страница). */
     public function view(User $user): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создавать пользователя может только админ. */
     public function create(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактировать пользователя может только админ. */
     public function update(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удалять пользователя может только админ. */
     public function delete(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    /** Восстановление пользователя не поддерживается. */
     public function restore(User $user): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
+    /** Окончательное удаление пользователя не поддерживается. */
     public function forceDelete(User $user): bool
     {
         return false;

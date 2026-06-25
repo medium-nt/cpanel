@@ -12,6 +12,7 @@ class AccrualSalaryDaily extends Command
 
     protected $description = 'Начисление дневного оклада (salary_daily)';
 
+    /** Начисляет дневной оклад сотрудникам за вчерашний день (через ActionAccrualService). */
     public function handle(ActionAccrualService $service): int
     {
         $date = Carbon::yesterday();

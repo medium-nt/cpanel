@@ -41,6 +41,7 @@ class StickerTapeImport extends Component
     /** @var array<int, array<int, string>> Склады, сгруппированные по marketplace_id */
     public array $warehouses = [];
 
+    /** Инициализирует компонент и загружает список складов, сгруппированных по маркетплейсам. */
     public function mount(): void
     {
         $this->warehouses = MarketplaceWarehouse::query()
@@ -51,9 +52,7 @@ class StickerTapeImport extends Component
             ->toArray();
     }
 
-    /**
-     * Загружает и парсит Excel-файл.
-     */
+    /** Загружает и парсит Excel-файл, определяет заголовки и строки данных. */
     public function uploadAndParse(): void
     {
         $this->validate([
@@ -83,9 +82,7 @@ class StickerTapeImport extends Component
         $this->step = 2;
     }
 
-    /**
-     * Подтверждает маппинг колонок и переходит к предпросмотру.
-     */
+    /** Подтверждает маппинг колонок и переходит к предпросмотру обработанных строк. */
     public function confirmMapping(): void
     {
         $this->validate([
@@ -100,17 +97,13 @@ class StickerTapeImport extends Component
         $this->step = 3;
     }
 
-    /**
-     * Сбрасывает кластер при смене маркетплейса.
-     */
+    /** Сбрасывает выбранное значение кластера при смене маркетплейса. */
     public function updatedGlobalMarketplace(): void
     {
         $this->globalCluster = '';
     }
 
-    /**
-     * Генерирует PDF-ленту стикеров.
-     */
+    /** Генерирует и скачивает PDF-ленту стикеров для обработанных товаров. */
     public function generatePdf()
     {
         if (! $this->globalMarketplace) {
@@ -193,18 +186,14 @@ class StickerTapeImport extends Component
         );
     }
 
-    /**
-     * Возвращает к указанному шагу.
-     */
+    /** Возвращает пользователя к указанному шагу мастера импорта. */
     public function goToStep(int $step): void
     {
         $this->errorMessage = '';
         $this->step = $step;
     }
 
-    /**
-     * Автоопределяет маппинг колонок по заголовкам.
-     */
+    /** Автоматически определяет маппинг колонок по названиям заголовков файла. */
     private function autoDetectColumnMapping(): void
     {
         $exactPatterns = [
@@ -235,9 +224,7 @@ class StickerTapeImport extends Component
         }
     }
 
-    /**
-     * Обрабатывает строки: мэтчит артикулы с товарами в БД.
-     */
+    /** Обрабатывает строки из файла, сопоставляя артикулы с товарами в базе данных. */
     private function processRows(): void
     {
         $this->processedRows = [];
@@ -266,6 +253,7 @@ class StickerTapeImport extends Component
         }
     }
 
+    /** Отображает view мастера импорта Excel-файла для генерации стикеров. */
     public function render(): \Illuminate\View\View
     {
         return view('livewire.sticker-tape-import');

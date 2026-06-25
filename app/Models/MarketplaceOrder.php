@@ -44,11 +44,13 @@ class MarketplaceOrder extends Model
         return $this->hasMany(MarketplaceOrderItem::class);
     }
 
+    /** Возвращает иконку маркетплейса по ID (OZON/WB). */
     public function getMarketplaceNameAttribute(): string
     {
         return Marketplace::NAME[$this->marketplace_id];
     }
 
+    /** Возвращает заголовок маркетплейса (OZON/WB/---). */
     public function getMarketplaceTitleAttribute(): string
     {
         return match ($this->marketplace_id) {
@@ -58,11 +60,13 @@ class MarketplaceOrder extends Model
         };
     }
 
+    /** Возвращает текстовое описание статуса заказа. */
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status];
     }
 
+    /** Возвращает HTML-бейдж со статусом на стороне маркетплейса. */
     public function getMarketplaceStatusLabelAttribute(): string
     {
         return match ($this->marketplace_status) {
@@ -75,6 +79,7 @@ class MarketplaceOrder extends Model
         };
     }
 
+    /** Возвращает цвет бейджа для текущего статуса. */
     public function getStatusColorAttribute(): string
     {
         return StatusMovement::BADGE_COLORS[$this->status];
@@ -90,11 +95,13 @@ class MarketplaceOrder extends Model
         return $this->belongsTo(SupplyBox::class, 'box_id');
     }
 
+    /** Возвращает дату завершения в формате d/m/Y. */
     public function getCompletedDateAttribute(): string
     {
         return Carbon::parse($this->completed_at)->format('d/m/Y');
     }
 
+    /** Возвращает дату возврата в формате d/m/Y или пустую строку. */
     public function getReturnedDateAttribute(): string
     {
         return $this->returned_at ? Carbon::parse($this->returned_at)->format('d/m/Y') : '';
@@ -105,6 +112,7 @@ class MarketplaceOrder extends Model
         return $this->hasOne(MarketplaceOrderHistory::class);
     }
 
+    /** Проверяет, находится ли заказ на этапе наклейки (статус 5). */
     public function isStickering(): bool
     {
         return $this->status == 5;

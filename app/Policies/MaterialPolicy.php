@@ -7,57 +7,43 @@ use App\Models\User;
 
 class MaterialPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Доступ к списку материалов — только админ. */
     public function viewAny(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр отдельного материала не используется. */
     public function view(User $user, Material $material): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создавать материал может только админ. */
     public function create(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактировать материал может только админ. */
     public function update(User $user, Material $material): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удалять материал может только админ. */
     public function delete(User $user, Material $material): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    /** Восстановление материала не поддерживается. */
     public function restore(User $user, Material $material): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
+    /** Окончательное удаление материала не поддерживается. */
     public function forceDelete(User $user, Material $material): bool
     {
         return false;

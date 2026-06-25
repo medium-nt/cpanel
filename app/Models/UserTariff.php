@@ -57,6 +57,7 @@ class UserTariff extends Model
         return $this->hasMany(Tariff::class);
     }
 
+    /** Возвращает список действий для роли (общие + специфичные для роли). */
     public static function getActionsForRole(string $role): array
     {
         $roleActions = self::ROLE_ACTIONS[$role] ?? [];

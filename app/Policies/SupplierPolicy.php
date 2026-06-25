@@ -7,57 +7,43 @@ use App\Models\User;
 
 class SupplierPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Доступ к списку поставщиков — только админ. */
     public function viewAny(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр отдельного поставщика не используется. */
     public function view(User $user, Supplier $supplier): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создавать поставщика может только админ. */
     public function create(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактировать поставщика может только админ. */
     public function update(User $user, Supplier $supplier): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удалять поставщика может только админ. */
     public function delete(User $user, Supplier $supplier): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    /** Восстановление поставщика не поддерживается. */
     public function restore(User $user, Supplier $supplier): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
+    /** Окончательное удаление поставщика не поддерживается. */
     public function forceDelete(User $user, Supplier $supplier): bool
     {
         return false;

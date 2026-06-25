@@ -11,6 +11,7 @@ class AutoOrderMaterials extends Command
 
     protected $description = 'Автоматический заказ материалов при падении остатка в цехе ниже порога';
 
+    /** Проверяет остатки материалов в цехе и создаёт автозаказы при падении ниже порога. */
     public function handle(): int
     {
         $this->info('Проверка остатков материалов в цехе...');

@@ -30,6 +30,7 @@ class ShelfChange extends Component
     /** справочник полок */
     public Collection $shelves;
 
+    /** Загружает справочник полок при инициализации компонента. */
     public function mount(): void
     {
         $this->shelves = Shelf::query()
@@ -37,11 +38,13 @@ class ShelfChange extends Component
             ->get();
     }
 
+    /** Отображает view компонента для смены полок. */
     public function render(): View
     {
         return view('livewire.shelf-change');
     }
 
+    /** Обновляет статус при изменении выбранной полки. */
     public function updatedSelectedShelfId(): void
     {
         $this->setStatus(
@@ -52,6 +55,7 @@ class ShelfChange extends Component
         );
     }
 
+    /** Сканирует штрихкод товара и добавляет в список для перемещения. */
     public function handleScan(): void
     {
         $code = trim($this->scanCode);
@@ -98,6 +102,7 @@ class ShelfChange extends Component
         $this->setStatus("Товар со штрихкодом $code добавлен.", 'ok');
     }
 
+    /** Удаляет товар из списка отсканированных для перемещения. */
     public function removeFromList(int $itemId): void
     {
         if (! isset($this->scannedItems[$itemId])) {
@@ -112,6 +117,7 @@ class ShelfChange extends Component
         $this->setStatus("Товар со штрихкодом $barcode удален из списка", 'ok');
     }
 
+    /** Сохраняет изменения — перемещает отсканированные товары на выбранную полку. */
     public function saveChanges(): void
     {
         if (empty($this->scannedItems)) {
@@ -153,6 +159,7 @@ class ShelfChange extends Component
         $this->setStatus("Успешно перемещено $count из $scannedCount товаров на полку.", 'ok');
     }
 
+    /** Устанавливает статусное сообщение и соответствующий CSS-класс. */
     protected function setStatus(string $message, string $type = 'info'): void
     {
         $this->statusMessage = $message;

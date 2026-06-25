@@ -57,15 +57,13 @@ class MarketplaceSupply extends Model
         ];
     }
 
+    /** Возвращает имя маркетплейса по ID. */
     public function getMarketplaceNameAttribute(): string
     {
         return Marketplace::NAME[$this->marketplace_id];
     }
 
-    /**
-     * Проверяет, можно ли редактировать кол-во коробов.
-     * Редактирование разрешено только до даты отгрузки в Газельку (строго меньше).
-     */
+    /** Проверяет, можно ли редактировать кол-во коробов (разрешено до даты отгрузки включительно). */
     public function canEditBoxesCount(): bool
     {
         if ($this->gazelka_shipment_date === null) {

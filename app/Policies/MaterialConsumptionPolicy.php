@@ -7,57 +7,43 @@ use App\Models\User;
 
 class MaterialConsumptionPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Список списаний материала доступен всем. */
     public function viewAny(User $user): bool
     {
         return true;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр отдельного списания не используется. */
     public function view(User $user, MaterialConsumption $materialConsumption): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создавать списание может только админ. */
     public function create(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактировать списание может только админ. */
     public function update(User $user, MaterialConsumption $materialConsumption): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удалять списание может только админ. */
     public function delete(User $user, MaterialConsumption $materialConsumption): bool
     {
         return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    /** Восстановление списания не поддерживается. */
     public function restore(User $user, MaterialConsumption $materialConsumption): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
+    /** Окончательное удаление списания не поддерживается. */
     public function forceDelete(User $user, MaterialConsumption $materialConsumption): bool
     {
         return false;

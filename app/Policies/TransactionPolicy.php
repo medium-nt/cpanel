@@ -7,57 +7,43 @@ use App\Models\User;
 
 class TransactionPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    /** Доступ к финансовым операциям — только пользователям с правом просмотра финансов. */
     public function viewAny(User $user): bool
     {
         return $user->is_show_finance;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
+    /** Просмотр отдельной операции не используется. */
     public function view(User $user, Transaction $transaction): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    /** Создавать финансовую операцию может только админ. */
     public function create(User $user): bool
     {
         return auth()->user()->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    /** Редактировать финансовую операцию может только админ. */
     public function update(User $user, Transaction $transaction): bool
     {
         return auth()->user()->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    /** Удалять финансовую операцию может только админ. */
     public function delete(User $user, Transaction $transaction): bool
     {
         return auth()->user()->isAdmin();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    /** Восстановление финансовой операции не поддерживается. */
     public function restore(User $user, Transaction $transaction): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
+    /** Окончательное удаление финансовой операции не поддерживается. */
     public function forceDelete(User $user, Transaction $transaction): bool
     {
         return false;

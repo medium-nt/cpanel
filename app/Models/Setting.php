@@ -25,6 +25,7 @@ class Setting extends Model
         return $this->belongsTo(Workshop::class);
     }
 
+    /** Возвращает значение настройки по ключу с учётом цеховой. */
     public static function getValue(string $name, ?int $workshopId = null): ?string
     {
         // Если указан цех — сначала ищем цеховую настройку
@@ -46,6 +47,7 @@ class Setting extends Model
             ->value('value');
     }
 
+    /** Возвращает массив значений настроек по ключам с учётом цеховых. */
     public static function getValues(array $names, ?int $workshopId = null): array
     {
         $result = [];

@@ -32,16 +32,19 @@ class Order extends Model
 
     protected $appends = ['status_name', 'status_color', 'type_movement_name'];
 
+    /** Возвращает текстовое название статуса заказа. */
     public function getStatusNameAttribute(): string
     {
         return StatusMovement::STATUSES[$this->status];
     }
 
+    /** Возвращает цвет бейджа для статуса заказа. */
     public function getStatusColorAttribute(): string
     {
         return StatusMovement::BADGE_COLORS[$this->status];
     }
 
+    /** Возвращает текстовое название типа движения заказа. */
     public function getTypeMovementNameAttribute(): string
     {
         return TypeMovement::TYPES[$this->type_movement];
@@ -92,16 +95,19 @@ class Order extends Model
         return $this->belongsTo(MarketplaceOrder::class);
     }
 
+    /** Возвращает дату обновления заказа в формате дд/мм/гггг. */
     public function getUpdatedDateAttribute(): string
     {
         return $this->updated_at->format('d/m/Y');
     }
 
+    /** Возвращает дату создания заказа в формате дд/мм/гггг. */
     public function getCreatedDateAttribute(): string
     {
         return $this->created_at->format('d/m/Y');
     }
 
+    /** Возвращает дату и время создания заказа в формате дд/мм/гггг чч:мм:сс. */
     public function getCreatedDateTimeAttribute(): string
     {
         return $this->created_at->format('d/m/Y H:i:s');

@@ -17,11 +17,13 @@ class SupplyOrderList extends Component
         'orderAdded' => '$refresh',
     ];
 
+    /** Инициализирует компонент списком заказов для выбранной поставки. */
     public function mount($supplyId): void
     {
         $this->supplyId = $supplyId;
     }
 
+    /** Удаляет заказ из поставки, обнуляя его привязку и статус маркетплейса. */
     public function removeOrder($orderId): void
     {
         $order = MarketplaceOrder::find($orderId);
@@ -39,6 +41,7 @@ class SupplyOrderList extends Component
         $this->dispatch('focusOrderInput');
     }
 
+    /** Отображает список заказов поставки с доступными для добавления товарами. */
     public function render(): View
     {
         $marketplaceSupply = MarketplaceSupply::query()->find($this->supplyId);

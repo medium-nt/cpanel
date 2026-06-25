@@ -36,9 +36,7 @@ class ShiftSchedule extends Model
         return $this->belongsTo(Workshop::class);
     }
 
-    /**
-     * Является ли день выходным (запись без смены).
-     */
+    /** Проверяет, является ли день выходным (смена не назначена). */
     public function isDayOff(): bool
     {
         return $this->shift_id === null;

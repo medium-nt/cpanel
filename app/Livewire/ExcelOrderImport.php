@@ -43,6 +43,7 @@ class ExcelOrderImport extends Component
     /** @var array<int, array<int, string>> Склады, сгруппированные по marketplace_id */
     public array $warehouses = [];
 
+    /** Загружает справочники товаров и складов при инициализации компонента. */
     public function mount(): void
     {
         $this->allItems = MarketplaceItem::query()
@@ -63,6 +64,7 @@ class ExcelOrderImport extends Component
         ];
     }
 
+    /** Загружает Excel-файл и парсит заголовки и строки. */
     public function uploadAndParse(): void
     {
         $this->validate([
@@ -92,6 +94,7 @@ class ExcelOrderImport extends Component
         $this->step = 2;
     }
 
+    /** Подтверждает выбранное сопоставление колонок и обрабатывает строки. */
     public function confirmMapping(): void
     {
         $this->validate([
@@ -106,6 +109,7 @@ class ExcelOrderImport extends Component
         $this->step = 3;
     }
 
+    /** Обновляет количество в обработанной строке. */
     public function updateRowQuantity(int $rowIndex, int $value): void
     {
         if (isset($this->processedRows[$rowIndex])) {
@@ -113,11 +117,13 @@ class ExcelOrderImport extends Component
         }
     }
 
+    /** Сбрасывает выбранный кластер при смене маркетплейса. */
     public function updatedGlobalMarketplace(): void
     {
         $this->globalCluster = '';
     }
 
+    /** Обновляет товар в обработанной строке. */
     public function updateRowItem(int $rowIndex, int $itemId): void
     {
         if (! isset($this->processedRows[$rowIndex])) {
@@ -132,12 +138,14 @@ class ExcelOrderImport extends Component
         $this->processedRows[$rowIndex]['error'] = null;
     }
 
+    /** Удаляет строку из списка обработанных. */
     public function removeRow(int $rowIndex): void
     {
         unset($this->processedRows[$rowIndex]);
         $this->processedRows = array_values($this->processedRows);
     }
 
+    /** Сохраняет обработанные строки как заказы в базе данных. */
     public function save(): void
     {
         if (! $this->globalMarketplace || ! $this->globalCluster) {
@@ -174,6 +182,7 @@ class ExcelOrderImport extends Component
         }
     }
 
+    /** Переключает компонент на указанный шаг импорта. */
     public function goToStep(int $step): void
     {
         $this->errorMessage = '';
@@ -234,16 +243,19 @@ class ExcelOrderImport extends Component
         }
     }
 
+    /** Возвращает количество обработанных строк с найденным товаром. */
     public function getMatchedCountProperty(): int
     {
         return count(array_filter($this->processedRows, fn ($r) => $r['item_id'] !== null));
     }
 
+    /** Возвращает количество обработанных строк без найденного товара. */
     public function getUnmatchedCountProperty(): int
     {
         return count(array_filter($this->processedRows, fn ($r) => $r['item_id'] === null));
     }
 
+    /** Отображает view компонента для импорта заказов из Excel. */
     public function render(): \Illuminate\View\View
     {
         return view('livewire.excel-order-import');

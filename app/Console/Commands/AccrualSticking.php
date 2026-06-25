@@ -12,6 +12,7 @@ class AccrualSticking extends Command
 
     protected $description = 'Начисление за стикеровку (sticking)';
 
+    /** Начисляет оплату за стикеровку за вчерашний день (через ActionAccrualService). */
     public function handle(ActionAccrualService $service): int
     {
         $date = Carbon::yesterday();
