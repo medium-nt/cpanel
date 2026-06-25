@@ -1,6 +1,6 @@
 # Material Flow — Движение материалов
 
-> Last reviewed: 2026-06-19
+> Last reviewed: 2026-06-25
 
 ## Обзор
 
@@ -141,6 +141,27 @@
 - **Принцип:** материал проверяется у той роли, которая с ним физически работает
   (ткань — у кроящего, аксессуары — у шьющей швеи, упаковка — у упаковщика)
 
+**Списание упаковочных материалов:**
+
+- Упаковка (флаер, пакет, флаер-пакет) списывается только через поток упаковщика
+- **Все точки списания упаковки теперь используют рулоны текущей смены:**
+    1. `MarketplaceOrderItemController::done()` — упаковка при
+       стикеровке/упаковке
+       (эталон правильного списания)
+    2. `StickerPrintingController::processRepack()` — переупаковка товара в ОТК
+    3. `StickerPrintingController::processReplace()` — подмена товара
+- `KioskService::hasPackagingMaterials(MarketplaceItem, string, Shift)` —
+  проверяет
+  наличие рулона упаковки в текущей смене (`Roll::STATUS_IN_WORKSHOP`,
+  `shift_id = $shift->id`)
+-
+`KioskService::deductPackagingMaterials(MarketplaceItem, string, string, Shift)` —
+создаёт Order с `shift_id`/`workshop_id` и MovementMaterial с `roll_id`
+- **Бизнес-правило:** рулоны упаковки привязаны к смене (`shift_id`), НЕ к цеху.
+  В цехе на смену — один рулон упаковки (ограничение также в `WorkshopRollScan`)
+- При отсутствии рулона или закрытой смены → `RuntimeException` (транзакция
+  откатывается, ошибка логируется в канал `materials`)
+
 ### Брак и возвраты
 
 **MovementDefectMaterialToSupplierService:**
@@ -173,7 +194,9 @@
 - `app/Http/Controllers/WorkshopController.php` — управление цехами (привязка
   материалов через чекбоксы)
 - `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами в
-  киоске (scanning, completion, defects) с изоляцией по сменам
+  киоске (scanning, completion, defects) с изоляцией по сменам, включая
+  переупаковку (processRepack) и подмену товара (processReplace) с правильным
+  списанием упаковки с рулона текущей смены
 
 ## Бизнес-правила
 

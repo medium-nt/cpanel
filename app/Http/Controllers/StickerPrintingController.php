@@ -899,8 +899,22 @@ class StickerPrintingController extends Controller
             'material_used.in' => 'Неверное значение',
         ]);
 
-        // проверить что материалы есть
-        if (! $kioskService->hasPackagingMaterials($orderItem->item, $request->material_used)) {
+        // получить смену пользователя для списания с рулона
+        $shift = $user->currentShift();
+        if (! $shift) {
+            Log::channel('materials')->error(
+                'Не удалось определить смену для списания упаковки при переупаковке. '
+                .'OTK-сотрудник: '.$user->name.' (id: '.$user->id.'), товар #'.$orderItem->id
+            );
+
+            return redirect()
+                ->route('kiosk.item_card', ['item_id' => $orderItem->id, 'action' => 'repack'])
+                ->withInput()
+                ->with('error', 'Не удалось определить вашу смену для списания упаковочных материалов. Обратитесь к администратору.');
+        }
+
+        // проверить что рулоны материалов есть в цехе текущей смены
+        if (! $kioskService->hasPackagingMaterials($orderItem->item, $request->material_used, $shift)) {
             return redirect()
                 ->route('kiosk.item_card', ['item_id' => $orderItem->id, 'action' => 'repack'])
                 ->withInput()
@@ -915,7 +929,8 @@ class StickerPrintingController extends Controller
                 $orderItem->item,
                 $request->material_used,
                 'Переупаковка товара No: '.$orderItem->id.
-                ' ('.$orderItem->item->title.' '.$orderItem->item->width.'х'.$orderItem->item->height.')'
+                ' ('.$orderItem->item->title.' '.$orderItem->item->width.'х'.$orderItem->item->height.')',
+                $shift
             );
 
             $orderItem->update([
@@ -968,8 +983,19 @@ class StickerPrintingController extends Controller
             return response()->json(['success' => false, 'message' => 'Товар с такими параметрами не найден'], 404);
         }
 
-        // Проверяем что материалы есть в цеху
-        if (! $kioskService->hasPackagingMaterials($item, $request->material_used)) {
+        // получить смену пользователя для списания с рулона
+        $shift = $user->currentShift();
+        if (! $shift) {
+            Log::channel('materials')->error(
+                'Не удалось определить смену для списания упаковки при подмене. '
+                .'OTK-сотрудник: '.$user->name.' (id: '.$user->id.'), товар #'.$orderItem->id
+            );
+
+            return response()->json(['success' => false, 'message' => 'Не удалось определить вашу смену для списания упаковочных материалов. Обратитесь к администратору.'], 400);
+        }
+
+        // Проверяем что рулоны материалов есть в цехе текущей смены
+        if (! $kioskService->hasPackagingMaterials($item, $request->material_used, $shift)) {
             return response()->json(['success' => false, 'message' => 'Недостаточно материала в цехе для подмены'], 400);
         }
 
@@ -1015,7 +1041,8 @@ class StickerPrintingController extends Controller
                 $item,
                 $request->material_used,
                 'Подмена товара No: '.$orderItem->id.' на новый '.$newOrderItem->id.
-                ' ('.$item->title.' '.$item->width.'х'.$item->height.')'
+                ' ('.$item->title.' '.$item->width.'х'.$item->height.')',
+                $shift
             );
 
             DB::commit();

@@ -1,6 +1,6 @@
 # Warehouse Operations — Складские операции
 
-> Last reviewed: 2026-06-23
+> Last reviewed: 2026-06-25
 
 ## Обзор
 
@@ -211,6 +211,20 @@ FBO-поставки)
     | Упаковка | TYPE_PACKAGING = 3 | ПРОПУСКАЕТСЯ всегда в этом методе |
   - **Принцип:** материал проверяется у той роли, которая с ним физически
     работает
+  - **Списание упаковки (все три точки):**
+      - `MarketplaceOrderItemController::done()` — упаковка при
+        стикеровке/упаковке
+        (эталон правильного списания)
+      - `StickerPrintingController::processRepack()` — переупаковка товара в ОТК
+      - `StickerPrintingController::processReplace()` — подмена товара
+      - `KioskService::hasPackagingMaterials()` — проверка наличия рулона
+        упаковки в
+        текущей смене (`Roll::STATUS_IN_WORKSHOP`, `shift_id = $shift->id`)
+      - `KioskService::deductPackagingMaterials()` — списание с рулона (создаёт
+        Order
+        с `shift_id`/`workshop_id` и MovementMaterial с `roll_id`)
+      - При отсутствии рулона или закрытой смене → `RuntimeException`
+        (транзакция откатывается, ошибка логируется в канал `materials`)
 - Авторизация ОТК для проверки
 - Фильтрация товаров для стикеровки по ролям
 - **Уборщицы и водители** имеют доступ в киоск любого цеха, но только для

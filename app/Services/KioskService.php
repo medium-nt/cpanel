@@ -6,10 +6,13 @@ use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MovementMaterial;
 use App\Models\Order;
+use App\Models\Roll;
 use App\Models\Setting;
+use App\Models\Shift;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use RuntimeException;
 
 class KioskService
 {
@@ -63,16 +66,31 @@ class KioskService
     }
 
     /**
-     * Списывает упаковочные материалы (флаер/пакет) для товара, создавая заказ на расход.
+     * Списывает упаковочные материалы (флаер/пакет) для товара, создавая заказ на расход
+     * с привязкой к рулонам текущей смены.
+     *
+     * @throws RuntimeException если рулон нужного материала отсутствует в цехе
      */
-    public function deductPackagingMaterials(MarketplaceItem $item, string $materialUsed, string $comment): void
+    public function deductPackagingMaterials(MarketplaceItem $item, string $materialUsed, string $comment, Shift $shift): void
     {
         $consumptions = $item->consumption()->with('material')->get();
         $filteredConsumptions = $this->filterConsumptionsByMaterialUsed($consumptions, $materialUsed);
 
+        // Сначала проверяем наличие всех рулонов — чтобы не создавать частичный расход
+        $rolls = [];
+        foreach ($filteredConsumptions as $consumption) {
+            $roll = $this->findPackagingRoll($consumption->material_id, $shift);
+            if (! $roll) {
+                throw new RuntimeException('Нет рулона для "'.$consumption->material->title.'" в цехе');
+            }
+            $rolls[$consumption->material_id] = $roll;
+        }
+
         $order = Order::query()->create([
             'type_movement' => 3,
             'status' => 3,
+            'shift_id' => $shift->id,
+            'workshop_id' => $shift->workshop_id,
             'comment' => $comment,
         ]);
 
@@ -80,6 +98,7 @@ class KioskService
             MovementMaterial::create([
                 'material_id' => $consumption->material_id,
                 'order_id' => $order->id,
+                'roll_id' => $rolls[$consumption->material_id]->id,
                 'quantity' => 1,
             ]);
         }
@@ -118,22 +137,32 @@ class KioskService
     }
 
     /**
-     * Проверяет наличие упаковочных материалов нужного типа на складе цеха.
+     * Проверяет наличие упаковочных материалов нужного типа на рулонах текущей смены.
      */
-    public function hasPackagingMaterials(MarketplaceItem $item, string $materialUsed): bool
+    public function hasPackagingMaterials(MarketplaceItem $item, string $materialUsed, Shift $shift): bool
     {
         $consumptions = $item->consumption()->with('material')->get();
         $filteredConsumptions = $this->filterConsumptionsByMaterialUsed($consumptions, $materialUsed);
 
         foreach ($filteredConsumptions as $consumption) {
-            $inWorkshop = InventoryService::materialInWorkshop($consumption->material_id);
-
-            if ($inWorkshop < 1) {
+            if (! $this->findPackagingRoll($consumption->material_id, $shift)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    /**
+     * Находит рулон упаковочного материала в цехе для текущей смены.
+     */
+    private function findPackagingRoll(int $materialId, Shift $shift): ?Roll
+    {
+        return Roll::query()
+            ->where('material_id', $materialId)
+            ->where('status', Roll::STATUS_IN_WORKSHOP)
+            ->where('shift_id', $shift->id)
+            ->first();
     }
 
     public static function canUseFilter(User $user): bool

@@ -273,3 +273,32 @@
   поставщиков и формами управления
 - Логирование операций в канал `materials` (привязка/обновление/отвязка)
 - Обновлены topics: materials.md, material-flow.md, INDEX.md
+
+## [2026-06-25] fix | kiosk-packaging-roll-deduction
+
+- Исправлен баг списания упаковочных материалов в киоске при переупаковке (
+  repack)
+  и подмене товара (replace). Раньше упаковка списывалась «из ниоткуда» через
+  `InventoryService::materialInWorkshop` без привязки к смене и рулону.
+- Теперь списание упаковки унифицировано для всех трёх точек:
+  стикеровка/упаковка
+  (`MarketplaceOrderItemController::done()` — эталон), переупаковка
+  (`StickerPrintingController::processRepack()`), подмена
+  (`StickerPrintingController::processReplace()`).
+- **Ключевые изменения:**
+    - `KioskService::hasPackagingMaterials()` — проверяет наличие рулона
+      упаковки в
+      текущей смене (`Roll::STATUS_IN_WORKSHOP`, `shift_id = $shift->id`)
+    - `KioskService::deductPackagingMaterials()` — создаёт Order с
+      `shift_id`/`workshop_id` и MovementMaterial с `roll_id`
+    - При отсутствии рулона или закрытой смене → `RuntimeException` (транзакция
+      откатывается, ошибка логируется в канал `materials`)
+- **Бизнес-правило:** рулоны упаковки привязаны к смене (`shift_id`), НЕ к цеху.
+  В цехе на смену — один рулон упаковки (ограничение также в
+  `WorkshopRollScan`).
+- Файлы изменений: `app/Services/KioskService.php`,
+  `app/Http/Controllers/StickerPrintingController.php`,
+  `tests/Feature/Services/KioskServiceTest.php`,
+  `tests/Feature/Controllers/ProcessRepackTest.php` (новый).
+- Обновлены topics: material-flow.md, materials.md, warehouse-operations.md,
+  order-lifecycle.md

@@ -10,7 +10,9 @@ use App\Models\MaterialConsumption;
 use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Role;
+use App\Models\Roll;
 use App\Models\Setting;
+use App\Models\Shift;
 use App\Models\User;
 use App\Services\KioskService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,31 +97,6 @@ class KioskServiceTest extends TestCase
 
         // Set up session for kiosk user
         Session::put('user_id', $this->admin->id);
-    }
-
-    /**
-     * Создать реальные остатки материала в цехе.
-     *
-     * InventoryService::materialInWorkshop(mid) считает количество материала в цехе
-     * через MovementMaterial с order type_movement=2, status=3 (приход в цех).
-     * Создаём такой заказ с указанным количеством — даёт реальный остаток
-     * без alias-моков (которые загрязняют Mockery-state в полном прогоне тестов).
-     *
-     * @param  Material  $material  материал для создания остатка
-     * @param  float  $quantity  количество материала в цехе
-     */
-    private function createWorkshopStock(Material $material, float $quantity = 1): void
-    {
-        $stockOrder = Order::factory()->create([
-            'type_movement' => 2,
-            'status' => 3,
-        ]);
-
-        MovementMaterial::factory()->create([
-            'order_id' => $stockOrder->id,
-            'material_id' => $material->id,
-            'quantity' => $quantity,
-        ]);
     }
 
     #[Test]
@@ -285,33 +262,55 @@ class KioskServiceTest extends TestCase
     public function deduct_packaging_materials_creates_order_and_movements(): void
     {
         // Arrange
+        $shift = $this->createShift();
+        $roll = Roll::factory()->create([
+            'material_id' => $this->flyerMaterial->id,
+            'status' => Roll::STATUS_IN_WORKSHOP,
+            'shift_id' => $shift->id,
+        ]);
+
         $service = new KioskService;
         $comment = 'Test packaging deduction';
 
         // Act
-        $service->deductPackagingMaterials($this->marketplaceItem, 'flyer', $comment);
+        $service->deductPackagingMaterials($this->marketplaceItem, 'flyer', $comment, $shift);
 
         // Assert
         $order = Order::where('comment', $comment)->first();
         $this->assertNotNull($order);
         $this->assertEquals(3, $order->type_movement); // expense type
         $this->assertEquals(3, $order->status); // in progress status
+        $this->assertEquals($shift->id, $order->shift_id);
+        $this->assertEquals($shift->workshop_id, $order->workshop_id);
 
         $movement = MovementMaterial::where('order_id', $order->id)->first();
         $this->assertNotNull($movement);
         $this->assertEquals($this->flyerMaterial->id, $movement->material_id);
         $this->assertEquals(1, $movement->quantity);
+        $this->assertEquals($roll->id, $movement->roll_id);
     }
 
     #[Test]
     public function deduct_packaging_materials_flyer_bag_creates_multiple_movements(): void
     {
         // Arrange
+        $shift = $this->createShift();
+        $flyerRoll = Roll::factory()->create([
+            'material_id' => $this->flyerMaterial->id,
+            'status' => Roll::STATUS_IN_WORKSHOP,
+            'shift_id' => $shift->id,
+        ]);
+        $bagRoll = Roll::factory()->create([
+            'material_id' => $this->bagMaterial->id,
+            'status' => Roll::STATUS_IN_WORKSHOP,
+            'shift_id' => $shift->id,
+        ]);
+
         $service = new KioskService;
         $comment = 'Test packaging deduction both';
 
         // Act
-        $service->deductPackagingMaterials($this->marketplaceItem, 'flyer-bag', $comment);
+        $service->deductPackagingMaterials($this->marketplaceItem, 'flyer-bag', $comment, $shift);
 
         // Assert
         $order = Order::where('comment', $comment)->first();
@@ -323,6 +322,22 @@ class KioskServiceTest extends TestCase
         $materialIds = $movements->pluck('material_id')->toArray();
         $this->assertContains($this->flyerMaterial->id, $materialIds);
         $this->assertContains($this->bagMaterial->id, $materialIds);
+
+        $rollIds = $movements->pluck('roll_id')->toArray();
+        $this->assertContains($flyerRoll->id, $rollIds);
+        $this->assertContains($bagRoll->id, $rollIds);
+    }
+
+    #[Test]
+    public function deduct_packaging_materials_throws_when_roll_missing(): void
+    {
+        // Arrange — смены есть, но рулона флаера в цехе нет
+        $shift = $this->createShift();
+        $service = new KioskService;
+
+        // Assert & Act
+        $this->expectException(\RuntimeException::class);
+        $service->deductPackagingMaterials($this->marketplaceItem, 'flyer', 'Test', $shift);
     }
 
     #[Test]
@@ -518,26 +533,47 @@ class KioskServiceTest extends TestCase
     #[Test]
     public function has_packaging_materials_returns_true_when_materials_available(): void
     {
-        // Arrange
+        // Arrange — рулон флаера в цехе текущей смены
+        $shift = $this->createShift();
+        Roll::factory()->create([
+            'material_id' => $this->flyerMaterial->id,
+            'status' => Roll::STATUS_IN_WORKSHOP,
+            'shift_id' => $shift->id,
+        ]);
+
         $service = new KioskService;
 
-        // Реальные остатки flyerMaterial в цехе → InventoryService::materialInWorkshop >= 1 → true
-        $this->createWorkshopStock($this->flyerMaterial);
-
         // Act & Assert
-        $this->assertTrue($service->hasPackagingMaterials($this->marketplaceItem, 'flyer'));
+        $this->assertTrue($service->hasPackagingMaterials($this->marketplaceItem, 'flyer', $shift));
     }
 
     #[Test]
     public function has_packaging_materials_returns_false_when_materials_unavailable(): void
     {
-        // Arrange
+        // Arrange — смены есть, но рулона в цехе нет
+        $shift = $this->createShift();
         $service = new KioskService;
 
-        // На пустой БД остатков нет → InventoryService::materialInWorkshop = 0 → false
+        // Act & Assert
+        $this->assertFalse($service->hasPackagingMaterials($this->marketplaceItem, 'flyer', $shift));
+    }
+
+    #[Test]
+    public function has_packaging_materials_returns_false_for_other_shift(): void
+    {
+        // Arrange — рулон в смене A, проверяем по смене B
+        $shiftA = $this->createShift();
+        $shiftB = $this->createShift();
+        Roll::factory()->create([
+            'material_id' => $this->flyerMaterial->id,
+            'status' => Roll::STATUS_IN_WORKSHOP,
+            'shift_id' => $shiftA->id,
+        ]);
+
+        $service = new KioskService;
 
         // Act & Assert
-        $this->assertFalse($service->hasPackagingMaterials($this->marketplaceItem, 'flyer'));
+        $this->assertFalse($service->hasPackagingMaterials($this->marketplaceItem, 'flyer', $shiftB));
     }
 
     #[Test]
@@ -778,5 +814,13 @@ class KioskServiceTest extends TestCase
 
         // Act & Assert
         $this->assertFalse($service::canSticking($this->cutter));
+    }
+
+    /**
+     * Создать смену со связанным цехом для тестов списания упаковки.
+     */
+    private function createShift(): Shift
+    {
+        return Shift::factory()->create();
     }
 }
