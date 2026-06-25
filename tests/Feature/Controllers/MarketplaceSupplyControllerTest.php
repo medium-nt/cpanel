@@ -198,3 +198,53 @@ test('update fbo updates boxes_count when editable', function () {
     $response->assertRedirect(route('marketplace_supplies.show', $supply));
     expect($supply->fresh()->boxes_count)->toBe(7);
 });
+
+test('update fbo updates supply_date', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'gazelka_shipment_date' => today()->addDays(2),
+        'supply_date' => today()->addDays(10),
+    ]);
+
+    $newSupplyDate = today()->addDays(12)->format('Y-m-d');
+
+    $response = $this->actingAs($this->admin)->put(
+        route('marketplace_supplies.update_fbo', $supply),
+        [
+            'gazelka_shipment_date' => today()->addDays(2)->format('Y-m-d'),
+            'supply_date' => $newSupplyDate,
+        ],
+    );
+
+    $response->assertRedirect(route('marketplace_supplies.show', $supply));
+    expect($supply->fresh()->supply_date->format('Y-m-d'))->toBe($newSupplyDate);
+});
+
+test('update fbo blocks supply_date not later than gazelka shipment date', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'gazelka_shipment_date' => today()->addDays(5),
+        'supply_date' => today()->addDays(10),
+    ]);
+
+    $response = $this->actingAs($this->admin)->put(
+        route('marketplace_supplies.update_fbo', $supply),
+        ['supply_date' => today()->addDays(5)->format('Y-m-d')],
+    );
+
+    $response->assertSessionHas('error');
+    expect($supply->fresh()->supply_date->format('Y-m-d'))->toBe(today()->addDays(10)->format('Y-m-d'));
+});
+
+test('update fbo clears supply_date', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'gazelka_shipment_date' => null,
+        'supply_date' => today()->addDays(10),
+    ]);
+
+    $response = $this->actingAs($this->admin)->put(
+        route('marketplace_supplies.update_fbo', $supply),
+        ['supply_date' => null],
+    );
+
+    $response->assertRedirect(route('marketplace_supplies.show', $supply));
+    expect($supply->fresh()->supply_date)->toBeNull();
+});

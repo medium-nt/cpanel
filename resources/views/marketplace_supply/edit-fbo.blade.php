@@ -38,6 +38,15 @@
                         </div>
 
                         <div class="form-group mr-3 mb-2">
+                            <label for="supply_date">Дата поставки в МП</label>
+                            <input type="date" class="form-control"
+                                   id="supply_date"
+                                   name="supply_date"
+                                   min="{{ $supply->gazelka_shipment_date ? \Carbon\Carbon::parse($supply->gazelka_shipment_date)->addDay()->format('Y-m-d') : '' }}"
+                                   value="{{ old('supply_date', $supply->supply_date?->format('Y-m-d')) }}">
+                        </div>
+
+                        <div class="form-group mr-3 mb-2">
                             <label for="delivery_type">Тип поставки</label>
                             <select class="form-control"
                                     id="delivery_type"

@@ -215,18 +215,24 @@ class MarketplaceSupplyController extends Controller
         $validated = $request->validate([
             'gazelka_shipment_id' => 'nullable|string',
             'gazelka_shipment_date' => 'nullable|date',
+            'supply_date' => 'nullable|date',
             'delivery_type' => 'nullable|string|in:'.implode(',', MarketplaceSupply::DELIVERY_TYPES),
             'gazelka_pickup' => 'nullable|boolean',
             'boxes_count' => 'nullable|integer|min:0',
         ]);
 
-        if (isset($validated['gazelka_shipment_date']) && $marketplaceSupply->supply_date) {
-            $gazelkaDate = Carbon::parse($validated['gazelka_shipment_date']);
-            if ($gazelkaDate->gte($marketplaceSupply->supply_date)) {
-                return back()
-                    ->with('error', 'Дата отгрузки в Газельку должна быть хотя бы на день раньше даты отгрузки в маркетплейс ('.$marketplaceSupply->supply_date->format('d.m.Y').').')
-                    ->withInput();
-            }
+        $gazelkaDate = isset($validated['gazelka_shipment_date'])
+            ? Carbon::parse($validated['gazelka_shipment_date'])
+            : $marketplaceSupply->gazelka_shipment_date;
+
+        $supplyDate = isset($validated['supply_date'])
+            ? Carbon::parse($validated['supply_date'])
+            : $marketplaceSupply->supply_date;
+
+        if ($gazelkaDate && $supplyDate && $gazelkaDate->gte($supplyDate)) {
+            return back()
+                ->with('error', 'Дата отгрузки в Газельку должна быть хотя бы на день раньше даты поставки в МП ('.$supplyDate->format('d.m.Y').').')
+                ->withInput();
         }
 
         if (isset($validated['boxes_count']) && ! $marketplaceSupply->canEditBoxesCount()) {
@@ -238,6 +244,7 @@ class MarketplaceSupplyController extends Controller
         $data = [
             'gazelka_shipment_id' => $validated['gazelka_shipment_id'] ?? null,
             'gazelka_shipment_date' => isset($validated['gazelka_shipment_date']) ? Carbon::parse($validated['gazelka_shipment_date']) : null,
+            'supply_date' => isset($validated['supply_date']) ? Carbon::parse($validated['supply_date']) : null,
             'delivery_type' => $validated['delivery_type'] ?? null,
             'gazelka_pickup' => $validated['gazelka_pickup'] ?? null,
         ];
