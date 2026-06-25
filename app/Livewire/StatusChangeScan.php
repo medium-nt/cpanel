@@ -26,6 +26,9 @@ class StatusChangeScan extends Component
 
     public string $statusMessage = '';
 
+    /** Тип последнего статусного сообщения: ok|warn|error|info. */
+    public string $statusType = 'info';
+
     public string $statusClass = 'alert-secondary';
 
     public int $selectedShelfId = 0;

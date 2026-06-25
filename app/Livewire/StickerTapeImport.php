@@ -109,7 +109,7 @@ class StickerTapeImport extends Component
         if (! $this->globalMarketplace) {
             $this->errorMessage = 'Выберите маркетплейс';
 
-            return;
+            return null;
         }
 
         $validRows = array_filter($this->processedRows, fn ($r) => $r['item_id'] !== null);
@@ -117,7 +117,7 @@ class StickerTapeImport extends Component
         if (empty($validRows)) {
             $this->errorMessage = 'Нет строк с найденными артикулами';
 
-            return;
+            return null;
         }
 
         $stickers = [];
