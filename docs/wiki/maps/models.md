@@ -44,9 +44,10 @@
 - **File:** `app/Models/MarketplaceOrder.php`
 - **Table:** `marketplace_orders`
 - **Traits:** `HasFactory`
-- **Fillable:** `marketplace_id`, `order_id`, `supply_id`, `box_id`, `status`,
-  `fulfillment_type`, `completed_at`, `created_at`, `returned_at`, `cluster`
-- **Casts:** `id` → int
+- **Fillable:** `marketplace_id`, `order_id`, `supply_id`, `box_id`, `boxed_at`,
+  `status`, `fulfillment_type`, `completed_at`, `created_at`, `returned_at`,
+  `cluster`
+- **Casts:** `id` → int, `boxed_at` → datetime
 - **Relationships:**
     - `HasMany` items → MarketplaceOrderItem
     - `BelongsTo` supply → MarketplaceSupply

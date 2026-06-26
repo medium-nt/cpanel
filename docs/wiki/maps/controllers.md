@@ -94,7 +94,6 @@
 - **Methods:** `index`
 
 ### MaterialSupplierController
-
 - **File:** `app/Http/Controllers/MaterialSupplierController.php`
 - **Methods:** `attach`, `updateShortages`, `detach`
 

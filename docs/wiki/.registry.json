@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-06-25T19:59:59+03:00",
+    "generated_at": "2026-06-26T09:41:32+03:00",
     "counts": {
         "models": 37,
         "services": 23,
@@ -34,7 +34,7 @@
         "MarketplaceOrder": {
             "table": "marketplace_orders",
             "file": "app\/Models\/MarketplaceOrder.php",
-            "fillable_count": 10,
+            "fillable_count": 11,
             "relationships_count": 4
         },
         "MarketplaceOrderHistory": {

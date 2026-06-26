@@ -41,7 +41,6 @@
   timeslotDays, $selectedDate, $selectedTimeslot
 
 ### PickupScan
-
 - **File:** `app/Livewire/PickupScan.php`
 - **View:** `livewire.pickup-scan`
 - **Properties:** $scanCode, $statusMessage, $statusType, $statusClass, $scanned

@@ -1,6 +1,6 @@
 # cpanel — Project Wiki Index
 
-> Generated: 2026-06-25 19:59 | Models: 37 | Services: 23 | Controllers: 41 |
+> Generated: 2026-06-26 09:41 | Models: 37 | Services: 23 | Controllers: 41 |
 > Livewire: 13
 
 ## Quick Orientation
@@ -163,7 +163,6 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 - [Finance](topics/finance.md) — транзакции, мотивация
 
 ## Top 5 God Nodes (High Dependency)
-
 > High indegree = many classes depend on this | candidates for refactoring
 
 | Class                           | Type    | Indegree | Outdegree | Score |
