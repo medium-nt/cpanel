@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\MarketplaceOrder;
 use App\Models\Sku;
 use App\Models\SupplyBox;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -33,7 +34,15 @@ class BoxOrderScanner extends Component
     {
         $this->box->load('orders.items.item');
 
-        return view('livewire.box-order-scanner');
+        // Последний добавленный заказ — сверху; заказы с тем же товаром
+        // (marketplace_item_id) подтягиваются за ним, остальные — ниже.
+        $orders = $this->box->orders
+            ->sortByDesc('boxed_at')
+            ->groupBy(fn (MarketplaceOrder $order) => $order->items->first()?->marketplace_item_id)
+            ->sortByDesc(fn (Collection $group) => $group->max('boxed_at'))
+            ->flatten();
+
+        return view('livewire.box-order-scanner', compact('orders'));
     }
 
     /**
@@ -101,7 +110,7 @@ class BoxOrderScanner extends Component
             return;
         }
 
-        $order->update(['box_id' => $this->box->id]);
+        $order->update(['box_id' => $this->box->id, 'boxed_at' => now()]);
 
         Log::channel('marketplace_supplies')->info('Заказ добавлен в короб', [
             'supply_id' => $this->box->marketplace_supply_id,
@@ -130,7 +139,7 @@ class BoxOrderScanner extends Component
             ->first();
 
         if ($order) {
-            $order->update(['box_id' => null]);
+            $order->update(['box_id' => null, 'boxed_at' => null]);
 
             Log::channel('marketplace_supplies')->info('Заказ убран из короба', [
                 'supply_id' => $this->box->marketplace_supply_id,

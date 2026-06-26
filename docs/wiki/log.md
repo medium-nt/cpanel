@@ -390,3 +390,37 @@
       (sometimes|integer|min:1)
     - `resources/views/settings/index.blade.php` — поле в глобальном UI настроек
 - Обновлены topics: material-flow.md, materials.md, shift-system.md
+
+## [2026-06-26] update | box-order-scanner-sorting
+
+- Изменена логика отображения таблицы «Заказы в коробе» на странице сканирования
+  `/megatulle/marketplace_supplies/{supply}/boxes/{box}` (Livewire-компонент
+  `BoxOrderScanner`).
+- **Было:** заказы выводились без явной сортировки (по `id` ASC) — последний
+  добавленный уходил в низ.
+- **Стало:** последний отсканированный заказ всегда в первой строке; все заказы
+  с
+  тем же товаром подтягиваются следом за ним; остальные — ниже. Порядок
+  персистентен (сохраняется после перезагрузки страницы).
+- **Реализация:**
+    - Новое поле в БД: `marketplace_orders.boxed_at` (nullable timestamp) —
+      время добавления заказа в короб. Миграция
+      `2026_06_26_061618_add_boxed_at_to_marketplace_orders_table` с backfill
+      `boxed_at = updated_at` для существующих заказов.
+    - `BoxOrderScanner::handleScan()` проставляет `boxed_at = now()` при
+      добавлении
+      в короб.
+    - `BoxOrderScanner::removeOrder()` сбрасывает `boxed_at = null` при отвязке.
+    - `BoxOrderScanner::render()` сортирует заказы:
+      `sortByDesc('boxed_at') → groupBy('marketplace_item_id') →
+      sortByDesc(max('boxed_at') группы) → flatten()`. Группировка по
+      `marketplace_item_id` (товар со своим размером; один заказ = один item
+      согласно legacy-структуре — см. reference_one_order_one_item).
+- **Затронутые файлы:**
+    -
+    `database/migrations/2026_06_26_061618_add_boxed_at_to_marketplace_orders_table.php`
+    - `app/Models/MarketplaceOrder.php` (поле boxed_at, cast datetime, fillable)
+    - `app/Livewire/BoxOrderScanner.php` (handleScan, removeOrder, render)
+    - `resources/views/livewire/box-order-scanner.blade.php`
+    - `tests/Feature/BoxOrderScannerTest.php`
+- Обновлены topics: marketplace-integration.md, warehouse-operations.md

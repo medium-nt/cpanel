@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @property int $id
  * @property string $status
+ * @property Carbon|null $boxed_at
  * @property-read Collection|MarketplaceOrderItem[] $items
  * @property MarketplaceSupply|null $supply
  *
@@ -29,6 +30,7 @@ class MarketplaceOrder extends Model
         'order_id',
         'supply_id',
         'box_id',
+        'boxed_at',
         'status',
         'fulfillment_type',
         'completed_at',
@@ -38,6 +40,18 @@ class MarketplaceOrder extends Model
     ];
 
     protected $appends = ['marketplace_name', 'status_name', 'status_color'];
+
+    /**
+     * Приведение типов атрибутов.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'boxed_at' => 'datetime',
+        ];
+    }
 
     public function items(): HasMany
     {

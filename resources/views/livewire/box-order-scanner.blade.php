@@ -34,11 +34,11 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">
-                Заказы в коробе ({{ $box->orders->count() }})
+                Заказы в коробе ({{ $orders->count() }})
             </h3>
         </div>
         <div class="card-body">
-            @if($box->orders->isNotEmpty())
+            @if($orders->isNotEmpty())
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered">
                         <thead class="thead-dark">
@@ -51,7 +51,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($box->orders as $order)
+                        @foreach($orders as $order)
                             @foreach($order->items as $item)
                                 <tr>
                                     <td>{{ $order->order_id }}</td>
