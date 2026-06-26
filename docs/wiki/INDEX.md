@@ -1,7 +1,7 @@
 # cpanel — Project Wiki Index
 
-> Generated: 2026-06-13 21:09 | Models: 37 | Services: 23 | Controllers: 40 |
-> Livewire: 12
+> Generated: 2026-06-25 19:59 | Models: 37 | Services: 23 | Controllers: 41 |
+> Livewire: 13
 
 ## Quick Orientation
 Warehouse/inventory management with Ozon/WB marketplace integration.
@@ -20,7 +20,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | MarketplaceOrderItem    | `marketplace_order_items`     | marketplaceOrder, workshop, item +6                           | HasFactory                          |
 | MarketplaceSupply       | `marketplace_supplies`        |                                                               | HasFactory                          |
 | MarketplaceWarehouse    | `marketplace_warehouses`      |                                                               |                                     |
-| Material                | `materials`                   | type, rolls, movementMaterials, suppliers, workshops +5       | HasFactory, SoftDeletes             |
+| Material                | `materials`                   | type, rolls, movementMaterials +4                             | HasFactory, SoftDeletes             |
 | MaterialConsumption     | `material_consumptions`       | item, material                                                | HasFactory                          |
 | MaterialWorkshop        | `material_workshop`           | material, workshop                                            | HasFactory                          |
 | Motivation              | `motivations`                 |                                                               | HasFactory                          |
@@ -35,7 +35,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | Setting                 | `settings`                    | workshop                                                      | HasFactory                          |
 | Shelf                   | `shelves`                     |                                                               |                                     |
 | Shift                   | `shifts`                      | workshop, users, rolls                                        | HasFactory                          |
-| ShiftSchedule           | `shift_schedule`              | shift                                                         | HasFactory                          |
+| ShiftSchedule           | `shift_schedule`              | shift, workshop                                               | HasFactory                          |
 | Sku                     | `skus`                        | item                                                          | HasFactory                          |
 | Stack                   | `stacks`                      |                                                               | HasFactory                          |
 | StatusMovement          | `status_movements`            |                                                               |                                     |
@@ -59,8 +59,8 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | ExcelOrderImportService                 | 3       | —            |
 | InventoryService                        | 12      | —            |
 | MarketplaceApiService                   | 59      | —            |
-| MarketplaceOrderItemService             | 25      | —            |
-| MarketplaceOrderService                 | 9       | —            |
+| MarketplaceOrderItemService             | 26      | —            |
+| MarketplaceOrderService                 | 10      | —            |
 | MarketplaceSupplyService                | 3       | —            |
 | MovementDefectMaterialToSupplierService | 2       | —            |
 | MovementMaterialFromSupplierService     | 2       | —            |
@@ -73,11 +73,11 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | StickerService                          | 2       | —            |
 | TgService                               | 1       | —            |
 | TransactionService                      | 12      | —            |
-| UserService                             | 13      | —            |
+| UserService                             | 14      | —            |
 | WarehouseOfItemService                  | 8       | —            |
 | WriteOffRemnantService                  | 1       | —            |
 
-## Controllers (40)
+## Controllers (41)
 
 | Controller                                   | Key Methods                                                                                        |
 |----------------------------------------------|----------------------------------------------------------------------------------------------------|
@@ -94,13 +94,13 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | InventoryController                          | byWarehouse, byWorkshop, inventoryChecks, show, create +2                                          |
 | MarketplaceApiController                     | checkSkuz, checkDuplicateSkuz, uploadingNewProducts, uploadingCancelledProducts, getBarcodeFile +2 |
 | MarketplaceItemController                    | index, create, store, edit, update +1                                                              |
-| MarketplaceOrderController                   | index, create, store, edit, update +6                                                              |
+| MarketplaceOrderController                   | index, create, store, edit, update +7                                                              |
 | MarketplaceOrderItemController               | index, show, done, cancel, labeling +7                                                             |
-| MarketplaceSupplyController                  | index, show, linkWbFbo, loadFboGoods, editFbo +22                                                  |
+| MarketplaceSupplyController                  | index, show, linkWbFbo, loadFboGoods, editFbo +23                                                  |
 | MaterialConsumptionController                | destroy                                                                                            |
-| MaterialSupplierController                   | attach, updateShortages, detach                                                                    |
 | MaterialController                           | index, create, store, edit, update +1                                                              |
 | MaterialMovementController                   | index                                                                                              |
+| MaterialSupplierController                   | attach, updateShortages, detach                                                                    |
 | MovementDefectMaterialToSupplierController   | index, create, store                                                                               |
 | MovementMaterialByMarketplaceOrderController | index                                                                                              |
 | MovementMaterialFromSupplierController       | index, create, store, show, edit +2                                                                |
@@ -119,11 +119,11 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | TelegramController                           | webhook                                                                                            |
 | TransactionController                        | index, create, store, destroy, createPayoutSalary +3                                               |
 | UsersController                              | index, create, store, edit, update +7                                                              |
-| WarehouseOfItemController                    | index, exportExcel, inspection, newRefunds, getStorageBarcodeFile +13                              |
+| WarehouseOfItemController                    | index, exportExcel, inspection, newRefunds, getStorageBarcodeFile +14                              |
 | WorkshopController                           | index, create, store, edit, update +1                                                              |
 | WriteOffRemnantsController                   | index, create, store                                                                               |
 
-## Livewire (12)
+## Livewire (13)
 
 | Component          | View                            | Properties                                                       |
 |--------------------|---------------------------------|------------------------------------------------------------------|
@@ -133,6 +133,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | InventoryCheckScan | `livewire.inventory-check-scan` | $inventory, $selectedShelfId, $scanCode, $statusMessage          |
 | MaterialForm       | `livewire.material-form`        | $selectedMaterialId, $materials, $orderedQuantity, $maxQuantity  |
 | OzonFboItemSearch  | `livewire.ozon-fbo-item-search` | $supply, $search, $results, $quantity                            |
+| PickupScan         | `livewire.pickup-scan`          | $scanCode, $statusMessage, $statusType, $statusClass             |
 | ShelfChange        | `livewire.shelf-change`         | $selectedShelfId, $scanCode, $statusMessage, $statusType         |
 | StatusChangeScan   | `livewire.status-change-scan`   | $fromStatus, $toStatus, $pageTitle, $scanCode                    |
 | StickerTapeImport  | `livewire.sticker-tape-import`  | $step, $excelFile, $fileHeaders, $columnMap                      |
@@ -146,7 +147,6 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
   transactions, workshops)
 - `/megatulle/` + `auth` + `require_open_shift` — операционные роуты (materials,
   orders, marketplace, inventory)
-- `routes/materials.php` — управление материалами и связями с поставщиками
 - `routes/api.php` — webhooks (Telegram)
 - `routes/kiosk.php` — интерфейс киоска
 - `routes/console.php` — cron-задачи (подробнее
@@ -162,10 +162,23 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
   стикеры
 - [Finance](topics/finance.md) — транзакции, мотивация
 
+## Top 5 God Nodes (High Dependency)
+
+> High indegree = many classes depend on this | candidates for refactoring
+
+| Class                           | Type    | Indegree | Outdegree | Score |
+|---------------------------------|---------|----------|-----------|-------|
+| **MarketplaceApiService**       | service | 25       | 6         | 56    |
+| **UserService**                 | service | 18       | 2         | 38    |
+| **MarketplaceOrderService**     | service | 16       | 0         | 32    |
+| **MarketplaceOrderItemService** | service | 12       | 3         | 27    |
+| **TgService**                   | service | 13       | 0         | 26    |
+
 ## Detailed Maps
 - [Models](maps/models.md) — полные fillable, casts, relationships
 - [Services](maps/services.md) — все методы с сигнатурами
 - [Controllers](maps/controllers.md) — все методы контроллеров
+- [Dependencies](maps/dependencies.md) — граф зависимостей и god-nodes
 - [Routes](maps/routes.md) — все роут-файлы
 - [Livewire](maps/livewire.md) — компоненты и их views
 - [Schedule](maps/schedule.md) — cron-задачи

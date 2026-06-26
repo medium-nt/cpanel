@@ -27,7 +27,7 @@ class GenerateWikiMaps extends Command
     public function handle(): int
     {
         $this->wikiPath = base_path('docs/wiki');
-        $this->mapsPath = $this->wikiPath . '/maps';
+        $this->mapsPath = $this->wikiPath.'/maps';
 
         $this->ensureDirectories();
 
@@ -44,10 +44,15 @@ class GenerateWikiMaps extends Command
         $this->info("  Сервисы: {$this->countItems($services)}");
         $this->info("  Контроллеры: {$this->countItems($controllers)}");
         $this->info("  Livewire: {$this->countItems($livewire)}");
-        $this->info('  Роут-файлы: ' . count($routes));
-        $this->info('  Cron-задачи: ' . count($schedule));
+        $this->info('  Роут-файлы: '.count($routes));
+        $this->info('  Cron-задачи: '.count($schedule));
 
-        $this->generateIndex($models, $services, $controllers, $livewire);
+        $this->info('📊 Построение графа зависимостей...');
+        $graph = $this->buildDependencyGraph($services, $controllers);
+        $godNodes = $this->calculateGodNodes($graph);
+        $this->info('  Узлов: '.count($graph['nodes']).', Рёбер: '.count($graph['edges']));
+
+        $this->generateIndex($models, $services, $controllers, $livewire, $godNodes);
         $this->generateModelMap($models);
         $this->generateServiceMap($services);
         $this->generateControllerMap($controllers);
@@ -55,6 +60,8 @@ class GenerateWikiMaps extends Command
         $this->generateLivewireMap($livewire);
         $this->generateScheduleMap($schedule);
         $this->generateRegistry($models, $services, $controllers, $livewire);
+        $this->generateDependencyGraphFile($graph, $godNodes);
+        $this->generateDependencyMap($graph, $godNodes);
 
         $this->newLine();
         $this->info('✅ Wiki карты сгенерированы в docs/wiki/');
@@ -71,12 +78,12 @@ class GenerateWikiMaps extends Command
      */
     private function ensureDirectories(): void
     {
-        if (!is_dir($this->mapsPath)) {
+        if (! is_dir($this->mapsPath)) {
             mkdir($this->mapsPath, 0755, true);
         }
 
-        if (!is_dir($this->wikiPath . '/topics')) {
-            mkdir($this->wikiPath . '/topics', 0755, true);
+        if (! is_dir($this->wikiPath.'/topics')) {
+            mkdir($this->wikiPath.'/topics', 0755, true);
         }
     }
 
@@ -100,7 +107,7 @@ class GenerateWikiMaps extends Command
         $models = [];
         $path = app_path('Models');
 
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             return $models;
         }
 
@@ -110,20 +117,20 @@ class GenerateWikiMaps extends Command
             $className = $file->getBasename('.php');
             $fqcn = "App\\Models\\{$className}";
 
-            if (!class_exists($fqcn)) {
+            if (! class_exists($fqcn)) {
                 continue;
             }
 
             try {
                 $reflection = new ReflectionClass($fqcn);
 
-                if (!$reflection->isSubclassOf('Illuminate\Database\Eloquent\Model')) {
+                if (! $reflection->isSubclassOf('Illuminate\Database\Eloquent\Model')) {
                     continue;
                 }
 
                 $models[$className] = [
                     'class' => $fqcn,
-                    'file' => 'app/Models/' . $file->getRelativePathname(),
+                    'file' => 'app/Models/'.$file->getRelativePathname(),
                     'table' => $this->getModelTable($fqcn, $className),
                     'fillable' => $this->getModelFillable($fqcn),
                     'casts' => $this->getModelCasts($fqcn),
@@ -196,7 +203,7 @@ class GenerateWikiMaps extends Command
             }
 
             $returnType = $method->getReturnType();
-            if (!$returnType) {
+            if (! $returnType) {
                 continue;
             }
 
@@ -223,7 +230,7 @@ class GenerateWikiMaps extends Command
         $startLine = $method->getStartLine();
         $endLine = $method->getEndLine();
 
-        if (!$filename || !$startLine || !$endLine) {
+        if (! $filename || ! $startLine || ! $endLine) {
             return 'Unknown';
         }
 
@@ -248,7 +255,7 @@ class GenerateWikiMaps extends Command
     private function getModelTraits(ReflectionClass $reflection): array
     {
         return array_map(
-            fn(string $trait) => class_basename($trait),
+            fn (string $trait) => class_basename($trait),
             array_keys($reflection->getTraits())
         );
     }
@@ -263,7 +270,7 @@ class GenerateWikiMaps extends Command
         $services = [];
         $path = app_path('Services');
 
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             return $services;
         }
 
@@ -273,7 +280,7 @@ class GenerateWikiMaps extends Command
             $className = $file->getBasename('.php');
             $fqcn = "App\\Services\\{$className}";
 
-            if (!class_exists($fqcn)) {
+            if (! class_exists($fqcn)) {
                 continue;
             }
 
@@ -291,7 +298,7 @@ class GenerateWikiMaps extends Command
                     }
 
                     $params = array_map(
-                        fn(\ReflectionParameter $p) => ($p->getType() ? $p->getType()->getName() . ' ' : '') . '$' . $p->getName(),
+                        fn (\ReflectionParameter $p) => ($p->getType() ? $p->getType()->getName().' ' : '').'$'.$p->getName(),
                         $method->getParameters()
                     );
 
@@ -306,7 +313,7 @@ class GenerateWikiMaps extends Command
 
                 $services[$className] = [
                     'class' => $fqcn,
-                    'file' => 'app/Services/' . $file->getRelativePathname(),
+                    'file' => 'app/Services/'.$file->getRelativePathname(),
                     'methods' => $methods,
                     'dependencies' => $dependencies,
                 ];
@@ -326,19 +333,167 @@ class GenerateWikiMaps extends Command
     private function getConstructorDependencies(ReflectionClass $reflection): array
     {
         $constructor = $reflection->getConstructor();
-        if (!$constructor) {
+        if (! $constructor) {
             return [];
         }
 
         $deps = [];
         foreach ($constructor->getParameters() as $param) {
             $type = $param->getType();
-            if ($type && !$type->isBuiltin()) {
+            if ($type && ! $type->isBuiltin()) {
                 $deps[] = class_basename($type->getName());
             }
         }
 
         return $deps;
+    }
+
+    /**
+     * Извлекает имена сервисов, вызываемых статически (Service::method()) из тела метода.
+     * Читает тело метода через file() + array_slice по startLine/endLine (как extractRelatedFromMethod),
+     * находит ClassName::method( и фильтрует только известные сервисы (отсекает фасады Arr/Str/Cache/DB/Http).
+     *
+     * @param  \ReflectionMethod  $method  Метод для анализа
+     * @param  array<string, string>  $knownServices  Маппинг basename => FQCN (только ключи имеют значение)
+     * @return list<string> Уникальные basename сервисов, вызываемых статически
+     */
+    private function extractStaticCalls(\ReflectionMethod $method, array $knownServices): array
+    {
+        $filename = $method->getFileName();
+        $startLine = $method->getStartLine();
+        $endLine = $method->getEndLine();
+
+        if (! $filename || ! $startLine || ! $endLine) {
+            return [];
+        }
+
+        $source = file($filename);
+        $body = implode('', array_slice($source, $startLine - 1, $endLine - $startLine + 1));
+
+        $calls = [];
+        if (preg_match_all('/\b([A-Z][a-zA-Z0-9]*)::[a-z_][a-zA-Z0-9_]*\s*\(/', $body, $matches)) {
+            foreach ($matches[1] as $basename) {
+                if (isset($knownServices[$basename])) {
+                    $calls[] = $basename;
+                }
+            }
+        }
+
+        return array_values(array_unique($calls));
+    }
+
+    /**
+     * Строит граф зависимостей: nodes (все Services+Controllers) и edges (DI + static_call).
+     * DI-рёбра берутся из уже извлечённых $data['dependencies'] (getConstructorDependencies).
+     * Static-call рёбра — через extractStaticCalls по всем public-методам.
+     *
+     * @param  array<string, array{class: string, file: string, methods: list<mixed>, dependencies: list<string>}>  $services
+     * @param  array<string, array{class: string, file: string, methods: list<string>, dependencies: list<string>}>  $controllers
+     * @return array{nodes: array<string, array{type: string, file: string, methods_count: int}>, edges: list<array{from: string, to: string, kind: string}>}
+     */
+    private function buildDependencyGraph(array $services, array $controllers): array
+    {
+        $knownServices = array_map(fn ($data) => $data['class'], $services);
+
+        $nodes = [];
+        foreach ($services as $basename => $data) {
+            $nodes[$basename] = [
+                'type' => 'service',
+                'file' => $data['file'],
+                'methods_count' => count($data['methods']),
+            ];
+        }
+        foreach ($controllers as $basename => $data) {
+            $nodes[$basename] = [
+                'type' => 'controller',
+                'file' => $data['file'],
+                'methods_count' => count($data['methods']),
+            ];
+        }
+
+        $edges = [];
+        $nodeNames = array_flip(array_keys($nodes));
+
+        // DI-рёбра из уже извлечённых dependencies (только internal targets)
+        foreach ($services as $fromBasename => $data) {
+            foreach ($data['dependencies'] as $depBasename) {
+                if (isset($nodeNames[$depBasename])) {
+                    $edges[] = ['from' => $fromBasename, 'to' => $depBasename, 'kind' => 'di'];
+                }
+            }
+        }
+        foreach ($controllers as $fromBasename => $data) {
+            foreach ($data['dependencies'] as $depBasename) {
+                if (isset($nodeNames[$depBasename])) {
+                    $edges[] = ['from' => $fromBasename, 'to' => $depBasename, 'kind' => 'di'];
+                }
+            }
+        }
+
+        // Static-call рёбра (Service→Service и Controller→Service)
+        foreach ([$services, $controllers] as $pool) {
+            foreach ($pool as $fromBasename => $data) {
+                $fqcn = $data['class'];
+                if (! class_exists($fqcn)) {
+                    continue;
+                }
+
+                try {
+                    $reflection = new ReflectionClass($fqcn);
+                } catch (\Throwable) {
+                    continue;
+                }
+
+                foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+                    if ($method->getDeclaringClass()->getName() !== $fqcn || $method->getName() === '__construct') {
+                        continue;
+                    }
+
+                    foreach ($this->extractStaticCalls($method, $knownServices) as $toBasename) {
+                        if ($fromBasename !== $toBasename) {
+                            $edges[] = ['from' => $fromBasename, 'to' => $toBasename, 'kind' => 'static_call'];
+                        }
+                    }
+                }
+            }
+        }
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    /**
+     * Считает indegree/outdegree для каждого узла и ранжирует god-nodes по score = indegree*2 + outdegree.
+     *
+     * @param  array{nodes: array<string, mixed>, edges: list<array{from: string, to: string, kind: string}>}  $graph
+     * @return list<array{name: string, indegree: int, outdegree: int, score: int}>
+     */
+    private function calculateGodNodes(array $graph): array
+    {
+        $indegrees = array_fill_keys(array_keys($graph['nodes']), 0);
+        $outdegrees = array_fill_keys(array_keys($graph['nodes']), 0);
+
+        foreach ($graph['edges'] as $edge) {
+            if (isset($outdegrees[$edge['from']])) {
+                $outdegrees[$edge['from']]++;
+            }
+            if (isset($indegrees[$edge['to']])) {
+                $indegrees[$edge['to']]++;
+            }
+        }
+
+        $godNodes = [];
+        foreach ($graph['nodes'] as $basename => $_) {
+            $godNodes[] = [
+                'name' => $basename,
+                'indegree' => $indegrees[$basename],
+                'outdegree' => $outdegrees[$basename],
+                'score' => ($indegrees[$basename] * 2) + $outdegrees[$basename],
+            ];
+        }
+
+        usort($godNodes, fn ($a, $b) => $b['score'] <=> $a['score']);
+
+        return $godNodes;
     }
 
     /**
@@ -351,7 +506,7 @@ class GenerateWikiMaps extends Command
         $controllers = [];
         $path = app_path('Http/Controllers');
 
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             return $controllers;
         }
 
@@ -363,7 +518,7 @@ class GenerateWikiMaps extends Command
             $namespace = $relativePath ? "App\\Http\\Controllers\\{$relativePath}" : 'App\\Http\\Controllers';
             $fqcn = "{$namespace}\\{$className}";
 
-            if (!class_exists($fqcn)) {
+            if (! class_exists($fqcn)) {
                 continue;
             }
 
@@ -387,7 +542,7 @@ class GenerateWikiMaps extends Command
 
                 $controllers[$className] = [
                     'class' => $fqcn,
-                    'file' => 'app/Http/Controllers/' . $file->getRelativePathname(),
+                    'file' => 'app/Http/Controllers/'.$file->getRelativePathname(),
                     'methods' => $methods,
                     'dependencies' => $dependencies,
                 ];
@@ -409,7 +564,7 @@ class GenerateWikiMaps extends Command
         $routes = [];
         $webPath = base_path('routes/web.php');
 
-        if (!file_exists($webPath)) {
+        if (! file_exists($webPath)) {
             return $routes;
         }
 
@@ -445,11 +600,11 @@ class GenerateWikiMaps extends Command
 
         // Добавляем роут-файлы которые не найдены в web.php (api.php, console.php, kiosk.php)
         $allRouteFiles = glob(base_path('routes/*.php'));
-        $knownFiles = array_map(fn($r) => $r['file'], $routes);
+        $knownFiles = array_map(fn ($r) => $r['file'], $routes);
 
         foreach ($allRouteFiles as $filePath) {
             $basename = basename($filePath);
-            if (!in_array($basename, $knownFiles) && $basename !== 'web.php' && $basename !== 'console.php') {
+            if (! in_array($basename, $knownFiles) && $basename !== 'web.php' && $basename !== 'console.php') {
                 $routes[] = [
                     'file' => $basename,
                     'group' => 'standalone',
@@ -473,7 +628,7 @@ class GenerateWikiMaps extends Command
         $components = [];
         $path = app_path('Livewire');
 
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             return $components;
         }
 
@@ -483,7 +638,7 @@ class GenerateWikiMaps extends Command
             $className = $file->getBasename('.php');
             $fqcn = "App\\Livewire\\{$className}";
 
-            if (!class_exists($fqcn)) {
+            if (! class_exists($fqcn)) {
                 continue;
             }
 
@@ -499,21 +654,21 @@ class GenerateWikiMaps extends Command
                 }
 
                 // Пытаемся найти view через конвенцию
-                if (!$view) {
-                    $view = 'livewire.' . Str::kebab($className);
+                if (! $view) {
+                    $view = 'livewire.'.Str::kebab($className);
                 }
 
                 // Извлекаем публичные свойства (для формы)
                 $properties = [];
                 foreach ($reflection->getProperties() as $property) {
                     if ($property->isPublic() && $property->getDeclaringClass()->getName() === $reflection->getName()) {
-                        $properties[] = '$' . $property->getName();
+                        $properties[] = '$'.$property->getName();
                     }
                 }
 
                 $components[$className] = [
                     'class' => $fqcn,
-                    'file' => 'app/Livewire/' . $file->getRelativePathname(),
+                    'file' => 'app/Livewire/'.$file->getRelativePathname(),
                     'view' => $view,
                     'properties' => $properties,
                 ];
@@ -535,7 +690,7 @@ class GenerateWikiMaps extends Command
         $schedule = [];
         $consolePath = base_path('routes/console.php');
 
-        if (!file_exists($consolePath)) {
+        if (! file_exists($consolePath)) {
             return $schedule;
         }
 
@@ -552,13 +707,13 @@ class GenerateWikiMaps extends Command
             if (preg_match('/Schedule::(call|command)\s*\(/', $trimmed)) {
                 $buffer = $trimmed;
             } elseif ($buffer) {
-                $buffer .= ' ' . $trimmed;
+                $buffer .= ' '.$trimmed;
             }
 
             if ($buffer && preg_match("/(dailyAt|weeklyOn|everyTenMinutes|everyThirtyMinutes|everyMinute|cron)\s*\(\s*['\"]?([^'\"]+)['\"]?\s*\)/", $buffer, $m)) {
                 $desc = $this->extractScheduleDescription($buffer);
                 $schedule[] = [
-                    'schedule' => $m[1] . '(' . $m[2] . ')',
+                    'schedule' => $m[1].'('.$m[2].')',
                     'description' => $desc,
                     'line' => $lineNum,
                 ];
@@ -570,7 +725,7 @@ class GenerateWikiMaps extends Command
                 if ($desc) {
                     if (preg_match("/(dailyAt|weeklyOn|everyTenMinutes|everyThirtyMinutes|everyMinute)\s*\(\s*['\"]?([^'\"]*?)['\"]?\s*\)/", $buffer, $m)) {
                         $schedule[] = [
-                            'schedule' => $m[1] . '(' . $m[2] . ')',
+                            'schedule' => $m[1].'('.$m[2].')',
                             'description' => $desc,
                             'line' => $lineNum,
                         ];
@@ -592,7 +747,7 @@ class GenerateWikiMaps extends Command
         foreach ($commands as $cmd) {
             $schedule[] = [
                 'schedule' => 'manual',
-                'description' => $cmd[1] . ': ' . $cmd[2],
+                'description' => $cmd[1].': '.$cmd[2],
                 'line' => 0,
             ];
         }
@@ -607,7 +762,7 @@ class GenerateWikiMaps extends Command
     {
         // Извлекаем имя класса и метода
         if (preg_match('/([A-Z][a-zA-Z]+)::([a-zA-Z]+)\(\)/', $buffer, $m)) {
-            return $m[1] . '::' . $m[2] . '()';
+            return $m[1].'::'.$m[2].'()';
         }
 
         if (preg_match("/'([^']+)'/", $buffer, $m)) {
@@ -621,8 +776,10 @@ class GenerateWikiMaps extends Command
 
     /**
      * Генерирует INDEX.md — точку входа в wiki.
+     *
+     * @param  list<array{name: string, indegree: int, outdegree: int, score: int}>  $godNodes  Топ god-nodes (score DESC)
      */
-    private function generateIndex(array $models, array $services, array $controllers, array $livewire): void
+    private function generateIndex(array $models, array $services, array $controllers, array $livewire, array $godNodes = []): void
     {
         $now = date('Y-m-d H:i');
         $totalModels = count($models);
@@ -645,7 +802,7 @@ class GenerateWikiMaps extends Command
             $keyRels = array_slice(array_keys($data['relationships']), 0, 3);
             $relStr = implode(', ', $keyRels);
             if (count($data['relationships']) > 3) {
-                $relStr .= ' +' . (count($data['relationships']) - 3);
+                $relStr .= ' +'.(count($data['relationships']) - 3);
             }
             $traitsStr = implode(', ', $data['traits']);
             $content .= "| {$name} | `{$data['table']}` | {$relStr} | {$traitsStr} |\n";
@@ -670,7 +827,7 @@ class GenerateWikiMaps extends Command
         foreach ($controllers as $name => $data) {
             $methodsStr = implode(', ', array_slice($data['methods'], 0, 5));
             if (count($data['methods']) > 5) {
-                $methodsStr .= ' +' . (count($data['methods']) - 5);
+                $methodsStr .= ' +'.(count($data['methods']) - 5);
             }
             $content .= "| {$name} | {$methodsStr} |\n";
         }
@@ -706,16 +863,30 @@ class GenerateWikiMaps extends Command
         $content .= "- [Warehouse Operations](topics/warehouse-operations.md) — склад, стеллажи, стикеры\n";
         $content .= "- [Finance](topics/finance.md) — транзакции, мотивация\n\n";
 
+        // God Nodes (топ-5)
+        if (! empty($godNodes)) {
+            $content .= "## Top 5 God Nodes (High Dependency)\n";
+            $content .= "> High indegree = many classes depend on this | candidates for refactoring\n\n";
+            $content .= "| Class | Type | Indegree | Outdegree | Score |\n";
+            $content .= "|-------|------|----------|-----------|-------|\n";
+            foreach (array_slice($godNodes, 0, 5) as $node) {
+                $type = ($services[$node['name']] ?? null) ? 'service' : (($controllers[$node['name']] ?? null) ? 'controller' : 'model');
+                $content .= "| **{$node['name']}** | {$type} | {$node['indegree']} | {$node['outdegree']} | {$node['score']} |\n";
+            }
+            $content .= "\n";
+        }
+
         // Map links
         $content .= "## Detailed Maps\n";
         $content .= "- [Models](maps/models.md) — полные fillable, casts, relationships\n";
         $content .= "- [Services](maps/services.md) — все методы с сигнатурами\n";
         $content .= "- [Controllers](maps/controllers.md) — все методы контроллеров\n";
+        $content .= "- [Dependencies](maps/dependencies.md) — граф зависимостей и god-nodes\n";
         $content .= "- [Routes](maps/routes.md) — все роут-файлы\n";
         $content .= "- [Livewire](maps/livewire.md) — компоненты и их views\n";
         $content .= "- [Schedule](maps/schedule.md) — cron-задачи\n";
 
-        file_put_contents($this->wikiPath . '/INDEX.md', $content);
+        file_put_contents($this->wikiPath.'/INDEX.md', $content);
         $this->info('  ✓ INDEX.md');
     }
 
@@ -731,15 +902,15 @@ class GenerateWikiMaps extends Command
             $content .= "### {$name}\n";
             $content .= "- **File:** `{$data['file']}`\n";
             $content .= "- **Table:** `{$data['table']}`\n";
-            $content .= '- **Traits:** ' . ($data['traits'] ? '`' . implode('`, `', $data['traits']) . '`' : '—') . "\n";
+            $content .= '- **Traits:** '.($data['traits'] ? '`'.implode('`, `', $data['traits']).'`' : '—')."\n";
 
             if ($data['fillable']) {
-                $content .= '- **Fillable:** `' . implode('`, `', $data['fillable']) . '`' . "\n";
+                $content .= '- **Fillable:** `'.implode('`, `', $data['fillable']).'`'."\n";
             }
 
             if ($data['casts']) {
                 $castStr = implode(', ', array_map(
-                    fn(string $k, string $v) => "`{$k}` → {$v}",
+                    fn (string $k, string $v) => "`{$k}` → {$v}",
                     array_keys($data['casts']),
                     array_values($data['casts'])
                 ));
@@ -756,7 +927,7 @@ class GenerateWikiMaps extends Command
             $content .= "\n";
         }
 
-        file_put_contents($this->mapsPath . '/models.md', $content);
+        file_put_contents($this->mapsPath.'/models.md', $content);
         $this->info('  ✓ maps/models.md');
     }
 
@@ -773,7 +944,7 @@ class GenerateWikiMaps extends Command
             $content .= "- **File:** `{$data['file']}`\n";
 
             if ($data['dependencies']) {
-                $content .= '- **Dependencies:** `' . implode('`, `', $data['dependencies']) . '`' . "\n";
+                $content .= '- **Dependencies:** `'.implode('`, `', $data['dependencies']).'`'."\n";
             }
 
             if ($data['methods']) {
@@ -788,7 +959,7 @@ class GenerateWikiMaps extends Command
             $content .= "\n";
         }
 
-        file_put_contents($this->mapsPath . '/services.md', $content);
+        file_put_contents($this->mapsPath.'/services.md', $content);
         $this->info('  ✓ maps/services.md');
     }
 
@@ -805,17 +976,17 @@ class GenerateWikiMaps extends Command
             $content .= "- **File:** `{$data['file']}`\n";
 
             if ($data['dependencies']) {
-                $content .= '- **Dependencies:** `' . implode('`, `', $data['dependencies']) . '`' . "\n";
+                $content .= '- **Dependencies:** `'.implode('`, `', $data['dependencies']).'`'."\n";
             }
 
             if ($data['methods']) {
-                $content .= '- **Methods:** `' . implode('`, `', $data['methods']) . '`' . "\n";
+                $content .= '- **Methods:** `'.implode('`, `', $data['methods']).'`'."\n";
             }
 
             $content .= "\n";
         }
 
-        file_put_contents($this->mapsPath . '/controllers.md', $content);
+        file_put_contents($this->mapsPath.'/controllers.md', $content);
         $this->info('  ✓ maps/controllers.md');
     }
 
@@ -861,7 +1032,7 @@ class GenerateWikiMaps extends Command
             }
         }
 
-        file_put_contents($this->mapsPath . '/routes.md', $content);
+        file_put_contents($this->mapsPath.'/routes.md', $content);
         $this->info('  ✓ maps/routes.md');
     }
 
@@ -879,13 +1050,13 @@ class GenerateWikiMaps extends Command
             $content .= "- **View:** `{$data['view']}`\n";
 
             if ($data['properties']) {
-                $content .= '- **Properties:** ' . implode(', ', $data['properties']) . "\n";
+                $content .= '- **Properties:** '.implode(', ', $data['properties'])."\n";
             }
 
             $content .= "\n";
         }
 
-        file_put_contents($this->mapsPath . '/livewire.md', $content);
+        file_put_contents($this->mapsPath.'/livewire.md', $content);
         $this->info('  ✓ maps/livewire.md');
     }
 
@@ -901,7 +1072,7 @@ class GenerateWikiMaps extends Command
             $content .= "- **{$item['schedule']}** — {$item['description']}\n";
         }
 
-        file_put_contents($this->mapsPath . '/schedule.md', $content);
+        file_put_contents($this->mapsPath.'/schedule.md', $content);
         $this->info('  ✓ maps/schedule.md');
     }
 
@@ -918,24 +1089,144 @@ class GenerateWikiMaps extends Command
                 'controllers' => count($controllers),
                 'livewire' => count($livewire),
             ],
-            'models' => array_map(fn($data) => [
+            'models' => array_map(fn ($data) => [
                 'table' => $data['table'],
                 'file' => $data['file'],
                 'fillable_count' => count($data['fillable']),
                 'relationships_count' => count($data['relationships']),
             ], $models),
-            'services' => array_map(fn($data) => [
+            'services' => array_map(fn ($data) => [
                 'file' => $data['file'],
                 'methods_count' => count($data['methods']),
             ], $services),
-            'controllers' => array_map(fn($data) => [
+            'controllers' => array_map(fn ($data) => [
                 'file' => $data['file'],
                 'methods_count' => count($data['methods']),
             ], $controllers),
         ];
 
-        file_put_contents($this->wikiPath . '/.registry.json', json_encode($registry, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        file_put_contents($this->wikiPath.'/.registry.json', json_encode($registry, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         $this->info('  ✓ .registry.json');
+    }
+
+    /**
+     * Генерирует .graph.json — машиночитаемый граф зависимостей (nodes, edges, god_nodes, stats).
+     *
+     * @param  array{nodes: array<string, array{type: string, file: string, methods_count: int}>, edges: list<array{from: string, to: string, kind: string}>}  $graph
+     * @param  list<array{name: string, indegree: int, outdegree: int, score: int}>  $godNodes
+     */
+    private function generateDependencyGraphFile(array $graph, array $godNodes): void
+    {
+        $diEdges = 0;
+        $staticEdges = 0;
+        foreach ($graph['edges'] as $edge) {
+            if ($edge['kind'] === 'di') {
+                $diEdges++;
+            } elseif ($edge['kind'] === 'static_call') {
+                $staticEdges++;
+            }
+        }
+
+        $output = [
+            'generated_at' => date('c'),
+            'nodes' => $graph['nodes'],
+            'edges' => $graph['edges'],
+            'god_nodes' => array_slice($godNodes, 0, 20),
+            'stats' => [
+                'total_nodes' => count($graph['nodes']),
+                'total_edges' => count($graph['edges']),
+                'di_edges' => $diEdges,
+                'static_call_edges' => $staticEdges,
+            ],
+        ];
+
+        file_put_contents($this->wikiPath.'/.graph.json', json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->info('  ✓ .graph.json');
+    }
+
+    /**
+     * Генерирует maps/dependencies.md: таблица топ-10 god-nodes + Mermaid graph TD (топ-5 + соседи) + статистика.
+     *
+     * @param  array{nodes: array<string, array{type: string, file: string, methods_count: int}>, edges: list<array{from: string, to: string, kind: string}>}  $graph
+     * @param  list<array{name: string, indegree: int, outdegree: int, score: int}>  $godNodes
+     */
+    private function generateDependencyMap(array $graph, array $godNodes): void
+    {
+        $content = "# Dependency Graph & God Nodes\n";
+        $content .= "> Auto-generated by `php artisan wiki:generate` — DO NOT edit manually\n";
+        $content .= "> Score = indegree*2 + outdegree. Indegree = сколько классов зависят от данного.\n\n";
+
+        // Топ-10 god-nodes
+        $content .= "## Top 10 God Nodes\n\n";
+        $content .= "| Rank | Class | Type | Indegree | Outdegree | Score |\n";
+        $content .= "|------|-------|------|----------|-----------|-------|\n";
+        foreach (array_slice($godNodes, 0, 10) as $rank => $node) {
+            $type = $graph['nodes'][$node['name']]['type'] ?? 'unknown';
+            $rankNum = $rank + 1;
+            $content .= "| {$rankNum} | **{$node['name']}** | {$type} | {$node['indegree']} | {$node['outdegree']} | {$node['score']} |\n";
+        }
+        $content .= "\n";
+
+        // Mermaid: топ-5 god-nodes + их direct-соседи
+        $focusNodes = array_slice(array_map(fn ($n) => $n['name'], $godNodes), 0, 5);
+        $focusSet = array_flip($focusNodes);
+
+        $visibleNodes = [];
+        $visibleEdges = [];
+        foreach ($graph['edges'] as $edge) {
+            $isFocus = isset($focusSet[$edge['from']]) || isset($focusSet[$edge['to']]);
+            if (! $isFocus) {
+                continue;
+            }
+            $visibleNodes[$edge['from']] = true;
+            $visibleNodes[$edge['to']] = true;
+            $visibleEdges[] = $edge;
+        }
+
+        $content .= "## Dependency Graph (Top 5 God Nodes + их соседи)\n\n";
+        $content .= "```mermaid\ngraph TD\n";
+
+        foreach (array_keys($visibleNodes) as $basename) {
+            $type = $graph['nodes'][$basename]['type'] ?? 'unknown';
+            $shape = $type === 'controller' ? '("'.$basename.'")' : '["'.$basename.'"]';
+            $content .= "    {$basename}{$shape}\n";
+        }
+
+        // Дедупликация рёбер (from|to|kind) —_multiple static calls в одном методе дают дубли
+        $seenEdges = [];
+        foreach ($visibleEdges as $edge) {
+            $key = $edge['from'].'|'.$edge['to'].'|'.$edge['kind'];
+            if (isset($seenEdges[$key])) {
+                continue;
+            }
+            $seenEdges[$key] = true;
+
+            $arrow = $edge['kind'] === 'di' ? '-->|DI|' : '-.->|static|';
+            $content .= "    {$edge['from']} {$arrow} {$edge['to']}\n";
+        }
+
+        foreach ($focusNodes as $basename) {
+            if (isset($visibleNodes[$basename])) {
+                $content .= "    style {$basename} fill:#ffe066,stroke:#333,stroke-width:2px\n";
+            }
+        }
+        $content .= "```\n\n";
+
+        // Статистика
+        $diEdges = count(array_filter($graph['edges'], fn ($e) => $e['kind'] === 'di'));
+        $staticEdges = count($graph['edges']) - $diEdges;
+        $totalNodes = count($graph['nodes']);
+        $avgDegree = $totalNodes > 0 ? round(count($graph['edges']) / $totalNodes, 2) : 0;
+
+        $content .= "## Graph Statistics\n\n";
+        $content .= "- **Total Nodes:** {$totalNodes}\n";
+        $content .= '- **Total Edges:** '.count($graph['edges'])."\n";
+        $content .= "- **DI Edges:** {$diEdges} (constructor dependencies)\n";
+        $content .= "- **Static Call Edges:** {$staticEdges} (Service::method calls)\n";
+        $content .= "- **Avg Edges per Node:** {$avgDegree}\n";
+
+        file_put_contents($this->mapsPath.'/dependencies.md', $content);
+        $this->info('  ✓ maps/dependencies.md');
     }
 
     /**
@@ -943,9 +1234,9 @@ class GenerateWikiMaps extends Command
      */
     private function showDiff(): void
     {
-        $registryPath = $this->wikiPath . '/.registry.json';
+        $registryPath = $this->wikiPath.'/.registry.json';
 
-        if (!file_exists($registryPath)) {
+        if (! file_exists($registryPath)) {
             $this->info('  (первая генерация, diff недоступен)');
 
             return;

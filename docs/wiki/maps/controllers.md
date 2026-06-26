@@ -62,8 +62,8 @@
 ### MarketplaceOrderController
 - **File:** `app/Http/Controllers/MarketplaceOrderController.php`
 - **Methods:** `index`, `create`, `store`, `edit`, `update`, `complete`,
-  `destroy`, `destroyNewBySupply`, `detachNotReadyBySupply`, `importExcel`,
-  `remove`
+  `destroy`, `destroyNewBySupply`, `detachNotReadyBySupply`,
+  `detachOnSupplyOrdersBySupply`, `importExcel`, `remove`
 
 ### MarketplaceOrderItemController
 - **File:** `app/Http/Controllers/MarketplaceOrderItemController.php`
@@ -78,7 +78,8 @@
   `confirmOzonFboGoods`, `create`, `destroy`, `complete`, `done`, `getDocs`,
   `getBarcode`, `updateStatusOrders`, `delete_video`, `chunkedUpload`,
   `uploadSticker`, `downloadSticker`, `deleteSticker`, `uploadGazelkaInvoice`,
-  `downloadGazelkaInvoice`, `deleteGazelkaInvoice`, `markShipped`, `close`
+  `downloadGazelkaInvoice`, `deleteGazelkaInvoice`, `markShipped`,
+  `unmarkShipped`, `close`
 
 ### MaterialConsumptionController
 - **File:** `app/Http/Controllers/MaterialConsumptionController.php`
@@ -91,6 +92,11 @@
 ### MaterialMovementController
 - **File:** `app/Http/Controllers/MaterialMovementController.php`
 - **Methods:** `index`
+
+### MaterialSupplierController
+
+- **File:** `app/Http/Controllers/MaterialSupplierController.php`
+- **Methods:** `attach`, `updateShortages`, `detach`
 
 ### MovementDefectMaterialToSupplierController
 
@@ -188,10 +194,10 @@
 - **Methods:** `index`, `exportExcel`, `inspection`, `newRefunds`,
   `getStorageBarcodeFile`, `saveStorage`, `toPickList`, `toPickListPrint`,
   `toPick`, `labeling`, `done`, `toWork`, `addGroup`, `saveGroup`,
-  `shelfChange`, `statusChangeScan`, `toInspection`, `printInspectionList`
+  `shelfChange`, `statusChangeScan`, `pickupScan`, `toInspection`,
+  `printInspectionList`
 
 ### WorkshopController
-
 - **File:** `app/Http/Controllers/WorkshopController.php`
 - **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`
 

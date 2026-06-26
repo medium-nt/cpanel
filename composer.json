@@ -47,10 +47,7 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        },
-        "files": [
-            "_ide_helper_models.php"
-        ]
+        }
     },
     "scripts": {
         "phpstan": "phpstan analyse --memory-limit=2G --ansi",

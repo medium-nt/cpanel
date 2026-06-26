@@ -1,10 +1,10 @@
 {
-    "generated_at": "2026-06-13T21:09:09+03:00",
+    "generated_at": "2026-06-25T19:59:59+03:00",
     "counts": {
         "models": 37,
         "services": 23,
-        "controllers": 40,
-        "livewire": 12
+        "controllers": 41,
+        "livewire": 13
     },
     "models": {
         "InventoryCheck": {
@@ -64,8 +64,8 @@
         "Material": {
             "table": "materials",
             "file": "app\/Models\/Material.php",
-            "fillable_count": 6,
-            "relationships_count": 6
+            "fillable_count": 7,
+            "relationships_count": 7
         },
         "MaterialConsumption": {
             "table": "material_consumptions",
@@ -154,8 +154,8 @@
         "ShiftSchedule": {
             "table": "shift_schedule",
             "file": "app\/Models\/ShiftSchedule.php",
-            "fillable_count": 2,
-            "relationships_count": 1
+            "fillable_count": 3,
+            "relationships_count": 2
         },
         "Sku": {
             "table": "skus",
@@ -179,7 +179,7 @@
             "table": "suppliers",
             "file": "app\/Models\/Supplier.php",
             "fillable_count": 4,
-            "relationships_count": 1
+            "relationships_count": 2
         },
         "SupplyBox": {
             "table": "supply_boxes",
@@ -257,11 +257,11 @@
         },
         "MarketplaceOrderItemService": {
             "file": "app\/Services\/MarketplaceOrderItemService.php",
-            "methods_count": 25
+            "methods_count": 26
         },
         "MarketplaceOrderService": {
             "file": "app\/Services\/MarketplaceOrderService.php",
-            "methods_count": 9
+            "methods_count": 10
         },
         "MarketplaceSupplyService": {
             "file": "app\/Services\/MarketplaceSupplyService.php",
@@ -313,7 +313,7 @@
         },
         "UserService": {
             "file": "app\/Services\/UserService.php",
-            "methods_count": 13
+            "methods_count": 14
         },
         "WarehouseOfItemService": {
             "file": "app\/Services\/WarehouseOfItemService.php",
@@ -379,7 +379,7 @@
         },
         "MarketplaceOrderController": {
             "file": "app\/Http\/Controllers\/MarketplaceOrderController.php",
-            "methods_count": 11
+            "methods_count": 12
         },
         "MarketplaceOrderItemController": {
             "file": "app\/Http\/Controllers\/MarketplaceOrderItemController.php",
@@ -387,7 +387,7 @@
         },
         "MarketplaceSupplyController": {
             "file": "app\/Http\/Controllers\/MarketplaceSupplyController.php",
-            "methods_count": 27
+            "methods_count": 28
         },
         "MaterialConsumptionController": {
             "file": "app\/Http\/Controllers\/MaterialConsumptionController.php",
@@ -400,6 +400,10 @@
         "MaterialMovementController": {
             "file": "app\/Http\/Controllers\/MaterialMovementController.php",
             "methods_count": 1
+        },
+        "MaterialSupplierController": {
+            "file": "app\/Http\/Controllers\/MaterialSupplierController.php",
+            "methods_count": 3
         },
         "MovementDefectMaterialToSupplierController": {
             "file": "app\/Http\/Controllers\/MovementDefectMaterialToSupplierController.php",
@@ -475,7 +479,7 @@
         },
         "WarehouseOfItemController": {
             "file": "app\/Http\/Controllers\/WarehouseOfItemController.php",
-            "methods_count": 18
+            "methods_count": 19
         },
         "WorkshopController": {
             "file": "app\/Http\/Controllers\/WorkshopController.php",

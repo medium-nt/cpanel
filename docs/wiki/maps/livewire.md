@@ -40,6 +40,12 @@
   macrolocalClusterId, $draftSupplyType, $dateFrom, $dateTo, $
   timeslotDays, $selectedDate, $selectedTimeslot
 
+### PickupScan
+
+- **File:** `app/Livewire/PickupScan.php`
+- **View:** `livewire.pickup-scan`
+- **Properties:** $scanCode, $statusMessage, $statusType, $statusClass, $scanned
+
 ### ShelfChange
 - **File:** `app/Livewire/ShelfChange.php`
 - **View:** `livewire.shelf-change`
@@ -50,8 +56,8 @@
 - **File:** `app/Livewire/StatusChangeScan.php`
 - **View:** `livewire.status-change-scan`
 - **Properties:** $fromStatus, $toStatus, $pageTitle, $
-  scanCode, $scannedItems, $items, $statusMessage, $
-  statusClass, $selectedShelfId, $shelves
+  scanCode, $scannedItems, $items, $statusMessage, $statusType, $statusClass, $
+  selectedShelfId, $shelves
 
 ### StickerTapeImport
 - **File:** `app/Livewire/StickerTapeImport.php`

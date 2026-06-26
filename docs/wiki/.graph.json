@@ -1,0 +1,1115 @@
+{
+    "generated_at": "2026-06-25T19:59:59+03:00",
+    "nodes": {
+        "ActionAccrualService": {
+            "type": "service",
+            "file": "app\/Services\/ActionAccrualService.php",
+            "methods_count": 2
+        },
+        "AutoOrderService": {
+            "type": "service",
+            "file": "app\/Services\/AutoOrderService.php",
+            "methods_count": 2
+        },
+        "DefectMaterialService": {
+            "type": "service",
+            "file": "app\/Services\/DefectMaterialService.php",
+            "methods_count": 3
+        },
+        "ExcelOrderImportService": {
+            "type": "service",
+            "file": "app\/Services\/ExcelOrderImportService.php",
+            "methods_count": 3
+        },
+        "InventoryService": {
+            "type": "service",
+            "file": "app\/Services\/InventoryService.php",
+            "methods_count": 12
+        },
+        "MarketplaceApiService": {
+            "type": "service",
+            "file": "app\/Services\/MarketplaceApiService.php",
+            "methods_count": 59
+        },
+        "MarketplaceOrderItemService": {
+            "type": "service",
+            "file": "app\/Services\/MarketplaceOrderItemService.php",
+            "methods_count": 26
+        },
+        "MarketplaceOrderService": {
+            "type": "service",
+            "file": "app\/Services\/MarketplaceOrderService.php",
+            "methods_count": 10
+        },
+        "MarketplaceSupplyService": {
+            "type": "service",
+            "file": "app\/Services\/MarketplaceSupplyService.php",
+            "methods_count": 3
+        },
+        "MovementDefectMaterialToSupplierService": {
+            "type": "service",
+            "file": "app\/Services\/MovementDefectMaterialToSupplierService.php",
+            "methods_count": 2
+        },
+        "MovementMaterialFromSupplierService": {
+            "type": "service",
+            "file": "app\/Services\/MovementMaterialFromSupplierService.php",
+            "methods_count": 2
+        },
+        "MovementMaterialToWorkshopService": {
+            "type": "service",
+            "file": "app\/Services\/MovementMaterialToWorkshopService.php",
+            "methods_count": 7
+        },
+        "OrderService": {
+            "type": "service",
+            "file": "app\/Services\/OrderService.php",
+            "methods_count": 1
+        },
+        "RollService": {
+            "type": "service",
+            "file": "app\/Services\/RollService.php",
+            "methods_count": 3
+        },
+        "ScheduleService": {
+            "type": "service",
+            "file": "app\/Services\/ScheduleService.php",
+            "methods_count": 9
+        },
+        "ShiftService": {
+            "type": "service",
+            "file": "app\/Services\/ShiftService.php",
+            "methods_count": 7
+        },
+        "StackService": {
+            "type": "service",
+            "file": "app\/Services\/StackService.php",
+            "methods_count": 4
+        },
+        "StickerService": {
+            "type": "service",
+            "file": "app\/Services\/StickerService.php",
+            "methods_count": 2
+        },
+        "TgService": {
+            "type": "service",
+            "file": "app\/Services\/TgService.php",
+            "methods_count": 1
+        },
+        "TransactionService": {
+            "type": "service",
+            "file": "app\/Services\/TransactionService.php",
+            "methods_count": 12
+        },
+        "UserService": {
+            "type": "service",
+            "file": "app\/Services\/UserService.php",
+            "methods_count": 14
+        },
+        "WarehouseOfItemService": {
+            "type": "service",
+            "file": "app\/Services\/WarehouseOfItemService.php",
+            "methods_count": 8
+        },
+        "WriteOffRemnantService": {
+            "type": "service",
+            "file": "app\/Services\/WriteOffRemnantService.php",
+            "methods_count": 1
+        },
+        "ConfirmPasswordController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/Auth\\ConfirmPasswordController.php",
+            "methods_count": 3
+        },
+        "ForgotPasswordController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/Auth\\ForgotPasswordController.php",
+            "methods_count": 3
+        },
+        "LoginController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/Auth\\LoginController.php",
+            "methods_count": 7
+        },
+        "RegisterController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/Auth\\RegisterController.php",
+            "methods_count": 3
+        },
+        "ResetPasswordController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/Auth\\ResetPasswordController.php",
+            "methods_count": 4
+        },
+        "VerificationController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/Auth\\VerificationController.php",
+            "methods_count": 4
+        },
+        "BarcodeSearchController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/BarcodeSearchController.php",
+            "methods_count": 2
+        },
+        "Controller": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/Controller.php",
+            "methods_count": 6
+        },
+        "DefectMaterialController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/DefectMaterialController.php",
+            "methods_count": 8
+        },
+        "HomeController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/HomeController.php",
+            "methods_count": 1
+        },
+        "InventoryController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/InventoryController.php",
+            "methods_count": 7
+        },
+        "MarketplaceApiController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MarketplaceApiController.php",
+            "methods_count": 7
+        },
+        "MarketplaceItemController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MarketplaceItemController.php",
+            "methods_count": 6
+        },
+        "MarketplaceOrderController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MarketplaceOrderController.php",
+            "methods_count": 12
+        },
+        "MarketplaceOrderItemController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MarketplaceOrderItemController.php",
+            "methods_count": 12
+        },
+        "MarketplaceSupplyController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MarketplaceSupplyController.php",
+            "methods_count": 28
+        },
+        "MaterialConsumptionController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MaterialConsumptionController.php",
+            "methods_count": 1
+        },
+        "MaterialController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MaterialController.php",
+            "methods_count": 6
+        },
+        "MaterialMovementController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MaterialMovementController.php",
+            "methods_count": 1
+        },
+        "MaterialSupplierController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MaterialSupplierController.php",
+            "methods_count": 3
+        },
+        "MovementDefectMaterialToSupplierController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MovementDefectMaterialToSupplierController.php",
+            "methods_count": 3
+        },
+        "MovementMaterialByMarketplaceOrderController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MovementMaterialByMarketplaceOrderController.php",
+            "methods_count": 1
+        },
+        "MovementMaterialFromSupplierController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MovementMaterialFromSupplierController.php",
+            "methods_count": 7
+        },
+        "MovementMaterialToWorkshopController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MovementMaterialToWorkshopController.php",
+            "methods_count": 11
+        },
+        "OzonReturnsController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/OzonReturnsController.php",
+            "methods_count": 4
+        },
+        "PageController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/PageController.php",
+            "methods_count": 1
+        },
+        "ProductStickerController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/ProductStickerController.php",
+            "methods_count": 6
+        },
+        "RollController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/RollController.php",
+            "methods_count": 6
+        },
+        "ScheduleController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/ScheduleController.php",
+            "methods_count": 1
+        },
+        "SettingController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/SettingController.php",
+            "methods_count": 6
+        },
+        "ShelfController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/ShelfController.php",
+            "methods_count": 6
+        },
+        "ShiftController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/ShiftController.php",
+            "methods_count": 13
+        },
+        "StickerPrintingController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/StickerPrintingController.php",
+            "methods_count": 23
+        },
+        "SupplierController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/SupplierController.php",
+            "methods_count": 6
+        },
+        "SupplyBoxController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/SupplyBoxController.php",
+            "methods_count": 9
+        },
+        "TelegramController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/TelegramController.php",
+            "methods_count": 1
+        },
+        "TransactionController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/TransactionController.php",
+            "methods_count": 8
+        },
+        "UsersController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/UsersController.php",
+            "methods_count": 12
+        },
+        "WarehouseOfItemController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/WarehouseOfItemController.php",
+            "methods_count": 19
+        },
+        "WorkshopController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/WorkshopController.php",
+            "methods_count": 6
+        },
+        "WriteOffRemnantsController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/WriteOffRemnantsController.php",
+            "methods_count": 3
+        }
+    },
+    "edges": [
+        {
+            "from": "AutoOrderService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "AutoOrderService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
+            "to": "StickerService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
+            "to": "StickerService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemService",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemService",
+            "to": "StackService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemService",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyService",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementDefectMaterialToSupplierService",
+            "to": "InventoryService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementDefectMaterialToSupplierService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementDefectMaterialToSupplierService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StackService",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UserService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UserService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "WarehouseOfItemService",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "WriteOffRemnantService",
+            "to": "InventoryService",
+            "kind": "static_call"
+        },
+        {
+            "from": "BarcodeSearchController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialController",
+            "to": "OrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialController",
+            "to": "InventoryService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialController",
+            "to": "DefectMaterialService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialController",
+            "to": "DefectMaterialService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialController",
+            "to": "DefectMaterialService",
+            "kind": "static_call"
+        },
+        {
+            "from": "HomeController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "HomeController",
+            "to": "ShiftService",
+            "kind": "static_call"
+        },
+        {
+            "from": "HomeController",
+            "to": "ScheduleService",
+            "kind": "static_call"
+        },
+        {
+            "from": "HomeController",
+            "to": "MovementMaterialToWorkshopService",
+            "kind": "static_call"
+        },
+        {
+            "from": "HomeController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "HomeController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "HomeController",
+            "to": "RollService",
+            "kind": "static_call"
+        },
+        {
+            "from": "InventoryController",
+            "to": "InventoryService",
+            "kind": "static_call"
+        },
+        {
+            "from": "InventoryController",
+            "to": "InventoryService",
+            "kind": "static_call"
+        },
+        {
+            "from": "InventoryController",
+            "to": "ShiftService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiController",
+            "to": "StickerService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "InventoryService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "StackService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceOrderItemController",
+            "to": "StickerService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceSupplyService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementDefectMaterialToSupplierController",
+            "to": "MovementDefectMaterialToSupplierService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialFromSupplierController",
+            "to": "MovementMaterialFromSupplierService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialFromSupplierController",
+            "to": "MovementMaterialFromSupplierService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
+            "to": "MovementMaterialToWorkshopService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
+            "to": "MovementMaterialToWorkshopService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
+            "to": "MovementMaterialToWorkshopService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
+            "to": "MovementMaterialToWorkshopService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "RollController",
+            "to": "RollService",
+            "kind": "static_call"
+        },
+        {
+            "from": "SettingController",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "SettingController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "SettingController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "ShiftController",
+            "to": "ShiftService",
+            "kind": "static_call"
+        },
+        {
+            "from": "ShiftController",
+            "to": "ShiftService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "ScheduleService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "ShiftService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "ScheduleService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "ShiftService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "RollService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "SupplyBoxController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "TelegramController",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "TelegramController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "TransactionController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "TransactionController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "TransactionController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "TransactionController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "TransactionController",
+            "to": "TransactionService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
+            "to": "ScheduleService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "WarehouseOfItemController",
+            "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "WarehouseOfItemController",
+            "to": "MarketplaceApiService",
+            "kind": "static_call"
+        },
+        {
+            "from": "WarehouseOfItemController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "WarehouseOfItemController",
+            "to": "MarketplaceOrderItemService",
+            "kind": "static_call"
+        },
+        {
+            "from": "WriteOffRemnantsController",
+            "to": "WriteOffRemnantService",
+            "kind": "static_call"
+        }
+    ],
+    "god_nodes": [
+        {
+            "name": "MarketplaceApiService",
+            "indegree": 25,
+            "outdegree": 6,
+            "score": 56
+        },
+        {
+            "name": "UserService",
+            "indegree": 18,
+            "outdegree": 2,
+            "score": 38
+        },
+        {
+            "name": "MarketplaceOrderService",
+            "indegree": 16,
+            "outdegree": 0,
+            "score": 32
+        },
+        {
+            "name": "MarketplaceOrderItemService",
+            "indegree": 12,
+            "outdegree": 3,
+            "score": 27
+        },
+        {
+            "name": "TgService",
+            "indegree": 13,
+            "outdegree": 0,
+            "score": 26
+        },
+        {
+            "name": "MarketplaceSupplyController",
+            "indegree": 0,
+            "outdegree": 22,
+            "score": 22
+        },
+        {
+            "name": "TransactionService",
+            "indegree": 9,
+            "outdegree": 0,
+            "score": 18
+        },
+        {
+            "name": "MovementMaterialToWorkshopService",
+            "indegree": 5,
+            "outdegree": 4,
+            "score": 14
+        },
+        {
+            "name": "InventoryService",
+            "indegree": 6,
+            "outdegree": 0,
+            "score": 12
+        },
+        {
+            "name": "ShiftService",
+            "indegree": 6,
+            "outdegree": 0,
+            "score": 12
+        },
+        {
+            "name": "MarketplaceOrderItemController",
+            "indegree": 0,
+            "outdegree": 12,
+            "score": 12
+        },
+        {
+            "name": "StickerPrintingController",
+            "indegree": 0,
+            "outdegree": 11,
+            "score": 11
+        },
+        {
+            "name": "DefectMaterialService",
+            "indegree": 3,
+            "outdegree": 3,
+            "score": 9
+        },
+        {
+            "name": "ScheduleService",
+            "indegree": 4,
+            "outdegree": 0,
+            "score": 8
+        },
+        {
+            "name": "StickerService",
+            "indegree": 4,
+            "outdegree": 0,
+            "score": 8
+        },
+        {
+            "name": "HomeController",
+            "indegree": 0,
+            "outdegree": 7,
+            "score": 7
+        },
+        {
+            "name": "UsersController",
+            "indegree": 0,
+            "outdegree": 7,
+            "score": 7
+        },
+        {
+            "name": "RollService",
+            "indegree": 3,
+            "outdegree": 0,
+            "score": 6
+        },
+        {
+            "name": "MovementMaterialToWorkshopController",
+            "indegree": 0,
+            "outdegree": 6,
+            "score": 6
+        },
+        {
+            "name": "MovementDefectMaterialToSupplierService",
+            "indegree": 1,
+            "outdegree": 3,
+            "score": 5
+        }
+    ],
+    "stats": {
+        "total_nodes": 64,
+        "total_edges": 132,
+        "di_edges": 0,
+        "static_call_edges": 132
+    }
+}

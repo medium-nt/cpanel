@@ -108,14 +108,16 @@
 - **Table:** `materials`
 - **Traits:** `HasFactory`, `SoftDeletes`
 - **Fillable:** `title`, `type_id`, `height`, `unit`, `purchase_price`,
-  `is_active`
-- **Casts:** `id` → int, `deleted_at` → datetime
+  `is_active`, `minimum_roll_size_for_closure`
+- **Casts:** `id` → int, `minimum_roll_size_for_closure` → decimal:2,
+  `deleted_at` → datetime
 - **Relationships:**
     - `BelongsTo` type → TypeMaterial
     - `HasMany` rolls → Roll
     - `HasMany` movementMaterials → MovementMaterial
     - `BelongsToMany` workshops → Workshop
     - `BelongsToMany` users → User
+  - `BelongsToMany` suppliers → Supplier
     - `HasMany` rates → Rate
 
 ### MaterialConsumption
@@ -129,7 +131,6 @@
     - `BelongsTo` material → Material
 
 ### MaterialWorkshop
-
 - **File:** `app/Models/MaterialWorkshop.php`
 - **Table:** `material_workshop`
 - **Traits:** `HasFactory`
@@ -270,10 +271,11 @@
 - **File:** `app/Models/ShiftSchedule.php`
 - **Table:** `shift_schedule`
 - **Traits:** `HasFactory`
-- **Fillable:** `shift_id`, `date`
+- **Fillable:** `shift_id`, `date`, `workshop_id`
 - **Casts:** `id` → int
 - **Relationships:**
     - `BelongsTo` shift → Shift
+  - `BelongsTo` workshop → Workshop
 
 ### Sku
 - **File:** `app/Models/Sku.php`
@@ -305,6 +307,7 @@
 - **Casts:** `id` → int, `deleted_at` → datetime
 - **Relationships:**
     - `HasMany` orders → Order
+  - `BelongsToMany` materials → Material
 
 ### SupplyBox
 - **File:** `app/Models/SupplyBox.php`
@@ -380,7 +383,6 @@
     - `HasMany` tariffs → Tariff
 
 ### Workshop
-
 - **File:** `app/Models/Workshop.php`
 - **Table:** `workshops`
 - **Traits:** `HasFactory`

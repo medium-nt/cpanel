@@ -141,6 +141,7 @@
     - `static getMaxQuantityOrdersToUserRole()`
     - `static getNewOrderItem()`
     - `static fillEntireStack()`
+  - `static resetClusterPriorityIfExhausted(int $workshopId)`
     -
     `static createItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
     - `static hasReadyItem(App\Models\Sku $sku)`
@@ -168,6 +169,7 @@
     - `static delete(App\Models\MarketplaceOrder $marketplaceOrder)`
     - `static deleteNewOrdersBySupply(int $supplyId)`
     - `static detachNotReadyOrdersBySupply(int $supplyId)`
+  - `static detachOnSupplyOrdersBySupply(int $supplyId)`
 
 ### MarketplaceSupplyService
 - **File:** `app/Services/MarketplaceSupplyService.php`
@@ -243,7 +245,7 @@
     -
     `static transferEmployee(App\Models\User $user, App\Models\Shift $newShift, string $effectiveFrom)`
     - `static getMissingScheduleDates(int $days, int $workshopId)`
-    - `static fillSchedule(array $data)`
+  - `static fillSchedule(array $data, int $workshopId)`
 
 ### StackService
 - **File:** `app/Services/StackService.php`
@@ -286,6 +288,7 @@
 - **File:** `app/Services/UserService.php`
 - **Methods:**
     - `static translateRoleName($role)`
+  - `static getFiltered(Illuminate\Http\Request $request)`
     - `static getListSeamstressesWorkingToday(int $workshopId)`
     - `static getListStorekeepersWorkingToday()`
     - `static getListManagersWithTg()`
