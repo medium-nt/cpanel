@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-25
+> Last reviewed: 2026-06-27
 
 ## Обзор
 
@@ -94,6 +94,25 @@
 3. `getCurrentUsers()` — кто работает сейчас (effective_from <= сегодня)
 4. `getIncomingUsers()` — кто придёт в будущем
 5. `getOutgoingUsers()` — кто уходит в другую смену
+
+**Счётчики сотрудников без задвоения (`currentUsers`):**
+
+Списочные счётчики (`shifts/index`, `workshops/index/edit`) используют relation
+`currentUsers()` через `withCount(['currentUsers as users_count'])` вместо
+`withCount('users')` — это исключает переведённых сотрудников из старой смены
+(т.к. в pivot есть более свежая `effective_from` в другой смене).
+
+- **Техническая реализация:** `Shift::currentUsers(): BelongsToMany`
+  фильтрует `shift_user` по `effective_from <= today` и исключает переведённых
+  через
+  `whereNotExists` (есть более свежая `effective_from` в ДРУГОЙ смене).
+  Корреляция в `whereNotExists` через `whereColumn('su2.shift_id', '!=',
+  'shift_user.shift_id')` — НЕ через `$this->id`, иначе `withCount` ломается
+  (relation на donor-instance без id → `!= NULL` → все записи исключаются).
+- **Метод `getCurrentUsers()`** теперь делегирует в `currentUsers()->get()`
+  и вызывает `unique('id')` для дедупликации.
+- **Тесты:** `tests/Feature/ShiftCurrentUsersTest.php` — проверка счётчиков при
+  переводе прошедшей/будущей датой.
 
 ### Три состояния дня в ShiftSchedule
 

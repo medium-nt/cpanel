@@ -52,26 +52,38 @@ class Shift extends Model
     }
 
     /**
-     * Получить сотрудников, привязанных к смене на сегодня.
-     * Исключает пользователей, переведённых в другую смену с более свежей датой.
+     * Отношение к сотрудникам, актуально привязанным к смене на сегодня.
+     *
+     * Оставляет только записи с effective_from <= сегодня и исключает
+     * переведённых в другую смену с более свежей датой вступления.
+     * Используется как для выборки, так и для withCount на страницах списков.
      */
-    /** Возвращает сотрудников, привязанных к смене на сегодня без будущих переводов. */
-    public function getCurrentUsers()
+    public function currentUsers(): BelongsToMany
     {
         $today = now()->toDateString();
 
         return $this->users()
             ->wherePivot('effective_from', '<=', $today)
             ->whereNotExists(function ($query) use ($today) {
+                // Корреляция по pivot-колонкам (shift_user.*), а не по $this->id —
+                // так отношение работает и для единичной модели, и внутри withCount,
+                // где Laravel вызывает relation на donor-instance без id.
                 $query->select(DB::raw(1))
                     ->from('shift_user as su2')
                     ->whereColumn('su2.user_id', 'shift_user.user_id')
-                    ->where('su2.shift_id', '!=', $this->id)
+                    ->whereColumn('su2.shift_id', '!=', 'shift_user.shift_id')
                     ->where('su2.effective_from', '<=', $today)
-                    ->where('su2.effective_from', '>', DB::raw('shift_user.effective_from'));
-            })
-            ->get()
-            ->unique('id');
+                    ->whereColumn('su2.effective_from', '>', 'shift_user.effective_from');
+            });
+    }
+
+    /**
+     * Получить сотрудников, привязанных к смене на сегодня.
+     * Исключает пользователей, переведённых в другую смену с более свежей датой.
+     */
+    public function getCurrentUsers()
+    {
+        return $this->currentUsers()->get()->unique('id');
     }
 
     /**

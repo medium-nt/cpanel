@@ -20,7 +20,7 @@ class ShiftController extends Controller
 {
     public function index(): View
     {
-        $shifts = Shift::withCount('users')->with(['rolls', 'workshop'])->get();
+        $shifts = Shift::withCount(['currentUsers as users_count'])->with(['rolls', 'workshop'])->get();
 
         return view('shifts.index', compact('shifts'));
     }

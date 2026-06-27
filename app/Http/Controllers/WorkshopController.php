@@ -19,7 +19,7 @@ class WorkshopController extends Controller
         // Загружаем цеха с количеством смен и сотрудников
         $workshops = Workshop::withCount('shifts')
             ->with(['shifts' => function ($query) {
-                $query->withCount('users');
+                $query->withCount(['currentUsers as users_count']);
             }])
             ->get();
 
@@ -55,7 +55,7 @@ class WorkshopController extends Controller
     {
         // Загружаем смены этого цеха с количеством сотрудников
         $workshop->load(['shifts' => function ($query) {
-            $query->withCount('users');
+            $query->withCount(['currentUsers as users_count']);
         }]);
 
         // Группируем товары маркетплейсов по названию материала (без ширин и высот)
