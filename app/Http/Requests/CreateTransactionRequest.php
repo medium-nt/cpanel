@@ -27,6 +27,7 @@ class CreateTransactionRequest extends FormRequest
             'amount' => 'required|numeric|gte:0.01',
             'transaction_type' => 'required|in:in,out',
             'user_id' => 'nullable|integer|exists:users,id',
+            'fine_photo' => 'nullable|image|max:5120',
         ];
     }
 
@@ -54,6 +55,9 @@ class CreateTransactionRequest extends FormRequest
 
             'user_id.integer' => 'Id пользователя должно быть числом',
             'user_id.exists' => 'Пользователь не найден',
+
+            'fine_photo.image' => 'Файл должен быть изображением',
+            'fine_photo.max' => 'Размер изображения не должен превышать 5 МБ',
         ];
     }
 }

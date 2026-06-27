@@ -158,10 +158,20 @@
                                     <td>{{ $transaction->amount }} <i class="fas fa-ruble-sign"></i></td>
                                     <td></td>
                                 @endif
-                                <td>{{ $transaction->title }} @if($transaction->user_id)
+                                <td>
+                                    @if($transaction->fine_photo)
+                                        <a href="{{ asset('storage/'.$transaction->fine_photo) }}"
+                                           target="_blank"
+                                           title="Фото-доказательство"
+                                           class="mr-1">
+                                            <i class="fas fa-image text-info"></i>
+                                        </a>
+                                    @endif
+                                    {{ $transaction->title }} @if($transaction->user_id)
                                         ({{ $transaction->user->short_name ?? '---' }}
                                         )
-                                    @endif</td>
+                                    @endif
+                                </td>
                                 <td>{{ now()->parse($transaction->created_at)->format('d/m/Y H:i') }}</td>
                                 <td>{{
                                     $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('d/m/Y H:i') : '-'

@@ -27,7 +27,9 @@
                 </div>
             @endif
 
-            <form action="{{ route('transactions.store', ['type' => $type]) }}" method="POST">
+                <form
+                    action="{{ route('transactions.store', ['type' => $type]) }}"
+                    method="POST" enctype="multipart/form-data">
                 @method('POST')
                 @csrf
                 <div class="card-body">
@@ -107,6 +109,24 @@
                             @endforeach
                         </select>
                     </div>
+
+                        <div class="form-group" id="fine-photo-group"
+                             style="display: none">
+                            <label for="fine_photo">Фото-доказательство <small
+                                    class="text-muted">(необязательно, для
+                                    штрафа)</small></label>
+                            <input type="file"
+                                   name="fine_photo"
+                                   id="fine_photo"
+                                   class="form-control @error('fine_photo') is-invalid @enderror"
+                                   accept="image/*">
+                            <img id="fine-photo-preview" src="" alt=""
+                                 style="max-height: 120px; margin-top: 8px; display: none;">
+                            @error('fine_photo')
+                            <div
+                                class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
                     @endif
 
                     <div class="form-group">
@@ -116,4 +136,36 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeSelect = document.getElementById('transaction_type');
+            const photoGroup = document.getElementById('fine-photo-group');
+            const fileInput = document.getElementById('fine_photo');
+            const preview = document.getElementById('fine-photo-preview');
+
+            if (!typeSelect || !photoGroup) {
+                return;
+            }
+
+            const togglePhoto = function () {
+                photoGroup.style.display = (typeSelect.value === 'in') ? '' : 'none';
+            };
+
+            typeSelect.addEventListener('change', togglePhoto);
+            togglePhoto();
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        preview.src = URL.createObjectURL(file);
+                        preview.style.display = '';
+                    } else {
+                        preview.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
 @stop

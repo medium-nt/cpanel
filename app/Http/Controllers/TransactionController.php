@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class TransactionController extends Controller
 {
@@ -79,6 +80,10 @@ class TransactionController extends Controller
             'transaction_type' => $transaction->transaction_type,
             'deleted_by' => auth()->id(),
         ]);
+
+        if ($transaction->fine_photo) {
+            Storage::disk('public')->delete($transaction->fine_photo);
+        }
 
         $transaction->delete();
 

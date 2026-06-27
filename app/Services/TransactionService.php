@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class TransactionService
 {
@@ -30,6 +31,8 @@ class TransactionService
 
         $user = User::query()->find($request->user_id);
 
+        $finePhotoPath = self::storeFinePhoto($request);
+
         self::addTransaction(
             $user,
             $request->amount,
@@ -38,6 +41,7 @@ class TransactionService
             $request->accrual_for_date,
             $request->type,
             $isBonus,
+            $finePhotoPath,
         );
 
         $label = $isBonus ? 'бонусов' : 'денег';
@@ -49,7 +53,7 @@ class TransactionService
         return true;
     }
 
-    private static function addTransaction(?User $user, $amount, $transaction_type, $title, $accrual_for_date, $type, bool $isBonus): void
+    private static function addTransaction(?User $user, $amount, $transaction_type, $title, $accrual_for_date, $type, bool $isBonus, ?string $finePhoto = null): void
     {
         $status = $isBonus ? 0 : 1;
 
@@ -67,7 +71,28 @@ class TransactionService
             'status' => $status,
             'is_bonus' => $isBonus,
             'paid_at' => $paid_at ?? null,
+            'fine_photo' => $finePhoto,
         ]);
+    }
+
+    /**
+     * Сохраняет фото-доказательство штрафа на публичный диск.
+     *
+     * Фото принимается только для штрафа (transaction_type=in),
+     * для остальных типов — игнорируется (двойная защита помимо UI).
+     */
+    private static function storeFinePhoto(CreateTransactionRequest $request): ?string
+    {
+        if ($request->transaction_type !== 'in' || ! $request->hasFile('fine_photo')) {
+            return null;
+        }
+
+        $file = $request->file('fine_photo');
+        $fileName = now()->format('Ymd_His').'_'.uniqid().'.'.$file->getClientOriginalExtension();
+
+        Storage::disk('public')->putFileAs('fines', $file, $fileName);
+
+        return 'fines/'.$fileName;
     }
 
     public static function activateHoldBonus(): void

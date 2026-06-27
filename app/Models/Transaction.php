@@ -25,6 +25,7 @@ class Transaction extends Model
         'transaction_type',
         'paid_at',
         'is_bonus',
+        'fine_photo',
     ];
 
     public function user(): BelongsTo
