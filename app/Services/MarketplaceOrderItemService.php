@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendMaxMessageJob;
 use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderHistory;
@@ -700,6 +701,7 @@ class MarketplaceOrderItemService
         if ($materialConsumptions->isEmpty()) {
             $text = 'Для заказа #'.$marketplaceOrderItem->id.' не указаны материалы!';
             TgService::sendMessage(config('telegram.admin_id'), $text);
+            MaxService::sendMessage(config('services.max.admin_id'), $text);
 
             return false;
         }
@@ -1089,6 +1091,7 @@ class MarketplaceOrderItemService
         );
 
         TgService::sendMessage(config('telegram.admin_id'), $text);
+        MaxService::sendMessage(config('services.max.admin_id'), $text);
     }
 
     protected static function notifyAboutReservation($marketplaceOrderItem, $item): void
@@ -1108,10 +1111,24 @@ class MarketplaceOrderItemService
         );
 
         SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+        SendMaxMessageJob::dispatch(config('services.max.admin_id'), $text);
 
         if (auth()->user()->tg_id) {
             SendTelegramMessageJob::dispatch(
                 auth()->user()->tg_id,
+                sprintf(
+                    'Вы взяли в работу заказ # %s (%s): %s %sx%s',
+                    $marketplaceOrderItem->marketplaceOrder->order_id,
+                    $marketplaceName,
+                    $item->title,
+                    $item->width,
+                    $item->height
+                )
+            );
+        }
+        if (auth()->user()->max_id) {
+            SendMaxMessageJob::dispatch(
+                auth()->user()->max_id,
                 sprintf(
                     'Вы взяли в работу заказ # %s (%s): %s %sx%s',
                     $marketplaceOrderItem->marketplaceOrder->order_id,

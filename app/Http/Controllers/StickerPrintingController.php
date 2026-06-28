@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendMaxMessageJob;
 use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
@@ -483,6 +484,7 @@ class StickerPrintingController extends Controller
             ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
         SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+        SendMaxMessageJob::dispatch(config('services.max.admin_id'), $text);
 
         foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
             SendTelegramMessageJob::dispatch($tgId, $text)

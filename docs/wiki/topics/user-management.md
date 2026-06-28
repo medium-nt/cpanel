@@ -1,6 +1,6 @@
 # User Management — Управление пользователями
 
-> Last reviewed: 2026-06-17
+> Last reviewed: 2026-06-28
 
 ## Обзор
 
@@ -102,14 +102,64 @@ if ($request->workshop_id) {
 - `canWorkToday()` — может ли сегодня работать (см. shift-system.md для деталей)
 - `hasShift()` — привязан ли к смене
 
+### Мессенджер-интеграции
+
+Система поддерживает параллельную работу с двумя мессенджерами для уведомлений:
+
+**Telegram (TG):**
+
+- Колонка `users.tg_id` (varchar 255, nullable) — хранит Telegram chat_id
+- Привязка через GET `/megatulle/users/profile?tg_id=...` (webhook от TG-бота)
+- Отключение через роут `profile.disconnectTg`
+- Отправка через `TgService::sendMessage(?string $chatId, string text)`
+
+**MAX (новый, с 28.06.2026):**
+
+- Колонка `users.max_id` (varchar 255, nullable) — хранит MAX chat_id (аналог
+  tg_id)
+- Привязка через GET `/megatulle/users/profile?max_id=...` (webhook от MAX-бота)
+- Отключение через роут `profile.disconnectMax`
+- Отправка через `MaxService::sendMessage(?string $chatId, string text)`
+- Webhook: POST `/api/max/webhook` (разбирает payload MAX, событие
+  `message_created`,
+  chat_id в `message.recipient.chat_id`)
+- Подписка webhook: команда `max:subscribe-webhook` (регистрирует в MAX API)
+
+**Стратегия рассылки (Этап 1 из 2 — реализован):**
+
+Каждое уведомление уходит **параллельно** в оба мессенджера (если у пользователя
+привязан
+соответствующий chat_id). Паттерн: если tg_id → TgService, если max_id →
+MaxService.
+
+**Технические нюансы MAX:**
+
+- Authorization: RAW токен в заголовке БЕЗ префикса 'Bearer ' (иначе 401)
+- API домен: `platform-api2.max.ru` (см. platform-api.max.ru deprecated, дедлайн
+  19.07.2026)
+- Long polling /updates и webhook взаимоисключающи; long-polling — только для
+  dev
+
 ## Ключевые файлы
 
-- `app/Models/User.php` — модель пользователя (роли, связи с сменами)
+- `app/Models/User.php` — модель пользователя (роли, связи с сменами,
+  tg_id/max_id)
 - `app/Services/UserService.php` — фильтрация пользователей (`getFiltered()`
   метод)
-- `app/Http/Controllers/UsersController.php` — страница списка (`index()` метод)
+- `app/Services/TgService.php` — static sendMessage для Telegram-уведомлений
+- `app/Services/MaxService.php` — static sendMessage для MAX-уведомлений (клон
+  TgService)
+- `app/Jobs/SendTelegramMessageJob.php` — очередь TG-уведомлений
+- `app/Jobs/SendMaxMessageJob.php` — очередь MAX-уведомлений
+- `app/Http/Controllers/UsersController.php` — страница списка (`index()`
+  метод),
+  методы `profile()`, `disconnectTg()`, `disconnectMax()`
+- `app/Http/Controllers/MaxController.php` — webhook MAX (POST /api/max/webhook)
+- `app/Console/Commands/SubscribeMaxWebhook.php` — регистрация webhook в MAX
 - `resources/views/users/index.blade.php` — UI с фильтрами и колонкой «Цех»
-- `public/js/PageQueryParam.js` — утилита авто-применения параметров URL
+- `resources/views/users/profile.blade.php` — блок статуса MAX/TG подключения
+- `config/services.php` — секции `telegram` и `max` (token, api_url, admin_id,
+  webhook_url)
 
 ## Связанные topics
 
@@ -125,6 +175,12 @@ if ($request->workshop_id) {
 - Фильтр по цеху всегда актуален — обновляется при изменении смены сотрудника
 - Новые пользователи создаются без привязки к смене (нужно назначать вручную)
 - Все операции с пользователями (кроме чтения) логируются для безопасности
+- **Мессенджеры-интеграции:** tg_id и max_id независимы, пользователь может
+  иметь оба
+  или ни одного; уведомления уходят в оба канала параллельно при наличии chat_id
+- **Webhook MAX:** при событии `message_created` и несуществующем max_id
+  отправляется
+  ссылка на профиль для привязки (route('profile', ['max_id' => ...]))
 
 ## Связанные topics
 
@@ -132,5 +188,5 @@ if ($request->workshop_id) {
 - [salary-system.md](salary-system.md) — оплата по ролям и сменам
 - [order-lifecycle.md](order-lifecycle.md) — доступ к заказам по ролям
 - [logging-channels.md](logging-channels.md) — каналы логирования и
-  audit-покрытие
+  audit-покрытие, канал `max` для MAX-уведомлений
 - [warehouse-operations.md](warehouse-operations.md) — доступ к киосу по ролям

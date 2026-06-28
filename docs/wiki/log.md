@@ -488,3 +488,41 @@
 - Upload скриншота: индикатор «Загрузка...» при выборе файла убран (фриз
   браузера из-за антивируса/ОС)
 - Обновлён topic: support-system.md
+
+## [2026-06-28] update | max-messenger-notifications
+
+- Реализован ВТОРОЙ канал уведомлений — MAX мессенджер (параллельно с Telegram)
+- Новая колонка `users.max_id` (varchar 255, nullable) — аналог tg_id для MAX
+  chat_id
+- Новые сервисы: `MaxService::sendMessage()` (клон TgService),
+  `SendMaxMessageJob`
+  (клон SendTelegramMessageJob)
+- Webhook MAX: POST `/api/max/webhook` через `MaxController` (обрабатывает
+  событие
+  `message_created`, chat_id в `message.recipient.chat_id`)
+- Привязка MAX: GET `/megatulle/users/profile?max_id=...` (аналог tg_id)
+- Отключение MAX: роут `profile.disconnectMax`
+- Команда подписки webhook: `max:subscribe-webhook` (регистрация в MAX API)
+- Конфигурация: секция `max` в config/services.php (token,
+  api_url=platform-api2.max.ru,
+  admin_id, webhook_url); канал лога `max` в config/logging.php
+- .env переменные: MAX_BOT_TOKEN, MAX_API_URL, MAX_ADMIN_ID, MAX_WEBHOOK_URL
+- Этап 1 (РЕАЛИЗОВАН): дублирование всех admin-уведомлений (~13 файлов) и
+  персональных
+  по объекту User (UserService, MarketplaceOrderItemService). Стратегия
+  «параллельно»:
+  каждое уведомление уходит и в TG, и в MAX (у кого привязан chat_id)
+- Технические нюансы MAX: Authorization RAW токен БЕЗ 'Bearer ' префикса (иначе
+  401);
+  API домен сменился platform-api.max.ru → platform-api2.max.ru (дедлайн
+  19.07.2026);
+  long polling /updates и webhook взаимоисключающи
+- Этап 2 (НЕ реализовано): массовые рассылки через foreach (
+  getListSeamstressesWorkingToday
+  и др.) — хелперы возвращают Collection<tg_id>, для MAX нужна адаптация (~25
+  точек)
+- Обновлены topics: logging-channels.md (канал `max`), user-management.md (
+  мессенджер-интеграции),
+  marketplace-integration.md (TG+MAX-уведомления), warehouse-operations.md (
+  TG+MAX при сборке),
+  material-flow.md (TG+MAX уведомления), order-lifecycle.md (TG+MAX уведомления)

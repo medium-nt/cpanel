@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\Shift;
+use App\Services\MaxService;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\ShiftService;
 use App\Services\TgService;
@@ -206,6 +207,7 @@ class MovementMaterialToWorkshopController extends Controller
             ->notice('Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: '.$text);
 
         TgService::sendMessage(config('telegram.admin_id'), $text);
+        MaxService::sendMessage(config('services.max.admin_id'), $text);
 
         foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
             TgService::sendMessage($tgId, $text);

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\SaveDefectMaterialRequest;
+use App\Jobs\SendMaxMessageJob;
 use App\Jobs\SendTelegramMessageJob;
 use App\Models\MovementMaterial;
 use App\Models\Order;
@@ -51,6 +52,7 @@ class DefectMaterialService
                     ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
                 TgService::sendMessage(config('telegram.admin_id'), $text);
+                MaxService::sendMessage(config('services.max.admin_id'), $text);
 
                 foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
                     TgService::sendMessage($tgId, $text);
@@ -126,6 +128,7 @@ class DefectMaterialService
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
             SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+            SendMaxMessageJob::dispatch(config('services.max.admin_id'), $text);
 
             foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
                 SendTelegramMessageJob::dispatch($tgId, $text)

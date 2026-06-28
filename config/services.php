@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'max' => [
+        'token' => env('MAX_BOT_TOKEN'),
+        'api_url' => env('MAX_API_URL', 'https://platform-api2.max.ru'),
+        'admin_id' => env('MAX_ADMIN_ID'),
+        'webhook_url' => env('MAX_WEBHOOK_URL'),
+    ],
+
 ];

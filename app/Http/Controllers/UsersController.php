@@ -10,6 +10,7 @@ use App\Models\Tariff;
 use App\Models\User;
 use App\Models\UserTariff;
 use App\Models\Workshop;
+use App\Services\MaxService;
 use App\Services\ScheduleService;
 use App\Services\TgService;
 use App\Services\UserService;
@@ -196,6 +197,26 @@ class UsersController extends Controller
                 );
         }
 
+        $maxId = $request->all()['max_id'] ?? null;
+
+        if ($maxId) {
+            auth()->user()->update([
+                'max_id' => $maxId,
+            ]);
+
+            MaxService::sendMessage(
+                $maxId,
+                'Поздравляю, '.auth()->user()->name.'! Вы авторизовались в системе как '
+                .UserService::translateRoleName(auth()->user()->role->name).
+                ' и теперь будете получать все уведомления системы через меня.'
+            );
+
+            Log::channel('max')
+                ->info(
+                    'Сотрудник '.auth()->user()->name.' ('.auth()->user()->id.') подключился к боту MAX с max_id: '.$maxId
+                );
+        }
+
         return view('users.profile', [
             'title' => 'Профиль',
             'user' => auth()->user(),
@@ -220,6 +241,23 @@ class UsersController extends Controller
         Log::channel('tg')
             ->info(
                 'Сотрудник '.auth()->user()->name.' ('.auth()->user()->id.') отключился от бота.'
+            );
+
+        return redirect()->route('profile');
+    }
+
+    /**
+     * Отключает MAX мессенджер от профиля пользователя.
+     */
+    public function disconnectMax()
+    {
+        auth()->user()->update([
+            'max_id' => null,
+        ]);
+
+        Log::channel('max')
+            ->info(
+                'Сотрудник '.auth()->user()->name.' ('.auth()->user()->id.') отключился от бота MAX.'
             );
 
         return redirect()->route('profile');

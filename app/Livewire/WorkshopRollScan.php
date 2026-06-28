@@ -7,6 +7,7 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Setting;
+use App\Services\MaxService;
 use App\Services\TgService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
@@ -253,6 +254,7 @@ class WorkshopRollScan extends Component
                 ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
+            MaxService::sendMessage(config('services.max.admin_id'), $text);
 
             foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
                 TgService::sendMessage($tgId, $text);

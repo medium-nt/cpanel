@@ -9,4 +9,6 @@ Route::prefix('/profile')->group(function () {
         ->name('profile.update');
     Route::get('disconnectTg', [UsersController::class, 'disconnectTg'])
         ->name('profile.disconnectTg');
+    Route::get('disconnectMax', [UsersController::class, 'disconnectMax'])
+        ->name('profile.disconnectMax');
 });

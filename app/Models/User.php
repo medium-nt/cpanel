@@ -41,6 +41,7 @@ class User extends Authenticatable
         'is_cutter',
         'avatar',
         'tg_id',
+        'max_id',
         'orders_priority',
         'shift_is_open',
         'start_work_shift',

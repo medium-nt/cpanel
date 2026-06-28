@@ -134,6 +134,9 @@ class UserService
             if ($schedule->user?->tg_id) {
                 TgService::sendMessage($schedule->user->tg_id, $text);
             }
+            if ($schedule->user?->max_id) {
+                MaxService::sendMessage($schedule->user->max_id, $text);
+            }
         }
 
         Log::channel('work_shift')->notice('В ТГ отправлено сообщение сотрудникам: '.$text);
@@ -237,6 +240,7 @@ class UserService
             Log::channel('work_shift')->error($text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
+            MaxService::sendMessage(config('services.max.admin_id'), $text);
         }
     }
 

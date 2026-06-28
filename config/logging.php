@@ -73,6 +73,13 @@ return [
             'days' => 30,
         ],
 
+        'max' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/max/max.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
         'orders' => [
             'driver' => 'daily',
             'path' => storage_path('logs/orders/orders.log'),

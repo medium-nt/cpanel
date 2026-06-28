@@ -497,6 +497,7 @@ class MarketplaceApiService
                             ->notice('Отправляем сообщение в ТГ работающему кладовщику и админу: '.$text);
 
                         TgService::sendMessage(config('telegram.admin_id'), $text);
+                        MaxService::sendMessage(config('services.max.admin_id'), $text);
 
                         foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
                             SendTelegramMessageJob::dispatch($tgId, $text)
@@ -518,6 +519,7 @@ class MarketplaceApiService
                             ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
                         TgService::sendMessage(config('telegram.admin_id'), $text);
+                        MaxService::sendMessage(config('services.max.admin_id'), $text);
 
                         foreach (UserService::getListSeamstressesWorkingToday() as $index => $tgId) {
                             SendTelegramMessageJob::dispatch($tgId, $text)

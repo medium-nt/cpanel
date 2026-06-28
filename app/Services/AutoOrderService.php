@@ -160,6 +160,7 @@ class AutoOrderService
             Log::channel('materials')->info($text);
 
             TgService::sendMessage(config('telegram.admin_id'), $text);
+            MaxService::sendMessage(config('services.max.admin_id'), $text);
 
             foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
                 TgService::sendMessage($tgId, $text);

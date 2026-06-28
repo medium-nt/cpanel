@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendMaxMessageJob;
 use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
@@ -93,6 +94,7 @@ class SupplyBoxController extends Controller
         );
 
         SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
+        SendMaxMessageJob::dispatch(config('services.max.admin_id'), $text);
 
         foreach (UserService::getListManagersWithTg() as $index => $tgId) {
             SendTelegramMessageJob::dispatch($tgId, $text)
