@@ -32,6 +32,7 @@ class MaxService
 
         try {
             $response = Http::withHeaders(['Authorization' => config('services.max.token')])
+                ->withOptions(['verify' => config('services.max.verify_ssl', true)])
                 ->timeout(10)
                 ->post(config('services.max.api_url').'/messages?chat_id='.$chatId, [
                     'text' => $text,

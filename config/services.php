@@ -40,6 +40,8 @@ return [
         'api_url' => env('MAX_API_URL', 'https://platform-api2.max.ru'),
         'admin_id' => env('MAX_ADMIN_ID'),
         'webhook_url' => env('MAX_WEBHOOK_URL'),
+        // На shared-хостингах без актуального CA-бандла (cURL error 60) ставить false.
+        'verify_ssl' => env('MAX_VERIFY_SSL', true),
     ],
 
 ];
