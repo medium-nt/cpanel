@@ -419,3 +419,72 @@
     - `resources/views/livewire/box-order-scanner.blade.php`
     - `tests/Feature/BoxOrderScannerTest.php`
 - Обновлены topics: marketplace-integration.md, warehouse-operations.md
+
+## [2026-06-28] add | support-system
+
+- Создана новая тикет-система «Поддержка» для сотрудников报告 проблем
+- Модель `Ticket` (таблица `tickets`) с полями: user_id, description, page_url,
+  screenshot, status (new/closed/deleted), closed_at
+- Сервис `TicketService`, контроллер `TicketController`, policy `TicketPolicy`,
+  request `StoreTicketRequest`, factory `TicketFactory`
+- Роуты в `routes/tickets.php` (префикс megatulle, middleware auth БЕЗ
+  require_open_shift):
+    - GET /megatulle/tickets — список с вкладками «Новые» (new) и
+      «Обработанные» (closed+deleted)
+    - GET /megatulle/tickets/create?url=... — форма создания с предзаполнением
+      page_url
+    - POST /megatulle/tickets — создание (валидация: description required/max:
+      5000, page_url nullable/url/max:500, screenshot nullable/image/max:5120)
+    - GET /megatulle/tickets/tickets/{ticket} — детальная страница
+    - PUT /megatulle/tickets/tickets/{ticket}/close — закрыть (admin only,
+      status=closed + closed_at)
+    - PUT /megatulle/tickets/tickets/{ticket}/delete — в корзину (admin only,
+      status=deleted)
+- Авторизация: view (автор ИЛИ admin), create (любой), close/delete (admin only)
+- Бейдж новых тикетов в меню: BuildingMenu listener в AppServiceProvider,
+  показывается только admin, считает Ticket::new()->count()
+- Кнопка создания в navbar: получает текущий URL через JavaScript (
+  window.location.href)
+- Blade views: index (вкладки), create (форма), show (детали)
+- Жизненный цикл: new → closed (показ в «Обработанные») / deleted (корзина)
+- Создан topic: support-system.md
+- Обновлены topics: user-management.md (связь с ролями)
+
+## [2026-06-28] fix | support-system
+
+- Исправлены фактические ошибки в topic support-system.md после сверки с
+  реальным кодом
+- Жизненный цикл: НЕ линейный (new → deleted И closed → deleted через
+  markDeleted), deleted — финальная корзина
+- Scope для фильтрации new: метод называется `opened()` (НЕ `new` — слово
+  зарезервировано в PHP), query-параметр `?scope=` (НЕ `?status=`)
+- Роуты: одинарный `tickets` в путях (НЕ двойной `/tickets/tickets/`)
+- Кнопка создания: серверный подход через `request()->fullUrl()` в
+  `layouts/app.blade.php` (НЕ JavaScript и НЕ navbar.blade.php)
+- Бейдж новых: логика remove + addAfter в AppServiceProvider, показывается
+  только когда count>0 (НЕ всегда)
+- Ключевые файлы: добавлены `config/adminlte.php`,
+  `lang/vendor/adminlte/ru/menu.php`, исправлены пути
+- Обновлён topic: support-system.md
+
+## [2026-06-28] update | support-system
+
+- Переименование: «Поддержка» → «Тикеты» (перевод в
+  `lang/vendor/adminlte/ru/menu.php`: 'support' => 'Тикеты')
+- Позиция в меню: самый низ — после «Настройки» (settings submenu), перед
+  «Просмотр логов» (logs). BuildingMenu listener использует `addBefore('logs')`
+  вместо `addAfter('main')`. Бейдж не уводит пункт наверх.
+- Code-review улучшения: guard статусов в `TicketPolicy` (close = isAdmin +
+  status new, delete = isAdmin + status НЕ deleted), дублирующий guard в
+  `TicketService` (возвращает false при неверном статусе), логирование аудита
+  через `Log::info` с ticket_id и admin_id
+- N+1 устранён: `TicketController@index` использует `->with('user')` для eager
+  load автора
+- Полировка UI: счётчики в табах («Новые (N)» с badge-danger, «Обработанные (N)»
+  с badge-secondary, скрыты при 0), заголовок страницы «Тикеты», проверка
+  `Storage::exists()` для скриншота в `show.blade.php` (показ «Файл
+  недоступен»), a11y (`aria-label` на кнопке navbar), мобильная версия (только
+  иконка-жук)
+- Upload скриншота: индикатор «Загрузка...» при выборе файла убран (фриз
+  браузера из-за антивируса/ОС)
+- Обновлён topic: support-system.md

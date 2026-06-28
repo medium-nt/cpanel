@@ -63,6 +63,7 @@ Route::prefix('megatulle')
         require base_path('routes/users.php');
         require base_path('routes/shifts.php');
         require base_path('routes/workshops.php');
+        require base_path('routes/tickets.php');
     });
 
 //  доступно только после начала смены.

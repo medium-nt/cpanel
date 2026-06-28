@@ -9,6 +9,20 @@
 
 {{-- Extend and customize the page content header --}}
 
+@section('content_top_nav_right')
+    @if(auth()->check())
+        <li class="nav-item d-flex align-items-center ml-2">
+            <a href="{{ route('tickets.create', ['url' => request()->fullUrl()]) }}"
+               class="btn btn-sm btn-warning"
+               title="Сообщить о проблеме"
+               aria-label="Сообщить о проблеме">
+                <i class="fas fa-bug"></i>
+                <span class="d-none d-md-inline ml-1">Сообщить о проблеме</span>
+            </a>
+        </li>
+    @endif
+@stop
+
 @section('content_header')
     @hasSection('content_header_title')
         <h1 class="text-muted">

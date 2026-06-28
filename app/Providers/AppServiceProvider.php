@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +27,32 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
+
+        // Бейдж-счётчик новых тикетов на пункте «Поддержка» (только для админа).
+        Event::listen(BuildingMenu::class, function (BuildingMenu $event): void {
+            $user = auth()->user();
+
+            if (! $user || ! $user->isAdmin() || ! $event->menu->itemKeyExists('support')) {
+                return;
+            }
+
+            $count = Ticket::query()->where('status', Ticket::STATUS_NEW)->count();
+
+            if ($count <= 0) {
+                return;
+            }
+
+            // Пересоздаём пункт с бейджем, сохраняя позицию перед «Просмотр логов».
+            $event->menu->remove('support');
+            $event->menu->addBefore('logs', [
+                'key' => 'support',
+                'text' => 'support',
+                'url' => 'megatulle/tickets',
+                'icon' => 'fas fa-fw fa-bug',
+                'label' => $count,
+                'label_color' => 'danger',
+            ]);
+        });
 
         Gate::define('is-admin', function (User $user) {
             return $user->isAdmin();

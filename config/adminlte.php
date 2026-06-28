@@ -528,11 +528,18 @@ return [
             ],
         ],
         [
+            'text' => 'support',
+            'url' => 'megatulle/tickets',
+            'icon' => 'fas fa-fw fa-bug',
+            'key' => 'support',
+        ],
+        [
             'text' => 'logs',
             'url' => 'log',
             'icon' => 'fas fa-fw fa-history',
             'target' => '_blank',
             'can' => 'is-admin',
+            'key' => 'logs',
         ],
     ],
 

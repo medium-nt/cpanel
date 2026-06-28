@@ -59,4 +59,5 @@ return [
     'workshops' => 'Цеха',
     'shift_schedule' => 'Календарь смен',
     'statistics' => 'Статистика',
+    'support' => 'Тикеты',
 ];
