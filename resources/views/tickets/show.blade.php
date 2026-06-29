@@ -46,30 +46,33 @@
                     @endif
                 </div>
 
-                <table class="table table-bordered">
-                    <tr>
-                        <th style="width: 200px">Автор</th>
-                        <td>{{ $ticket->user?->name ?? '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Дата создания</th>
-                        <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td>
-                    </tr>
-                    @if ($ticket->closed_at)
+                <div class="table-responsive">
+                    <table class="table table-bordered">
                         <tr>
-                            <th>Дата закрытия</th>
-                            <td>{{ $ticket->closed_at->format('d.m.Y H:i') }}</td>
+                            <th style="width: 200px">Автор</th>
+                            <td>{{ $ticket->user?->name ?? '—' }}</td>
                         </tr>
-                    @endif()
-                    @if ($ticket->page_url)
                         <tr>
-                            <th>Страница</th>
-                            <td><a href="{{ $ticket->page_url }}"
-                                   target="_blank">{{ $ticket->page_url }}</a>
-                            </td>
+                            <th>Дата создания</th>
+                            <td>{{ $ticket->created_at->format('d.m.Y H:i') }}</td>
                         </tr>
-                    @endif()
-                </table>
+                        @if ($ticket->closed_at)
+                            <tr>
+                                <th>Дата закрытия</th>
+                                <td>{{ $ticket->closed_at->format('d.m.Y H:i') }}</td>
+                            </tr>
+                        @endif()
+                        @if ($ticket->page_url)
+                            <tr>
+                                <th>Страница</th>
+                                <td><a href="{{ $ticket->page_url }}"
+                                       target="_blank"
+                                       style="word-break: break-all;">{{ $ticket->page_url }}</a>
+                                </td>
+                            </tr>
+                        @endif()
+                    </table>
+                </div>
 
                 <div class="form-group">
                     <label class="font-weight-bold">Описание</label>
@@ -87,7 +90,7 @@
                                     <img
                                         src="{{ asset('storage/'.$ticket->screenshot) }}"
                                         alt="Скриншот"
-                                        style="max-height: 400px;">
+                                        style="max-width: 100%; max-height: 400px; height: auto;">
                                 </a>
                             @else
                                 <span class="text-muted">Файл скриншота недоступен</span>
