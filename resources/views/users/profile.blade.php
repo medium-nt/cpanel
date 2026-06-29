@@ -21,7 +21,8 @@
                 </div>
             @endif
 
-            <form action="{{ route('profile.update') }}" method="POST">
+                <form action="{{ route('profile.update') }}" method="POST"
+                      enctype="multipart/form-data" id="profileForm">
                 @method('PUT')
                 @csrf
                 <div class="card-body">
@@ -65,6 +66,8 @@
                         <input type="password" class="form-control" id="password_confirmation"
                                name="password_confirmation" placeholder="Подтверждение пароля">
                     </div>
+
+                        @include('users.partials.avatar-cropper', ['user' => $user, 'formId' => 'profileForm'])
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Сохранить</button>

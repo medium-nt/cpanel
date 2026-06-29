@@ -23,7 +23,8 @@
 
                 <form action="{{ route('users.update', ['user' => $user->id]) }}"
                       enctype="multipart/form-data"
-                      method="POST">
+                      method="POST"
+                      id="userForm">
                     @method('PUT')
                     @csrf
                     <div class="card-body">
@@ -57,20 +58,7 @@
                                    name="password_confirmation" placeholder="Подтверждение пароля">
                         </div>
 
-                        <div class="form-group">
-                            <label for="avatar">Аватар</label>
-                            <div class="row">
-                                <div class="col-md-11 mt-2">
-                                    <input class="form-control" type="file" name="avatar" accept="image/*">
-                                </div>
-                                <div class="col-md-1">
-                                    @if($user->avatar != null)
-                                        <img src="{{ asset('storage/' . $user->avatar) }}"
-                                             style="width:50px; height:50px;" alt="">
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
+                        @include('users.partials.avatar-cropper', ['user' => $user, 'formId' => 'userForm'])
 
                         <div class="form-group form-check">
                             <input type="hidden" name="is_show_finance"

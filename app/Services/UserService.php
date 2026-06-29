@@ -9,12 +9,20 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Encoders\PngEncoder;
+use Intervention\Image\ImageManager;
 
 class UserService
 {
+    /** Размер стороны аватара в пикселях (квадрат). */
+    private const AVATAR_SIZE = 256;
+
     public static function translateRoleName($role): string
     {
         $roleName = '---';
@@ -168,7 +176,7 @@ class UserService
             'email' => 'required|email|max:255',
             'phone' => 'sometimes|nullable|string|min:8|max:50',
             'password' => 'nullable|confirmed|string|min:6',
-            'avatar' => 'sometimes|nullable|image|mimes:png|max:512|dimensions:width=256,height=256,ratio=1:1',
+            'avatar' => 'sometimes|nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
             'orders_priority' => 'string|in:all,fbo,fbo_200',
             'is_cutter' => 'boolean',
             'start_work_shift' => 'sometimes|date_format:H:i',
@@ -187,15 +195,7 @@ class UserService
         }
 
         if ($request->hasFile('avatar')) {
-            if (! Storage::disk('public')->exists('avatars')) {
-                Storage::disk('public')->makeDirectory('avatars');
-            }
-
-            $fileName = $user->id.'.'.$request->file('avatar')
-                ->getClientOriginalExtension();
-
-            $validatedData['avatar'] = $request->file('avatar')
-                ->storeAs('avatars', $fileName, 'public');
+            $validatedData['avatar'] = self::saveAvatar($request->file('avatar'), $user);
         }
 
         if (auth()->user()->isAdmin()) {
@@ -211,6 +211,40 @@ class UserService
         ]);
 
         return $updated;
+    }
+
+    /**
+     * Сохраняет аватар пользователя: нормализует изображение через Intervention Image
+     * до квадрата AVATAR_SIZE и кодирует в PNG. Возвращает относительный путь файла в disk('public').
+     *
+     * @throws ValidationException если изображение не удалось декодировать/обработать
+     *                             (например, формат не поддерживается сборкой GD на сервере).
+     */
+    private static function saveAvatar(UploadedFile $file, User $user): string
+    {
+        if (! Storage::disk('public')->exists('avatars')) {
+            Storage::disk('public')->makeDirectory('avatars');
+        }
+
+        try {
+            $image = (new ImageManager(new Driver))
+                ->decode($file)
+                ->cover(self::AVATAR_SIZE, self::AVATAR_SIZE);
+
+            $path = 'avatars/'.$user->id.'.png';
+            Storage::disk('public')->put($path, (string) $image->encode(new PngEncoder));
+        } catch (\Throwable $e) {
+            Log::channel('users')->error('Не удалось обработать аватар', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw ValidationException::withMessages([
+                'avatar' => 'Не удалось обработать изображение. Попробуйте JPG или PNG.',
+            ]);
+        }
+
+        return $path;
     }
 
     public static function getUserByBarcode($barcode): ?User
