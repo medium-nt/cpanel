@@ -80,6 +80,14 @@ class MovementMaterialToWorkshopController extends Controller
 
     public function collect(Order $order)
     {
+        // Сохраняем URL с фильтрами для возврата после завершения сбора
+        if ($referer = request()->headers->get('referer')) {
+            $parsedUrl = parse_url($referer);
+            if (isset($parsedUrl['path']) && str_ends_with($parsedUrl['path'], '/movements_to_workshop')) {
+                session()->put('movements_index_url', $referer);
+            }
+        }
+
         return view('movements_to_workshop.collect', [
             'title' => 'Сборка поставки',
             'order' => $order,
