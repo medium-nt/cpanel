@@ -8,6 +8,7 @@ use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
 use App\Models\SupplyBox;
 use App\Services\MarketplaceApiService;
+use App\Services\NotificationService;
 use App\Services\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -96,9 +97,8 @@ class SupplyBoxController extends Controller
         SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
         SendMaxMessageJob::dispatch(config('services.max.admin_id'), $text);
 
-        foreach (UserService::getListManagersWithTg() as $index => $tgId) {
-            SendTelegramMessageJob::dispatch($tgId, $text)
-                ->delay(now()->addSeconds($index + 1));
+        foreach (UserService::getListManagersWithTg() as $index => $user) {
+            NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
         }
 
         return redirect()

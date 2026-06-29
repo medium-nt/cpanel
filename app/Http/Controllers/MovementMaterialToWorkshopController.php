@@ -12,6 +12,7 @@ use App\Models\Setting;
 use App\Models\Shift;
 use App\Services\MaxService;
 use App\Services\MovementMaterialToWorkshopService;
+use App\Services\NotificationService;
 use App\Services\ShiftService;
 use App\Services\TgService;
 use App\Services\UserService;
@@ -209,12 +210,12 @@ class MovementMaterialToWorkshopController extends Controller
         TgService::sendMessage(config('telegram.admin_id'), $text);
         MaxService::sendMessage(config('services.max.admin_id'), $text);
 
-        foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
-            TgService::sendMessage($tgId, $text);
+        foreach (UserService::getListSeamstressesWorkingToday() as $user) {
+            NotificationService::notify($user, $text);
         }
 
-        foreach (UserService::getListStorekeepersWorkingToday() as $tgId) {
-            TgService::sendMessage($tgId, $text);
+        foreach (UserService::getListStorekeepersWorkingToday() as $user) {
+            NotificationService::notify($user, $text);
         }
 
         return redirect($this->getFilteredIndexUrl())->with('success', 'Поставка принята');

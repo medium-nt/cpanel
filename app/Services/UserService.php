@@ -64,31 +64,42 @@ class UserService
     }
 
     /**
-     * Получить tg_id работающих сегодня швей (опционально по цеху).
+     * Работающие сегодня швеи (опционально по цеху) с привязанным мессенджером.
+     *
+     * @return Collection<int, User>
      */
     public static function getListSeamstressesWorkingToday(?int $workshopId = null): Collection
     {
         return self::getListEmployeesWorkingTodayByRole(1, $workshopId);
     }
 
+    /**
+     * Работающие сегодня кладовщики с привязанным мессенджером.
+     *
+     * @return Collection<int, User>
+     */
     public static function getListStorekeepersWorkingToday(): Collection
     {
         return self::getListEmployeesWorkingTodayByRole(2);
     }
 
     /**
-     * Возвращает коллекцию tg_id всех активных менеджеров с привязанным Telegram.
+     * Активные менеджеры с привязанным мессенджером (Telegram или MAX).
+     *
+     * @return Collection<int, User>
      */
     public static function getListManagersWithTg(): Collection
     {
         return User::query()
             ->whereHas('role', fn ($q) => $q->where('name', 'manager'))
-            ->whereNotNull('tg_id')
-            ->pluck('tg_id');
+            ->where(fn ($q) => $q->whereNotNull('tg_id')->orWhereNotNull('max_id'))
+            ->get();
     }
 
     /**
-     * Получить tg_id работающих сегодня сотрудников по роли (опционально по цеху).
+     * Работающие сегодня сотрудники по роли (опционально по цеху) с привязанным мессенджером.
+     *
+     * @return Collection<int, User>
      */
     private static function getListEmployeesWorkingTodayByRole($roleId, ?int $workshopId = null): Collection
     {
@@ -96,7 +107,7 @@ class UserService
             ->where('date', now()->toDateString())
             ->whereHas('user', function ($query) use ($roleId) {
                 $query->where('role_id', $roleId)
-                    ->where('tg_id', '!=', null);
+                    ->where(fn ($q) => $q->whereNotNull('tg_id')->orWhereNotNull('max_id'));
             })
             ->with('user')
             ->distinct()
@@ -109,7 +120,7 @@ class UserService
             $users = $users->filter(fn (User $user) => $user->currentWorkshop()?->id === $workshopId);
         }
 
-        return $users->pluck('tg_id');
+        return $users;
     }
 
     public static function sendMessageForWorkingTodayEmployees(): void

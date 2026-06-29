@@ -40,6 +40,29 @@
 - 5 новых тестов в `MarketplaceOrderItemServiceTest`.
 - Обновлены topics: order-lifecycle.md, marketplace-integration.md
 
+## [2026-06-29] update | stage2-notification-service
+
+- Завершён Этап 2 миграции Telegram→MAX — массовые рассылки переведены на
+  NotificationService.
+- `app/Services/NotificationService.php` — единый шлюз уведомлений (sync/queued,
+  delay).
+- `UserService::getListSeamstressesWorkingToday()` /
+  `getListStorekeepersWorkingToday()`
+  / `getListManagersWithTg()` — теперь возвращают `Collection<User>`, фильтр
+  изменён с `where tg_id != null` на
+  `where(fn $q => $q->whereNotNull('tg_id')->orWhereNotNull('max_id'))`
+  (сотрудник попадает если привязан ХОТЯ БЫ один мессенджер).
+- 14 точек массовой рассылки переведены с `foreach ($tgIds as $tgId) {
+  TgService/SendTelegramMessageJob }` на `foreach ($users as $user) {
+  NotificationService::notify($user, $text[, queued: true, delaySeconds: $i]) }`.
+  Файлы: DefectMaterialService, AutoOrderService, MarketplaceApiService,
+  MovementMaterialToWorkshopService, MovementDefectMaterialToSupplierService,
+  WorkshopRollScan, DefectMaterialScan, MovementMaterialToWorkshopController,
+  StickerPrintingController, SupplyBoxController.
+- Тест: `tests/Feature/Services/NotificationServiceTest.php` (5 тестов).
+- Обновлены topics: user-management.md, shift-system.md, material-flow.md,
+  order-lifecycle.md
+
 ## [2026-06-22] update | orders-cluster-priority
 
 - Добавлена цеховая/глобальная настройка `orders_cluster_priority` (значения:

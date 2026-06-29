@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Order;
 use App\Services\MaxService;
+use App\Services\NotificationService;
 use App\Services\TgService;
 use App\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
@@ -157,8 +158,8 @@ class DefectMaterialScan extends Component
             TgService::sendMessage(config('telegram.admin_id'), $text);
             MaxService::sendMessage(config('services.max.admin_id'), $text);
 
-            foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
-                TgService::sendMessage($tgId, $text);
+            foreach (UserService::getListSeamstressesWorkingToday() as $user) {
+                NotificationService::notify($user, $text);
             }
 
             $count = $this->scannedOrders->count();

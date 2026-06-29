@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Jobs\SendTelegramMessageJob;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
@@ -499,9 +498,8 @@ class MarketplaceApiService
                         TgService::sendMessage(config('telegram.admin_id'), $text);
                         MaxService::sendMessage(config('services.max.admin_id'), $text);
 
-                        foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
-                            SendTelegramMessageJob::dispatch($tgId, $text)
-                                ->delay(now()->addSeconds($index + 1));
+                        foreach (UserService::getListStorekeepersWorkingToday() as $index => $user) {
+                            NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
                         }
                     } else {
                         Log::channel('marketplace_api')
@@ -521,9 +519,8 @@ class MarketplaceApiService
                         TgService::sendMessage(config('telegram.admin_id'), $text);
                         MaxService::sendMessage(config('services.max.admin_id'), $text);
 
-                        foreach (UserService::getListSeamstressesWorkingToday() as $index => $tgId) {
-                            SendTelegramMessageJob::dispatch($tgId, $text)
-                                ->delay(now()->addSeconds($index + 1));
+                        foreach (UserService::getListSeamstressesWorkingToday() as $index => $user) {
+                            NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
                         }
                     }
                 }

@@ -54,8 +54,8 @@ class DefectMaterialService
                 TgService::sendMessage(config('telegram.admin_id'), $text);
                 MaxService::sendMessage(config('services.max.admin_id'), $text);
 
-                foreach (UserService::getListSeamstressesWorkingToday() as $tgId) {
-                    TgService::sendMessage($tgId, $text);
+                foreach (UserService::getListSeamstressesWorkingToday() as $user) {
+                    NotificationService::notify($user, $text);
                 }
 
                 $return = [
@@ -130,9 +130,8 @@ class DefectMaterialService
             SendTelegramMessageJob::dispatch(config('telegram.admin_id'), $text);
             SendMaxMessageJob::dispatch(config('services.max.admin_id'), $text);
 
-            foreach (UserService::getListStorekeepersWorkingToday() as $index => $tgId) {
-                SendTelegramMessageJob::dispatch($tgId, $text)
-                    ->delay(now()->addSeconds($index + 1));
+            foreach (UserService::getListStorekeepersWorkingToday() as $index => $user) {
+                NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
             }
         } catch (Throwable $e) {
             DB::rollBack();

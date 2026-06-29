@@ -1,6 +1,6 @@
 # User Management — Управление пользователями
 
-> Last reviewed: 2026-06-28
+> Last reviewed: 2026-06-29
 
 ## Обзор
 
@@ -125,12 +125,29 @@ if ($request->workshop_id) {
   chat_id в `message.recipient.chat_id`)
 - Подписка webhook: команда `max:subscribe-webhook` (регистрирует в MAX API)
 
-**Стратегия рассылки (Этап 1 из 2 — реализован):**
+**Единый шлюз уведомлений (NotificationService, Этап 2 из 2 — реализован):**
 
-Каждое уведомление уходит **параллельно** в оба мессенджера (если у пользователя
-привязан
-соответствующий chat_id). Паттерн: если tg_id → TgService, если max_id →
-MaxService.
+`NotificationService::notify(User $user, string $text, bool $queued = false, ?int $delaySeconds = null): void`
+— единственная точка входа для отправки уведомлений в оба канала:
+
+- Если `$queued = false` (default) → синхронно: TgService/MaxService
+- Если `$queued = true` → через очереди:
+  SendTelegramMessageJob/SendMaxMessageJob
+  (с опциональной задержкой `$delaySeconds`)
+- Если у пользователя есть tg_id → отправка в Telegram
+- Если у пользователя есть max_id → отправка в MAX
+- Если у пользователя нет обоих каналов → тихий пропуск (без ошибки)
+- Паттерн DRY: логика каналов в одном месте, вместо дублирования `foreach` по
+  `tg_id`
+    + вызовов `TgService`/`SendTelegramMessageJob`
+
+**Стратегия рассылки (Этап 2 из 2 — реализован):**
+
+Все массовые рассылки (поступление материалов, автозаказы, дефекты,
+сканирование)
+переведены на NotificationService. Вместо `foreach ($tgIds as $tgId) {
+TgService/SendTelegramMessageJob }` теперь `foreach ($users as $user) {
+NotificationService::notify($user, $text[, queued: true, delaySeconds: $i]) }`.
 
 **Технические нюансы MAX:**
 
@@ -145,6 +162,11 @@ MaxService.
 - `app/Models/User.php` — модель пользователя (роли, связи с сменами,
   tg_id/max_id)
 - `app/Services/UserService.php` — фильтрация пользователей (`getFiltered()`
+  метод),
+  хелперы массовой рассылки (`getListSeamstressesWorkingToday()`,
+  `getListStorekeepersWorkingToday()`, `getListManagersWithTg()` — возвращают
+  `Collection<User>`, фильтр по `tg_id OR max_id`)
+- `app/Services/NotificationService.php` — единый шлюз уведомлений (notify
   метод)
 - `app/Services/TgService.php` — static sendMessage для Telegram-уведомлений
 - `app/Services/MaxService.php` — static sendMessage для MAX-уведомлений (клон
@@ -176,8 +198,18 @@ MaxService.
 - Новые пользователи создаются без привязки к смене (нужно назначать вручную)
 - Все операции с пользователями (кроме чтения) логируются для безопасности
 - **Мессенджеры-интеграции:** tg_id и max_id независимы, пользователь может
-  иметь оба
-  или ни одного; уведомления уходят в оба канала параллельно при наличии chat_id
+  иметь оба или ни одного
+- **NotificationService:** уведомления уходят в оба канала параллельно при
+  наличии
+  chat_id
+  (tg_id → Telegram, max_id → MAX), через TgService/MaxService синхронно или
+  очереди
+  (SendTelegramMessageJob/SendMaxMessageJob) с задержкой
+- **UserService-хелперы рассылки:** `getListSeamstressesWorkingToday()`,
+  `getListStorekeepersWorkingToday()`, `getListManagersWithTg()` возвращают
+  `Collection<User>`, фильтр —
+  `where(fn $q => $q->whereNotNull('tg_id')->orWhereNotNull('max_id'))`
+  (сотрудник попадает если привязан ХОТЯ БЫ один мессенджер)
 - **Webhook MAX:** при событии `message_created` и несуществующем max_id
   отправляется
   ссылка на профиль для привязки (route('profile', ['max_id' => ...]))

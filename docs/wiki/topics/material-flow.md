@@ -1,6 +1,6 @@
 # Material Flow — Движение материалов
 
-> Last reviewed: 2026-06-28
+> Last reviewed: 2026-06-29
 
 ## Обзор
 
@@ -80,7 +80,9 @@
 2. Генерируются рулоны с уникальными кодами
 3. Можно создать несколько рулонов на одну партию
 4. Валидация цены и подтверждение
-5. TG+MAX-уведомление (параллельно) администратору и кладовщику
+5. Уведомление через NotificationService (queued, delay=5s) администратору и
+   кладовщику (14 массовых рассылок переведены на NotificationService —
+   см. user-management.md)
 
 ### Склад → Цех
 
@@ -90,7 +92,7 @@
 2. Роли: швея, закройщик, ОТК могут запросить материалы
 3. Запросы привязаны к смене (shift-based)
 4. Защита от дубликатов — один запрос на смену
-5. TG+MAX-уведомление (параллельно) о запросе материалов
+5. Уведомление через NotificationService (queued, delay=5s) о запросе материалов
 
 **Фильтрация материалов по цеху:**
 
@@ -117,7 +119,7 @@
 3. Защита от дубликатов заказов
 4. **Фильтрация по цеху:** теперь фильтрует материалы только через привязку
    `material_workshop` (только привязанные к цеху материалы)
-5. TG+MAX-уведомление (параллельно)
+5. Уведомление через NotificationService (queued, delay=5s)
 
 ### Списание материалов
 
@@ -172,7 +174,7 @@
 
 1. Создаёт заказ с `type_movement=5`
 2. Валидирует наличие бракованного материала
-3. Автоматическое уведомление поставщика
+3. Уведомление через NotificationService (queued, delay=5s) о возврате брака
 4. Возможна корректировка цены
 
 ## Ключевые файлы
@@ -188,9 +190,15 @@
   fallback
   "цеховая → глобальная")
 - `app/Services/MovementMaterialFromSupplierService.php` — поступление
+  (NotificationService уведомление)
 - `app/Services/MovementMaterialToWorkshopService.php` — отгрузка в цех (
-  проверка доступности материала цеху)
+  проверка доступности материала цеху, NotificationService уведомление)
 - `app/Services/MovementDefectMaterialToSupplierService.php` — возврат брака
+  (NotificationService уведомление)
+- `app/Services/AutoOrderService.php` — автоматическое пополнение (фильтрация по
+  цеху, NotificationService уведомление)
+- `app/Services/NotificationService.php` — единый шлюз уведомлений (notify
+  метод)
 - `app/Services/AutoOrderService.php` — автоматическое пополнение (фильтрация по
   цеху)
 - `app/Services/WriteOffRemnantService.php` — списание остатков

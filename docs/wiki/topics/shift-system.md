@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-27
+> Last reviewed: 2026-06-29
 
 ## Обзор
 
@@ -212,7 +212,10 @@
 - `app/Models/Workshop.php` — модель цеха (allowedMaterials — материалы,
   доступные для заказа)
 - `app/Services/ShiftService.php` — управление сменами (fillSchedule,
-  canWorkToday, getMissingScheduleDates)
+  canWorkToday, getMissingScheduleDates) + хелперы массовой рассылки
+  (`getListSeamstressesWorkingToday()`, `getListStorekeepersWorkingToday()`,
+  `getListManagersWithTg()`, возвращают `Collection<User>`, фильтр по
+  `tg_id OR max_id`)
 - `app/Services/ScheduleService.php` — открытие/закрытие рабочих смен
 - `app/Http/Controllers/WorkshopController.php` — управление цехами (привязка
   материалов через чекбоксы, getSettingLabels/getSettingOptions для настроек
