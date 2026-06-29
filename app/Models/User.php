@@ -99,6 +99,14 @@ class User extends Authenticatable
         return '/megatulle/profile';
     }
 
+    /** URL аватара пользователя для AdminLTE user-menu (заглушка, если аватар не задан). */
+    public function adminlte_image(): string
+    {
+        return $this->avatar
+            ? asset('storage/'.$this->avatar)
+            : asset('img/default-avatar.svg');
+    }
+
     /** Описание пользователя для AdminLTE (переведённое название роли текущего юзера). */
     public function adminlte_desc(): string
     {
