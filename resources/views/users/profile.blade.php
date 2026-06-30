@@ -42,6 +42,24 @@
                         </div>
                     @endif
 
+                        @if($user->max_id == '')
+                            <div class="alert alert-danger" role="alert">
+                                <h4 class="alert-heading">MAX не подключен</h4>
+                                Для получения уведомлений через MAX напишите
+                                боту /start
+                                <br>
+                                <a href="{{ route('profile') }}">(проверить
+                                    подключение)</a>
+                            </div>
+                        @else
+                            <div class="alert alert-success" role="alert">
+                                <h4 class="alert-heading">MAX подключен</h4>
+                                Для отключения уведомлений через MAX <a
+                                    href="{{ route('profile.disconnectMax') }}">нажмите
+                                    тут</a>
+                            </div>
+                        @endif
+
 
                     <div class="form-group">
                         <label for="name">Имя</label>
