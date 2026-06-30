@@ -131,27 +131,32 @@ it('forbids employee to view other user ticket', function () {
 
 it('forbids employee to close ticket', function () {
     $employee = User::factory()->create();
-    $ticket = Ticket::factory()->for($employee)->create();
+    $ticket = Ticket::factory()->for($employee)->inProgress()->create();
 
     $response = $this->actingAs($employee)
-        ->put(route('tickets.close', $ticket));
+        ->put(route('tickets.close', $ticket), [
+            'admin_comment' => 'Should not work',
+        ]);
 
     $response->assertForbidden();
 
-    expect($ticket->fresh()->status)->toBe(Ticket::STATUS_NEW);
+    expect($ticket->fresh()->status)->toBe(Ticket::STATUS_IN_PROGRESS);
 });
 
 it('allows admin to close ticket', function () {
     $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
     $admin = User::factory()->create(['role_id' => $adminRole->id]);
-    $ticket = Ticket::factory()->create();
+    $ticket = Ticket::factory()->inProgress()->create();
 
     $this->actingAs($admin)
-        ->put(route('tickets.close', $ticket))
+        ->put(route('tickets.close', $ticket), [
+            'admin_comment' => 'Ticket successfully resolved',
+        ])
         ->assertRedirect(route('tickets.index', ['scope' => 'new']));
 
     expect($ticket->fresh()->status)->toBe(Ticket::STATUS_CLOSED)
-        ->and($ticket->fresh()->closed_at)->not->toBeNull();
+        ->and($ticket->fresh()->closed_at)->not->toBeNull()
+        ->and($ticket->fresh()->admin_comment)->toBe('Ticket successfully resolved');
 });
 
 it('forbids employee to delete ticket', function () {
@@ -198,10 +203,27 @@ it('forbids admin to close already closed ticket', function () {
     $ticket = Ticket::factory()->closed()->create();
 
     $this->actingAs($admin)
-        ->put(route('tickets.close', $ticket))
+        ->put(route('tickets.close', $ticket), [
+            'admin_comment' => 'Should not work',
+        ])
         ->assertForbidden();
 
     expect($ticket->fresh()->status)->toBe(Ticket::STATUS_CLOSED);
+});
+
+it('forbids admin to close new ticket without starting it', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $ticket = Ticket::factory()->create();
+
+    $this->actingAs($admin)
+        ->put(route('tickets.close', $ticket), [
+            'admin_comment' => 'Trying to close without starting',
+        ])
+        ->assertForbidden();
+
+    expect($ticket->fresh()->status)->toBe(Ticket::STATUS_NEW)
+        ->and($ticket->fresh()->admin_comment)->toBeNull();
 });
 
 it('rejects non-image screenshot upload', function () {
@@ -217,4 +239,106 @@ it('rejects non-image screenshot upload', function () {
         ->assertSessionHasErrors('screenshot');
 
     expect(Ticket::count())->toBe(0);
+});
+
+it('forbids employee to start ticket', function () {
+    $employee = User::factory()->create();
+    $ticket = Ticket::factory()->for($employee)->create();
+
+    $response = $this->actingAs($employee)
+        ->put(route('tickets.start', $ticket));
+
+    $response->assertForbidden();
+
+    expect($ticket->fresh()->status)->toBe(Ticket::STATUS_NEW);
+});
+
+it('allows admin to start ticket', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $ticket = Ticket::factory()->create();
+
+    $this->actingAs($admin)
+        ->put(route('tickets.start', $ticket))
+        ->assertRedirect(route('tickets.index', ['scope' => 'new']));
+
+    expect($ticket->fresh()->status)->toBe(Ticket::STATUS_IN_PROGRESS);
+});
+
+it('forbids admin to start already closed ticket', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $ticket = Ticket::factory()->closed()->create();
+
+    $this->actingAs($admin)
+        ->put(route('tickets.start', $ticket))
+        ->assertForbidden();
+
+    expect($ticket->fresh()->status)->toBe(Ticket::STATUS_CLOSED);
+});
+
+it('allows admin to close ticket in progress', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $ticket = Ticket::factory()->inProgress()->create();
+
+    $this->actingAs($admin)
+        ->put(route('tickets.close', $ticket), [
+            'admin_comment' => 'Fixed and tested',
+        ])
+        ->assertRedirect(route('tickets.index', ['scope' => 'new']));
+
+    expect($ticket->fresh()->status)->toBe(Ticket::STATUS_CLOSED)
+        ->and($ticket->fresh()->closed_at)->not->toBeNull()
+        ->and($ticket->fresh()->admin_comment)->toBe('Fixed and tested');
+});
+
+it('stores admin comment when closing ticket', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $ticket = Ticket::factory()->inProgress()->create();
+
+    $this->actingAs($admin)
+        ->put(route('tickets.close', $ticket), [
+            'admin_comment' => 'TestCommentUnique123 - Fixed the button issue',
+        ])
+        ->assertRedirect(route('tickets.index', ['scope' => 'new']));
+
+    $this->assertDatabaseHas('tickets', [
+        'id' => $ticket->id,
+        'status' => Ticket::STATUS_CLOSED,
+        'admin_comment' => 'TestCommentUnique123 - Fixed the button issue',
+    ]);
+
+    expect($ticket->fresh()->closed_at)->not->toBeNull();
+});
+
+it('shows new and in progress tickets in scope new', function () {
+    $employee = User::factory()->create();
+
+    Ticket::factory()->for($employee)->create(['status' => Ticket::STATUS_NEW]);
+    Ticket::factory()->for($employee)->inProgress()->create();
+    Ticket::factory()->for($employee)->closed()->create();
+
+    $response = $this->actingAs($employee)
+        ->get(route('tickets.index', ['scope' => 'new']));
+
+    $response->assertSuccessful()
+        ->assertViewHas('tickets', function ($tickets) {
+            return $tickets->count() === 2
+                && $tickets->contains(fn ($t) => $t->status === Ticket::STATUS_NEW)
+                && $tickets->contains(fn ($t) => $t->status === Ticket::STATUS_IN_PROGRESS);
+        });
+});
+
+it('shows admin comment to ticket author', function () {
+    $employee = User::factory()->create();
+    $ticket = Ticket::factory()->for($employee)->create([
+        'admin_comment' => 'TestCommentUnique123 - Administrator response here',
+    ]);
+
+    $this->actingAs($employee)
+        ->get(route('tickets.show', $ticket))
+        ->assertSuccessful()
+        ->assertSee('TestCommentUnique123');
 });

@@ -28,6 +28,14 @@ class TicketFactory extends Factory
         ];
     }
 
+    /** Тикет в работе. */
+    public function inProgress(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => Ticket::STATUS_IN_PROGRESS,
+        ]);
+    }
+
     /** Закрытый тикет. */
     public function closed(): static
     {

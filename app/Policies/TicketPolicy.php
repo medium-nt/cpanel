@@ -32,11 +32,19 @@ class TicketPolicy
     }
 
     /**
-     * Закрытие тикета: только администратор и только тикет в статусе «Новый».
+     * Перевод тикета в работу: только администратор и только тикет в статусе «Новый».
+     */
+    public function start(User $user, Ticket $ticket): bool
+    {
+        return $user->isAdmin() && $ticket->status === Ticket::STATUS_NEW;
+    }
+
+    /**
+     * Закрытие тикета: только администратор и только тикет в статусе «В работе».
      */
     public function close(User $user, Ticket $ticket): bool
     {
-        return $user->isAdmin() && $ticket->status === Ticket::STATUS_NEW;
+        return $user->isAdmin() && $ticket->status === Ticket::STATUS_IN_PROGRESS;
     }
 
     /**

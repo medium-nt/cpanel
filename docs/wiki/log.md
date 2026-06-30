@@ -63,6 +63,41 @@
 - Обновлены topics: user-management.md, shift-system.md, material-flow.md,
   order-lifecycle.md
 
+## [2026-06-30] update | support-system-status-in-progress
+
+- Добавлен 4-й статус `in_progress` («В работе») — переход new → in_progress (
+  start)
+- Новое поле `tickets.admin_comment` (text, nullable) — комментарий
+  администратора при закрытии («что сделано»)
+- Новый роут `PUT /tickets/{ticket}/start` → `tickets.start` (только админ,
+  только из new)
+- Обновлён жизненный цикл: `new ──start──▶ in_progress ──close──▶ closed` +
+  крестовые переходы в deleted
+- Scope `opened()` модели теперь возвращает
+  `whereIn('status', [new, in_progress])` — в табе «Новые»
+- Бейдж меню считает только `STATUS_NEW` (in_progress уже в работе, не требует
+  внимания)
+- Policy обновлена: start (new), close (new + in_progress), delete (new +
+  in_progress)
+- UI: кнопки по статусам в show.blade.php, блок комментария админа, форма
+  закрытия с textarea admin_comment
+- Тесты: 7 новых тестов в TicketTest (всего 22), state `inProgress()` в
+  TicketFactory
+- Обновлён topic: support-system.md
+
+## [2026-06-30] update | support-system-close-rules
+
+- Уточнены правила закрытия тикетов: закрыть можно ТОЛЬКО из статуса
+  `in_progress` (НЕЛЬЗЯ напрямую из `new`).
+- `TicketPolicy::close`: сужен с `[new, in_progress]` до `in_progress` только.
+- `TicketService::close(string $adminComment)`: обязательный комментарий (ранее
+  `?string`), guard на `trim($adminComment) !== ''`.
+- Валидация в `TicketController::close`: `admin_comment` required (ранее
+  nullable).
+- Lifecycle теперь строго:
+  `new → start → in_progress → close (с обяз. комментарием) → closed`.
+- Обновлён topic: support-system.md
+
 ## [2026-06-22] update | orders-cluster-priority
 
 - Добавлена цеховая/глобальная настройка `orders_cluster_priority` (значения:

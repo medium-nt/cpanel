@@ -27,15 +27,34 @@ class TicketService
     }
 
     /**
-     * Закрыть тикет (перевести в статус «Закрыт»). Только для новых тикетов.
+     * Перевести тикет в работу. Только для новых тикетов.
      */
-    public function close(Ticket $ticket): bool
+    public function start(Ticket $ticket): bool
     {
         if ($ticket->status !== Ticket::STATUS_NEW) {
             return false;
         }
 
-        $result = $ticket->markClosed();
+        $result = $ticket->markInProgress();
+        Log::info('Тикет взят в работу администратором', [
+            'ticket_id' => $ticket->id,
+            'admin_id' => auth()->id(),
+        ]);
+
+        return $result;
+    }
+
+    /**
+     * Закрыть тикет (перевести в статус «Закрыт») с обязательным комментарием админа.
+     * Только для тикетов в работе.
+     */
+    public function close(Ticket $ticket, string $adminComment): bool
+    {
+        if ($ticket->status !== Ticket::STATUS_IN_PROGRESS || trim($adminComment) === '') {
+            return false;
+        }
+
+        $result = $ticket->markClosed($adminComment);
         Log::info('Тикет закрыт администратором', [
             'ticket_id' => $ticket->id,
             'admin_id' => auth()->id(),

@@ -86,12 +86,29 @@ class TicketController extends Controller
     }
 
     /**
-     * Закрыть тикет (только администратор).
+     * Перевести тикет в работу (только администратор).
+     */
+    public function start(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $this->authorize('start', $ticket);
+        $this->ticketService->start($ticket);
+
+        return redirect()
+            ->route('tickets.index', ['scope' => 'new'])
+            ->with('success', 'Тикет #'.$ticket->id.' взят в работу');
+    }
+
+    /**
+     * Закрыть тикет (только администратор) с опциональным комментарием.
      */
     public function close(Request $request, Ticket $ticket): RedirectResponse
     {
+        $validated = $request->validate([
+            'admin_comment' => ['required', 'string', 'max:5000'],
+        ]);
+
         $this->authorize('close', $ticket);
-        $this->ticketService->close($ticket);
+        $this->ticketService->close($ticket, $validated['admin_comment']);
 
         return redirect()
             ->route('tickets.index', ['scope' => 'new'])
