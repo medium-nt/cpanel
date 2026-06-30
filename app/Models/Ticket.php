@@ -17,6 +17,8 @@ class Ticket extends Model
 
     public const STATUS_NEW = 'new';
 
+    public const STATUS_IN_PROGRESS = 'in_progress';
+
     public const STATUS_CLOSED = 'closed';
 
     public const STATUS_DELETED = 'deleted';
@@ -24,6 +26,7 @@ class Ticket extends Model
     /** Статусы тикета (значение => русская подпись). */
     public const STATUSES = [
         self::STATUS_NEW => 'Новый',
+        self::STATUS_IN_PROGRESS => 'В работе',
         self::STATUS_CLOSED => 'Закрыт',
         self::STATUS_DELETED => 'В корзине',
     ];
@@ -31,6 +34,7 @@ class Ticket extends Model
     /** CSS-классы бейджей для статусов (по образцу StatusMovement). */
     public const BADGE_COLORS = [
         self::STATUS_NEW => 'badge-danger',
+        self::STATUS_IN_PROGRESS => 'badge-warning',
         self::STATUS_CLOSED => 'badge-success',
         self::STATUS_DELETED => 'badge-secondary',
     ];
@@ -38,6 +42,7 @@ class Ticket extends Model
     protected $fillable = [
         'user_id',
         'description',
+        'admin_comment',
         'page_url',
         'screenshot',
         'status',
@@ -73,11 +78,11 @@ class Ticket extends Model
     }
 
     /**
-     * Только новые (открытые) тикеты.
+     * Активные тикеты: новые и в работе (вкладка «Новые»).
      */
     public function scopeOpened(Builder $query): void
     {
-        $query->where('status', self::STATUS_NEW);
+        $query->whereIn('status', [self::STATUS_NEW, self::STATUS_IN_PROGRESS]);
     }
 
     /**
@@ -99,12 +104,25 @@ class Ticket extends Model
     }
 
     /**
-     * Закрыть тикет (статус + дата закрытия).
+     * Перевести тикет в работу (статус «В работе»).
      */
-    public function markClosed(): bool
+    public function markInProgress(): bool
+    {
+        $this->status = self::STATUS_IN_PROGRESS;
+
+        return $this->save();
+    }
+
+    /**
+     * Закрыть тикет (статус + дата закрытия + опциональный комментарий админа).
+     */
+    public function markClosed(?string $adminComment = null): bool
     {
         $this->status = self::STATUS_CLOSED;
         $this->closed_at = now();
+        if ($adminComment !== null) {
+            $this->admin_comment = $adminComment;
+        }
 
         return $this->save();
     }
