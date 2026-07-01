@@ -10,16 +10,19 @@ use App\Models\Order;
 use App\Models\ProductSticker;
 use App\Models\Roll;
 use App\Models\Setting;
+use App\Models\ShiftSchedule;
 use App\Models\Sku;
 use App\Models\User;
 use App\Models\Workshop;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceItemService;
 use App\Services\MarketplaceOrderItemService;
+use App\Services\ShiftService;
 use App\Services\StackService;
 use App\Services\StickerService;
 use App\Services\TransactionService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -119,8 +122,67 @@ class MarketplaceOrderItemController extends Controller
                 ->with('error', 'Пользователь не найден. Возможно, сессия истекла.');
         }
 
-        // Проверяем наличие упаковочных рулонов в цехе перед любыми изменениями
-        $shift = $user->currentShift();
+        // Определяем смену для списания упаковки
+        $shift = null;
+
+        if (in_array($user->role?->name, ShiftService::SHIFT_ROLES)) {
+            // Для SHIFT_ROLES используем текущую смену пользователя
+            $shift = $user->currentShift();
+        } else {
+            // Для NON_SHIFT_ROLES (admin, storekeeper) определяем смену через киоск
+            $workshopId = session('kiosk_workshop_id');
+
+            if (! $workshopId) {
+                Log::channel('materials')->error(
+                    'Не определён цех киоска для списания упаковки. '
+                    .'Пользователь: '.$user->name.' (id: '.$user->id.', роль: '.$user->role?->name.'), '
+                    .'товар #'.$marketplaceOrderItem->id.', '
+                    .'заказ '.$marketplaceOrderItem->marketplaceOrder->order_id
+                );
+
+                return redirect()
+                    ->back()
+                    ->with('error', 'Не определён цех киоска. Обратитесь к администратору.');
+            }
+
+            // Получаем запланированную смену для цеха сегодня
+            $schedule = ShiftSchedule::query()
+                ->where('date', Carbon::today()->toDateString())
+                ->where('workshop_id', $workshopId)
+                ->first();
+
+            if (! $schedule) {
+                Log::channel('materials')->error(
+                    'На сегодня нет смены в цеху киоска (выходной или не заполнено расписание). '
+                    .'Цех: '.$workshopId.', '
+                    .'пользователь: '.$user->name.' (id: '.$user->id.', роль: '.$user->role?->name.'), '
+                    .'товар #'.$marketplaceOrderItem->id.', '
+                    .'заказ '.$marketplaceOrderItem->marketplaceOrder->order_id
+                );
+
+                return redirect()
+                    ->back()
+                    ->with('error', 'На сегодня нет смены в этом цехе (выходной или не заполнено расписание). Обратитесь к администратору.');
+            }
+
+            if ($schedule->shift_id === null) {
+                Log::channel('materials')->error(
+                    'Сегодня в цехе киоска выходной. '
+                    .'Цех: '.$workshopId.', '
+                    .'пользователь: '.$user->name.' (id: '.$user->id.', роль: '.$user->role?->name.'), '
+                    .'товар #'.$marketplaceOrderItem->id.', '
+                    .'заказ '.$marketplaceOrderItem->marketplaceOrder->order_id
+                );
+
+                return redirect()
+                    ->back()
+                    ->with('error', 'Сегодня в этом цехе выходной. Списание упаковки невозможно.');
+            }
+
+            $shift = $schedule->shift;
+        }
+
+        // Продолжаем проверку упаковочных материалов
         $packagingConsumptions = $marketplaceOrderItem->item->consumption()
             ->whereHas('material', fn ($q) => $q->where('type_id', 3))
             ->with('material')
@@ -131,7 +193,7 @@ class MarketplaceOrderItemController extends Controller
             if (! $shift) {
                 Log::channel('materials')->error(
                     'Не удалось определить смену для списания упаковки. '
-                    .'OTK-сотрудник: '.$user->name.' (id: '.$user->id.'), '
+                    .'Пользователь: '.$user->name.' (id: '.$user->id.', роль: '.$user->role?->name.'), '
                     .'товар #'.$marketplaceOrderItem->id.', '
                     .'заказ '.$marketplaceOrderItem->marketplaceOrder->order_id
                 );
