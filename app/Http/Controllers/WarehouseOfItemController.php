@@ -125,13 +125,40 @@ class WarehouseOfItemController extends Controller
             ->with('success', 'Товар сохранен на полку!');
     }
 
-    public function toPickList()
+    /**
+     * Показать список товаров для подбора со склада с опциональной фильтрацией по штрихкоду хранения.
+     */
+    public function toPickList(Request $request)
     {
+        // Базовый запрос заказов для подбора
+        $ordersQuery = MarketplaceOrderService::pickupOrders();
+
+        // Фильтр по storage_barcode если указан
+        $itemWithBarcode = null;
+        if ($request->filled('storage_barcode')) {
+            // Найти marketplace_item_id по storage_barcode
+            $itemWithBarcode = MarketplaceOrderItem::query()
+                ->where('storage_barcode', $request->storage_barcode)
+                ->whereIn('status', [11, 13]) // Только товары на хранении
+                ->first();
+
+            if ($itemWithBarcode) {
+                // Фильтруем orders, оставляя только те, у которых есть items с этим marketplace_item_id
+                $ordersQuery->whereHas('items', function ($query) use ($itemWithBarcode) {
+                    $query->where('marketplace_item_id', $itemWithBarcode->marketplace_item_id);
+                });
+            } else {
+                // Если barcode не найден - возвращаем пустой результат
+                $ordersQuery->whereRaw('1 = 0');
+            }
+        }
+
         return view('warehouse_of_item.to_pick_list', [
             'title' => 'Товары для подбора со склада',
-            'orders' => MarketplaceOrderService::pickupOrders()
-                ->paginate(20),
+            'orders' => $ordersQuery->paginate(20)->appends($request->query()),
             'ordersAssembled' => MarketplaceOrderService::assembledOrders(),
+            'storageBarcode' => $request->storage_barcode,
+            'barcodeNotFound' => $request->filled('storage_barcode') && ! $itemWithBarcode,
         ]);
     }
 

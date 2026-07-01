@@ -44,23 +44,60 @@
         </div>
     @endif
 
+    @if($barcodeNotFound)
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert"
+                    aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            Штрихкод хранения "{{ $storageBarcode }}" не найден на складе
+        </div>
+    @endif
+
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Заказы на сборку</h3>
         </div>
         <div class="card-body">
+            <div class="row">
 
-            <a href="{{ route('warehouse_of_item.to_pick_list_print') }}"
-               class="btn btn-secondary mb-3 mr-2" target="_blank">
-                <i class="fas fa-print mr-1"></i>
-                Печать списка
-            </a>
+                <a href="{{ route('warehouse_of_item.to_pick_list_print') }}"
+                   class="btn btn-secondary mb-3 ml-2" target="_blank">
+                    <i class="fas fa-print mr-1"></i>
+                    Печать списка
+                </a>
 
-            <a href="{{ route('warehouse_of_item.pickup_scan') }}"
-               class="btn btn-success mb-3">
-                <i class="fas fa-barcode mr-1"></i>
-                Сканер подбора
-            </a>
+                <a href="{{ route('warehouse_of_item.pickup_scan') }}"
+                   class="btn btn-success mb-3 ml-2 mr-3">
+                    <i class="fas fa-barcode mr-1"></i>
+                    Сканер подбора
+                </a>
+
+                <div class="col-md-4">
+                    <form action="{{ route('warehouse_of_item.to_pick_list') }}"
+                          method="get">
+                        <div class="input-group mb-3">
+                            <input type="text"
+                                   name="storage_barcode"
+                                   class="form-control"
+                                   placeholder="Сканируйте штрихкод хранения"
+                                   autofocus
+                                   autocomplete="off"
+                                   value="{{ $storageBarcode ?? '' }}">
+                            @isset($storageBarcode)
+                                <div class="input-group-append">
+                                    <a href="{{ route('warehouse_of_item.to_pick_list') }}"
+                                       class="btn btn-outline-primary"
+                                       title="Сбросить фильтр">
+                                        <i class="fas fa-times text-danger"></i>
+                                    </a>
+                                </div>
+                            @endisset
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">
@@ -96,4 +133,13 @@
 
 @push('js')
     <script src="{{ asset('js/PageQueryParam.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const barcodeInput = document.querySelector('input[name="storage_barcode"]');
+            if (barcodeInput) {
+                // Автофокус при загрузке страницы
+                barcodeInput.focus();
+            }
+        });
+    </script>
 @endpush
