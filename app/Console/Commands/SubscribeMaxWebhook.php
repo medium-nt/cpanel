@@ -37,6 +37,7 @@ class SubscribeMaxWebhook extends Command
         }
 
         $response = Http::withHeaders(['Authorization' => $token])
+            ->withOptions(['verify' => config('services.max.verify_ssl', true)])
             ->timeout(10)
             ->post($apiUrl.'/subscriptions', [
                 'url' => $webhookUrl,

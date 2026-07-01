@@ -1,6 +1,6 @@
 # Order Lifecycle — Жизненный цикл заказов маркетплейса
 
-> Last reviewed: 2026-06-29
+> Last reviewed: 2026-07-01
 
 ## Обзор
 
@@ -275,6 +275,15 @@ API синхронизация (каждые 10 мин)
   того же артикула (`marketplace_item_id`) со склада (status 11 или 13). Это
   подтверждается
   swap-логикой в `WarehouseOfItemController::labeling`
+- **Фильтрация по storage_barcode** (`WarehouseOfItemController::toPickList()`):
+    - Кладовщик сканирует `storage_barcode` экземпляра на странице
+      `/warehouse_of_item/to_pick_list`
+    - Система находит `marketplace_item_id` (артикул) по barcode
+    - Фильтрует все заказы, оставляя только те, которые содержат этот товар
+    - Query параметр `?storage_barcode=XXX` для фильтрации
+    - Если barcode не найден — показывается alert сообщение
+    - Кнопка сброса фильтра (красный крестик)
+    - Автофокус на input при загрузке страницы
 - **Сканер подбора** (`app/Livewire/PickupScan.php`):
     - Кладовщик сканирует `storage_barcode` экземпляра на полке
     - Система берёт `marketplace_item_id` (артикул) и ищет активные заказы

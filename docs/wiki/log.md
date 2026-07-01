@@ -547,6 +547,21 @@
   браузера из-за антивируса/ОС)
 - Обновлён topic: support-system.md
 
+## [2026-07-01] update | warehouse-storage-barcode-filter
+
+- Добавлена фильтрация заказов на странице `/warehouse_of_item/to_pick_list` по
+  `storage_barcode` —
+  сканер штрихкодов хранения рядом с кнопкой «Сканер подбора»
+- `WarehouseOfItemController::toPickList()`: при сканировании barcode система
+  ищет товар (status IN [11,13]), берёт его `marketplace_item_id` и
+  фильтрует заказы по этому артикулу
+- Query параметр `?storage_barcode=XXX` для фильтрации, кнопка сброса (красный
+  крестик), автофокус на input при загрузке, alert если barcode не найден
+- Файлы: `app/Http/Controllers/WarehouseOfItemController.php` (метод
+  toPickList),
+  `resources/views/warehouse_of_item/to_pick_list.blade.php` (форма поиска)
+- Обновлены topics: warehouse-operations.md, order-lifecycle.md
+
 ## [2026-06-28] update | max-messenger-notifications
 
 - Реализован ВТОРОЙ канал уведомлений — MAX мессенджер (параллельно с Telegram)
