@@ -215,4 +215,46 @@ class AutoOrderServiceTest extends TestCase
 
         $this->assertCount(1, $result);
     }
+
+    public function test_auto_order_not_created_for_archived_material(): void
+    {
+        // Disable the default material from setUp so it doesn't trigger auto-order
+        $this->material->update(['is_active' => false]);
+
+        // Create archived material
+        $archivedMaterial = Material::factory()->create([
+            'title' => 'Архивная упаковка',
+            'unit' => 'м',
+            'is_active' => false,
+            'is_archive' => true,
+        ]);
+
+        // Attach to workshop
+        $this->workshop->allowedMaterials()->attach($archivedMaterial);
+
+        // Create a roll with low quantity (below threshold)
+        Roll::create([
+            'shift_id' => $this->shift->id,
+            'roll_code' => 'ROLL-'.uniqid(),
+            'material_id' => $archivedMaterial->id,
+            'status' => Roll::STATUS_IN_WORKSHOP,
+            'initial_quantity' => 50, // Below threshold
+        ]);
+
+        $result = AutoOrderService::checkAndCreateAutoOrders();
+
+        // No orders should be created for archived material
+        $this->assertEmpty($result);
+
+        // Verify no order was created
+        $this->assertDatabaseMissing('orders', [
+            'comment' => '[Автозаказ]',
+            'shift_id' => $this->shift->id,
+        ]);
+
+        // Verify no movement_material was created for archived material
+        $this->assertDatabaseMissing('movement_materials', [
+            'material_id' => $archivedMaterial->id,
+        ]);
+    }
 }

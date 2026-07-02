@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use App\Models\Supplier;
 use App\Models\TypeMaterial;
+use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -67,11 +68,32 @@ class MaterialController extends Controller
             'type_id' => 'required|integer|exists:type_materials,id',
             'unit' => 'required|string|min:1|max:10',
             'purchase_price' => 'required|numeric|min:0.01',
-            'is_active' => 'required|boolean',
+            'status' => 'required|in:active,unorderable,archived',
             'minimum_roll_size_for_closure' => 'required|numeric|min:0',
         ];
 
         $validatedData = $request->validate($rules);
+
+        // Маппинг единого статуса в два флага: is_active («можно заказать») и is_archive («в архиве»).
+        $status = $validatedData['status'];
+
+        // Перевод в архив возможен только из статуса «Нельзя заказать» и при отсутствии остатков.
+        if ($status === 'archived') {
+            if ($material->is_active) {
+                return back()->withInput()
+                    ->with('error', 'Сначала переведите материал в «Нельзя заказать», распределите остатки, и только потом — в архив.');
+            }
+
+            if (! InventoryService::canArchive($material)) {
+                return back()->withInput()
+                    ->with('error', 'Нельзя архивировать: по материалу есть остатки на складе или в цехе.');
+            }
+        }
+
+        $validatedData['is_archive'] = $status === 'archived';
+        $validatedData['is_active'] = $status === 'active';
+        unset($validatedData['status']);
+
         $material->update($validatedData);
 
         Log::channel('materials')->info('Обновлён материал', [

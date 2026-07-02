@@ -23,6 +23,29 @@
 - `materialsQuantityByWarehouseFromRolls()` — через рулоны на складе
 - Группировка материалов по типам на странице склада
 
+**Фильтрация архива (02.07.2026):**
+
+- Все просмотры остатков фильтруют материалы по флагу `is_archive=false`
+- Архивные материалы (`is_archive=true`) полностью скрыты из:
+    - Склад (`/megatulle/inventory/`)
+    - Брак (`defect_warehouse`)
+    - Цех (`/megatulle/inventory/workshop`)
+- Scope `Material::notArchived()` применяется в `materialsQuantityByWarehouse()`
+  и
+  `materialsQuantityByWorkshopAggregate()`
+- Бизнес-смысл: архивные материалы недоступны для производства и не видны в
+  остатках, но не удаляются из БД
+
+**canArchive — защита перевода в архив (Этап 2):**
+
+- `InventoryService::canArchive(Material)` — проверяет, можно ли перевести
+  материал в архив
+- Условие: `materialInWarehouse() == 0` И `materialInWorkshop() == 0`
+- Используется в `MaterialController::update` для защиты перевода в архив
+- Материал можно перевести в «Архив» только из статуса «Нельзя заказать»
+  (`is_active=false`)
+- Путь статусов: `Активен → Нельзя заказать → Архив`
+
 **Процесс инвентаризации:**
 
 1. Создаётся `InventoryCheck` (статус, комментарий)

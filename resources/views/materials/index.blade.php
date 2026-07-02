@@ -36,10 +36,13 @@
                                 <td>{{ $material->unit }}</td>
                                 <td>{{ $material->purchase_price }} руб.</td>
                                 <td>
-                                    @if($material->is_active)
-                                        <span class="badge badge-success">Активен</span>
+                                    @if($material->is_archive)
+                                        <span
+                                            class="badge badge-dark">Архив</span>
+                                    @elseif(!$material->is_active)
+                                        <span class="badge badge-secondary">Нельзя заказать</span>
                                     @else
-                                        <span class="badge badge-secondary">Неактивен</span>
+                                        <span class="badge badge-success">Активен</span>
                                     @endif
                                 </td>
 

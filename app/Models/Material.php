@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\MaterialFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +37,7 @@ class Material extends Model
         'unit',
         'purchase_price',
         'is_active',
+        'is_archive',
         'minimum_roll_size_for_closure',
     ];
 
@@ -49,6 +51,26 @@ class Material extends Model
         return [
             'minimum_roll_size_for_closure' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Скоуп: только не архивированные материалы (видимы в просмотрах остатков).
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeNotArchived(Builder $query): void
+    {
+        $query->where('is_archive', false);
+    }
+
+    /**
+     * Скоуп: материалы, доступные для заказа/выбора в формах (активные и не в архиве).
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true)->where('is_archive', false);
     }
 
     public function type(): BelongsTo

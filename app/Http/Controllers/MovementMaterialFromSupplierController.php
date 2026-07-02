@@ -34,7 +34,7 @@ class MovementMaterialFromSupplierController extends Controller
     {
         return view('movements_from_supplier.create', [
             'title' => 'Добавить поступление на склад',
-            'materials' => Material::query()->get(),
+            'materials' => Material::active()->get(),
             'suppliers' => Supplier::query()->get(),
         ]);
     }
@@ -60,7 +60,7 @@ class MovementMaterialFromSupplierController extends Controller
         return view('movements_from_supplier.edit', [
             'title' => 'Изменить поставку',
             'order' => $order,
-            'materials' => Material::query()->get(),
+            'materials' => Material::active()->get(),
             'suppliers' => Supplier::query()->get(),
         ]);
     }

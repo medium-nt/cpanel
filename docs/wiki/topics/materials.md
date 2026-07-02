@@ -1,6 +1,6 @@
 # Materials — Материалы
 
-> Last reviewed: 2026-06-25
+> Last reviewed: 2026-07-02
 
 ## Обзор
 
@@ -9,6 +9,11 @@
 остатков в виде рулонов. Каждый материал имеет индивидуальные параметры, включая
 минимальный остаток для закрытия рулона. Лимит рулонов ткани на смену теперь
 настраивается через систему settings (глобально + по цехам), а не захардкожен.
+
+**Двухфлаговая модель состояний материала:**
+
+- `is_active` — можно заказать/выбрать в форме (для будущих точек заказа)
+- `is_archive` — в архиве, скрыт из просмотров остатков на складе/браке/цехе
 
 ## Как это работает
 
@@ -33,12 +38,78 @@
   проверки
   `hasMaterialsInWorkshop` (швеи и закройщики не используют упаковку)
 
+### Состояния материалов (двухфлаговая модель)
+
+**Бизнес-смысл (02.07.2026):** Материалы теперь управляются двумя независимыми
+флагами состояния для гибкой фильтрации в разных контекстах.
+
+**Флаги:**
+
+- `is_active` (boolean, default true) — «можно заказать/выбрать в форме»
+    - Существующее поле, ранее использовалось для отключения материалов
+    - В Этапе 2 (будущее) будет фильтровать материалы в формах заказа/выбора
+- `is_archive` (boolean, default false) — «в архиве», скрыт из просмотров
+  остатков
+    - Новое поле, введено 02.07.2026
+    - Исключает материал из всех просмотров остатков (склад, брак, цех)
+
+**Карта фильтрации:**
+
+| Контекст использования                | Фильтрация по флагам                             | Видимые материалы            |
+|---------------------------------------|--------------------------------------------------|------------------------------|
+| Просмотры остатков (склад/брак/цех)   | Только `is_archive=false`                        | Активные + «нельзя заказать» |
+| Формы заказа/выбора (Этап 2, будущее) | Оба флага: `is_active=true` И `is_archive=false` | Только активные, не в архиве |
+| Админка `/materials`                  | Без фильтрации (все материалы)                   | Все с бейджами статуса       |
+
+**UI (в `/materials/{id}/edit`):**
+
+- ОДИН select «Статус» с 3 опциями:
+    1. Активен → (`is_active=true`, `is_archive=false`)
+    2. Нельзя заказать → (`is_active=false`, `is_archive=false`)
+    3. В архиве → (`is_active=false`, `is_archive=true`)
+- В списке `/materials` — 3 цветных бейджа для визуальной индикации
+
+**Scope в Material.php (Этап 2, 02.07.2026):**
+
+- `Material::notArchived()` — возвращает материалы с `is_archive=false`
+    - Используется для форм списания/возврата (видны «нельзя заказать», скрыт
+      архив)
+- `Material::active()` — возвращает материалы с `is_active=true` И
+  `is_archive=false`
+    - Используется для форм заказа/выбора (только активные, не в архиве)
+
+**Бизнес-правило пути статусов:**
+`Активен → Нельзя заказать → Архив`
+
+**canArchive — защита перевода в архив:**
+
+- Новый метод `InventoryService::canArchive(Material)` — проверяет, можно ли
+  перевести материал в архив
+- Условие: `materialInWarehouse() == 0` И `materialInWorkshop() == 0`
+- Материал можно перевести в «Архив» ТОЛЬКО из статуса «Нельзя заказать»
+  (`is_active=false`) и при `canArchive() == true`
+- `MaterialController::update` — перевод в архив защищён: при нарушении условий
+  redirect back с ошибкой
+
+**Бизнес-правила:**
+
+- Материал в архиве (`is_archive=true`) полностью скрыт из просмотров остатков
+  на складе (`/megatulle/inventory/`), браке (`defect_warehouse`) и в цеху
+  (`/megatulle/inventory/workshop`)
+- Материал с `is_active=false` но `is_archive=false` виден в остатках, но
+  недоступен для заказа в формах
+- Админ видит все материалы в `/materials` независимо от флагов
+- Перевод в архив возможен только когда остатки на складе и в цехе равны 0
+
 **Поля модели:**
 
 - `id` — уникальный идентификатор
 - `name` — название материала
 - `type_id` — тип материала (внешний ключ)
 - `quantity` — общее количество на складе
+- `is_active` — флаг «можно заказать/выбрать в форме» (boolean, default true)
+- `is_archive` — флаг «в архиве», скрыт из просмотров остатков (boolean,
+  default false)
 - `minimum_roll_size_for_closure` — минимальный остаток для закрытия рулона (
   decimal, NOT NULL, default 10.00)
 - `created_at` / `updated_at` — временные метки
@@ -124,8 +195,34 @@
 - `app/Models/Supplier.php` — модель поставщиков (relation: materials)
 - `app/Models/Setting.php` — модель настроек (getValue с fallback "цеховая →
   глобальная")
+- `app/Services/InventoryService.php` — canArchive(Material) — проверка
+  возможности перевода в архив (остатки на складе и в цехе равны 0)
+- `app/Services/AutoOrderService.php` — автозаказ с фильтрацией по
+  `is_archive=false` (active scope)
 - `app/Http/Controllers/MaterialController.php` — валидация store/update:
-  required|numeric|min:0
+  required|numeric|min:0; защита перевода в архив через canArchive (update
+  метод)
+- `app/Http/Controllers/MovementMaterialToWorkshopController.php` — форма
+  запроса
+  материалов (active scope)
+- `app/Http/Controllers/MarketplaceItemController.php` — форма выбора материалов
+  для товара (active scope)
+- `app/Http/Controllers/DefectMaterialController.php` — форма брака (active
+  scope)
+- `app/Http/Controllers/MovementMaterialFromSupplierController.php` — форма
+  поступления
+  от поставщика (active scope)
+- `app/Http/Controllers/MovementDefectMaterialToSupplierController.php` — форма
+  возврата брака (notArchived scope)
+- `app/Http/Controllers/WriteOffRemnantsController.php` — форма списания
+  остатков
+  (notArchived scope)
+- `app/Http/Controllers/UsersController.php` — назначение материалов
+  пользователю
+  (active scope)
+- `app/Http/Controllers/WorkshopController.php` — назначение материалов цеху
+  (active scope)
+- `app/Livewire/MaterialForm.php` — форма материалов (mount, notArchived scope)
 - `app/Http/Controllers/MaterialSupplierController.php` — управление связями
   материалы↔поставщики (attach, updateShortages, detach)
 - `resources/views/materials/edit.blade.php` и `create.blade.php` — поле ввода "

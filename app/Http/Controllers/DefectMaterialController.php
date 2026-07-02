@@ -36,7 +36,7 @@ class DefectMaterialController extends Controller
     {
         return view('defect_materials.create', [
             'title' => ($request->type_movement_id == 4) ? 'Добавить брак' : 'Добавить остаток',
-            'materials' => Material::query()->get(),
+            'materials' => Material::active()->get(),
             'suppliers' => Supplier::query()->get(),
         ]);
     }

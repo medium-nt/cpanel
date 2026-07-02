@@ -620,3 +620,46 @@
   marketplace-integration.md (TG+MAX-уведомления), warehouse-operations.md (
   TG+MAX при сборке),
   material-flow.md (TG+MAX уведомления), order-lifecycle.md (TG+MAX уведомления)
+
+## [2026-07-02] update | materials-is_archive
+
+- Введена двухфлаговая модель состояний материала: `is_active` (можно заказать)
+  и `is_archive` (в архиве, скрыт из просмотров остатков)
+- Новое поле `is_archive` (boolean, default false) в таблице materials; scope
+  `Material::notArchived()` возвращает материалы с `is_archive=false`
+- Фильтрация по `is_archive=false` применена во всех просмотрах остатков:
+  `InventoryService::materialsQuantityByWarehouse()` и
+  `materialsQuantityByWorkshopAggregate()` (строки 145, 176)
+- UI: в `/materials/{id}/edit` — один select «Статус» с 3 опциями (Активен /
+  Нельзя заказать / В архиве), маппится в (is_active, is_archive). В
+  `/materials` — 3 цветных бейджа.
+- Карта фильтрации: просмотры остатков → только `is_archive=false` (видны
+  активные и «нельзя заказать»); формы заказа (Этап 2) → оба флага; админка →
+  все материалы
+- Обновлены topics: materials.md, warehouse-operations.md, material-flow.md
+
+## [2026-07-02] update | materials-archive-phase2-forms-canarchive
+
+- Реализован Этап 2 архивирования материалов: фильтрация в формах + защита
+  перевода в архив
+- Два scope в Material.php: `scopeActive` (is_active=true AND is_archive=false)
+  для форм заказа/выбора, `scopeNotArchived` (is_archive=false) для форм
+  списания/возврата
+- Фильтрация ЗАКАЗ/ВЫБОР (`Material::active()`): movements_to_workshop/create,
+  marketplace_items/create+edit, defect_materials/create,
+  movements_from_supplier/create+edit, users/edit, workshops/edit,
+  AutoOrderService
+- Фильтрация СПИСАНИЕ/ВОЗВРАТ (`Material::notArchived()`):
+  movements_defect_to_supplier/create, write_off_remnants/create, Livewire
+  MaterialForm (mount)
+- Новый метод `InventoryService::canArchive(Material)`: проверка возможности
+  перевода в архив (условие: materialInWarehouse==0 AND materialInWorkshop==0)
+- `MaterialController::update`: защита перевода в «Архив» — возможен только из
+  «Нельзя заказать» (is_active=false) и при canArchive=true, иначе redirect back
+  с ошибкой
+- UI `materials/edit.blade.php`: option «В архиве» @disabled когда материал
+  активный; alert для session('error')
+- Бизнес-правило пути статусов: `Активен → Нельзя заказать → Архив`
+- Обновлены topics: materials.md (добавлены scopeActive, canArchive, путь
+  статусов, список контроллеров), material-flow.md (раздел фильтрации расширен),
+  warehouse-operations.md (добавлен canArchive)

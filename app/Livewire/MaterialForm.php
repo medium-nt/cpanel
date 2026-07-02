@@ -30,10 +30,10 @@ class MaterialForm extends Component
         'orderedQuantity' => 'nullable|numeric|min:0|max:maxQuantity',
     ];
 
-    /** Инициализирует компонент формой material: загружает материалы, устанавливает параметры движения и источника. */
+    /** Инициализирует компонент формой material: загружает неархивированные материалы, устанавливает параметры движения и источника. */
     public function mount(string $typeMovement = '', string $sourceType = 'warehouse', $isFirst = false, $isMovementToWorkshop = false): void
     {
-        $this->materials = Material::all();
+        $this->materials = Material::notArchived()->get();
         $this->resetErrorBag();
         $this->sourceType = $sourceType;
         $this->typeMovement = $typeMovement;

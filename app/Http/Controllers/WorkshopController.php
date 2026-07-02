@@ -96,8 +96,7 @@ class WorkshopController extends Controller
             ->pluck('value', 'name');
 
         // Сырьевые материалы (ткани, фурнитура) — доступные для заказа в цехе
-        $rawMaterials = Material::query()
-            ->where('is_active', true)
+        $rawMaterials = Material::active()
             ->orderBy('title')
             ->get();
 
