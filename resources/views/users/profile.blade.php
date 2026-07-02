@@ -45,8 +45,13 @@
                         @if($user->max_id == '')
                             <div class="alert alert-danger" role="alert">
                                 <h4 class="alert-heading">MAX не подключен</h4>
-                                Для получения уведомлений через MAX напишите
-                                боту /start
+                                Для получения уведомлений через MAX необходимо
+                                @if(config('services.max.bot_link'))
+                                    <a href="{{ config('services.max.bot_link') }}"
+                                       target="_blank">подключить бота</a>
+                                @else
+                                    написать боту /start
+                                @endif
                                 <br>
                                 <a href="{{ route('profile') }}">(проверить
                                     подключение)</a>
