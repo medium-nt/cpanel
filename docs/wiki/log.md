@@ -565,6 +565,24 @@
   через CSS-классы `.today-shift-col(-top/-bottom)` сохранена
 - Обновлён topic: warehouse-operations.md
 
+## [2026-07-02] update | notifications-circuit-breaker
+
+- Circuit Breaker в TgService/MaxService: `sendMessage()` теперь возвращает
+  `bool`; HTTP 429 → cache-флаг на 30 мин, HTTP 403 → флаг на 6 ч (TG: любой
+  403, MAX: только dialog.suspended)
+- Jobs (`SendTelegramMessageJob`/`SendMaxMessageJob`): NOTICE «отправлено»
+  только
+  при `true`; при `false` — warning «пропущено (circuit breaker)». Retry при
+  429/403 НЕ делается.
+- Cooldown кейса «нет материала» (
+  `MarketplaceOrderItemService::notifyNoMaterials`):
+  блокировка отправки уведомления админу на 30 мин через Cache-флаг
+  `no_material:item:{itemId}` → защита от спама при повторных кликах «Получить
+  новый заказ»
+- Логи CB-событий пишутся в каналы `tg`/`max` (уровни info/warning)
+- Обновлены topics: user-management.md, marketplace-integration.md,
+  logging-channels.md
+
 ## [2026-06-28] update | max-messenger-notifications
 
 - Реализован ВТОРОЙ канал уведомлений — MAX мессенджер (параллельно с Telegram)

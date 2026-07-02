@@ -20,9 +20,17 @@ class SendTelegramMessageJob implements ShouldQueue
 
     public function handle(): void
     {
-        TgService::sendMessage($this->chatId, $this->text);
+        if (TgService::sendMessage($this->chatId, $this->text)) {
+            Log::channel('tg')
+                ->notice('Сообщение отправлено в ТГ: '.$this->chatId.' с текстом: '.$this->text);
+
+            return;
+        }
+
+        // sendMessage вернул false — Circuit Breaker (429/403) или нет chat_id.
+        // Retry не делаем: флаг уже взведён внутри сервиса, повторы лишь усилили бы бан.
         Log::channel('tg')
-            ->notice('Сообщение отправлено в ТГ: '.$this->chatId.' с текстом: '.$this->text);
+            ->warning('Сообщение в ТГ пропущено (circuit breaker / нет chat_id): '.$this->chatId);
     }
 
     public function failed(\Throwable $exception): void

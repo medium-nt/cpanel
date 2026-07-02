@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -1078,11 +1079,30 @@ class MarketplaceOrderItemService
         return self::assignOrderToUser($marketplaceOrderItem);
     }
 
+    private const NO_MATERIAL_CACHE_PREFIX = 'no_material:item:';
+
+    private const NO_MATERIAL_TTL = 1800;
+
     /**
-     * Отправка уведомления о недостатке материала в цехе.
+     * Отправка уведомления о недостатке материала в цехе с cooldown'ом по товару.
+     *
+     * Чтобы десятки нажатий «Получить новый заказ» по одному и тому же товару
+     * не плодили одинаковые уведомления админу, отправка конкретного товара
+     * блокируется на NO_MATERIAL_TTL секунд (30 мин) через Cache-флаг.
+     *
+     * @param  object  $item  Модель товара (Item), для которого не хватает материала
      */
     protected static function notifyNoMaterials($item): void
     {
+        $cacheKey = self::NO_MATERIAL_CACHE_PREFIX.$item->id;
+
+        if (Cache::has($cacheKey)) {
+            Log::channel('items')
+                ->debug('Отправка уведомления о нехватке материала пропущено (недавно отправляли): товар #'.$item->id);
+
+            return;
+        }
+
         $text = sprintf(
             'На товар %s %sx%s недостаточно материала на складе',
             $item->title,
@@ -1092,6 +1112,8 @@ class MarketplaceOrderItemService
 
         TgService::sendMessage(config('telegram.admin_id'), $text);
         MaxService::sendMessage(config('services.max.admin_id'), $text);
+
+        Cache::put($cacheKey, true, self::NO_MATERIAL_TTL);
     }
 
     protected static function notifyAboutReservation($marketplaceOrderItem, $item): void

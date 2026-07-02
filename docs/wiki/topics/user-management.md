@@ -1,6 +1,6 @@
 # User Management — Управление пользователями
 
-> Last reviewed: 2026-06-29
+> Last reviewed: 2026-07-02
 
 ## Обзор
 
@@ -111,7 +111,8 @@ if ($request->workshop_id) {
 - Колонка `users.tg_id` (varchar 255, nullable) — хранит Telegram chat_id
 - Привязка через GET `/megatulle/users/profile?tg_id=...` (webhook от TG-бота)
 - Отключение через роут `profile.disconnectTg`
-- Отправка через `TgService::sendMessage(?string $chatId, string text)`
+- Отправка через `TgService::sendMessage(?string $chatId, string text): bool` —
+  возвращает `true` при успехе, `false` при failure или circuit breaker
 
 **MAX (новый, с 28.06.2026):**
 
@@ -119,11 +120,30 @@ if ($request->workshop_id) {
   tg_id)
 - Привязка через GET `/megatulle/users/profile?max_id=...` (webhook от MAX-бота)
 - Отключение через роут `profile.disconnectMax`
-- Отправка через `MaxService::sendMessage(?string $chatId, string text)`
+- Отправка через `MaxService::sendMessage(?string $chatId, string text): bool` —
+  возвращает `true` при успехе, `false` при failure или circuit breaker
 - Webhook: POST `/api/max/webhook` (разбирает payload MAX, событие
   `message_created`,
   chat_id в `message.recipient.chat_id`)
 - Подписка webhook: команда `max:subscribe-webhook` (регистрирует в MAX API)
+
+**Circuit Breaker (защита от rate limits и банов):**
+
+- **HTTP 429 (rate-limit / too.many.requests):** Cache-флаг
+  `{tg|max}:rate_limited:{chatId}` на 30 мин → тихий skip последующих отправок
+  этому chatId без логирования
+- **HTTP 403 (banned/blocked):**
+    - TG — любой 403 → флаг `tg:banned:{chatId}` на 6 ч
+    - MAX — 403 с `dialog.suspended` → флаг `max:banned:{chatId}` на 6 ч
+- **Jobs (`SendTelegramMessageJob`/`SendMaxMessageJob`):** NOTICE
+  «отправлено» пишется только при `true`; при `false` — warning «пропущено
+  (circuit breaker)». Retry при 429/403 НЕ делается.
+- **Бизнес-смысл:** защита от retry-шторма (1 доставленное сообщение =~ 20
+  пустых
+  запросов) и эскалации 429→403 = бан бота. Сервисы остаются «тихими» (не
+  бросают
+  исключения), чтобы не ронять 32 синхронные точки вызова.
+- **Логи CB-событий:** пишутся в каналы `tg`/`max` (уровни info/warning)
 
 **Единый шлюз уведомлений (NotificationService, Этап 2 из 2 — реализован):**
 
