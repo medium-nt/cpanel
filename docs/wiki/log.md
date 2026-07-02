@@ -547,20 +547,23 @@
   браузера из-за антивируса/ОС)
 - Обновлён topic: support-system.md
 
-## [2026-07-01] update | warehouse-storage-barcode-filter
+## [2026-07-02] update | workshop-inventory-split-by-type
 
-- Добавлена фильтрация заказов на странице `/warehouse_of_item/to_pick_list` по
-  `storage_barcode` —
-  сканер штрихкодов хранения рядом с кнопкой «Сканер подбора»
-- `WarehouseOfItemController::toPickList()`: при сканировании barcode система
-  ищет товар (status IN [11,13]), берёт его `marketplace_item_id` и
-  фильтрует заказы по этому артикулу
-- Query параметр `?storage_barcode=XXX` для фильтрации, кнопка сброса (красный
-  крестик), автофокус на input при загрузке, alert если barcode не найден
-- Файлы: `app/Http/Controllers/WarehouseOfItemController.php` (метод
-  toPickList),
-  `resources/views/warehouse_of_item/to_pick_list.blade.php` (форма поиска)
-- Обновлены topics: warehouse-operations.md, order-lifecycle.md
+- На странице `/megatulle/inventory/workshop` («Материал на производстве»)
+  материалы теперь разделены по типам (как на складе `/megatulle/inventory/`):
+  каждая секция в отдельной card с заголовком и badge количества позиций
+- `InventoryService::materialsQuantityByWorkshopPerShift()`: добавлен `type_id`
+  в SELECT (строка 276), groupBy (строка 281) и в объект material (строка 291)
+- `InventoryController::byWorkshop()`: теперь передаёт `sections` через
+  `groupMaterialsByType()` вместо плоского `materials`; метод
+  `groupMaterialsByType()`
+  стал переиспользуемым (склад + цех)
+- `resources/views/inventory/workshop.blade.php`: desktop-таблица и
+  mobile-карточки
+  обёрнуты в `@foreach ($sections as $section)` с card-header; обводка рабочих
+  смен
+  через CSS-классы `.today-shift-col(-top/-bottom)` сохранена
+- Обновлён topic: warehouse-operations.md
 
 ## [2026-06-28] update | max-messenger-notifications
 

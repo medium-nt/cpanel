@@ -5,78 +5,89 @@
 
 @section('content_body')
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
+        @if(auth()->user()->isAdmin())
+            <a href="{{ route('movements_to_workshop.write_off') }}"
+               class="btn btn-primary mr-3 mb-3">Списание материала</a>
+        @endif
 
-                @if(auth()->user()->isAdmin())
-                    <a href="{{ route('movements_to_workshop.write_off') }}"
-                       class="btn btn-primary mr-3 mb-3">Списание материала</a>
-                @endif
+        @php
+            $statusThresholds = function($qty) {
+                if ($qty <= 100) return 'bg-danger text-white';
+                if ($qty <= 300) return 'bg-warning';
+                return 'bg-success text-white';
+            };
+            $showTotal = auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager();
+        @endphp
 
-                    @php
-                        $statusThresholds = function($qty) {
-                            if ($qty <= 100) return 'bg-danger text-white';
-                            if ($qty <= 300) return 'bg-warning';
-                            return 'bg-success text-white';
-                        };
-                    @endphp
-
+        @foreach ($sections as $section)
+            <div class="card mb-3">
+                <div
+                    class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">{{ $section['title'] }}</h3>
+                    <span class="badge badge-secondary">{{ count($section['items']) }} поз.</span>
+                </div>
+                <div class="card-body">
                     {{-- Desktop: table with colored cells --}}
                     <div class="table-responsive only-on-desktop">
-                    <table class="table table-hover table-bordered">
-                        <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">Материал</th>
-                            @foreach ($shifts as $shift)
-                                <th scope="col"
-                                    class="text-center @if(in_array($shift->id, $todayShiftIds)) today-shift-col today-shift-col-top @endif">
-                                    {{ $shift->name }}
-                                    @if(in_array($shift->id, $todayShiftIds))
-                                        <span class="badge badge-light ml-1">Работает</span>
-                                    @endif
-                                </th>
-                            @endforeach
-
-                            @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
-                                <th scope="col" class="text-center">Итого</th>
-                            @endif
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach ($materials as $item)
+                        <table
+                            class="table table-hover table-bordered workshop-inventory-table">
+                            <thead class="thead-dark">
                             <tr>
-                                <td>{{ $item['material']->title }}</td>
+                                <th scope="col">Материал</th>
                                 @foreach ($shifts as $shift)
-                                    @php $shiftData = $item['per_shift'][$shift->id] ?? null; @endphp
-                                    <td class="text-center {{ $shiftData && $shiftData['quantity'] > 0 ? $statusThresholds($shiftData['quantity']) : '' }} @if(in_array($shift->id, $todayShiftIds)) today-shift-col @if($loop->parent->last) today-shift-col-bottom @endif @endif">
-                                        @if($shiftData && ($shiftData['quantity'] > 0 || $shiftData['rolls_count'] > 0))
-                                            {{ $shiftData['quantity'] }} {{ $item['material']->unit }}
-                                            ,
-                                            {{ $shiftData['rolls_count'] }} рул.
-                                        @else
-                                            —
+                                    <th scope="col"
+                                        class="text-center col-shift @if(in_array($shift->id, $todayShiftIds)) today-shift-col today-shift-col-top @endif">
+                                        {{ $shift->name }}
+                                        @if(in_array($shift->id, $todayShiftIds))
+                                            <span
+                                                class="badge badge-light ml-1">Работает</span>
                                         @endif
-                                    </td>
+                                    </th>
                                 @endforeach
-                                @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
-                                    <td class="text-center">
-                                        <b>{{ $item['total_quantity'] }} {{ $item['material']->unit }}</b>,
-                                        {{ $item['total_rolls'] }} рул.
-                                    </td>
+
+                                @if($showTotal)
+                                    <th scope="col"
+                                        class="text-center col-total">Итого
+                                    </th>
                                 @endif
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                            @foreach ($section['items'] as $item)
+                                <tr>
+                                    <td>{{ $item['material']->title }}</td>
+                                    @foreach ($shifts as $shift)
+                                        @php $shiftData = $item['per_shift'][$shift->id] ?? null; @endphp
+                                        <td class="text-center col-shift {{ $shiftData && $shiftData['quantity'] > 0 ? $statusThresholds($shiftData['quantity']) : '' }} @if(in_array($shift->id, $todayShiftIds)) today-shift-col @if($loop->parent->last) today-shift-col-bottom @endif @endif">
+                                            @if($shiftData && ($shiftData['quantity'] > 0 || $shiftData['rolls_count'] > 0))
+                                                {{ $shiftData['quantity'] }} {{ $item['material']->unit }}
+                                                ,
+                                                {{ $shiftData['rolls_count'] }}
+                                                рул.
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                    @if($showTotal)
+                                        <td class="text-center col-total">
+                                            <b>{{ $item['total_quantity'] }} {{ $item['material']->unit }}</b>,
+                                            {{ $item['total_rolls'] }} рул.
+                                        </td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
                     {{-- Mobile: cards per material --}}
                     <div class="only-on-smartphone">
-                        @foreach ($materials as $item)
+                        @foreach ($section['items'] as $item)
                             <div class="card mb-2">
                                 <div class="card-body p-2">
                                     <b>{{ $item['material']->title }}</b>
-                                    @if(auth()->user()->isAdmin() || auth()->user()->isStorekeeper() || auth()->user()->isManager())
+                                    @if($showTotal)
                                         <span class="float-right">
                                             <b>{{ $item['total_quantity'] }} {{ $item['material']->unit }}</b>,
                                             {{ $item['total_rolls'] }} рул.
@@ -109,9 +120,9 @@
                             </div>
                         @endforeach
                     </div>
-
+                </div>
             </div>
-        </div>
+        @endforeach
     </div>
 @stop
 
@@ -130,6 +141,27 @@
 
         .today-shift-col-bottom {
             border-bottom: 3px solid #007bff !important;
+        }
+
+        {{-- Одинаковая ширина колонок во всех секциях: fixed-layout +
+            «Материал» и «Итого» фиксированы, смены делят остаток поровну
+            (число смен одинаково в каждой секции -> ширина смен совпадает) --}}
+        .workshop-inventory-table {
+            table-layout: fixed;
+        }
+
+        .workshop-inventory-table th,
+        .workshop-inventory-table td {
+            word-wrap: break-word;
+        }
+
+        .workshop-inventory-table th:first-child,
+        .workshop-inventory-table td:first-child {
+            width: 250px;
+        }
+
+        .workshop-inventory-table .col-total {
+            width: 150px;
         }
     </style>
 @endpush
