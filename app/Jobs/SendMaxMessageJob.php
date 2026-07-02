@@ -20,9 +20,17 @@ class SendMaxMessageJob implements ShouldQueue
 
     public function handle(): void
     {
-        MaxService::sendMessage($this->chatId, $this->text);
+        if (MaxService::sendMessage($this->chatId, $this->text)) {
+            Log::channel('max')
+                ->notice('Сообщение отправлено в MAX: '.$this->chatId.' с текстом: '.$this->text);
+
+            return;
+        }
+
+        // sendMessage вернул false — Circuit Breaker (429/403) или нет chat_id.
+        // Retry не делаем: флаг уже взведён внутри сервиса, повторы лишь усилили бы бан.
         Log::channel('max')
-            ->notice('Сообщение отправлено в MAX: '.$this->chatId.' с текстом: '.$this->text);
+            ->warning('Сообщение в MAX пропущено (circuit breaker / нет chat_id): '.$this->chatId);
     }
 
     public function failed(\Throwable $exception): void
