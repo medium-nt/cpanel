@@ -137,7 +137,7 @@ class UsersController extends Controller
             'user' => $user,
             'events' => ScheduleService::getScheduleByUserId($user->id),
             'isBeforeStartWorkDay' => ScheduleService::isBeforeStartWorkDay($user),
-            'materials' => Material::query()->where('type_id', 1)->get(),
+            'materials' => Material::active()->where('type_id', 1)->get(),
             'selectedMaterials' => $user->materials()->pluck('id')->toArray(),
             'userTariffsSalary' => $userTariffsSalary,
             'userTariffsBonus' => $userTariffsBonus,

@@ -45,6 +45,15 @@ class InventoryService
         return round($result, 2);
     }
 
+    /**
+     * Можно ли перевести материал в архив: остатки на складе и в цехе равны 0.
+     */
+    public static function canArchive(Material $material): bool
+    {
+        return self::materialInWarehouse($material->id) == 0
+            && self::materialInWorkshop($material->id) == 0;
+    }
+
     public static function materialInWarehouse($materialId): float
     {
         $inStock = self::countMaterial($materialId, 1, 3);
@@ -142,7 +151,7 @@ class InventoryService
             return self::materialsQuantityByWarehouseFromRolls();
         }
 
-        $materials = Material::all();
+        $materials = Material::notArchived()->get();
 
         $materialsQuantity = [];
         foreach ($materials as $material) {
@@ -173,6 +182,7 @@ class InventoryService
             ->leftJoin('movement_materials', 'movement_materials.material_id', '=', 'materials.id')
             ->leftJoin('orders', 'orders.id', '=', 'movement_materials.order_id')
             ->when($workshopId, fn ($q) => $q->where('orders.workshop_id', $workshopId))
+            ->where('materials.is_archive', false)
             ->select(
                 'materials.id',
                 'materials.title',
@@ -269,6 +279,7 @@ class InventoryService
             ->when($shiftIds->isNotEmpty(), fn ($q) => $q->whereIn('rolls.shift_id', $shiftIds))
             ->leftJoinSub($usedSub, 'used', 'used.roll_id', '=', 'rolls.id')
             ->join('materials', 'materials.id', '=', 'rolls.material_id')
+            ->where('materials.is_archive', false)
             ->select(
                 'materials.id',
                 'materials.title',
@@ -316,7 +327,7 @@ class InventoryService
      */
     private static function materialsQuantityByWarehouseFromRolls(): array
     {
-        $materials = Material::query()->select('id', 'title', 'unit', 'type_id')->get();
+        $materials = Material::query()->select('id', 'title', 'unit', 'type_id')->where('is_archive', false)->get();
 
         $usedSub = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')

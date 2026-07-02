@@ -25,7 +25,7 @@ class MovementDefectMaterialToSupplierController extends Controller
     {
         return view('movements_defect_to_supplier.create', [
             'title' => 'Добавить отгрузку брака поставщику',
-            'materials' => Material::query()->get(),
+            'materials' => Material::notArchived()->get(),
             'suppliers' => Supplier::query()->get(),
         ]);
     }

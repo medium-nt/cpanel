@@ -32,7 +32,7 @@ class MarketplaceItemController extends Controller
         return view('marketplace_items.create', [
             'title' => 'Добавить товар',
             'items' => MarketplaceItem::query()->get(),
-            'materials' => Material::query()->get(),
+            'materials' => Material::active()->get(),
         ]);
     }
 
@@ -59,7 +59,7 @@ class MarketplaceItemController extends Controller
         return view('marketplace_items.edit', [
             'title' => 'Изменить товар',
             'item' => $marketplaceItem,
-            'materials' => Material::query()->get(),
+            'materials' => Material::active()->get(),
             'materialsConsumption' => MaterialConsumption::query()->where('item_id', $marketplaceItem->id)->get(),
         ]);
     }

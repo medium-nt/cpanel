@@ -17,6 +17,12 @@
                 </div>
             @endif
 
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
@@ -97,14 +103,20 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="is_active">Статус</label>
-                        <select name="is_active" id="is_active"
-                                class="form-control" required>
-                            <option value="1" @selected($material->is_active)>
+                        <label for="status">Статус</label>
+                        <select name="status" id="status" class="form-control"
+                                required>
+                            <option
+                                value="active" @selected($material->is_active && !$material->is_archive)>
                                 Активен
                             </option>
-                            <option value="0" @selected(!$material->is_active)>
-                                Неактивен
+                            <option
+                                value="unorderable" @selected(!$material->is_active && !$material->is_archive)>
+                                Нельзя заказать
+                            </option>
+                            <option
+                                value="archived" @selected($material->is_archive) @disabled($material->is_active && !$material->is_archive)>
+                                В архиве
                             </option>
                         </select>
                     </div>

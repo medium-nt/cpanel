@@ -53,8 +53,11 @@ class MovementMaterialToWorkshopController extends Controller
     {
         $workshop = auth()->user()->currentWorkshop();
         $materials = $workshop
-            ? $workshop->allowedMaterials()->orderBy('title')->get()
-            : Material::query()->orderBy('title')->get();
+            ? $workshop->allowedMaterials()
+                ->where('materials.is_active', true)
+                ->where('materials.is_archive', false)
+                ->orderBy('title')->get()
+            : Material::active()->orderBy('title')->get();
 
         return view('movements_to_workshop.create', [
             'title' => 'Заказ новых материалов на производство',

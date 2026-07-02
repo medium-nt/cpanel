@@ -25,7 +25,7 @@ class WriteOffRemnantsController extends Controller
     {
         return view('write_off_remnants.create', [
             'title' => 'Добавить списание остатков',
-            'materials' => Material::query()->get(),
+            'materials' => Material::notArchived()->get(),
             'suppliers' => Supplier::query()->get(),
         ]);
     }

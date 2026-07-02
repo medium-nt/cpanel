@@ -3,10 +3,13 @@
 namespace Tests\Feature\Controllers;
 
 use App\Models\Material;
+use App\Models\MovementMaterial;
+use App\Models\Order;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\TypeMaterial;
 use App\Models\User;
+use App\Services\InventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Mockery;
@@ -177,7 +180,7 @@ class MaterialControllerTest extends TestCase
             'type_id' => 2,
             'unit' => 'м',
             'purchase_price' => 150,
-            'is_active' => 1,
+            'status' => 'active',
             'minimum_roll_size_for_closure' => 8,
         ];
 
@@ -186,7 +189,194 @@ class MaterialControllerTest extends TestCase
         $response->assertRedirect(route('materials.index'));
         $response->assertSessionHas('success', 'Изменения сохранены');
 
-        $this->assertDatabaseHas('materials', $updateData);
+        $this->assertDatabaseHas('materials', [
+            'title' => 'Updated Material',
+            'type_id' => 2,
+            'unit' => 'м',
+            'purchase_price' => 150,
+            'is_active' => 1,
+            'is_archive' => 0,
+            'minimum_roll_size_for_closure' => 8,
+        ]);
+    }
+
+    #[Test]
+    public function admin_can_set_material_status_unorderable()
+    {
+        $this->actingAs($this->admin);
+
+        $material = Material::factory()->create();
+        $updateData = [
+            'title' => 'Unorderable Material',
+            'type_id' => 1,
+            'unit' => 'шт',
+            'purchase_price' => 100,
+            'status' => 'unorderable',
+            'minimum_roll_size_for_closure' => 10,
+        ];
+
+        $response = $this->put(route('materials.update', $material), $updateData);
+
+        $response->assertRedirect(route('materials.index'));
+        $response->assertSessionHas('success', 'Изменения сохранены');
+
+        $this->assertDatabaseHas('materials', [
+            'title' => 'Unorderable Material',
+            'type_id' => 1,
+            'unit' => 'шт',
+            'purchase_price' => 100,
+            'is_active' => 0,
+            'is_archive' => 0,
+            'minimum_roll_size_for_closure' => 10,
+        ]);
+    }
+
+    #[Test]
+    public function admin_can_archive_material()
+    {
+        $this->actingAs($this->admin);
+
+        $material = Material::factory()->create(['is_active' => false]);
+        $updateData = [
+            'title' => 'Archived Material',
+            'type_id' => 3,
+            'unit' => 'кг',
+            'purchase_price' => 200,
+            'status' => 'archived',
+            'minimum_roll_size_for_closure' => 5,
+        ];
+
+        $response = $this->put(route('materials.update', $material), $updateData);
+
+        $response->assertRedirect(route('materials.index'));
+        $response->assertSessionHas('success', 'Изменения сохранены');
+
+        $this->assertDatabaseHas('materials', [
+            'title' => 'Archived Material',
+            'type_id' => 3,
+            'unit' => 'кг',
+            'purchase_price' => 200,
+            'is_active' => 0,
+            'is_archive' => 1,
+            'minimum_roll_size_for_closure' => 5,
+        ]);
+    }
+
+    #[Test]
+    public function cannot_archive_material_directly_from_active_status()
+    {
+        $this->actingAs($this->admin);
+
+        // Material factory creates materials with is_active=true by default
+        $material = Material::factory()->create();
+        $updateData = [
+            'title' => 'Directly Archived Material',
+            'type_id' => 1,
+            'unit' => 'шт',
+            'purchase_price' => 100,
+            'status' => 'archived',
+            'minimum_roll_size_for_closure' => 10,
+        ];
+
+        $response = $this->put(route('materials.update', $material), $updateData);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('error');
+        $this->assertStringContainsString('Сначала переведите материал в «Нельзя заказать»', session('error'));
+
+        // Database should NOT have the material archived
+        $this->assertDatabaseHas('materials', [
+            'id' => $material->id,
+            'is_archive' => 0,
+        ]);
+    }
+
+    #[Test]
+    public function can_archive_material_with_zero_stock_from_unorderable()
+    {
+        $this->actingAs($this->admin);
+
+        // Create material with is_active=false, is_archive=0 (unorderable status)
+        $material = Material::factory()->create([
+            'title' => 'Unorderable Material',
+            'is_active' => false,
+            'is_archive' => false,
+        ]);
+
+        // Ensure no movements exist - stock should be zero
+        $this->assertEquals(0, InventoryService::materialInWarehouse($material->id));
+        $this->assertEquals(0, InventoryService::materialInWorkshop($material->id));
+
+        $updateData = [
+            'title' => 'Now Archived Material',
+            'type_id' => 2,
+            'unit' => 'м',
+            'purchase_price' => 150,
+            'status' => 'archived',
+            'minimum_roll_size_for_closure' => 8,
+        ];
+
+        $response = $this->put(route('materials.update', $material), $updateData);
+
+        $response->assertRedirect(route('materials.index'));
+        $response->assertSessionHas('success', 'Изменения сохранены');
+
+        // Database should have the material archived
+        $this->assertDatabaseHas('materials', [
+            'id' => $material->id,
+            'is_active' => 0,
+            'is_archive' => 1,
+        ]);
+    }
+
+    #[Test]
+    public function cannot_archive_material_with_stock()
+    {
+        $this->actingAs($this->admin);
+
+        // Create material with is_active=false (unorderable status)
+        $material = Material::factory()->create([
+            'title' => 'Unorderable With Stock',
+            'is_active' => false,
+            'is_archive' => false,
+        ]);
+
+        // Create movements to give it stock
+        // Order type_movement=1, status=3 adds to warehouse
+        $order = Order::factory()->create([
+            'type_movement' => 1,
+            'status' => 3,
+        ]);
+
+        MovementMaterial::create([
+            'material_id' => $material->id,
+            'order_id' => $order->id,
+            'quantity' => 10,
+        ]);
+
+        // Verify stock exists
+        $this->assertGreaterThan(0, InventoryService::materialInWarehouse($material->id));
+
+        $updateData = [
+            'title' => 'Attempt Archive With Stock',
+            'type_id' => 1,
+            'unit' => 'шт',
+            'purchase_price' => 100,
+            'status' => 'archived',
+            'minimum_roll_size_for_closure' => 10,
+        ];
+
+        $response = $this->put(route('materials.update', $material), $updateData);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('error');
+        $this->assertStringContainsString('Нельзя архивировать: по материалу есть остатки', session('error'));
+
+        // Database should NOT have the material archived
+        $this->assertDatabaseHas('materials', [
+            'id' => $material->id,
+            'is_archive' => 0,
+        ]);
     }
 
     #[Test]

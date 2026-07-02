@@ -54,6 +54,7 @@ class AutoOrderService
 
             $materials = $workshop->allowedMaterials()
                 ->where('is_active', true)
+                ->where('is_archive', false)
                 ->get();
 
             foreach ($workshopShifts as $shift) {
