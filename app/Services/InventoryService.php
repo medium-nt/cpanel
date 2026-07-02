@@ -273,11 +273,12 @@ class InventoryService
                 'materials.id',
                 'materials.title',
                 'materials.unit',
+                'materials.type_id',
                 'rolls.shift_id',
                 DB::raw('COUNT(*) as rolls_count'),
                 DB::raw('SUM(rolls.initial_quantity - COALESCE(used.total_used, 0)) as total_quantity')
             )
-            ->groupBy('materials.id', 'materials.title', 'materials.unit', 'rolls.shift_id')
+            ->groupBy('materials.id', 'materials.title', 'materials.unit', 'materials.type_id', 'rolls.shift_id')
             ->get();
 
         $result = [];
@@ -287,7 +288,7 @@ class InventoryService
 
             if (! isset($result[$materialId])) {
                 $result[$materialId] = [
-                    'material' => (object) ['id' => $row->id, 'title' => $row->title, 'unit' => $row->unit],
+                    'material' => (object) ['id' => $row->id, 'title' => $row->title, 'unit' => $row->unit, 'type_id' => $row->type_id],
                     'per_shift' => [],
                     'total_quantity' => 0,
                     'total_rolls' => 0,

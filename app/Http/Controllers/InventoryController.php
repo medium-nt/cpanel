@@ -22,11 +22,11 @@ class InventoryController extends Controller
     }
 
     /**
-     * Группирует материалы склада в секции по типу материала.
+     * Группирует материалы (склада или цеха) в секции по типу материала.
      * Порядок секций берётся из таблицы type_materials — новые типы подхватываются
      * автоматически. Материалы без типа попадают в секцию «Прочее» в конце.
      *
-     * @param  array  $materials  плоский массив из InventoryService::materialsQuantityBy('warehouse')
+     * @param  array  $materials  плоский массив элементов с ключом ['material']->type_id
      * @return array<int, array{title: string, items: array}>
      */
     private function groupMaterialsByType(array $materials): array
@@ -54,7 +54,7 @@ class InventoryController extends Controller
         return view('inventory.workshop', [
             'title' => 'Материал на производстве',
             'shifts' => $data['shifts'],
-            'materials' => $data['materials'],
+            'sections' => $this->groupMaterialsByType($data['materials']),
             'todayShiftIds' => ShiftService::getTodayScheduledShifts()->pluck('id')->toArray(),
         ]);
     }
