@@ -161,7 +161,7 @@
         }
 
         .workshop-inventory-table .col-total {
-            width: 150px;
+            width: 200px;
         }
     </style>
 @endpush
