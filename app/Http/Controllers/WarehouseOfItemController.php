@@ -270,7 +270,7 @@ class WarehouseOfItemController extends Controller
 
         MarketplaceOrderItemService::resetClusterPriorityIfExhausted($marketplaceOrderItem->workshop_id);
 
-        return redirect()->route('warehouse_of_item.to_pick_list')
+        return redirect()->back()
             ->with('success', 'Заказ передан на стикеровку');
     }
 
@@ -290,7 +290,7 @@ class WarehouseOfItemController extends Controller
         $marketplaceOrderItem->shelf_id = null; // удаляем полку хранения
         $marketplaceOrderItem->save();
 
-        return redirect()->route('warehouse_of_item.index')
+        return redirect()->route('warehouse_of_item.to_pick_list')
             ->with('success', 'Заказ передан на поставку');
     }
 
