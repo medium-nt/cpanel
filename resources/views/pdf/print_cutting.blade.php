@@ -162,8 +162,15 @@
                                 @endif
                             </td>
                         @endif
+                            @php
+                                $label = trim($material . ' ' . $item->item->width . ' × ' . $item->item->height);
+                                $labelLen = mb_strlen($label);
+                                // 26px по умолчанию; 22px при 22–30 символах; 18px при > 30 (подстраховка с 22 символов)
+                                $titleFontSize = $labelLen > 30 ? '18px' : ($labelLen > 22 ? '22px' : '26px');
+                            @endphp
                         <td class="dimensions">
-                            <span class="dimensions-span">
+                            <span class="dimensions-span"
+                                  style="font-size: {{ $titleFontSize }}">
                                 {{ $material }}
                                 {{ $item->item->width }} × {{ $item->item->height }}<br>
                             </span>
