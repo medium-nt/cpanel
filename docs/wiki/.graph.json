@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-06-26T09:41:32+03:00",
+    "generated_at": "2026-07-02T19:02:40+03:00",
     "nodes": {
         "ActionAccrualService": {
             "type": "service",
@@ -24,7 +24,7 @@
         "InventoryService": {
             "type": "service",
             "file": "app\/Services\/InventoryService.php",
-            "methods_count": 12
+            "methods_count": 13
         },
         "MarketplaceApiService": {
             "type": "service",
@@ -46,6 +46,11 @@
             "file": "app\/Services\/MarketplaceSupplyService.php",
             "methods_count": 3
         },
+        "MaxService": {
+            "type": "service",
+            "file": "app\/Services\/MaxService.php",
+            "methods_count": 1
+        },
         "MovementDefectMaterialToSupplierService": {
             "type": "service",
             "file": "app\/Services\/MovementDefectMaterialToSupplierService.php",
@@ -60,6 +65,11 @@
             "type": "service",
             "file": "app\/Services\/MovementMaterialToWorkshopService.php",
             "methods_count": 7
+        },
+        "NotificationService": {
+            "type": "service",
+            "file": "app\/Services\/NotificationService.php",
+            "methods_count": 1
         },
         "OrderService": {
             "type": "service",
@@ -95,6 +105,11 @@
             "type": "service",
             "file": "app\/Services\/TgService.php",
             "methods_count": 1
+        },
+        "TicketService": {
+            "type": "service",
+            "file": "app\/Services\/TicketService.php",
+            "methods_count": 4
         },
         "TransactionService": {
             "type": "service",
@@ -216,6 +231,11 @@
             "file": "app\/Http\/Controllers\/MaterialSupplierController.php",
             "methods_count": 3
         },
+        "MaxController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/MaxController.php",
+            "methods_count": 1
+        },
         "MovementDefectMaterialToSupplierController": {
             "type": "controller",
             "file": "app\/Http\/Controllers\/MovementDefectMaterialToSupplierController.php",
@@ -296,6 +316,11 @@
             "file": "app\/Http\/Controllers\/TelegramController.php",
             "methods_count": 1
         },
+        "TicketController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/TicketController.php",
+            "methods_count": 7
+        },
         "TransactionController": {
             "type": "controller",
             "file": "app\/Http\/Controllers\/TransactionController.php",
@@ -304,7 +329,7 @@
         "UsersController": {
             "type": "controller",
             "file": "app\/Http\/Controllers\/UsersController.php",
-            "methods_count": 12
+            "methods_count": 13
         },
         "WarehouseOfItemController": {
             "type": "controller",
@@ -324,13 +349,28 @@
     },
     "edges": [
         {
+            "from": "TicketController",
+            "to": "TicketService",
+            "kind": "di"
+        },
+        {
             "from": "AutoOrderService",
             "to": "TgService",
             "kind": "static_call"
         },
         {
             "from": "AutoOrderService",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "AutoOrderService",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "AutoOrderService",
+            "to": "NotificationService",
             "kind": "static_call"
         },
         {
@@ -340,12 +380,27 @@
         },
         {
             "from": "DefectMaterialService",
-            "to": "UserService",
+            "to": "MaxService",
             "kind": "static_call"
         },
         {
             "from": "DefectMaterialService",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialService",
+            "to": "NotificationService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialService",
+            "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "DefectMaterialService",
+            "to": "NotificationService",
             "kind": "static_call"
         },
         {
@@ -360,7 +415,17 @@
         },
         {
             "from": "MarketplaceApiService",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceApiService",
+            "to": "NotificationService",
             "kind": "static_call"
         },
         {
@@ -410,7 +475,17 @@
         },
         {
             "from": "MovementDefectMaterialToSupplierService",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementDefectMaterialToSupplierService",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementDefectMaterialToSupplierService",
+            "to": "NotificationService",
             "kind": "static_call"
         },
         {
@@ -420,7 +495,17 @@
         },
         {
             "from": "MovementMaterialToWorkshopService",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
+            "to": "NotificationService",
             "kind": "static_call"
         },
         {
@@ -430,7 +515,27 @@
         },
         {
             "from": "MovementMaterialToWorkshopService",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopService",
+            "to": "NotificationService",
+            "kind": "static_call"
+        },
+        {
+            "from": "NotificationService",
+            "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "NotificationService",
+            "to": "MaxService",
             "kind": "static_call"
         },
         {
@@ -445,7 +550,17 @@
         },
         {
             "from": "UserService",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UserService",
             "to": "TgService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UserService",
+            "to": "MaxService",
             "kind": "static_call"
         },
         {
@@ -725,6 +840,11 @@
         },
         {
             "from": "MarketplaceSupplyController",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MarketplaceSupplyController",
             "to": "MarketplaceOrderService",
             "kind": "static_call"
         },
@@ -751,6 +871,21 @@
         {
             "from": "MarketplaceSupplyController",
             "to": "MarketplaceOrderService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MaterialController",
+            "to": "InventoryService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MaxController",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MaxController",
+            "to": "UserService",
             "kind": "static_call"
         },
         {
@@ -795,7 +930,17 @@
         },
         {
             "from": "MovementMaterialToWorkshopController",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "MovementMaterialToWorkshopController",
+            "to": "NotificationService",
             "kind": "static_call"
         },
         {
@@ -875,6 +1020,11 @@
         },
         {
             "from": "StickerPrintingController",
+            "to": "NotificationService",
+            "kind": "static_call"
+        },
+        {
+            "from": "StickerPrintingController",
             "to": "RollService",
             "kind": "static_call"
         },
@@ -886,6 +1036,11 @@
         {
             "from": "SupplyBoxController",
             "to": "UserService",
+            "kind": "static_call"
+        },
+        {
+            "from": "SupplyBoxController",
+            "to": "NotificationService",
             "kind": "static_call"
         },
         {
@@ -955,6 +1110,11 @@
         },
         {
             "from": "UsersController",
+            "to": "MaxService",
+            "kind": "static_call"
+        },
+        {
+            "from": "UsersController",
             "to": "UserService",
             "kind": "static_call"
         },
@@ -988,14 +1148,14 @@
         {
             "name": "MarketplaceApiService",
             "indegree": 25,
-            "outdegree": 6,
-            "score": 56
+            "outdegree": 8,
+            "score": 58
         },
         {
             "name": "UserService",
-            "indegree": 18,
-            "outdegree": 2,
-            "score": 38
+            "indegree": 19,
+            "outdegree": 4,
+            "score": 42
         },
         {
             "name": "MarketplaceOrderService",
@@ -1004,13 +1164,19 @@
             "score": 32
         },
         {
+            "name": "TgService",
+            "indegree": 14,
+            "outdegree": 0,
+            "score": 28
+        },
+        {
             "name": "MarketplaceOrderItemService",
             "indegree": 12,
             "outdegree": 3,
             "score": 27
         },
         {
-            "name": "TgService",
+            "name": "MaxService",
             "indegree": 13,
             "outdegree": 0,
             "score": 26
@@ -1018,8 +1184,20 @@
         {
             "name": "MarketplaceSupplyController",
             "indegree": 0,
-            "outdegree": 22,
+            "outdegree": 23,
+            "score": 23
+        },
+        {
+            "name": "NotificationService",
+            "indegree": 10,
+            "outdegree": 2,
             "score": 22
+        },
+        {
+            "name": "MovementMaterialToWorkshopService",
+            "indegree": 5,
+            "outdegree": 8,
+            "score": 18
         },
         {
             "name": "TransactionService",
@@ -1028,15 +1206,15 @@
             "score": 18
         },
         {
-            "name": "MovementMaterialToWorkshopService",
-            "indegree": 5,
-            "outdegree": 4,
+            "name": "InventoryService",
+            "indegree": 7,
+            "outdegree": 0,
             "score": 14
         },
         {
-            "name": "InventoryService",
-            "indegree": 6,
-            "outdegree": 0,
+            "name": "DefectMaterialService",
+            "indegree": 3,
+            "outdegree": 6,
             "score": 12
         },
         {
@@ -1054,14 +1232,8 @@
         {
             "name": "StickerPrintingController",
             "indegree": 0,
-            "outdegree": 11,
-            "score": 11
-        },
-        {
-            "name": "DefectMaterialService",
-            "indegree": 3,
-            "outdegree": 3,
-            "score": 9
+            "outdegree": 12,
+            "score": 12
         },
         {
             "name": "ScheduleService",
@@ -1076,40 +1248,28 @@
             "score": 8
         },
         {
-            "name": "HomeController",
+            "name": "MovementMaterialToWorkshopController",
             "indegree": 0,
-            "outdegree": 7,
-            "score": 7
+            "outdegree": 8,
+            "score": 8
         },
         {
             "name": "UsersController",
             "indegree": 0,
-            "outdegree": 7,
-            "score": 7
-        },
-        {
-            "name": "RollService",
-            "indegree": 3,
-            "outdegree": 0,
-            "score": 6
-        },
-        {
-            "name": "MovementMaterialToWorkshopController",
-            "indegree": 0,
-            "outdegree": 6,
-            "score": 6
+            "outdegree": 8,
+            "score": 8
         },
         {
             "name": "MovementDefectMaterialToSupplierService",
             "indegree": 1,
-            "outdegree": 3,
-            "score": 5
+            "outdegree": 5,
+            "score": 7
         }
     ],
     "stats": {
-        "total_nodes": 64,
-        "total_edges": 132,
-        "di_edges": 0,
-        "static_call_edges": 132
+        "total_nodes": 69,
+        "total_edges": 159,
+        "di_edges": 1,
+        "static_call_edges": 158
     }
 }

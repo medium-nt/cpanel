@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-06-26T09:41:32+03:00",
+    "generated_at": "2026-07-02T19:02:40+03:00",
     "counts": {
-        "models": 37,
-        "services": 23,
-        "controllers": 41,
+        "models": 38,
+        "services": 26,
+        "controllers": 43,
         "livewire": 13
     },
     "models": {
@@ -64,7 +64,7 @@
         "Material": {
             "table": "materials",
             "file": "app\/Models\/Material.php",
-            "fillable_count": 7,
+            "fillable_count": 8,
             "relationships_count": 7
         },
         "MaterialConsumption": {
@@ -149,7 +149,7 @@
             "table": "shifts",
             "file": "app\/Models\/Shift.php",
             "fillable_count": 3,
-            "relationships_count": 3
+            "relationships_count": 4
         },
         "ShiftSchedule": {
             "table": "shift_schedule",
@@ -193,10 +193,16 @@
             "fillable_count": 5,
             "relationships_count": 2
         },
+        "Ticket": {
+            "table": "tickets",
+            "file": "app\/Models\/Ticket.php",
+            "fillable_count": 7,
+            "relationships_count": 1
+        },
         "Transaction": {
             "table": "transactions",
             "file": "app\/Models\/Transaction.php",
-            "fillable_count": 9,
+            "fillable_count": 10,
             "relationships_count": 1
         },
         "TypeMaterial": {
@@ -214,7 +220,7 @@
         "User": {
             "table": "users",
             "file": "app\/Models\/User.php",
-            "fillable_count": 14,
+            "fillable_count": 15,
             "relationships_count": 7
         },
         "UserTariff": {
@@ -249,7 +255,7 @@
         },
         "InventoryService": {
             "file": "app\/Services\/InventoryService.php",
-            "methods_count": 12
+            "methods_count": 13
         },
         "MarketplaceApiService": {
             "file": "app\/Services\/MarketplaceApiService.php",
@@ -267,6 +273,10 @@
             "file": "app\/Services\/MarketplaceSupplyService.php",
             "methods_count": 3
         },
+        "MaxService": {
+            "file": "app\/Services\/MaxService.php",
+            "methods_count": 1
+        },
         "MovementDefectMaterialToSupplierService": {
             "file": "app\/Services\/MovementDefectMaterialToSupplierService.php",
             "methods_count": 2
@@ -278,6 +288,10 @@
         "MovementMaterialToWorkshopService": {
             "file": "app\/Services\/MovementMaterialToWorkshopService.php",
             "methods_count": 7
+        },
+        "NotificationService": {
+            "file": "app\/Services\/NotificationService.php",
+            "methods_count": 1
         },
         "OrderService": {
             "file": "app\/Services\/OrderService.php",
@@ -306,6 +320,10 @@
         "TgService": {
             "file": "app\/Services\/TgService.php",
             "methods_count": 1
+        },
+        "TicketService": {
+            "file": "app\/Services\/TicketService.php",
+            "methods_count": 4
         },
         "TransactionService": {
             "file": "app\/Services\/TransactionService.php",
@@ -405,6 +423,10 @@
             "file": "app\/Http\/Controllers\/MaterialSupplierController.php",
             "methods_count": 3
         },
+        "MaxController": {
+            "file": "app\/Http\/Controllers\/MaxController.php",
+            "methods_count": 1
+        },
         "MovementDefectMaterialToSupplierController": {
             "file": "app\/Http\/Controllers\/MovementDefectMaterialToSupplierController.php",
             "methods_count": 3
@@ -469,13 +491,17 @@
             "file": "app\/Http\/Controllers\/TelegramController.php",
             "methods_count": 1
         },
+        "TicketController": {
+            "file": "app\/Http\/Controllers\/TicketController.php",
+            "methods_count": 7
+        },
         "TransactionController": {
             "file": "app\/Http\/Controllers\/TransactionController.php",
             "methods_count": 8
         },
         "UsersController": {
             "file": "app\/Http\/Controllers\/UsersController.php",
-            "methods_count": 12
+            "methods_count": 13
         },
         "WarehouseOfItemController": {
             "file": "app\/Http\/Controllers\/WarehouseOfItemController.php",
