@@ -120,6 +120,29 @@ class UserServiceTest extends TestCase
         $this->assertEquals(0, $this->seamstress->shift_is_open);
     }
 
+    // ─── getConnectedToMaxUsers ────────────────────────────────────────
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function get_connected_to_max_users_returns_only_those_with_max_id(): void
+    {
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+
+        // Подключённые
+        User::factory()->create(['role_id' => $adminRole->id, 'max_id' => '100', 'name' => 'Баранов Борис Борисович']);
+        User::factory()->create(['role_id' => $adminRole->id, 'max_id' => '200', 'name' => 'Александров Алексей Алексеевич']);
+
+        // НЕ подключённые
+        User::factory()->create(['role_id' => $adminRole->id, 'max_id' => null]);
+        User::factory()->create(['role_id' => $adminRole->id, 'max_id' => '']);
+
+        $connected = UserService::getConnectedToMaxUsers();
+
+        $this->assertCount(2, $connected);
+        // Сортировка по name по возрастанию.
+        $this->assertEquals('Александров Алексей Алексеевич', $connected->first()->name);
+        $this->assertEquals('Баранов Борис Борисович', $connected->last()->name);
+    }
+
     protected function tearDown(): void
     {
         Carbon::setTestNow();

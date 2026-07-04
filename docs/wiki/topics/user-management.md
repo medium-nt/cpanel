@@ -1,6 +1,6 @@
 # User Management — Управление пользователями
 
-> Last reviewed: 2026-07-02
+> Last reviewed: 2026-07-04
 
 ## Обзор
 
@@ -242,3 +242,5 @@ NotificationService::notify($user, $text[, queued: true, delaySeconds: $i]) }`.
 - [logging-channels.md](logging-channels.md) — каналы логирования и
   audit-покрытие, канал `max` для MAX-уведомлений
 - [warehouse-operations.md](warehouse-operations.md) — доступ к киосу по ролям
+- [max-integration.md](max-integration.md) — webhook MAX, команды бота (`/users`
+  — admin-only), привязка `max_id`

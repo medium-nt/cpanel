@@ -42,6 +42,21 @@ class UserService
     }
 
     /**
+     * Возвращает коллекцию пользователей, подключённых к MAX (max_id заполнено),
+     * отсортированных по ФИО.
+     *
+     * @return \Illuminate\Support\Collection<int, User>
+     */
+    public static function getConnectedToMaxUsers(): Collection
+    {
+        return User::query()
+            ->whereNotNull('max_id')
+            ->where('max_id', '!=', '')
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
      * Построить запрос пользователей с фильтрами по роли и текущему цеху.
      *
      * Возвращает Builder для дальнейшей пагинации в контроллере.

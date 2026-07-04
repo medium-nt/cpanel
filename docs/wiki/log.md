@@ -663,3 +663,6 @@
 - Обновлены topics: materials.md (добавлены scopeActive, canArchive, путь
   статусов, список контроллеров), material-flow.md (раздел фильтрации расширен),
   warehouse-operations.md (добавлен canArchive)
+
+## [2026-07-04] create | max-integration
+Создан topic max-integration.md: описание webhook, команд бота (/users), доступа по ролям, MaxService.

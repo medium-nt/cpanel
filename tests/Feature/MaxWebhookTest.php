@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -11,6 +14,13 @@ class MaxWebhookTest extends TestCase
 {
     use RefreshDatabase;
     use WithoutMiddleware;
+
+    protected function tearDown(): void
+    {
+        // Сначала откатываем транзакцию RefreshDatabase, затем чистим моки.
+        parent::tearDown();
+        \Mockery::close();
+    }
 
     // В testing-окружении MaxService::sendMessage только пишет в лог (без HTTP),
     // поэтому webhook безопасно вызывает его для незарегистрированного chat_id.
@@ -91,5 +101,141 @@ class MaxWebhookTest extends TestCase
         $response = $this->post('/api/max/webhook', []);
 
         $response->assertOk();
+    }
+
+    #[Test]
+    public function users_command_from_admin_returns_connected_list()
+    {
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $seamstressRole = Role::firstOrCreate(['name' => 'seamstress']);
+
+        User::factory()->create([
+            'role_id' => $adminRole->id,
+            'max_id' => '100',
+            'name' => 'Иванов Иван Иванович',
+        ]);
+        User::factory()->create([
+            'role_id' => $seamstressRole->id,
+            'max_id' => '200',
+            'name' => 'Петров Пётр Петрович',
+        ]);
+
+        // Контроллер логирует payload вебхука и затем результат sendMessage
+        // (в testing MaxService пишет в лог). Собираем все info-сообщения.
+        $captured = [];
+        Log::shouldReceive('channel')->with('max')->andReturnSelf();
+        Log::shouldReceive('info')->andReturnUsing(function ($message) use (&$captured) {
+            $captured[] = $message;
+
+            return true;
+        });
+
+        $response = $this->post('/api/max/webhook', [
+            'message' => [
+                'recipient' => ['chat_id' => 100],
+                'body' => ['text' => '/users'],
+            ],
+            'update_type' => 'message_created',
+        ]);
+
+        $response->assertOk();
+
+        $payload = implode("\n", $captured);
+        $this->assertStringContainsString('Подключённые пользователи:', $payload);
+        $this->assertStringContainsString('Иванов И.И. — Руководитель', $payload);
+        $this->assertStringContainsString('Петров П.П. — Швея', $payload);
+    }
+
+    #[Test]
+    public function users_command_from_non_admin_does_not_send_list()
+    {
+        $seamstressRole = Role::firstOrCreate(['name' => 'seamstress']);
+        User::factory()->create([
+            'role_id' => $seamstressRole->id,
+            'max_id' => '300',
+        ]);
+
+        // sendMessage не вызывается — в captured не должно быть строки списка.
+        $captured = [];
+        Log::shouldReceive('channel')->with('max')->andReturnSelf();
+        Log::shouldReceive('info')->andReturnUsing(function ($message) use (&$captured) {
+            $captured[] = $message;
+
+            return true;
+        });
+
+        $response = $this->post('/api/max/webhook', [
+            'message' => [
+                'recipient' => ['chat_id' => 300],
+                'body' => ['text' => '/users'],
+            ],
+            'update_type' => 'message_created',
+        ]);
+
+        $response->assertOk();
+
+        $payload = implode("\n", $captured);
+        $this->assertStringNotContainsString('Подключённые пользователи:', $payload);
+    }
+
+    #[Test]
+    public function users_command_from_unregistered_user_sends_auth_link_instead_of_list()
+    {
+        // Незарегистрированный chat_id — даже при /users должна идти ссылка
+        // на авторизацию, а не список пользователей.
+        $captured = [];
+        Log::shouldReceive('channel')->with('max')->andReturnSelf();
+        Log::shouldReceive('info')->andReturnUsing(function ($message) use (&$captured) {
+            $captured[] = $message;
+
+            return true;
+        });
+
+        $response = $this->post('/api/max/webhook', [
+            'message' => [
+                'recipient' => ['chat_id' => 999999],
+                'body' => ['text' => '/users'],
+            ],
+            'update_type' => 'message_created',
+        ]);
+
+        $response->assertOk();
+
+        $payload = implode("\n", $captured);
+        $this->assertStringContainsString('авторизоваться', $payload);
+        $this->assertStringNotContainsString('Подключённые пользователи:', $payload);
+    }
+
+    #[Test]
+    public function users_command_with_only_admin_connected_sends_list_with_admin()
+    {
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        User::factory()->create([
+            'role_id' => $adminRole->id,
+            'max_id' => '100',
+            'name' => 'Админов Админ Админович',
+        ]);
+
+        $captured = [];
+        Log::shouldReceive('channel')->with('max')->andReturnSelf();
+        Log::shouldReceive('info')->andReturnUsing(function ($message) use (&$captured) {
+            $captured[] = $message;
+
+            return true;
+        });
+
+        $response = $this->post('/api/max/webhook', [
+            'message' => [
+                'recipient' => ['chat_id' => 100],
+                'body' => ['text' => '/users'],
+            ],
+            'update_type' => 'message_created',
+        ]);
+
+        $response->assertOk();
+
+        $payload = implode("\n", $captured);
+        $this->assertStringContainsString('Подключённые пользователи:', $payload);
+        $this->assertStringContainsString('Админов А.А.', $payload);
     }
 }
