@@ -18,6 +18,9 @@ class DefectMaterialServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Очищаем movement_materials — тесты проверяют точные счётчики созданных записей. */
+    protected array $cleanTables = ['movement_materials'];
+
     private User $seamstress;
 
     private User $cutter;
@@ -354,8 +357,11 @@ class DefectMaterialServiceTest extends TestCase
 
         $this->assertTrue($result);
 
-        // Only one movement material should be created (skipping material_id 0)
-        $movementMaterials = MovementMaterial::where('order_id', Order::latest()->first()->id)->get();
+        // Only one movement material should be created (skipping material_id 0).
+        // Sort by id — store() создаёт order с completed_at=now(), что совпадает
+        // с factory-orders по created_at и ломает дефолтный latest('created_at').
+        $latestOrder = Order::latest('id')->first();
+        $movementMaterials = MovementMaterial::where('order_id', $latestOrder->id)->get();
         $this->assertEquals(1, $movementMaterials->count());
     }
 

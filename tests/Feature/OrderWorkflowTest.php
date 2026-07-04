@@ -25,6 +25,9 @@ class OrderWorkflowTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Очищаем inventory_check_items — тест workflow проверяет точный счётчик. */
+    protected array $cleanTables = ['inventory_check_items'];
+
     private User $admin;
 
     private User $storekeeper;

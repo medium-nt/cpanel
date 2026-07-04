@@ -11,6 +11,12 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 uses(RefreshDatabase::class);
 
+// Очищаем маркетплейс-данные — тесты проверяют точные счётчики и форматы order_id.
+beforeEach(function () {
+    $this->cleanTables = ['marketplace_orders', 'marketplace_order_items'];
+    $this->cleanTables();
+});
+
 /**
  * Invoke the private static getNextDailySequence() via reflection.
  */

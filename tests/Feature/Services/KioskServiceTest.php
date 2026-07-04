@@ -25,6 +25,9 @@ class KioskServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Очищаем order_items — тесты фильтрации проверяют точные счётчики. */
+    protected array $cleanTables = ['marketplace_order_items'];
+
     private User $seamstress;
 
     private User $cutter;

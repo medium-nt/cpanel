@@ -4,18 +4,18 @@
 
 ## Top 10 God Nodes
 
-| Rank | Class                                 | Type       | Indegree | Outdegree | Score |
-|------|---------------------------------------|------------|----------|-----------|-------|
-| 1    | **MarketplaceApiService**             | service    | 25       | 8         | 58    |
-| 2    | **UserService**                       | service    | 19       | 4         | 42    |
-| 3    | **MarketplaceOrderService**           | service    | 16       | 0         | 32    |
-| 4    | **TgService**                         | service    | 14       | 0         | 28    |
-| 5    | **MarketplaceOrderItemService**       | service    | 12       | 3         | 27    |
-| 6    | **MaxService**                        | service    | 13       | 0         | 26    |
-| 7    | **MarketplaceSupplyController**       | controller | 0        | 23        | 23    |
-| 8    | **NotificationService**               | service    | 10       | 2         | 22    |
-| 9    | **MovementMaterialToWorkshopService** | service    | 5        | 8         | 18    |
-| 10   | **TransactionService**                | service    | 9        | 0         | 18    |
+| Rank | Class | Type | Indegree | Outdegree | Score |
+|------|-------|------|----------|-----------|-------|
+| 1 | **MarketplaceApiService** | service | 25 | 8 | 58 |
+| 2 | **UserService** | service | 19 | 4 | 42 |
+| 3 | **MarketplaceOrderService** | service | 16 | 0 | 32 |
+| 4 | **TgService** | service | 14 | 0 | 28 |
+| 5 | **MarketplaceOrderItemService** | service | 12 | 3 | 27 |
+| 6 | **MaxService** | service | 13 | 0 | 26 |
+| 7 | **MarketplaceSupplyController** | controller | 0 | 23 | 23 |
+| 8 | **NotificationService** | service | 10 | 2 | 22 |
+| 9 | **MovementMaterialToWorkshopService** | service | 5 | 8 | 18 |
+| 10 | **TransactionService** | service | 9 | 0 | 18 |
 
 ## Dependency Graph (Top 5 God Nodes + их соседи)
 

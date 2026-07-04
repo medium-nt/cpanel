@@ -11,8 +11,7 @@
 
 ### LoginController
 - **File:** `app/Http/Controllers/Auth\LoginController.php`
-- **Methods:** `showLoginForm`, `login`, `username`, `logout`, `redirectPath`,
-  `maxAttempts`, `decayMinutes`
+- **Methods:** `showLoginForm`, `login`, `username`, `logout`, `redirectPath`, `maxAttempts`, `decayMinutes`
 
 ### RegisterController
 - **File:** `app/Http/Controllers/Auth\RegisterController.php`
@@ -32,13 +31,11 @@
 
 ### Controller
 - **File:** `app/Http/Controllers/Controller.php`
-- **Methods:** `authorize`, `authorizeForUser`, `authorizeResource`,
-  `validateWith`, `validate`, `validateWithBag`
+- **Methods:** `authorize`, `authorizeForUser`, `authorizeResource`, `validateWith`, `validate`, `validateWithBag`
 
 ### DefectMaterialController
 - **File:** `app/Http/Controllers/DefectMaterialController.php`
-- **Methods:** `index`, `create`, `store`, `approve_reject`, `pick_up`, `scan`,
-  `save`, `delete`
+- **Methods:** `index`, `create`, `store`, `approve_reject`, `pick_up`, `scan`, `save`, `delete`
 
 ### HomeController
 - **File:** `app/Http/Controllers/HomeController.php`
@@ -46,14 +43,11 @@
 
 ### InventoryController
 - **File:** `app/Http/Controllers/InventoryController.php`
-- **Methods:** `byWarehouse`, `byWorkshop`, `inventoryChecks`, `show`, `create`,
-  `store`, `destroy`
+- **Methods:** `byWarehouse`, `byWorkshop`, `inventoryChecks`, `show`, `create`, `store`, `destroy`
 
 ### MarketplaceApiController
 - **File:** `app/Http/Controllers/MarketplaceApiController.php`
-- **Methods:** `checkSkuz`, `checkDuplicateSkuz`, `uploadingNewProducts`,
-  `uploadingCancelledProducts`, `getBarcodeFile`, `getFBOBarcodeFile`,
-  `getFBOBarcodeHtml`
+- **Methods:** `checkSkuz`, `checkDuplicateSkuz`, `uploadingNewProducts`, `uploadingCancelledProducts`, `getBarcodeFile`, `getFBOBarcodeFile`, `getFBOBarcodeHtml`
 
 ### MarketplaceItemController
 - **File:** `app/Http/Controllers/MarketplaceItemController.php`
@@ -61,25 +55,15 @@
 
 ### MarketplaceOrderController
 - **File:** `app/Http/Controllers/MarketplaceOrderController.php`
-- **Methods:** `index`, `create`, `store`, `edit`, `update`, `complete`,
-  `destroy`, `destroyNewBySupply`, `detachNotReadyBySupply`,
-  `detachOnSupplyOrdersBySupply`, `importExcel`, `remove`
+- **Methods:** `index`, `create`, `store`, `edit`, `update`, `complete`, `destroy`, `destroyNewBySupply`, `detachNotReadyBySupply`, `detachOnSupplyOrdersBySupply`, `importExcel`, `remove`
 
 ### MarketplaceOrderItemController
 - **File:** `app/Http/Controllers/MarketplaceOrderItemController.php`
-- **Methods:** `index`, `show`, `done`, `cancel`, `labeling`, `getNewOrderItem`,
-  `fillEntireStack`, `completeCutting`, `printCutting`, `stickerTapeForm`,
-  `generateStickerTape`, `stickerTapeImport`
+- **Methods:** `index`, `show`, `done`, `cancel`, `labeling`, `getNewOrderItem`, `fillEntireStack`, `completeCutting`, `printCutting`, `stickerTapeForm`, `generateStickerTape`, `stickerTapeImport`
 
 ### MarketplaceSupplyController
 - **File:** `app/Http/Controllers/MarketplaceSupplyController.php`
-- **Methods:** `index`, `show`, `linkWbFbo`, `loadFboGoods`, `editFbo`,
-  `updateFbo`, `confirmFboGoods`, `linkOzonFbo`, `loadOzonFboGoods`,
-  `confirmOzonFboGoods`, `create`, `destroy`, `complete`, `done`, `getDocs`,
-  `getBarcode`, `updateStatusOrders`, `delete_video`, `chunkedUpload`,
-  `uploadSticker`, `downloadSticker`, `deleteSticker`, `uploadGazelkaInvoice`,
-  `downloadGazelkaInvoice`, `deleteGazelkaInvoice`, `markShipped`,
-  `unmarkShipped`, `close`
+- **Methods:** `index`, `show`, `linkWbFbo`, `loadFboGoods`, `editFbo`, `updateFbo`, `confirmFboGoods`, `linkOzonFbo`, `loadOzonFboGoods`, `confirmOzonFboGoods`, `create`, `destroy`, `complete`, `done`, `getDocs`, `getBarcode`, `updateStatusOrders`, `delete_video`, `chunkedUpload`, `uploadSticker`, `downloadSticker`, `deleteSticker`, `uploadGazelkaInvoice`, `downloadGazelkaInvoice`, `deleteGazelkaInvoice`, `markShipped`, `unmarkShipped`, `close`
 
 ### MaterialConsumptionController
 - **File:** `app/Http/Controllers/MaterialConsumptionController.php`
@@ -98,20 +82,15 @@
 - **Methods:** `attach`, `updateShortages`, `detach`
 
 ### MaxController
-
 - **File:** `app/Http/Controllers/MaxController.php`
 - **Methods:** `webhook`
 
 ### MovementDefectMaterialToSupplierController
-
-- **File:**
-  `app/Http/Controllers/MovementDefectMaterialToSupplierController.php`
+- **File:** `app/Http/Controllers/MovementDefectMaterialToSupplierController.php`
 - **Methods:** `index`, `create`, `store`
 
 ### MovementMaterialByMarketplaceOrderController
-
-- **File:**
-  `app/Http/Controllers/MovementMaterialByMarketplaceOrderController.php`
+- **File:** `app/Http/Controllers/MovementMaterialByMarketplaceOrderController.php`
 - **Methods:** `index`
 
 ### MovementMaterialFromSupplierController
@@ -120,9 +99,7 @@
 
 ### MovementMaterialToWorkshopController
 - **File:** `app/Http/Controllers/MovementMaterialToWorkshopController.php`
-- **Methods:** `index`, `create`, `store`, `collect`, `write_off`,
-  `save_write_off`, `save_collect`, `receive`, `save_receive`, `delete`,
-  `printSticker`
+- **Methods:** `index`, `create`, `store`, `collect`, `write_off`, `save_write_off`, `save_collect`, `receive`, `save_receive`, `delete`, `printSticker`
 
 ### OzonReturnsController
 - **File:** `app/Http/Controllers/OzonReturnsController.php`
@@ -138,8 +115,7 @@
 
 ### RollController
 - **File:** `app/Http/Controllers/RollController.php`
-- **Methods:** `index`, `show`, `printRoll`, `printOrder`, `returnToStorage`,
-  `destroy`
+- **Methods:** `index`, `show`, `printRoll`, `printOrder`, `returnToStorage`, `destroy`
 
 ### ScheduleController
 - **File:** `app/Http/Controllers/ScheduleController.php`
@@ -147,8 +123,7 @@
 
 ### SettingController
 - **File:** `app/Http/Controllers/SettingController.php`
-- **Methods:** `index`, `save`, `test`, `syncWarehousesOzon`,
-  `syncWarehousesWb`, `duplicates`
+- **Methods:** `index`, `save`, `test`, `syncWarehousesOzon`, `syncWarehousesWb`, `duplicates`
 
 ### ShelfController
 - **File:** `app/Http/Controllers/ShelfController.php`
@@ -156,18 +131,11 @@
 
 ### ShiftController
 - **File:** `app/Http/Controllers/ShiftController.php`
-- **Methods:** `index`, `create`, `store`, `show`, `update`, `destroy`,
-  `attachUser`, `detachUser`, `destroyRecord`, `transferUser`, `searchUsers`,
-  `scheduleIndex`, `scheduleStore`
+- **Methods:** `index`, `create`, `store`, `show`, `update`, `destroy`, `attachUser`, `detachUser`, `destroyRecord`, `transferUser`, `searchUsers`, `scheduleIndex`, `scheduleStore`
 
 ### StickerPrintingController
 - **File:** `app/Http/Controllers/StickerPrintingController.php`
-- **Methods:** `enterKiosk`, `index`, `openCloseWorkShift`,
-  `openCloseWorkShiftAdmin`, `kiosk`, `opening_closing_shifts`,
-  `statisticsReports`, `productStickers`, `defects`, `saveDefects`,
-  `getRollByCode`, `rolls`, `completeRoll`, `printSticker`, `printProductLabel`,
-  `returns`, `onInspection`, `processedItems`, `scanInspectionItem`, `itemCard`,
-  `processDefect`, `processRepack`, `processReplace`
+- **Methods:** `enterKiosk`, `index`, `openCloseWorkShift`, `openCloseWorkShiftAdmin`, `kiosk`, `opening_closing_shifts`, `statisticsReports`, `productStickers`, `defects`, `saveDefects`, `getRollByCode`, `rolls`, `completeRoll`, `printSticker`, `printProductLabel`, `returns`, `onInspection`, `processedItems`, `scanInspectionItem`, `itemCard`, `processDefect`, `processRepack`, `processReplace`
 
 ### SupplierController
 - **File:** `app/Http/Controllers/SupplierController.php`
@@ -175,37 +143,28 @@
 
 ### SupplyBoxController
 - **File:** `app/Http/Controllers/SupplyBoxController.php`
-- **Methods:** `index`, `markAssembled`, `store`, `destroy`, `show`,
-  `removeOrder`, `closeBox`, `printSticker`, `exportExcel`
+- **Methods:** `index`, `markAssembled`, `store`, `destroy`, `show`, `removeOrder`, `closeBox`, `printSticker`, `exportExcel`
 
 ### TelegramController
 - **File:** `app/Http/Controllers/TelegramController.php`
 - **Methods:** `webhook`
 
 ### TicketController
-
 - **File:** `app/Http/Controllers/TicketController.php`
 - **Dependencies:** `TicketService`
 - **Methods:** `index`, `create`, `store`, `show`, `start`, `close`, `delete`
 
 ### TransactionController
 - **File:** `app/Http/Controllers/TransactionController.php`
-- **Methods:** `index`, `create`, `store`, `destroy`, `createPayoutSalary`,
-  `storePayoutSalary`, `createPayoutBonus`, `storePayoutBonus`
+- **Methods:** `index`, `create`, `store`, `destroy`, `createPayoutSalary`, `storePayoutSalary`, `createPayoutBonus`, `storePayoutBonus`
 
 ### UsersController
 - **File:** `app/Http/Controllers/UsersController.php`
-- **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`,
-  `profile`, `profileUpdate`, `disconnectTg`, `disconnectMax`, `autologin`,
-  `getBarcode`, `tariffsUpdate`
+- **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`, `profile`, `profileUpdate`, `disconnectTg`, `disconnectMax`, `autologin`, `getBarcode`, `tariffsUpdate`
 
 ### WarehouseOfItemController
 - **File:** `app/Http/Controllers/WarehouseOfItemController.php`
-- **Methods:** `index`, `exportExcel`, `inspection`, `newRefunds`,
-  `getStorageBarcodeFile`, `saveStorage`, `toPickList`, `toPickListPrint`,
-  `toPick`, `labeling`, `done`, `toWork`, `addGroup`, `saveGroup`,
-  `shelfChange`, `statusChangeScan`, `pickupScan`, `toInspection`,
-  `printInspectionList`
+- **Methods:** `index`, `exportExcel`, `inspection`, `newRefunds`, `getStorageBarcodeFile`, `saveStorage`, `toPickList`, `toPickListPrint`, `toPick`, `labeling`, `done`, `toWork`, `addGroup`, `saveGroup`, `shelfChange`, `statusChangeScan`, `pickupScan`, `toInspection`, `printInspectionList`
 
 ### WorkshopController
 - **File:** `app/Http/Controllers/WorkshopController.php`

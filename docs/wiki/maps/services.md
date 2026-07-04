@@ -4,342 +4,306 @@
 ### ActionAccrualService
 - **File:** `app/Services/ActionAccrualService.php`
 - **Methods:**
-    - `accrualForAction(string $action, Carbon\Carbon $date, bool $test)`
-    - `accrualSalaryDaily(Carbon\Carbon $date, bool $test)`
+  - `accrualForAction(string $action, Carbon\Carbon $date, bool $test)`
+  - `accrualSalaryDaily(Carbon\Carbon $date, bool $test)`
 
 ### AutoOrderService
 - **File:** `app/Services/AutoOrderService.php`
 - **Methods:**
-    - `static checkAndCreateAutoOrders()`
-    -
-    `static createAutoOrder(App\Models\Material $material, App\Models\Shift $shift)`
+  - `static checkAndCreateAutoOrders()`
+  - `static createAutoOrder(App\Models\Material $material, App\Models\Shift $shift)`
 
 ### DefectMaterialService
 - **File:** `app/Services/DefectMaterialService.php`
 - **Methods:**
-    - `static save(Illuminate\Http\Request $request, App\Models\Order $order)`
-    - `static store(App\Http\Requests\SaveDefectMaterialRequest $request)`
-    - `static delete(App\Models\Order $order)`
+  - `static save(Illuminate\Http\Request $request, App\Models\Order $order)`
+  - `static store(App\Http\Requests\SaveDefectMaterialRequest $request)`
+  - `static delete(App\Models\Order $order)`
 
 ### ExcelOrderImportService
 - **File:** `app/Services/ExcelOrderImportService.php`
 - **Methods:**
-    - `static parseFile(string $filePath)`
-    - `static matchRow(string $articleValue)`
-    - `static createOrders(array $rows, int $marketplaceId, string $cluster)`
+  - `static parseFile(string $filePath)`
+  - `static matchRow(string $articleValue)`
+  - `static createOrders(array $rows, int $marketplaceId, string $cluster)`
 
 ### InventoryService
 - **File:** `app/Services/InventoryService.php`
 - **Methods:**
-    - `static materialInWorkshop($materialId)`
-    - `static canArchive(App\Models\Material $material)`
-    - `static materialInWarehouse($materialId)`
-    - `static materialInWarehouse_outStock($materialId)`
-    - `static materialInWarehouse_holdOutStockNew($materialId)`
-    - `static materialInWarehouse_inStock($materialId)`
-    - `static defectMaterialInWarehouse($materialId)`
-    - `static remnantsMaterialInWarehouse($materialId)`
-    - `static countMaterial($materialId, $type, $status)`
-    - `static countMaterialAfterRolls($materialId, $type, $status)`
-    - `static materialsQuantityBy(string $type, int $workshopId)`
-    -
-    `static materialsQuantityByWorkshopPerShift(App\Models\User $user, int $workshopId)`
-    - `createInventory($request)`
+  - `static materialInWorkshop($materialId)`
+  - `static canArchive(App\Models\Material $material)`
+  - `static materialInWarehouse($materialId)`
+  - `static materialInWarehouse_outStock($materialId)`
+  - `static materialInWarehouse_holdOutStockNew($materialId)`
+  - `static materialInWarehouse_inStock($materialId)`
+  - `static defectMaterialInWarehouse($materialId)`
+  - `static remnantsMaterialInWarehouse($materialId)`
+  - `static countMaterial($materialId, $type, $status)`
+  - `static countMaterialAfterRolls($materialId, $type, $status)`
+  - `static materialsQuantityBy(string $type, int $workshopId)`
+  - `static materialsQuantityByWorkshopPerShift(App\Models\User $user, int $workshopId)`
+  - `createInventory($request)`
 
 ### MarketplaceApiService
 - **File:** `app/Services/MarketplaceApiService.php`
 - **Methods:**
-    - `static getItemsWb($body)`
-    - `static getAllItemsWb()`
-    - `static getItemsOzon($body)`
-    - `static getAllItemsOzon()`
-    - `static getNotFoundSkus($allItems)`
-    - `static getAllNewOrdersWb()`
-    - `static getAllNewOrdersOzon()`
-    - `static uploadingCancelledProducts()`
-    - `static uploadingNewProducts()`
-    - `static splittingOrder($order)`
-    - `static collectOrderOzon($orderId, $product)`
-    - `static collectOrderWb($orderId)`
-    - `static getBarcodeOzonBySku(string $sku)`
-    - `getBarcodeOzon(mixed $orderId)`
-    - `getBarcodeWb(int $orderId)`
-    - `getBarcodeOzonFBO(Illuminate\Support\Collection $orders)`
-    - `getBarcodeOzonFBOHtml(App\Models\MarketplaceOrder $order)`
-    - `getBarcodeWBFBO(Illuminate\Support\Collection $orders)`
-    - `static getItemWbBySku($sku)`
-    - `static getOzonPostingNumberByBarcode($barcode)`
-    - `static getOzonPostingNumberByReturnBarcode($barcode)`
-    - `static ozonSupply(App\Models\MarketplaceSupply $marketplace_supply)`
-    - `static wbSupply(App\Models\MarketplaceSupply $marketplace_supply)`
-    -
-    `static checkStatusSupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
-    -
-    `static getDocsSupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
-    -
-    `static getBarcodeSupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
-    -
-    `static getBarcodeSupplyWB(App\Models\MarketplaceSupply $marketplace_supply)`
-    -
-    `static updateStatusOrderBySupplyWB(App\Models\MarketplaceSupply $marketplace_supply)`
-    -
-    `static updateStatusOrderBySupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
-    - `static getStatusOrder(App\Models\MarketplaceOrder $order)`
-    -
-    `static getReturnReason(App\Models\MarketplaceOrderItem $marketplace_item)`
-    - `static getReturnsGiveoutPng()`
-    - `static resetReturnsGiveoutBarcode()`
-    - `static getReturnsCompanyFbsInfo()`
-    - `static getReturnsGiveoutList()`
-    - `static getReturnsGiveoutInfo(int $giveoutId)`
-    - `static getReturnsList(array $filter, int $limit, $lastId)`
-    - `static syncWarehousesOzon()`
-    - `static getSellerWarehousesOzon()`
-    - `static getDraftInfoOzon(int $draftId)`
-    - `static getDraftWarehousesOzon(int $draftId)`
-    -
-    `static getDraftTimeslotsOzon(int $draftId, string $supplyType, int $macrolocalClusterId, int $storageWarehouseId, string $dateFrom, string $dateTo)`
-    - `static createDraftDirectOzon(int $macrolocalClusterId, array $items)`
-    -
-    `static createDraftCrossdockOzon(int $macrolocalClusterId, int $sellerWarehouseId, array $items)`
-    -
-    `static createSupplyFromDraftOzon(int $draftId, int $macrolocalClusterId, int $storageWarehouseId, string $fromTime, string $toTime, string $supplyType)`
-    - `static getSupplyCreateStatusOzon(int $draftId)`
-    - `static cancelSupplyOzon(int $orderId)`
-    - `static getCancelSupplyStatusOzon(string $operationId)`
-    - `static syncWarehousesWb()`
-    - `static getFboSuppliesWb()`
-    - `static getFboSupplyDetailWb(int $supplyId)`
-    - `static getFboSupplyGoodsWb(int $supplyId)`
-    - `static getSupplyOrderListOzon()`
-    - `static getSupplyOrderDetailsOzon(int $orderId)`
-    - `static getSupplyOrderBundleOzon(array $bundleIds)`
-    - `static createCargoOzon(array $payload)`
-    - `static getCargoCreateInfoOzon(string $operationId)`
-    - `static createCargoLabelOzon(string $supplyId, array $cargoIds)`
-    - `static getCargoLabelOzon(string $operationId)`
+  - `static getItemsWb($body)`
+  - `static getAllItemsWb()`
+  - `static getItemsOzon($body)`
+  - `static getAllItemsOzon()`
+  - `static getNotFoundSkus($allItems)`
+  - `static getAllNewOrdersWb()`
+  - `static getAllNewOrdersOzon()`
+  - `static uploadingCancelledProducts()`
+  - `static uploadingNewProducts()`
+  - `static splittingOrder($order)`
+  - `static collectOrderOzon($orderId, $product)`
+  - `static collectOrderWb($orderId)`
+  - `static getBarcodeOzonBySku(string $sku)`
+  - `getBarcodeOzon(mixed $orderId)`
+  - `getBarcodeWb(int $orderId)`
+  - `getBarcodeOzonFBO(Illuminate\Support\Collection $orders)`
+  - `getBarcodeOzonFBOHtml(App\Models\MarketplaceOrder $order)`
+  - `getBarcodeWBFBO(Illuminate\Support\Collection $orders)`
+  - `static getItemWbBySku($sku)`
+  - `static getOzonPostingNumberByBarcode($barcode)`
+  - `static getOzonPostingNumberByReturnBarcode($barcode)`
+  - `static ozonSupply(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static wbSupply(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static checkStatusSupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static getDocsSupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static getBarcodeSupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static getBarcodeSupplyWB(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static updateStatusOrderBySupplyWB(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static updateStatusOrderBySupplyOzon(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static getStatusOrder(App\Models\MarketplaceOrder $order)`
+  - `static getReturnReason(App\Models\MarketplaceOrderItem $marketplace_item)`
+  - `static getReturnsGiveoutPng()`
+  - `static resetReturnsGiveoutBarcode()`
+  - `static getReturnsCompanyFbsInfo()`
+  - `static getReturnsGiveoutList()`
+  - `static getReturnsGiveoutInfo(int $giveoutId)`
+  - `static getReturnsList(array $filter, int $limit, $lastId)`
+  - `static syncWarehousesOzon()`
+  - `static getSellerWarehousesOzon()`
+  - `static getDraftInfoOzon(int $draftId)`
+  - `static getDraftWarehousesOzon(int $draftId)`
+  - `static getDraftTimeslotsOzon(int $draftId, string $supplyType, int $macrolocalClusterId, int $storageWarehouseId, string $dateFrom, string $dateTo)`
+  - `static createDraftDirectOzon(int $macrolocalClusterId, array $items)`
+  - `static createDraftCrossdockOzon(int $macrolocalClusterId, int $sellerWarehouseId, array $items)`
+  - `static createSupplyFromDraftOzon(int $draftId, int $macrolocalClusterId, int $storageWarehouseId, string $fromTime, string $toTime, string $supplyType)`
+  - `static getSupplyCreateStatusOzon(int $draftId)`
+  - `static cancelSupplyOzon(int $orderId)`
+  - `static getCancelSupplyStatusOzon(string $operationId)`
+  - `static syncWarehousesWb()`
+  - `static getFboSuppliesWb()`
+  - `static getFboSupplyDetailWb(int $supplyId)`
+  - `static getFboSupplyGoodsWb(int $supplyId)`
+  - `static getSupplyOrderListOzon()`
+  - `static getSupplyOrderDetailsOzon(int $orderId)`
+  - `static getSupplyOrderBundleOzon(array $bundleIds)`
+  - `static createCargoOzon(array $payload)`
+  - `static getCargoCreateInfoOzon(string $operationId)`
+  - `static createCargoLabelOzon(string $supplyId, array $cargoIds)`
+  - `static getCargoLabelOzon(string $operationId)`
 
 ### MarketplaceOrderItemService
 - **File:** `app/Services/MarketplaceOrderItemService.php`
 - **Methods:**
-    - `static getFiltered($request)`
-    -
-    `static cancelToSeamstress(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
-    - `static toWork(int $workshopId)`
-    - `static toCutting(int $workshopId)`
-    - `static new(int $workshopId)`
-    - `static cut(int $workshopId)`
-    - `static urgent(int $workshopId)`
-    - `static getSeamstressesLargeSizeRatingOLD(array $dates)`
-    - `static getSeamstressesLargeSizeRating(array $dates)`
-    - `static getDatesByLargeSizeRating($daysAgo)`
-    -
-    `static getRatingByDate(mixed $seamstress, mixed $startDate, mixed $endDate)`
-    - `static getRatingOLD()`
-    - `static getRating()`
-    -
-    `static getItemsForLabeling(Illuminate\Http\Request $request, int $workshopId)`
-    - `static getMaxQuantityOrdersToUserRole()`
-    - `static getNewOrderItem()`
-    - `static fillEntireStack()`
+  - `static getFiltered($request)`
+  - `static cancelToSeamstress(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
+  - `static toWork(int $workshopId)`
+  - `static toCutting(int $workshopId)`
+  - `static new(int $workshopId)`
+  - `static cut(int $workshopId)`
+  - `static urgent(int $workshopId)`
+  - `static stickedByCluster(int $workshopId)`
+  - `static getSeamstressesLargeSizeRatingOLD(array $dates)`
+  - `static getSeamstressesLargeSizeRating(array $dates)`
+  - `static getDatesByLargeSizeRating($daysAgo)`
+  - `static getRatingByDate(mixed $seamstress, mixed $startDate, mixed $endDate)`
+  - `static getRatingOLD()`
+  - `static getRating()`
+  - `static getItemsForLabeling(Illuminate\Http\Request $request, int $workshopId)`
+  - `static getMaxQuantityOrdersToUserRole()`
+  - `static getNewOrderItem()`
+  - `static fillEntireStack()`
   - `static resetClusterPriorityIfExhausted(int $workshopId)`
-    -
-    `static createItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
-    - `static hasReadyItem(App\Models\Sku $sku)`
-    -
-    `static reserveReadyItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
-    -
-    `static saveOrderToHistory(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
-    -
-    `static restoreOrderFromHistory(App\Models\MarketplaceOrderItem $selectedItem)`
-    - `static getMetersTodayByUser(App\Models\User $user)`
-    -
-    `checkTimeoutOrderItem(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
-    - `getOrdersGroupedByMaterial(App\Models\User $user)`
+  - `static createItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
+  - `static hasReadyItem(App\Models\Sku $sku)`
+  - `static reserveReadyItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
+  - `static saveOrderToHistory(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
+  - `static restoreOrderFromHistory(App\Models\MarketplaceOrderItem $selectedItem)`
+  - `static getMetersTodayByUser(App\Models\User $user)`
+  - `checkTimeoutOrderItem(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
+  - `getOrdersGroupedByMaterial(App\Models\User $user)`
 
 ### MarketplaceOrderService
 - **File:** `app/Services/MarketplaceOrderService.php`
 - **Methods:**
-    - `static store(App\Http\Requests\StoreMarketplaceOrderRequest $request)`
-    - `static getMarketplaceName(string $marketplace_id)`
-    - `static pickupOrders()`
-    - `static groupPickupOrders($orders)`
-    - `static assembledOrders()`
-    -
-    `static hasShippedOrdersBySupply(App\Models\MarketplaceSupply $marketplace_supply)`
-    - `static delete(App\Models\MarketplaceOrder $marketplaceOrder)`
-    - `static deleteNewOrdersBySupply(int $supplyId)`
-    - `static detachNotReadyOrdersBySupply(int $supplyId)`
+  - `static store(App\Http\Requests\StoreMarketplaceOrderRequest $request)`
+  - `static getMarketplaceName(string $marketplace_id)`
+  - `static pickupOrders()`
+  - `static groupPickupOrders($orders)`
+  - `static assembledOrders()`
+  - `static hasShippedOrdersBySupply(App\Models\MarketplaceSupply $marketplace_supply)`
+  - `static delete(App\Models\MarketplaceOrder $marketplaceOrder)`
+  - `static deleteNewOrdersBySupply(int $supplyId)`
+  - `static detachNotReadyOrdersBySupply(int $supplyId)`
   - `static detachOnSupplyOrdersBySupply(int $supplyId)`
 
 ### MarketplaceSupplyService
 - **File:** `app/Services/MarketplaceSupplyService.php`
 - **Methods:**
-    - `static deleteOldVideos()`
-    - `static chunkedUpload(Illuminate\Http\Request $request)`
-    - `static updateStatusSupply()`
+  - `static deleteOldVideos()`
+  - `static chunkedUpload(Illuminate\Http\Request $request)`
+  - `static updateStatusSupply()`
 
 ### MaxService
-
 - **File:** `app/Services/MaxService.php`
 - **Methods:**
-    - `static sendMessage(string $chatId, string $text)`
+  - `static sendMessage(string $chatId, string $text)`
 
 ### MovementDefectMaterialToSupplierService
 - **File:** `app/Services/MovementDefectMaterialToSupplierService.php`
 - **Methods:**
-    -
-    `static store(App\Http\Requests\StoreDefectMaterialToSupplierRequest $request)`
-    -
-    `static update(App\Http\Requests\UpdateMovementMaterialFromSupplierRequest $request, App\Models\Order $order)`
+  - `static store(App\Http\Requests\StoreDefectMaterialToSupplierRequest $request)`
+  - `static update(App\Http\Requests\UpdateMovementMaterialFromSupplierRequest $request, App\Models\Order $order)`
 
 ### MovementMaterialFromSupplierService
 - **File:** `app/Services/MovementMaterialFromSupplierService.php`
 - **Methods:**
-    -
-    `static store(App\Http\Requests\StoreMovementMaterialFromSupplierRequest $request)`
-    -
-    `static update(App\Http\Requests\UpdateMovementMaterialFromSupplierRequest $request, App\Models\Order $order)`
+  - `static store(App\Http\Requests\StoreMovementMaterialFromSupplierRequest $request)`
+  - `static update(App\Http\Requests\UpdateMovementMaterialFromSupplierRequest $request, App\Models\Order $order)`
 
 ### MovementMaterialToWorkshopService
 - **File:** `app/Services/MovementMaterialToWorkshopService.php`
 - **Methods:**
-    - `static getOrdersByStatus($requestStatus, App\Models\User $user)`
-    -
-    `static store(App\Http\Requests\StoreMovementMaterialToWorkshopRequest $request)`
-    -
-    `static save_collect(App\Http\Requests\SaveCollectMovementMaterialToWorkshopRequest $request, App\Models\Order $order)`
-    -
-    `static save_write_off(App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest $request)`
-    -
-    `static getCountNotShippedMovements(App\Models\User $user, int $workshopId)`
-    -
-    `static getCountNotReceivedMovements(App\Models\User $user, int $workshopId)`
-    - `static getStickeredMarketplaceOrderItem(int $workshopId)`
+  - `static getOrdersByStatus($requestStatus, App\Models\User $user)`
+  - `static store(App\Http\Requests\StoreMovementMaterialToWorkshopRequest $request)`
+  - `static save_collect(App\Http\Requests\SaveCollectMovementMaterialToWorkshopRequest $request, App\Models\Order $order)`
+  - `static save_write_off(App\Http\Requests\SaveWriteOffMovementMaterialToWorkshopRequest $request)`
+  - `static getCountNotShippedMovements(App\Models\User $user, int $workshopId)`
+  - `static getCountNotReceivedMovements(App\Models\User $user, int $workshopId)`
+  - `static getStickeredMarketplaceOrderItem(int $workshopId)`
 
 ### NotificationService
-
 - **File:** `app/Services/NotificationService.php`
 - **Methods:**
-    -
-    `static notify(App\Models\User $user, string $text, bool $queued, int $delaySeconds)`
+  - `static notify(App\Models\User $user, string $text, bool $queued, int $delaySeconds)`
 
 ### OrderService
 - **File:** `app/Services/OrderService.php`
 - **Methods:**
-    - `static getFiltered($request)`
+  - `static getFiltered($request)`
 
 ### RollService
 - **File:** `app/Services/RollService.php`
 - **Methods:**
-    - `static lowMaterialRollsQuery(int $shiftId, int $typeId)`
-    - `static getLowMaterialRolls(int $shiftId, int $typeId)`
-    - `static getLowMaterialRollsCount(int $shiftId, int $typeId)`
+  - `static lowMaterialRollsQuery(int $shiftId, int $typeId)`
+  - `static getLowMaterialRolls(int $shiftId, int $typeId)`
+  - `static getLowMaterialRollsCount(int $shiftId, int $typeId)`
 
 ### ScheduleService
 - **File:** `app/Services/ScheduleService.php`
 - **Methods:**
-    - `static getScheduleByUserId($userId)`
-    - `static isWorkDay()`
-    - `static isEnabledSchedule()`
-    - `static getStartWorkDay()`
-    - `static getEndWorkDay()`
-    - `static hasWorkDayStarted()`
-    - `static isBeforeStartWorkDay(App\Models\User $user)`
-    - `static openWorkShift(App\Models\User $user, App\Models\Shift $shift)`
-    - `static closeWorkShift(App\Models\User $user)`
+  - `static getScheduleByUserId($userId)`
+  - `static isWorkDay()`
+  - `static isEnabledSchedule()`
+  - `static getStartWorkDay()`
+  - `static getEndWorkDay()`
+  - `static hasWorkDayStarted()`
+  - `static isBeforeStartWorkDay(App\Models\User $user)`
+  - `static openWorkShift(App\Models\User $user, App\Models\Shift $shift)`
+  - `static closeWorkShift(App\Models\User $user)`
 
 ### ShiftService
 - **File:** `app/Services/ShiftService.php`
 - **Methods:**
-    - `static getUserShift(App\Models\User $user)`
-    - `static getTodayScheduledShift()`
-    - `static getTodayScheduledShifts()`
-    - `static canWorkToday(App\Models\User $user)`
-    -
-    `static transferEmployee(App\Models\User $user, App\Models\Shift $newShift, string $effectiveFrom)`
-    - `static getMissingScheduleDates(int $days, int $workshopId)`
+  - `static getUserShift(App\Models\User $user)`
+  - `static getTodayScheduledShift()`
+  - `static getTodayScheduledShifts()`
+  - `static canWorkToday(App\Models\User $user)`
+  - `static transferEmployee(App\Models\User $user, App\Models\Shift $newShift, string $effectiveFrom)`
+  - `static getMissingScheduleDates(int $days, int $workshopId)`
   - `static fillSchedule(array $data, int $workshopId)`
 
 ### StackService
 - **File:** `app/Services/StackService.php`
 - **Methods:**
-    - `static getMaxStackByUser($seamstressId)`
-    - `static incrementStackAndMaxStack($seamstressId)`
-    - `static reduceStack($seamstressId)`
-    - `static clearAllStacks()`
+  - `static getMaxStackByUser($seamstressId)`
+  - `static incrementStackAndMaxStack($seamstressId)`
+  - `static reduceStack($seamstressId)`
+  - `static clearAllStacks()`
 
 ### StickerService
 - **File:** `app/Services/StickerService.php`
 - **Methods:**
-    - `static resolveTemplate(string $itemTitle, int $marketplaceId)`
-    - `static resolveFontSizeCluster(string $cluster, string $template)`
+  - `static resolveTemplate(string $itemTitle, int $marketplaceId)`
+  - `static resolveFontSizeCluster(string $cluster, string $template)`
 
 ### TgService
 - **File:** `app/Services/TgService.php`
 - **Methods:**
-    - `static sendMessage($chatId, $message)`
+  - `static sendMessage($chatId, $message)`
 
 ### TicketService
-
 - **File:** `app/Services/TicketService.php`
 - **Methods:**
-    -
-    `create(App\Models\User $author, array $data, Illuminate\Http\UploadedFile $screenshot)`
-    - `start(App\Models\Ticket $ticket)`
-    - `close(App\Models\Ticket $ticket, string $adminComment)`
-    - `delete(App\Models\Ticket $ticket)`
+  - `create(App\Models\User $author, array $data, Illuminate\Http\UploadedFile $screenshot)`
+  - `start(App\Models\Ticket $ticket)`
+  - `close(App\Models\Ticket $ticket, string $adminComment)`
+  - `delete(App\Models\Ticket $ticket)`
 
 ### TransactionService
 - **File:** `app/Services/TransactionService.php`
 - **Methods:**
-    - `static store(App\Http\Requests\CreateTransactionRequest $request)`
-    - `static activateHoldBonus()`
-    - `static getSeamstressBalance(string $type, $isHoldBonus)`
-    - `static getFiltered(Illuminate\Http\Request $request)`
-    - `static getLastPayouts(App\Models\User $user, int $count, bool $isBonus)`
-    - `static getSumOfPayout(Illuminate\Http\Request $request)`
-    - `static getOldestUnpaidSalaryEntry(App\Models\User $user)`
-    -
-    `static getTotalByType(Illuminate\Http\Request $request, bool $isBonus, $company)`
-    - `static getHoldBonus(App\Models\User $user)`
-    - `static getCashflowFiltered(Illuminate\Http\Request $request)`
-    - `static getBonusForTodayOrdersByUsers()`
-    -
-    `static penalizeUserForOrderCancellation(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
+  - `static store(App\Http\Requests\CreateTransactionRequest $request)`
+  - `static activateHoldBonus()`
+  - `static getSeamstressBalance(string $type, $isHoldBonus)`
+  - `static getFiltered(Illuminate\Http\Request $request)`
+  - `static getLastPayouts(App\Models\User $user, int $count, bool $isBonus)`
+  - `static getSumOfPayout(Illuminate\Http\Request $request)`
+  - `static getOldestUnpaidSalaryEntry(App\Models\User $user)`
+  - `static getTotalByType(Illuminate\Http\Request $request, bool $isBonus, $company)`
+  - `static getHoldBonus(App\Models\User $user)`
+  - `static getCashflowFiltered(Illuminate\Http\Request $request)`
+  - `static getBonusForTodayOrdersByUsers()`
+  - `static penalizeUserForOrderCancellation(App\Models\MarketplaceOrderItem $marketplaceOrderItem)`
 
 ### UserService
 - **File:** `app/Services/UserService.php`
 - **Methods:**
-    - `static translateRoleName($role)`
+  - `static translateRoleName($role)`
+  - `static getConnectedToMaxUsers()`
   - `static getFiltered(Illuminate\Http\Request $request)`
-    - `static getListSeamstressesWorkingToday(int $workshopId)`
-    - `static getListStorekeepersWorkingToday()`
-    - `static getListManagersWithTg()`
-    - `static sendMessageForWorkingTodayEmployees()`
-    - `static hasUnpaidSalary(App\Models\User $user)`
-    - `static saved(Illuminate\Http\Request $request, App\Models\User $user)`
-    - `static getUserByBarcode($barcode)`
-    - `static checkWorkShiftClosure(App\Models\User $user)`
-    - `static checkUnclosedWorkShifts()`
-    - `static checkLateStartWorkShift(App\Models\User $user)`
-    - `static clearTimeForClosedWorkShifts()`
-    - `static isSecondShiftOpeningToday(App\Models\User $user)`
+  - `static getListSeamstressesWorkingToday(int $workshopId)`
+  - `static getListStorekeepersWorkingToday()`
+  - `static getListManagersWithTg()`
+  - `static sendMessageForWorkingTodayEmployees()`
+  - `static hasUnpaidSalary(App\Models\User $user)`
+  - `static saved(Illuminate\Http\Request $request, App\Models\User $user)`
+  - `static getUserByBarcode($barcode)`
+  - `static checkWorkShiftClosure(App\Models\User $user)`
+  - `static checkUnclosedWorkShifts()`
+  - `static checkLateStartWorkShift(App\Models\User $user)`
+  - `static clearTimeForClosedWorkShifts()`
+  - `static isSecondShiftOpeningToday(App\Models\User $user)`
 
 ### WarehouseOfItemService
 - **File:** `app/Services/WarehouseOfItemService.php`
 - **Methods:**
-    - `getFiltered(Illuminate\Http\Request $request)`
-    - `exportExcel(Illuminate\Http\Request $request)`
-    - `exportExcelWb(Illuminate\Http\Request $request)`
-    - `getStorageBarcode(App\Models\MarketplaceOrderItem $marketplace_item)`
-    - `saveItemToStorage(App\Models\MarketplaceOrderItem $item, int $shelfId)`
-    - `findRefundItemByBarcode($barcode)`
-    - `getInspectionStats()`
-    - `getCreateItems($validatedData, App\Models\MarketplaceItem $item)`
+  - `getFiltered(Illuminate\Http\Request $request)`
+  - `exportExcel(Illuminate\Http\Request $request)`
+  - `exportExcelWb(Illuminate\Http\Request $request)`
+  - `getStorageBarcode(App\Models\MarketplaceOrderItem $marketplace_item)`
+  - `saveItemToStorage(App\Models\MarketplaceOrderItem $item, int $shelfId)`
+  - `findRefundItemByBarcode($barcode)`
+  - `getInspectionStats()`
+  - `getCreateItems($validatedData, App\Models\MarketplaceItem $item)`
 
 ### WriteOffRemnantService
 - **File:** `app/Services/WriteOffRemnantService.php`
 - **Methods:**
-    - `static store(App\Http\Requests\StoreRemnantsRequest $request)`
+  - `static store(App\Http\Requests\StoreRemnantsRequest $request)`
 

@@ -32,6 +32,7 @@ class FabricRollLimitTest extends TestCase
         parent::setUp();
 
         Setting::updateOrCreate(['name' => 'is_enabled_work_shift'], ['value' => '1']);
+        Setting::updateOrCreate(['name' => 'max_fabric_rolls_per_shift'], ['value' => '10']);
 
         $storekeeperRole = Role::firstOrCreate(['name' => 'storekeeper']);
         $seamstressRole = Role::firstOrCreate(['name' => 'seamstress']);

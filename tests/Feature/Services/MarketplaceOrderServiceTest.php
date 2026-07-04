@@ -15,6 +15,9 @@ class MarketplaceOrderServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Очищаем маркетплейс-данные — тесты проверяют точные счётчики заказов/позиций. */
+    protected array $cleanTables = ['marketplace_orders', 'marketplace_order_items'];
+
     private function createValidStoreRequest(array $overrides = []): StoreMarketplaceOrderRequest
     {
         $request = new StoreMarketplaceOrderRequest;

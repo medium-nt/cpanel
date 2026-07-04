@@ -30,33 +30,32 @@ class ScheduleService
 
     public static function isWorkDay(): bool
     {
-        $date = Carbon::now()->toDateString();
-
-        $existsDay = Schedule::query()
-            ->where('date', $date)
-            ->where('user_id', auth()->user()->id)
-            ->first();
-
-        if ($existsDay) {
-            return true;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
         }
 
-        return false;
+        return Schedule::query()
+            ->where('date', Carbon::now()->toDateString())
+            ->where('user_id', $user->id)
+            ->exists();
     }
 
     public static function isEnabledSchedule(): bool
     {
-        return (bool) Setting::query()->where('name', 'is_enabled_work_schedule')->first()->value;
+        return (bool) Setting::query()
+            ->where('name', 'is_enabled_work_schedule')
+            ->value('value');
     }
 
     public static function getStartWorkDay(): string
     {
-        return Setting::getValue('working_day_start', auth()->user()->currentWorkshop()?->id);
+        return Setting::getValue('working_day_start', auth()->user()?->currentWorkshop()?->id);
     }
 
     public static function getEndWorkDay(): string
     {
-        return Setting::getValue('working_day_end', auth()->user()->currentWorkshop()?->id);
+        return Setting::getValue('working_day_end', auth()->user()?->currentWorkshop()?->id);
     }
 
     public static function hasWorkDayStarted(): bool
