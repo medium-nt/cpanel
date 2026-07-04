@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-07-02T19:02:40+03:00",
+    "generated_at": "2026-07-04T10:59:36+03:00",
     "counts": {
         "models": 38,
         "services": 26,
@@ -263,7 +263,7 @@
         },
         "MarketplaceOrderItemService": {
             "file": "app\/Services\/MarketplaceOrderItemService.php",
-            "methods_count": 26
+            "methods_count": 27
         },
         "MarketplaceOrderService": {
             "file": "app\/Services\/MarketplaceOrderService.php",
@@ -331,7 +331,7 @@
         },
         "UserService": {
             "file": "app\/Services\/UserService.php",
-            "methods_count": 14
+            "methods_count": 15
         },
         "WarehouseOfItemService": {
             "file": "app\/Services\/WarehouseOfItemService.php",

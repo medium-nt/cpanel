@@ -9,36 +9,27 @@
 ### DefectMaterialScan
 - **File:** `app/Livewire/DefectMaterialScan.php`
 - **View:** `livewire.defect-material-scan`
-- **Properties:** $scanCode, $statusMessage, $statusType, $
-  statusClass, $scannedOrderIds, $scannedOrders, $totalAvailableOrders
+- **Properties:** $scanCode, $statusMessage, $statusType, $statusClass, $scannedOrderIds, $scannedOrders, $totalAvailableOrders
 
 ### ExcelOrderImport
 - **File:** `app/Livewire/ExcelOrderImport.php`
 - **View:** `livewire.excel-order-import`
-- **Properties:** $step, $excelFile, $fileHeaders, $columnMap, $rows, $
-  processedRows, $createdCount, $errorMessage, $globalCluster, $
-  globalMarketplace, $allItems, $warehouses
+- **Properties:** $step, $excelFile, $fileHeaders, $columnMap, $rows, $processedRows, $createdCount, $errorMessage, $globalCluster, $globalMarketplace, $allItems, $warehouses
 
 ### InventoryCheckScan
 - **File:** `app/Livewire/InventoryCheckScan.php`
 - **View:** `livewire.inventory-check-scan`
-- **Properties:** $inventory, $selectedShelfId, $scanCode, $
-  statusMessage, $statusType, $statusClass, $totalItems, $foundItems, $shelves
+- **Properties:** $inventory, $selectedShelfId, $scanCode, $statusMessage, $statusType, $statusClass, $totalItems, $foundItems, $shelves
 
 ### MaterialForm
 - **File:** `app/Livewire/MaterialForm.php`
 - **View:** `livewire.material-form`
-- **Properties:** $selectedMaterialId, $materials, $orderedQuantity, $
-  maxQuantity, $sourceType, $typeMovement, $isFirst, $isMovementToWorkshop
+- **Properties:** $selectedMaterialId, $materials, $orderedQuantity, $maxQuantity, $sourceType, $typeMovement, $isFirst, $isMovementToWorkshop
 
 ### OzonFboItemSearch
 - **File:** `app/Livewire/OzonFboItemSearch.php`
 - **View:** `livewire.ozon-fbo-item-search`
-- **Properties:** $supply, $search, $results, $quantity, $supply_type, $
-  cluster_id, $seller_warehouse_id, $sellerWarehouses, $draftWarehouses, $
-  selectedWarehouseId, $selectedBundleId, $
-  macrolocalClusterId, $draftSupplyType, $dateFrom, $dateTo, $
-  timeslotDays, $selectedDate, $selectedTimeslot
+- **Properties:** $supply, $search, $results, $quantity, $supply_type, $cluster_id, $seller_warehouse_id, $sellerWarehouses, $draftWarehouses, $selectedWarehouseId, $selectedBundleId, $macrolocalClusterId, $draftSupplyType, $dateFrom, $dateTo, $timeslotDays, $selectedDate, $selectedTimeslot
 
 ### PickupScan
 - **File:** `app/Livewire/PickupScan.php`
@@ -48,21 +39,17 @@
 ### ShelfChange
 - **File:** `app/Livewire/ShelfChange.php`
 - **View:** `livewire.shelf-change`
-- **Properties:** $selectedShelfId, $scanCode, $statusMessage, $
-  statusType, $statusClass, $scannedItems, $shelves
+- **Properties:** $selectedShelfId, $scanCode, $statusMessage, $statusType, $statusClass, $scannedItems, $shelves
 
 ### StatusChangeScan
 - **File:** `app/Livewire/StatusChangeScan.php`
 - **View:** `livewire.status-change-scan`
-- **Properties:** $fromStatus, $toStatus, $pageTitle, $
-  scanCode, $scannedItems, $items, $statusMessage, $statusType, $statusClass, $
-  selectedShelfId, $shelves
+- **Properties:** $fromStatus, $toStatus, $pageTitle, $scanCode, $scannedItems, $items, $statusMessage, $statusType, $statusClass, $selectedShelfId, $shelves
 
 ### StickerTapeImport
 - **File:** `app/Livewire/StickerTapeImport.php`
 - **View:** `livewire.sticker-tape-import`
-- **Properties:** $step, $excelFile, $fileHeaders, $columnMap, $rows, $
-  processedRows, $errorMessage, $globalCluster, $globalMarketplace, $warehouses
+- **Properties:** $step, $excelFile, $fileHeaders, $columnMap, $rows, $processedRows, $errorMessage, $globalCluster, $globalMarketplace, $warehouses
 
 ### SupplyOrderList
 - **File:** `app/Livewire/SupplyOrderList.php`
@@ -72,12 +59,10 @@
 ### SupplyOrderSearch
 - **File:** `app/Livewire/SupplyOrderSearch.php`
 - **View:** `livewire.supply-order-search`
-- **Properties:** $orderId, $supply, $message, $messageType, $matchingOrders, $
-  selectedOrderId
+- **Properties:** $orderId, $supply, $message, $messageType, $matchingOrders, $selectedOrderId
 
 ### WorkshopRollScan
 - **File:** `app/Livewire/WorkshopRollScan.php`
 - **View:** `livewire.workshop-roll-scan`
-- **Properties:** $order, $scanCode, $requestedMaterialId, $
-  requestedMaterialTitle, $message, $messageType
+- **Properties:** $order, $scanCode, $requestedMaterialId, $requestedMaterialTitle, $message, $messageType
 

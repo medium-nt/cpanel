@@ -8,19 +8,18 @@
 - **Fillable:** `status`, `comment`, `finished_at`
 - **Casts:** `id` → int, `finished_at` → datetime, `status` → string
 - **Relationships:**
-    - `HasMany` items → InventoryCheckItem
+  - `HasMany` items → InventoryCheckItem
 
 ### InventoryCheckItem
 - **File:** `app/Models/InventoryCheckItem.php`
 - **Table:** `inventory_check_items`
 - **Traits:** —
-- **Fillable:** `inventory_check_id`, `marketplace_order_item_id`,
-  `expected_shelf_id`, `founded_shelf_id`, `is_found`, `is_added_later`
+- **Fillable:** `inventory_check_id`, `marketplace_order_item_id`, `expected_shelf_id`, `founded_shelf_id`, `is_found`, `is_added_later`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` expectedShelf → Shelf
-    - `BelongsTo` foundedShelf → Shelf
-    - `BelongsTo` marketplaceOrderItem → MarketplaceOrderItem
+  - `BelongsTo` expectedShelf → Shelf
+  - `BelongsTo` foundedShelf → Shelf
+  - `BelongsTo` marketplaceOrderItem → MarketplaceOrderItem
 
 ### Marketplace
 - **File:** `app/Models/Marketplace.php`
@@ -35,24 +34,22 @@
 - **Fillable:** `article`, `title`, `width`, `height`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `HasMany` marketplaceOrderItem → MarketplaceOrderItem
-    - `HasMany` sku → Sku
-    - `HasMany` consumption → MaterialConsumption
-    - `BelongsToMany` workshops → Workshop
+  - `HasMany` marketplaceOrderItem → MarketplaceOrderItem
+  - `HasMany` sku → Sku
+  - `HasMany` consumption → MaterialConsumption
+  - `BelongsToMany` workshops → Workshop
 
 ### MarketplaceOrder
 - **File:** `app/Models/MarketplaceOrder.php`
 - **Table:** `marketplace_orders`
 - **Traits:** `HasFactory`
-- **Fillable:** `marketplace_id`, `order_id`, `supply_id`, `box_id`, `boxed_at`,
-  `status`, `fulfillment_type`, `completed_at`, `created_at`, `returned_at`,
-  `cluster`
+- **Fillable:** `marketplace_id`, `order_id`, `supply_id`, `box_id`, `boxed_at`, `status`, `fulfillment_type`, `completed_at`, `created_at`, `returned_at`, `cluster`
 - **Casts:** `id` → int, `boxed_at` → datetime
 - **Relationships:**
-    - `HasMany` items → MarketplaceOrderItem
-    - `BelongsTo` supply → MarketplaceSupply
-    - `BelongsTo` box → SupplyBox
-    - `HasOne` history → MarketplaceOrderHistory
+  - `HasMany` items → MarketplaceOrderItem
+  - `BelongsTo` supply → MarketplaceSupply
+  - `BelongsTo` box → SupplyBox
+  - `HasOne` history → MarketplaceOrderHistory
 
 ### MarketplaceOrderHistory
 - **File:** `app/Models/MarketplaceOrderHistory.php`
@@ -61,65 +58,54 @@
 - **Fillable:** `marketplace_order_id`, `marketplace_order_item_id`, `status`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` item → MarketplaceOrderItem
-    - `BelongsTo` order → MarketplaceOrder
+  - `BelongsTo` item → MarketplaceOrderItem
+  - `BelongsTo` order → MarketplaceOrder
 
 ### MarketplaceOrderItem
 - **File:** `app/Models/MarketplaceOrderItem.php`
 - **Table:** `marketplace_order_items`
 - **Traits:** `HasFactory`
-- **Fillable:** `marketplace_order_id`, `workshop_id`, `marketplace_item_id`,
-  `storage_barcode`, `shelf_id`, `quantity`, `price`, `status`, `defect_reason`,
-  `seamstress_id`, `cutter_id`, `otk_id`, `repacker_id`, `cutting_completed_at`,
-  `packed_at`, `repacked_at`, `completed_at`, `created_at`
+- **Fillable:** `marketplace_order_id`, `workshop_id`, `marketplace_item_id`, `storage_barcode`, `shelf_id`, `quantity`, `price`, `status`, `defect_reason`, `seamstress_id`, `cutter_id`, `otk_id`, `repacker_id`, `cutting_completed_at`, `packed_at`, `repacked_at`, `completed_at`, `created_at`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` marketplaceOrder → MarketplaceOrder
-    - `BelongsTo` workshop → Workshop
-    - `HasOne` item → MarketplaceItem
-    - `HasOne` seamstress → User
-    - `HasOne` cutter → User
-    - `HasOne` otk → User
-    - `HasOne` repacker → User
-    - `BelongsTo` shelf → Shelf
-    - `HasMany` history → MarketplaceOrderHistory
+  - `BelongsTo` marketplaceOrder → MarketplaceOrder
+  - `BelongsTo` workshop → Workshop
+  - `HasOne` item → MarketplaceItem
+  - `HasOne` seamstress → User
+  - `HasOne` cutter → User
+  - `HasOne` otk → User
+  - `HasOne` repacker → User
+  - `BelongsTo` shelf → Shelf
+  - `HasMany` history → MarketplaceOrderHistory
 
 ### MarketplaceSupply
 - **File:** `app/Models/MarketplaceSupply.php`
 - **Table:** `marketplace_supplies`
 - **Traits:** `HasFactory`
-- **Fillable:** `supply_id`, `marketplace_id`, `type`, `cluster`, `supply_date`,
-  `gazelka_shipment_date`, `gazelka_shipment_id`, `delivery_type`, `draft_id`,
-  `draft_params`, `draft_created_at`, `supply_type`, `gazelka_pickup`,
-  `boxes_count`, `gazelka_invoice`, `status`, `completed_at`, `video`, `sticker`
-- **Casts:** `id` → int, `supply_date` → date, `gazelka_shipment_date` → date,
-  `gazelka_pickup` → boolean, `completed_at` → datetime, `draft_params` → array,
-  `draft_created_at` → datetime
+- **Fillable:** `supply_id`, `marketplace_id`, `type`, `cluster`, `supply_date`, `gazelka_shipment_date`, `gazelka_shipment_id`, `delivery_type`, `draft_id`, `draft_params`, `draft_created_at`, `supply_type`, `gazelka_pickup`, `boxes_count`, `gazelka_invoice`, `status`, `completed_at`, `video`, `sticker`
+- **Casts:** `id` → int, `supply_date` → date, `gazelka_shipment_date` → date, `gazelka_pickup` → boolean, `completed_at` → datetime, `draft_params` → array, `draft_created_at` → datetime
 
 ### MarketplaceWarehouse
 - **File:** `app/Models/MarketplaceWarehouse.php`
 - **Table:** `marketplace_warehouses`
 - **Traits:** —
-- **Fillable:** `name`, `marketplace_id`, `cluster`, `warehouse_id`,
-  `macrolocal_cluster_id`
+- **Fillable:** `name`, `marketplace_id`, `cluster`, `warehouse_id`, `macrolocal_cluster_id`
 - **Casts:** `id` → int
 
 ### Material
 - **File:** `app/Models/Material.php`
 - **Table:** `materials`
 - **Traits:** `HasFactory`, `SoftDeletes`
-- **Fillable:** `title`, `type_id`, `height`, `unit`, `purchase_price`,
-  `is_active`, `is_archive`, `minimum_roll_size_for_closure`
-- **Casts:** `id` → int, `minimum_roll_size_for_closure` → decimal:2,
-  `deleted_at` → datetime
+- **Fillable:** `title`, `type_id`, `height`, `unit`, `purchase_price`, `is_active`, `is_archive`, `minimum_roll_size_for_closure`
+- **Casts:** `id` → int, `minimum_roll_size_for_closure` → decimal:2, `deleted_at` → datetime
 - **Relationships:**
-    - `BelongsTo` type → TypeMaterial
-    - `HasMany` rolls → Roll
-    - `HasMany` movementMaterials → MovementMaterial
-    - `BelongsToMany` workshops → Workshop
-    - `BelongsToMany` users → User
+  - `BelongsTo` type → TypeMaterial
+  - `HasMany` rolls → Roll
+  - `HasMany` movementMaterials → MovementMaterial
+  - `BelongsToMany` workshops → Workshop
+  - `BelongsToMany` users → User
   - `BelongsToMany` suppliers → Supplier
-    - `HasMany` rates → Rate
+  - `HasMany` rates → Rate
 
 ### MaterialConsumption
 - **File:** `app/Models/MaterialConsumption.php`
@@ -128,8 +114,8 @@
 - **Fillable:** `item_id`, `material_id`, `quantity`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` item → MarketplaceItem
-    - `BelongsTo` material → Material
+  - `BelongsTo` item → MarketplaceItem
+  - `BelongsTo` material → Material
 
 ### MaterialWorkshop
 - **File:** `app/Models/MaterialWorkshop.php`
@@ -138,47 +124,43 @@
 - **Fillable:** `material_id`, `workshop_id`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` material → Material
-    - `BelongsTo` workshop → Workshop
+  - `BelongsTo` material → Material
+  - `BelongsTo` workshop → Workshop
 
 ### Motivation
 - **File:** `app/Models/Motivation.php`
 - **Table:** `motivations`
 - **Traits:** `HasFactory`
-- **Fillable:** `user_id`, `from`, `to`, `rate`, `bonus`, `not_cutter_bonus`,
-  `cutter_bonus`
+- **Fillable:** `user_id`, `from`, `to`, `rate`, `bonus`, `not_cutter_bonus`, `cutter_bonus`
 - **Casts:** `id` → int
 
 ### MovementMaterial
 - **File:** `app/Models/MovementMaterial.php`
 - **Table:** `movement_materials`
 - **Traits:** `HasFactory`
-- **Fillable:** `material_id`, `quantity`, `ordered_quantity`, `price`,
-  `order_id`, `roll_id`
+- **Fillable:** `material_id`, `quantity`, `ordered_quantity`, `price`, `order_id`, `roll_id`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` material → Material
-    - `BelongsTo` roll → Roll
-    - `BelongsTo` order → Order
+  - `BelongsTo` material → Material
+  - `BelongsTo` roll → Roll
+  - `BelongsTo` order → Order
 
 ### Order
 - **File:** `app/Models/Order.php`
 - **Table:** `orders`
 - **Traits:** `HasFactory`
-- **Fillable:** `workshop_id`, `shift_id`, `type_movement`, `status`,
-  `supplier_id`, `storekeeper_id`, `seamstress_id`, `cutter_id`, `otk_id`,
-  `comment`, `marketplace_order_id`, `is_approved`, `completed_at`
+- **Fillable:** `workshop_id`, `shift_id`, `type_movement`, `status`, `supplier_id`, `storekeeper_id`, `seamstress_id`, `cutter_id`, `otk_id`, `comment`, `marketplace_order_id`, `is_approved`, `completed_at`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` workshop → Workshop
-    - `BelongsTo` user → User
-    - `BelongsTo` seamstress → User
-    - `BelongsTo` cutter → User
-    - `BelongsTo` otk → User
-    - `BelongsTo` shift → Shift
-    - `HasMany` movementMaterials → MovementMaterial
-    - `BelongsTo` supplier → Supplier
-    - `BelongsTo` marketplaceOrder → MarketplaceOrder
+  - `BelongsTo` workshop → Workshop
+  - `BelongsTo` user → User
+  - `BelongsTo` seamstress → User
+  - `BelongsTo` cutter → User
+  - `BelongsTo` otk → User
+  - `BelongsTo` shift → Shift
+  - `HasMany` movementMaterials → MovementMaterial
+  - `BelongsTo` supplier → Supplier
+  - `BelongsTo` marketplaceOrder → MarketplaceOrder
 
 ### OzonFboDraftSupplyItem
 - **File:** `app/Models/OzonFboDraftSupplyItem.php`
@@ -187,26 +169,24 @@
 - **Fillable:** `supply_id`, `sku`, `quantity`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` supply → MarketplaceSupply
-    - `BelongsTo` skuRecord → Sku
+  - `BelongsTo` supply → MarketplaceSupply
+  - `BelongsTo` skuRecord → Sku
 
 ### ProductSticker
 - **File:** `app/Models/ProductSticker.php`
 - **Table:** `product_stickers`
 - **Traits:** —
-- **Fillable:** `title`, `color`, `print_type`, `material`, `country`,
-  `fastening_type`
+- **Fillable:** `title`, `color`, `print_type`, `material`, `country`, `fastening_type`
 - **Casts:** `id` → int
 
 ### Rate
 - **File:** `app/Models/Rate.php`
 - **Table:** `rates`
 - **Traits:** `HasFactory`
-- **Fillable:** `user_id`, `material_id`, `rate`, `not_cutter_rate`,
-  `cutter_rate`
+- **Fillable:** `user_id`, `material_id`, `rate`, `not_cutter_rate`, `cutter_rate`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` material → Material
+  - `BelongsTo` material → Material
 
 ### Role
 - **File:** `app/Models/Role.php`
@@ -219,17 +199,15 @@
 - **File:** `app/Models/Roll.php`
 - **Table:** `rolls`
 - **Traits:** `HasFactory`
-- **Fillable:** `shift_id`, `roll_code`, `material_id`, `status`,
-  `initial_quantity`, `shortage_quantity`, `completed_at`, `completed_by`,
-  `is_printed`
+- **Fillable:** `shift_id`, `roll_code`, `material_id`, `status`, `initial_quantity`, `shortage_quantity`, `completed_at`, `completed_by`, `is_printed`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `HasOneThrough` supplyOrder → Unknown
-    - `BelongsTo` material → Material
-    - `BelongsTo` shift → Shift
-    - `BelongsTo` completedBy → User
-    - `HasMany` movementMaterialsNotFromSuppler → MovementMaterial
-    - `HasOne` movementMaterial → MovementMaterial
+  - `HasOneThrough` supplyOrder → Unknown
+  - `BelongsTo` material → Material
+  - `BelongsTo` shift → Shift
+  - `BelongsTo` completedBy → User
+  - `HasMany` movementMaterialsNotFromSuppler → MovementMaterial
+  - `HasOne` movementMaterial → MovementMaterial
 
 ### Schedule
 - **File:** `app/Models/Schedule.php`
@@ -238,8 +216,8 @@
 - **Fillable:** `user_id`, `date`, `shift_id`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` user → User
-    - `BelongsTo` shift → Shift
+  - `BelongsTo` user → User
+  - `BelongsTo` shift → Shift
 
 ### Setting
 - **File:** `app/Models/Setting.php`
@@ -248,7 +226,7 @@
 - **Fillable:** `name`, `value`, `workshop_id`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` workshop → Workshop
+  - `BelongsTo` workshop → Workshop
 
 ### Shelf
 - **File:** `app/Models/Shelf.php`
@@ -264,10 +242,10 @@
 - **Fillable:** `workshop_id`, `name`, `status`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` workshop → Workshop
-    - `BelongsToMany` users → User
-    - `HasMany` rolls → Roll
-    - `BelongsToMany` currentUsers → Unknown
+  - `BelongsTo` workshop → Workshop
+  - `BelongsToMany` users → User
+  - `HasMany` rolls → Roll
+  - `BelongsToMany` currentUsers → Unknown
 
 ### ShiftSchedule
 - **File:** `app/Models/ShiftSchedule.php`
@@ -276,7 +254,7 @@
 - **Fillable:** `shift_id`, `date`, `workshop_id`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` shift → Shift
+  - `BelongsTo` shift → Shift
   - `BelongsTo` workshop → Workshop
 
 ### Sku
@@ -286,7 +264,7 @@
 - **Fillable:** `item_id`, `sku`, `barcode`, `marketplace_id`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` item → MarketplaceItem
+  - `BelongsTo` item → MarketplaceItem
 
 ### Stack
 - **File:** `app/Models/Stack.php`
@@ -308,19 +286,18 @@
 - **Fillable:** `title`, `phone`, `address`, `comment`
 - **Casts:** `id` → int, `deleted_at` → datetime
 - **Relationships:**
-    - `HasMany` orders → Order
+  - `HasMany` orders → Order
   - `BelongsToMany` materials → Material
 
 ### SupplyBox
 - **File:** `app/Models/SupplyBox.php`
 - **Table:** `supply_boxes`
 - **Traits:** —
-- **Fillable:** `marketplace_supply_id`, `number`, `closed_at`, `cargo_id`,
-  `sticker_url`
+- **Fillable:** `marketplace_supply_id`, `number`, `closed_at`, `cargo_id`, `sticker_url`
 - **Casts:** `id` → int, `closed_at` → datetime
 - **Relationships:**
-    - `BelongsTo` supply → MarketplaceSupply
-    - `HasMany` orders → MarketplaceOrder
+  - `BelongsTo` supply → MarketplaceSupply
+  - `HasMany` orders → MarketplaceOrder
 
 ### Tariff
 - **File:** `app/Models/Tariff.php`
@@ -329,30 +306,26 @@
 - **Fillable:** `user_tariff_id`, `material_id`, `range`, `width`, `value`
 - **Casts:** `id` → int, `value` → decimal:2
 - **Relationships:**
-    - `BelongsTo` userTariff → UserTariff
-    - `BelongsTo` material → Material
+  - `BelongsTo` userTariff → UserTariff
+  - `BelongsTo` material → Material
 
 ### Ticket
-
 - **File:** `app/Models/Ticket.php`
 - **Table:** `tickets`
 - **Traits:** `HasFactory`
-- **Fillable:** `user_id`, `description`, `admin_comment`, `page_url`,
-  `screenshot`, `status`, `closed_at`
+- **Fillable:** `user_id`, `description`, `admin_comment`, `page_url`, `screenshot`, `status`, `closed_at`
 - **Casts:** `id` → int, `closed_at` → datetime
 - **Relationships:**
-    - `BelongsTo` user → User
+  - `BelongsTo` user → User
 
 ### Transaction
 - **File:** `app/Models/Transaction.php`
 - **Table:** `transactions`
 - **Traits:** `HasFactory`
-- **Fillable:** `user_id`, `title`, `marketplace_order_item_id`,
-  `accrual_for_date`, `amount`, `status`, `transaction_type`, `paid_at`,
-  `is_bonus`, `fine_photo`
+- **Fillable:** `user_id`, `title`, `marketplace_order_item_id`, `accrual_for_date`, `amount`, `status`, `transaction_type`, `paid_at`, `is_bonus`, `fine_photo`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `BelongsTo` user → User
+  - `BelongsTo` user → User
 
 ### TypeMaterial
 - **File:** `app/Models/TypeMaterial.php`
@@ -371,20 +344,16 @@
 - **File:** `app/Models/User.php`
 - **Table:** `users`
 - **Traits:** `HasFactory`, `Notifiable`, `SoftDeletes`
-- **Fillable:** `name`, `email`, `phone`, `password`, `role_id`, `is_cutter`,
-  `avatar`, `tg_id`, `max_id`, `orders_priority`, `shift_is_open`,
-  `start_work_shift`, `duration_work_shift`, `max_late_minutes`,
-  `is_show_finance`
-- **Casts:** `id` → int, `email_verified_at` → datetime, `password` → hashed,
-  `deleted_at` → datetime
+- **Fillable:** `name`, `email`, `phone`, `password`, `role_id`, `is_cutter`, `avatar`, `tg_id`, `max_id`, `orders_priority`, `shift_is_open`, `start_work_shift`, `duration_work_shift`, `max_late_minutes`, `is_show_finance`
+- **Casts:** `id` → int, `email_verified_at` → datetime, `password` → hashed, `deleted_at` → datetime
 - **Relationships:**
-    - `BelongsTo` role → Role
-    - `HasMany` marketplaceOrderItems → MarketplaceOrderItem
-    - `HasMany` marketplaceOrderItemsByCutter → MarketplaceOrderItem
-    - `HasMany` marketplaceOrderItemsByOtk → MarketplaceOrderItem
-    - `BelongsToMany` materials → Material
-    - `BelongsToMany` shifts → Shift
-    - `HasMany` userTariffs → UserTariff
+  - `BelongsTo` role → Role
+  - `HasMany` marketplaceOrderItems → MarketplaceOrderItem
+  - `HasMany` marketplaceOrderItemsByCutter → MarketplaceOrderItem
+  - `HasMany` marketplaceOrderItemsByOtk → MarketplaceOrderItem
+  - `BelongsToMany` materials → Material
+  - `BelongsToMany` shifts → Shift
+  - `HasMany` userTariffs → UserTariff
 
 ### UserTariff
 - **File:** `app/Models/UserTariff.php`
@@ -393,8 +362,8 @@
 - **Fillable:** `user_id`, `action`, `type`, `is_bonus`
 - **Casts:** `id` → int, `is_bonus` → boolean
 - **Relationships:**
-    - `BelongsTo` user → User
-    - `HasMany` tariffs → Tariff
+  - `BelongsTo` user → User
+  - `HasMany` tariffs → Tariff
 
 ### Workshop
 - **File:** `app/Models/Workshop.php`
@@ -403,10 +372,10 @@
 - **Fillable:** `title`, `status`
 - **Casts:** `id` → int
 - **Relationships:**
-    - `HasMany` shifts → Shift
-    - `HasMany` orders → Order
-    - `HasMany` marketplaceOrderItems → MarketplaceOrderItem
-    - `HasMany` settings → Setting
-    - `BelongsToMany` allowedItems → MarketplaceItem
-    - `BelongsToMany` allowedMaterials → Material
+  - `HasMany` shifts → Shift
+  - `HasMany` orders → Order
+  - `HasMany` marketplaceOrderItems → MarketplaceOrderItem
+  - `HasMany` settings → Setting
+  - `BelongsToMany` allowedItems → MarketplaceItem
+  - `BelongsToMany` allowedMaterials → Material
 

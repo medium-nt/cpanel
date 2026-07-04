@@ -15,6 +15,9 @@ class MovementMaterialToWorkshopServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Очищаем marketplace_order_items — тест проверяет точный счётчик стикеров. */
+    protected array $cleanTables = ['marketplace_order_items'];
+
     private User $user;
 
     private Material $material;

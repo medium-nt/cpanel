@@ -8,10 +8,8 @@ class StoreRemnantsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,32 +17,38 @@ class StoreRemnantsRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, array<int, string>>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'material_id.*.required' => 'Материал обязателен.',
-            'material_id.*.exists:movement_materials,id' => 'Материал не найден.',
-            'quantity.*.required' => 'Количество обязательно.',
-            'quantity.*.min' => 'Количество должно быть больше или равно нулю.',
-            'comment' => 'string|min:3|max:255|nullable',
+            'material_id' => ['required', 'array'],
+            'material_id.*' => ['required', 'exists:materials,id'],
+            'ordered_quantity' => ['required', 'array'],
+            'ordered_quantity.*' => ['required', 'numeric', 'min:0.01', 'max:99999999.99'],
+            'comment' => ['nullable', 'string', 'min:3', 'max:255'],
         ];
     }
 
     /**
      * Customize the error messages used by the validator.
      *
-     * @return array
+     * @return array<string, string>
      */
-    public function messages()
+    public function messages(): array
     {
         return [
+            'material_id.required' => 'Заполните правильно список материалов и количество.',
+            'material_id.array' => 'Заполните правильно список материалов и количество.',
             'material_id.*.required' => 'Материал обязателен.',
             'material_id.*.exists' => 'Материал не найден.',
-            'quantity.*.required' => 'Количество обязательно.',
-            'quantity.*.min' => 'Количество должно быть больше нуля.',
-            'comment' => 'Комментарий должен быть не менее 3 символов.',
+            'ordered_quantity.required' => 'Количество обязательно.',
+            'ordered_quantity.array' => 'Количество обязательно.',
+            'ordered_quantity.*.required' => 'Количество обязательно.',
+            'ordered_quantity.*.numeric' => 'Количество должно быть числом.',
+            'ordered_quantity.*.min' => 'Количество должно быть больше нуля.',
+            'ordered_quantity.*.max' => 'Слишком большое количество.',
+            'comment.min' => 'Комментарий должен быть не менее 3 символов.',
         ];
     }
 }

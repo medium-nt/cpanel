@@ -21,6 +21,9 @@ class InventoryServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Очищаем inventory-данные — createInventory() глобально ищет order_items по статусам. */
+    protected array $cleanTables = ['inventory_check_items', 'marketplace_order_items'];
+
     private InventoryService $inventoryService;
 
     protected function setUp(): void

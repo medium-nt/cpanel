@@ -17,6 +17,9 @@ class WarehouseOfItemServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Очищаем marketplace_order_items — тесты проверяют точные счётчики. */
+    protected array $cleanTables = ['marketplace_order_items'];
+
     private WarehouseOfItemService $warehouseOfItemService;
 
     protected function setUp(): void

@@ -16,6 +16,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+// Очищаем order_items — тесты проверки счётчиков статусов требуют точного числа записей.
+beforeEach(function () {
+    $this->cleanTables = ['marketplace_order_items'];
+    $this->cleanTables();
+});
+
 test('getOrdersGroupedByMaterial groups orders by material title for seamstress', function () {
     // Создаем роли
     $adminRole = Role::firstOrCreate(['name' => 'admin']);
