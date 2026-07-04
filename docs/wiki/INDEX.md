@@ -167,6 +167,8 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 - [Warehouse Operations](topics/warehouse-operations.md) — склад, стеллажи,
   стикеры
 - [Finance](topics/finance.md) — транзакции, мотивация
+- [MAX Integration](topics/max-integration.md) — webhook, команды бота (/users),
+  MaxService с circuit-breaker
 
 ## Top 5 God Nodes (High Dependency)
 > High indegree = many classes depend on this | candidates for refactoring

@@ -16,9 +16,9 @@ class MaxController extends Controller
      * MAX присылает события типа message_created при любом сообщении боту.
      * Поддерживает два формата payload: одиночный Update (вебхук) и обёрнутый
      * массив {updates: [...]} (long-polling /updates). Для каждого сообщения
-     * извлекает chat_id, ищет User по max_id и отправляет ссылку на профиль
-     * (незарегистрированному) либо приветствие (зарегистрированному) — по
-     * аналогии с TelegramController::webhook.
+     * извлекает chat_id, ищет User по max_id: незарегистрированному отправляет
+     * ссылку на профиль, зарегистрированному — разбирает текст сообщения как
+     * команду (поддерживается /users) либо отправляет приветствие.
      *
      * @return array<string, string>
      */
@@ -48,16 +48,51 @@ class MaxController extends Controller
                     'Привет! Я бот компании Мегатюль. Для начала работы вы должны авторизоваться по этой ссылке: '
                     .url()->route('profile', ['max_id' => $chatId])
                 );
-            } else {
-                MaxService::sendMessage(
-                    $chatId,
-                    'Привет, '.$user->name.'! Вы уже авторизованы в системе как '
-                    .UserService::translateRoleName($user->role->name).
-                    ' и теперь будете получать все уведомления системы через меня.'
-                );
+
+                continue;
             }
+
+            $text = trim((string) ($update['message']['body']['text'] ?? ''));
+
+            if ($text === '/users') {
+                $this->handleUsersCommand($user, $chatId);
+
+                continue;
+            }
+
+            MaxService::sendMessage(
+                $chatId,
+                'Привет, '.$user->name.'! Вы уже авторизованы в системе как '
+                .UserService::translateRoleName($user->role->name).
+                ' и теперь будете получать все уведомления системы через меня.'
+            );
         }
 
         return ['status' => 'ok'];
+    }
+
+    /**
+     * Обрабатывает команду /users: отправляет список подключённых к MAX
+     * пользователей (Фамилия И.О. — Роль). Доступ только у роли admin.
+     */
+    private function handleUsersCommand(User $user, string $chatId): void
+    {
+        if ($user->role->name !== 'admin') {
+            return;
+        }
+
+        $lines = UserService::getConnectedToMaxUsers()
+            ->map(fn (User $u) => sprintf(
+                '%s — %s',
+                $u->short_name,
+                UserService::translateRoleName($u->role->name)
+            ))
+            ->all();
+
+        $text = empty($lines)
+            ? 'Нет подключённых пользователей.'
+            : "Подключённые пользователи:\n".implode("\n", $lines);
+
+        MaxService::sendMessage($chatId, $text);
     }
 }
