@@ -97,6 +97,11 @@
 - **File:** `app/Http/Controllers/MaterialSupplierController.php`
 - **Methods:** `attach`, `updateShortages`, `detach`
 
+### MaxController
+
+- **File:** `app/Http/Controllers/MaxController.php`
+- **Methods:** `webhook`
+
 ### MovementDefectMaterialToSupplierController
 
 - **File:**
@@ -177,6 +182,12 @@
 - **File:** `app/Http/Controllers/TelegramController.php`
 - **Methods:** `webhook`
 
+### TicketController
+
+- **File:** `app/Http/Controllers/TicketController.php`
+- **Dependencies:** `TicketService`
+- **Methods:** `index`, `create`, `store`, `show`, `start`, `close`, `delete`
+
 ### TransactionController
 - **File:** `app/Http/Controllers/TransactionController.php`
 - **Methods:** `index`, `create`, `store`, `destroy`, `createPayoutSalary`,
@@ -185,8 +196,8 @@
 ### UsersController
 - **File:** `app/Http/Controllers/UsersController.php`
 - **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`,
-  `profile`, `profileUpdate`, `disconnectTg`, `autologin`, `getBarcode`,
-  `tariffsUpdate`
+  `profile`, `profileUpdate`, `disconnectTg`, `disconnectMax`, `autologin`,
+  `getBarcode`, `tariffsUpdate`
 
 ### WarehouseOfItemController
 - **File:** `app/Http/Controllers/WarehouseOfItemController.php`

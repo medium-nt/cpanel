@@ -32,6 +32,7 @@
 - **File:** `app/Services/InventoryService.php`
 - **Methods:**
     - `static materialInWorkshop($materialId)`
+    - `static canArchive(App\Models\Material $material)`
     - `static materialInWarehouse($materialId)`
     - `static materialInWarehouse_outStock($materialId)`
     - `static materialInWarehouse_holdOutStockNew($materialId)`
@@ -178,6 +179,12 @@
     - `static chunkedUpload(Illuminate\Http\Request $request)`
     - `static updateStatusSupply()`
 
+### MaxService
+
+- **File:** `app/Services/MaxService.php`
+- **Methods:**
+    - `static sendMessage(string $chatId, string $text)`
+
 ### MovementDefectMaterialToSupplierService
 - **File:** `app/Services/MovementDefectMaterialToSupplierService.php`
 - **Methods:**
@@ -209,6 +216,13 @@
     -
     `static getCountNotReceivedMovements(App\Models\User $user, int $workshopId)`
     - `static getStickeredMarketplaceOrderItem(int $workshopId)`
+
+### NotificationService
+
+- **File:** `app/Services/NotificationService.php`
+- **Methods:**
+    -
+    `static notify(App\Models\User $user, string $text, bool $queued, int $delaySeconds)`
 
 ### OrderService
 - **File:** `app/Services/OrderService.php`
@@ -265,6 +279,16 @@
 - **File:** `app/Services/TgService.php`
 - **Methods:**
     - `static sendMessage($chatId, $message)`
+
+### TicketService
+
+- **File:** `app/Services/TicketService.php`
+- **Methods:**
+    -
+    `create(App\Models\User $author, array $data, Illuminate\Http\UploadedFile $screenshot)`
+    - `start(App\Models\Ticket $ticket)`
+    - `close(App\Models\Ticket $ticket, string $adminComment)`
+    - `delete(App\Models\Ticket $ticket)`
 
 ### TransactionService
 - **File:** `app/Services/TransactionService.php`

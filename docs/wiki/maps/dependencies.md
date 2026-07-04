@@ -6,16 +6,16 @@
 
 | Rank | Class                                 | Type       | Indegree | Outdegree | Score |
 |------|---------------------------------------|------------|----------|-----------|-------|
-| 1    | **MarketplaceApiService**             | service    | 25       | 6         | 56    |
-| 2    | **UserService**                       | service    | 18       | 2         | 38    |
+| 1    | **MarketplaceApiService**             | service    | 25       | 8         | 58    |
+| 2    | **UserService**                       | service    | 19       | 4         | 42    |
 | 3    | **MarketplaceOrderService**           | service    | 16       | 0         | 32    |
-| 4    | **MarketplaceOrderItemService**       | service    | 12       | 3         | 27    |
-| 5    | **TgService**                         | service    | 13       | 0         | 26    |
-| 6    | **MarketplaceSupplyController**       | controller | 0        | 22        | 22    |
-| 7    | **TransactionService**                | service    | 9        | 0         | 18    |
-| 8    | **MovementMaterialToWorkshopService** | service    | 5        | 4         | 14    |
-| 9    | **InventoryService**                  | service    | 6        | 0         | 12    |
-| 10   | **ShiftService**                      | service    | 6        | 0         | 12    |
+| 4    | **TgService**                         | service    | 14       | 0         | 28    |
+| 5    | **MarketplaceOrderItemService**       | service    | 12       | 3         | 27    |
+| 6    | **MaxService**                        | service    | 13       | 0         | 26    |
+| 7    | **MarketplaceSupplyController**       | controller | 0        | 23        | 23    |
+| 8    | **NotificationService**               | service    | 10       | 2         | 22    |
+| 9    | **MovementMaterialToWorkshopService** | service    | 5        | 8         | 18    |
+| 10   | **TransactionService**                | service    | 9        | 0         | 18    |
 
 ## Dependency Graph (Top 5 God Nodes + их соседи)
 
@@ -27,6 +27,8 @@ graph TD
     DefectMaterialService["DefectMaterialService"]
     MarketplaceApiService["MarketplaceApiService"]
     MarketplaceOrderItemService["MarketplaceOrderItemService"]
+    MaxService["MaxService"]
+    NotificationService["NotificationService"]
     MarketplaceOrderService["MarketplaceOrderService"]
     StickerService["StickerService"]
     StackService["StackService"]
@@ -41,6 +43,7 @@ graph TD
     MarketplaceOrderController("MarketplaceOrderController")
     MarketplaceOrderItemController("MarketplaceOrderItemController")
     MarketplaceSupplyController("MarketplaceSupplyController")
+    MaxController("MaxController")
     MovementMaterialToWorkshopController("MovementMaterialToWorkshopController")
     SettingController("SettingController")
     StickerPrintingController("StickerPrintingController")
@@ -54,7 +57,9 @@ graph TD
     DefectMaterialService -.->|static| UserService
     MarketplaceApiService -.->|static| MarketplaceOrderItemService
     MarketplaceApiService -.->|static| TgService
+    MarketplaceApiService -.->|static| MaxService
     MarketplaceApiService -.->|static| UserService
+    MarketplaceApiService -.->|static| NotificationService
     MarketplaceApiService -.->|static| MarketplaceOrderService
     MarketplaceApiService -.->|static| StickerService
     MarketplaceOrderItemService -.->|static| MarketplaceApiService
@@ -65,8 +70,10 @@ graph TD
     MovementDefectMaterialToSupplierService -.->|static| UserService
     MovementMaterialToWorkshopService -.->|static| TgService
     MovementMaterialToWorkshopService -.->|static| UserService
+    NotificationService -.->|static| TgService
     StackService -.->|static| MarketplaceOrderItemService
     UserService -.->|static| TgService
+    UserService -.->|static| MaxService
     WarehouseOfItemService -.->|static| MarketplaceApiService
     BarcodeSearchController -.->|static| MarketplaceApiService
     HomeController -.->|static| MarketplaceOrderItemService
@@ -78,6 +85,7 @@ graph TD
     MarketplaceSupplyController -.->|static| MarketplaceOrderService
     MarketplaceSupplyController -.->|static| MarketplaceApiService
     MarketplaceSupplyController -.->|static| TgService
+    MaxController -.->|static| UserService
     MovementMaterialToWorkshopController -.->|static| TgService
     MovementMaterialToWorkshopController -.->|static| UserService
     SettingController -.->|static| TgService
@@ -96,14 +104,14 @@ graph TD
     style MarketplaceApiService fill:#ffe066,stroke:#333,stroke-width:2px
     style UserService fill:#ffe066,stroke:#333,stroke-width:2px
     style MarketplaceOrderService fill:#ffe066,stroke:#333,stroke-width:2px
-    style MarketplaceOrderItemService fill:#ffe066,stroke:#333,stroke-width:2px
     style TgService fill:#ffe066,stroke:#333,stroke-width:2px
+    style MarketplaceOrderItemService fill:#ffe066,stroke:#333,stroke-width:2px
 ```
 
 ## Graph Statistics
 
-- **Total Nodes:** 64
-- **Total Edges:** 132
-- **DI Edges:** 0 (constructor dependencies)
-- **Static Call Edges:** 132 (Service::method calls)
-- **Avg Edges per Node:** 2.06
+- **Total Nodes:** 69
+- **Total Edges:** 159
+- **DI Edges:** 1 (constructor dependencies)
+- **Static Call Edges:** 158 (Service::method calls)
+- **Avg Edges per Node:** 2.3

@@ -109,7 +109,7 @@
 - **Table:** `materials`
 - **Traits:** `HasFactory`, `SoftDeletes`
 - **Fillable:** `title`, `type_id`, `height`, `unit`, `purchase_price`,
-  `is_active`, `minimum_roll_size_for_closure`
+  `is_active`, `is_archive`, `minimum_roll_size_for_closure`
 - **Casts:** `id` → int, `minimum_roll_size_for_closure` → decimal:2,
   `deleted_at` → datetime
 - **Relationships:**
@@ -267,6 +267,7 @@
     - `BelongsTo` workshop → Workshop
     - `BelongsToMany` users → User
     - `HasMany` rolls → Roll
+    - `BelongsToMany` currentUsers → Unknown
 
 ### ShiftSchedule
 - **File:** `app/Models/ShiftSchedule.php`
@@ -331,13 +332,24 @@
     - `BelongsTo` userTariff → UserTariff
     - `BelongsTo` material → Material
 
+### Ticket
+
+- **File:** `app/Models/Ticket.php`
+- **Table:** `tickets`
+- **Traits:** `HasFactory`
+- **Fillable:** `user_id`, `description`, `admin_comment`, `page_url`,
+  `screenshot`, `status`, `closed_at`
+- **Casts:** `id` → int, `closed_at` → datetime
+- **Relationships:**
+    - `BelongsTo` user → User
+
 ### Transaction
 - **File:** `app/Models/Transaction.php`
 - **Table:** `transactions`
 - **Traits:** `HasFactory`
 - **Fillable:** `user_id`, `title`, `marketplace_order_item_id`,
   `accrual_for_date`, `amount`, `status`, `transaction_type`, `paid_at`,
-  `is_bonus`
+  `is_bonus`, `fine_photo`
 - **Casts:** `id` → int
 - **Relationships:**
     - `BelongsTo` user → User
@@ -360,8 +372,9 @@
 - **Table:** `users`
 - **Traits:** `HasFactory`, `Notifiable`, `SoftDeletes`
 - **Fillable:** `name`, `email`, `phone`, `password`, `role_id`, `is_cutter`,
-  `avatar`, `tg_id`, `orders_priority`, `shift_is_open`, `start_work_shift`,
-  `duration_work_shift`, `max_late_minutes`, `is_show_finance`
+  `avatar`, `tg_id`, `max_id`, `orders_priority`, `shift_is_open`,
+  `start_work_shift`, `duration_work_shift`, `max_late_minutes`,
+  `is_show_finance`
 - **Casts:** `id` → int, `email_verified_at` → datetime, `password` → hashed,
   `deleted_at` → datetime
 - **Relationships:**

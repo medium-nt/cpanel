@@ -12,6 +12,7 @@
 - `routes/kiosk.php`
 - `routes/profile.php`
 - `routes/shifts.php`
+- `routes/tickets.php`
 - `routes/transactions.php`
 - `routes/users.php`
 - `routes/workshops.php`

@@ -1,13 +1,13 @@
 # cpanel — Project Wiki Index
 
-> Generated: 2026-06-26 09:41 | Models: 37 | Services: 23 | Controllers: 41 |
+> Generated: 2026-07-02 19:02 | Models: 38 | Services: 26 | Controllers: 43 |
 > Livewire: 13
 
 ## Quick Orientation
 Warehouse/inventory management with Ozon/WB marketplace integration.
 PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 
-## Models (37)
+## Models (38)
 
 | Model                   | Table                         | Key Relations                                                 | Traits                              |
 |-------------------------|-------------------------------|---------------------------------------------------------------|-------------------------------------|
@@ -34,7 +34,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | Schedule                | `schedules`                   | user, shift                                                   | HasFactory                          |
 | Setting                 | `settings`                    | workshop                                                      | HasFactory                          |
 | Shelf                   | `shelves`                     |                                                               |                                     |
-| Shift                   | `shifts`                      | workshop, users, rolls                                        | HasFactory                          |
+| Shift                   | `shifts`                      | workshop, users, rolls +1                                     | HasFactory                          |
 | ShiftSchedule           | `shift_schedule`              | shift, workshop                                               | HasFactory                          |
 | Sku                     | `skus`                        | item                                                          | HasFactory                          |
 | Stack                   | `stacks`                      |                                                               | HasFactory                          |
@@ -42,6 +42,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | Supplier                | `suppliers`                   | orders, materials                                             | HasFactory, SoftDeletes             |
 | SupplyBox               | `supply_boxes`                | supply, orders                                                |                                     |
 | Tariff                  | `tariffs`                     | userTariff, material                                          | HasFactory                          |
+| Ticket                  | `tickets`                     | user                                                          | HasFactory                          |
 | Transaction             | `transactions`                | user                                                          | HasFactory                          |
 | TypeMaterial            | `type_materials`              |                                                               | HasFactory                          |
 | TypeMovement            | `type_movements`              |                                                               |                                     |
@@ -49,7 +50,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | UserTariff              | `user_tariffs`                | user, tariffs                                                 | HasFactory                          |
 | Workshop                | `workshops`                   | shifts, orders, marketplaceOrderItems +3                      | HasFactory                          |
 
-## Services (23)
+## Services (26)
 
 | Service                                 | Methods | Dependencies |
 |-----------------------------------------|---------|--------------|
@@ -57,14 +58,16 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | AutoOrderService                        | 2       | —            |
 | DefectMaterialService                   | 3       | —            |
 | ExcelOrderImportService                 | 3       | —            |
-| InventoryService                        | 12      | —            |
+| InventoryService                        | 13      | —            |
 | MarketplaceApiService                   | 59      | —            |
 | MarketplaceOrderItemService             | 26      | —            |
 | MarketplaceOrderService                 | 10      | —            |
 | MarketplaceSupplyService                | 3       | —            |
+| MaxService                              | 1       | —            |
 | MovementDefectMaterialToSupplierService | 2       | —            |
 | MovementMaterialFromSupplierService     | 2       | —            |
 | MovementMaterialToWorkshopService       | 7       | —            |
+| NotificationService                     | 1       | —            |
 | OrderService                            | 1       | —            |
 | RollService                             | 3       | —            |
 | ScheduleService                         | 9       | —            |
@@ -72,12 +75,13 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | StackService                            | 4       | —            |
 | StickerService                          | 2       | —            |
 | TgService                               | 1       | —            |
+| TicketService                           | 4       | —            |
 | TransactionService                      | 12      | —            |
 | UserService                             | 14      | —            |
 | WarehouseOfItemService                  | 8       | —            |
 | WriteOffRemnantService                  | 1       | —            |
 
-## Controllers (41)
+## Controllers (43)
 
 | Controller                                   | Key Methods                                                                                        |
 |----------------------------------------------|----------------------------------------------------------------------------------------------------|
@@ -101,6 +105,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | MaterialController                           | index, create, store, edit, update +1                                                              |
 | MaterialMovementController                   | index                                                                                              |
 | MaterialSupplierController                   | attach, updateShortages, detach                                                                    |
+| MaxController                                | webhook                                                                                            |
 | MovementDefectMaterialToSupplierController   | index, create, store                                                                               |
 | MovementMaterialByMarketplaceOrderController | index                                                                                              |
 | MovementMaterialFromSupplierController       | index, create, store, show, edit +2                                                                |
@@ -117,8 +122,9 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | SupplierController                           | index, create, store, edit, update +1                                                              |
 | SupplyBoxController                          | index, markAssembled, store, destroy, show +4                                                      |
 | TelegramController                           | webhook                                                                                            |
+| TicketController                             | index, create, store, show, start +2                                                               |
 | TransactionController                        | index, create, store, destroy, createPayoutSalary +3                                               |
-| UsersController                              | index, create, store, edit, update +7                                                              |
+| UsersController                              | index, create, store, edit, update +8                                                              |
 | WarehouseOfItemController                    | index, exportExcel, inspection, newRefunds, getStorageBarcodeFile +14                              |
 | WorkshopController                           | index, create, store, edit, update +1                                                              |
 | WriteOffRemnantsController                   | index, create, store                                                                               |
@@ -167,11 +173,11 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 
 | Class                           | Type    | Indegree | Outdegree | Score |
 |---------------------------------|---------|----------|-----------|-------|
-| **MarketplaceApiService**       | service | 25       | 6         | 56    |
-| **UserService**                 | service | 18       | 2         | 38    |
+| **MarketplaceApiService**       | service | 25       | 8         | 58    |
+| **UserService**                 | service | 19       | 4         | 42    |
 | **MarketplaceOrderService**     | service | 16       | 0         | 32    |
+| **TgService**                   | service | 14       | 0         | 28    |
 | **MarketplaceOrderItemService** | service | 12       | 3         | 27    |
-| **TgService**                   | service | 13       | 0         | 26    |
 
 ## Detailed Maps
 - [Models](maps/models.md) — полные fillable, casts, relationships
