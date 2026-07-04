@@ -81,6 +81,7 @@ class HomeController extends Controller
             'notShippedMovements' => MovementMaterialToWorkshopService::getCountNotShippedMovements($user),
             'notReceivedMovements' => MovementMaterialToWorkshopService::getCountNotReceivedMovements($user),
             'stickeredMarketplaceOrderItem' => MovementMaterialToWorkshopService::getStickeredMarketplaceOrderItem($workshopScope),
+            'stickedByCluster' => MarketplaceOrderItemService::stickedByCluster($workshopScope),
             'employees' => User::query()
                 ->where('name', 'not like', '%Тест%')
                 ->paginate(5, ['*'], 'employees')->withQueryString(),
