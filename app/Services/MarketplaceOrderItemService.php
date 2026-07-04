@@ -333,6 +333,27 @@ class MarketplaceOrderItemService
             ->sum('quantity');
     }
 
+    /**
+     * Количество товаров на стикеровке (статус 5), сгруппированных по кластеру заказа.
+     *
+     * @return array<string, int> cluster => count
+     */
+    public static function stickedByCluster(?int $workshopId = null): array
+    {
+        return MarketplaceOrderItem::query()
+            ->join('marketplace_orders',
+                'marketplace_orders.id',
+                '=',
+                'marketplace_order_items.marketplace_order_id')
+            ->where('marketplace_order_items.status', 5)
+            ->whereNotNull('marketplace_orders.cluster')
+            ->when($workshopId, fn ($q) => $q->where('marketplace_order_items.workshop_id', $workshopId))
+            ->groupBy('marketplace_orders.cluster')
+            ->selectRaw('marketplace_orders.cluster as cluster, COUNT(*) as total')
+            ->pluck('total', 'cluster')
+            ->toArray();
+    }
+
     public static function getSeamstressesLargeSizeRatingOLD(array $dates): array
     {
         $seamstressesLargeSizeRating = [];

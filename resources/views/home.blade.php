@@ -205,6 +205,33 @@
         </div>
     </div>
 
+    {{-- Отшито, не упаковано (по кластерам) --}}
+    @if(($user->isOtk() || $user->isAdmin()) && !empty($stickedByCluster))
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Отшито, не упаковано (по кластерам)</h3>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>Кластер</th>
+                        <th>Количество</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($stickedByCluster as $cluster => $count)
+                        <tr>
+                            <td>{{ $cluster }}</td>
+                            <td>{{ $count }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
     {{-- Отгрузки в Газельку --}}
     @if($user->isAdmin() || $user->isStorekeeper() || $user->isManager())
         <div class="card">

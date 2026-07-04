@@ -831,3 +831,50 @@ test('resetClusterPriorityIfExhausted учитывает все статусы �
 
     expect(Setting::getValue('orders_cluster_priority', 1))->toBe('1|Казань');
 });
+
+test('stickedByCluster группирует товары на стикеровке (статус 5) по кластеру заказа', function () {
+    $moscow = MarketplaceOrder::factory()->create(['cluster' => 'Москва']);
+    $tula = MarketplaceOrder::factory()->create(['cluster' => 'Тула']);
+
+    // 2 товара в Москве + 1 в Туле, все на стикеровке
+    MarketplaceOrderItem::factory()->create(['marketplace_order_id' => $moscow->id, 'status' => 5]);
+    MarketplaceOrderItem::factory()->create(['marketplace_order_id' => $moscow->id, 'status' => 5]);
+    MarketplaceOrderItem::factory()->create(['marketplace_order_id' => $tula->id, 'status' => 5]);
+
+    $result = MarketplaceOrderItemService::stickedByCluster();
+
+    expect($result)->toBe(['Москва' => 2, 'Тула' => 1]);
+});
+
+test('stickedByCluster игнорирует товары не в статусе 5', function () {
+    $moscow = MarketplaceOrder::factory()->create(['cluster' => 'Москва']);
+
+    foreach ([0, 4, 7, 8] as $status) {
+        MarketplaceOrderItem::factory()->create(['marketplace_order_id' => $moscow->id, 'status' => $status]);
+    }
+
+    $result = MarketplaceOrderItemService::stickedByCluster();
+
+    expect($result)->toBe([]);
+});
+
+test('stickedByCluster игнорирует товары с пустым кластером заказа', function () {
+    $noCluster = MarketplaceOrder::factory()->create(['cluster' => null]);
+
+    MarketplaceOrderItem::factory()->create(['marketplace_order_id' => $noCluster->id, 'status' => 5]);
+
+    $result = MarketplaceOrderItemService::stickedByCluster();
+
+    expect($result)->toBe([]);
+});
+
+test('stickedByCluster фильтрует по workshop_id', function () {
+    $moscow = MarketplaceOrder::factory()->create(['cluster' => 'Москва']);
+
+    MarketplaceOrderItem::factory()->create(['marketplace_order_id' => $moscow->id, 'status' => 5, 'workshop_id' => 1]);
+    MarketplaceOrderItem::factory()->create(['marketplace_order_id' => $moscow->id, 'status' => 5, 'workshop_id' => 2]);
+
+    $result = MarketplaceOrderItemService::stickedByCluster(1);
+
+    expect($result)->toBe(['Москва' => 1]);
+});
