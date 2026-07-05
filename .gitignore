@@ -33,3 +33,7 @@ db.db
 /coverage/
 /.mcp.json
 /nul
+/.accept/scope.json
+/.accept/last-run.json
+!/AGENTS.md
+!/.zcode/

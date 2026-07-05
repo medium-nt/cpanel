@@ -374,3 +374,53 @@ git) и переопределяют одноимённые глобальные
 - `plan` — проектирование реализации
 
 Если видишь повторяемые операции — предложи создать нового подагента.
+
+## Acceptance-Driven loop (жёсткая приёмка задач)
+
+Задача готова ТОЛЬКО когда все acceptance-гейты зелёные. Агент сам итерирует до
+PASS — человеку не нужно проверять и исправлять за ним.
+
+### Acceptance Criteria в плане — обязательно
+
+Любой план ОБЯЗАН содержать секцию `## Acceptance Criteria`:
+
+- **Scope** — какие файлы затронуть (пути)
+- **Tests** — какие тест-файлы должны быть зелёными
+- **Visible** — видимое поведение = успех (одной фразой, проверяемо)
+- **Off-limits** — что НЕ трогать (кормит scope-guard)
+
+План без AC не принимается — если автор не дал AC, уточни их до реализации.
+
+### На старте реализации
+
+Скопируй `.accept/scope.example.json` → `.accept/scope.json` и заполни `scope` +
+`off_limits` из секции AC плана. Gate G4 читает `off_limits` оттуда (
+runtime-файл, в gitignore).
+
+### Gate `php artisan accept`
+
+4 бинарных гейта:
+
+- **G1 tests** — затронутые тесты (map изменённых `app/*` →
+  `tests/*<Class>*Test.php`)
+- **G2 pint** — `vendor/bin/pint --dirty`
+- **G3 phpstan** — Larastan (level из `phpstan.neon`)
+- **G4 diff** — нет `dd/dump/var_dump/console.log/die/exit` и маркеров
+  незавершёнки + scope-guard (off-limits)
+
+Опции: `--json` (для Stop-хука), `--gate=G1,G3`. Exit 0 = PASS.
+
+### Iterate-until-green
+
+Считай задачу готовой только после `php artisan accept` = PASS. Красные гейты —
+чини и повторяй. Stop-хук `accept-stop.ps1` автопрогоняет gate и через
+`decision:block` возвращает тебя к работе (cap 3 попытки, дальше эскалация
+человеку).
+
+### Definition of Done
+
+Готово, когда выполнено ВСЁ:
+
+1. `php artisan accept` = PASS (все G1–G4 зелёные)
+2. AC visible-behaviour достигнут
+3. изменения закоммичены

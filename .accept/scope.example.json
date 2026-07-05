@@ -1,0 +1,23 @@
+{
+    "_doc": "Шаблон AC-scope для gate `php artisan accept`. Скопируй в scope.json на старте реализации из секции Acceptance Criteria плана. scope.json — runtime (gitignored), этот example — коммитится как образец.",
+    "task": "Краткое описание задачи (из заголовка плана)",
+    "scope": [
+        "app/Services/AuthService.php",
+        "tests/Unit/AuthServiceTest.php"
+    ],
+    "tests": [
+        "tests/Unit/AuthServiceTest.php"
+    ],
+    "visible": "AuthService::login() выбрасывает InvalidCredentialsException при неверном пароле",
+    "off_limits": [
+        ".env",
+        ".env.*",
+        "composer.json",
+        "composer.lock",
+        "bootstrap/app.php",
+        "config/*",
+        "vendor/*",
+        "node_modules/*",
+        "database/migrations/*"
+    ]
+}
