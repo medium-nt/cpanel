@@ -1288,9 +1288,41 @@ class MarketplaceOrderItemService
      * Сбрасывает цеховую настройку orders_cluster_priority, если в очереди (до стикеровки)
      * не осталось заказов этого кластера — ни привязанных к цеху, ни новых нераспределённых.
      *
+     * При $workshopId = null (складской сценарий: кладовщик сдаёт нераспределённый заказ,
+     * числящийся в очереди каждого цеха) проверяются все цехи с выставленной цеховой
+     * настройкой — истощённые сбрасываются. Глобальная запись (workshop_id IS NULL)
+     * не затрагивается.
+     *
+     * @param  int|null  $workshopId  ID цеха или null для проверки всех цехов
+     */
+    public static function resetClusterPriorityIfExhausted(?int $workshopId): void
+    {
+        if ($workshopId !== null) {
+            self::resetClusterPriorityForWorkshop($workshopId);
+
+            return;
+        }
+
+        // Складской сценарий — проверить каждый цех с выставленным приоритетом кластера
+        $workshopIds = Setting::query()
+            ->where('name', 'orders_cluster_priority')
+            ->whereNotNull('workshop_id')
+            ->where('value', 'like', '%|%')
+            ->pluck('workshop_id')
+            ->unique();
+
+        foreach ($workshopIds as $id) {
+            self::resetClusterPriorityForWorkshop((int) $id);
+        }
+    }
+
+    /**
+     * Сбрасывает цеховую настройку orders_cluster_priority для конкретного цеха,
+     * если заказы этого кластера в очереди (до стикеровки) исчерпаны.
+     *
      * @param  int  $workshopId  ID цеха
      */
-    public static function resetClusterPriorityIfExhausted(int $workshopId): void
+    private static function resetClusterPriorityForWorkshop(int $workshopId): void
     {
         // Читаем только цеховую настройку (глобальную не трогаем)
         $clusterPriority = Setting::query()

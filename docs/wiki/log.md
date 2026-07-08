@@ -702,3 +702,20 @@
 - Тест-файл `WarehouseOfItemUtilizeAllTest.php` →
   `WarehouseOfItemUtilizeDefectsTest.php`.
 - Ветка `utilizeRefunds` (status 10, new_refunds) не менялась.
+
+## [2026-07-08] update | order-lifecycle
+
+- Расширен контракт метода
+  `MarketplaceOrderItemService::resetClusterPriorityIfExhausted()`
+  — теперь принимает `?int $workshopId` (вместо `int`).
+- При передаче `int` — поведение прежнее (проверяет конкретный цех).
+- При передаче `null` (складской сценарий —
+  `WarehouseOfItemController::labeling`)
+  — обходит ВСЕ цехи с непустой настройкой `orders_cluster_priority` и
+  сбрасывает
+  истощённые.
+- Реализация вынесена в приватный метод `resetClusterPriorityForWorkshop(int
+  $workshopId)`.
+- Фикс TypeError: раньше падал при `null` из складского сценария.
+- Обновлён topic: order-lifecycle.md
+- Обновлён map: services.md
