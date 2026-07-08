@@ -128,7 +128,8 @@
   - `static getMaxQuantityOrdersToUserRole()`
   - `static getNewOrderItem()`
   - `static fillEntireStack()`
-  - `static resetClusterPriorityIfExhausted(int $workshopId)`
+  - `static resetClusterPriorityIfExhausted(?int $workshopId)`
+  - `static resetClusterPriorityForWorkshop(int $workshopId)`
   - `static createItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
   - `static hasReadyItem(App\Models\Sku $sku)`
   - `static reserveReadyItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
