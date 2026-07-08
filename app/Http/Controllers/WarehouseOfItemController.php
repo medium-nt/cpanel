@@ -15,6 +15,7 @@ use App\Services\MarketplaceOrderItemService;
 use App\Services\MarketplaceOrderService;
 use App\Services\WarehouseOfItemService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -371,6 +372,64 @@ class WarehouseOfItemController extends Controller
         return view('warehouse_of_item.status_change_scan', [
             'title' => request('title', 'Сканирование товаров'),
         ]);
+    }
+
+    /**
+     * Утилизирует все товары со статусом 16 («Помечено на утилизацию») переводом сразу в 17 («Утилизировано»).
+     *
+     * Действие доступно только администратору. Пропускает промежуточный статус 19,
+     * массово обновляет все найденные записи одним запросом и логирует результат в канал items.
+     */
+    public function utilizeDefects(Request $request): RedirectResponse
+    {
+        if (! auth()->user()?->isAdmin()) {
+            return back()->with('error', 'Действие доступно только администратору.');
+        }
+
+        $changedIds = MarketplaceOrderItem::where('status', 16)->pluck('id')->all();
+
+        if (empty($changedIds)) {
+            return back()->with('error', 'Нет товаров для утилизации.');
+        }
+
+        MarketplaceOrderItem::whereIn('id', $changedIds)->update(['status' => 17]);
+
+        Log::channel('items')->info(
+            'Админ '.auth()->user()->name.
+            ' утилизировал все товары со статусом 16: '.implode(', ', $changedIds).
+            ' (статус: Утилизировано)'
+        );
+
+        return back()->with('success', 'Утилизировано товаров: '.count($changedIds));
+    }
+
+    /**
+     * Утилизирует все товары со статусом 10 («Переданные на осмотр в цех») переводом сразу в 17 («Утилизировано»).
+     *
+     * Действие доступно только администратору. Массово обновляет все найденные записи одним запросом
+     * и логирует результат в канал items.
+     */
+    public function utilizeRefunds(): RedirectResponse
+    {
+        if (! auth()->user()?->isAdmin()) {
+            return back()->with('error', 'Действие доступно только администратору.');
+        }
+
+        $changedIds = MarketplaceOrderItem::where('status', 10)->pluck('id')->all();
+
+        if (empty($changedIds)) {
+            return back()->with('error', 'Нет товаров для утилизации.');
+        }
+
+        MarketplaceOrderItem::whereIn('id', $changedIds)->update(['status' => 17]);
+
+        Log::channel('items')->info(
+            'Админ '.auth()->user()->name.
+            ' утилизировал все товары со статусом 10 (Переданные на осмотр в цех): '.implode(', ', $changedIds).
+            ' (статус: Утилизировано)'
+        );
+
+        return back()->with('success', 'Утилизировано товаров: '.count($changedIds));
     }
 
     /**

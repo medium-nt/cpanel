@@ -666,3 +666,39 @@
 
 ## [2026-07-04] create | max-integration
 Создан topic max-integration.md: описание webhook, команд бота (/users), доступа по ролям, MaxService.
+
+## [2026-07-08] update | warehouse-operations
+
+- Добавлена ВТОРАЯ кнопка «Утилизировать все» на странице
+  `/megatulle/warehouse_of_item/new_refunds` — массовая утилизация товаров со
+  статусом 10 («На разборе» / «Переданные на осмотр в цех») в финальный статус
+    17.
+- Новые файлы: `WarehouseOfItemController::utilizeRefunds()`, POST-роут
+  `warehouse_of_item.new_refunds.utilize_all`, кнопка в
+  `new_refunds.blade.php` (admin only).
+- Теперь три потока утилизации брака: стандартный (16→19→17 через сканер),
+  массовая из цеха (16→17 на `/status_change_scan`), массовая «переданных на
+  осмотр» (10→17 на `/new_refunds`).
+- Обновлён topic: warehouse-operations.md
+
+## [2026-07-08] update | warehouse-operations
+
+- Добавлен раздел «Утилизация брака» — описание двух flow: стандартный через
+  сканер
+  (16→19→17) и массовая утилизация админом (16→17 напрямую через кнопку
+  «Утилизировать все»).
+- Новые файлы: `WarehouseOfItemController::utilizeDefects()` (ранее
+  `utilizeAll`), POST-роут
+  `warehouse_of_item.status_change_scan.utilize_defects`, кнопка в
+  `status_change_scan.blade.php` (admin only).
+- Обновлён topic: warehouse-operations.md
+
+## [2026-07-08] refactor | warehouse-operations
+
+- Переименование: `utilizeAll()` → `utilizeDefects()` (метод утилизирует только
+  status 16, а не «вообще все»).
+- Роут `warehouse_of_item.status_change_scan.utilize_all` → `.utilize_defects`,
+  URL `/status_change_scan/utilize_all` → `/utilize_defects`.
+- Тест-файл `WarehouseOfItemUtilizeAllTest.php` →
+  `WarehouseOfItemUtilizeDefectsTest.php`.
+- Ветка `utilizeRefunds` (status 10, new_refunds) не менялась.

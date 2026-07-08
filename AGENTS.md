@@ -413,9 +413,14 @@ runtime-файл, в gitignore).
 ### Iterate-until-green
 
 Считай задачу готовой только после `php artisan accept` = PASS. Красные гейты —
-чини и повторяй. Stop-хук `accept-stop.ps1` автопрогоняет gate и через
-`decision:block` возвращает тебя к работе (cap 3 попытки, дальше эскалация
-человеку).
+чини и повторяй.
+
+- **Claude Code**: Stop-хук `accept-stop.ps1` автопрогоняет gate и через
+  `decision:block` возвращает тебя к работе (cap 3 попытки, дальше эскалация
+  человеку).
+- **Zcode / другие агенты без Stop-хука**: САМ вызови `php artisan accept` перед
+  сдачей. FAIL — чини и повторяй до PASS; после 3 безуспешных попыток —
+  эскалируй человеку (не зацикливайся).
 
 ### Definition of Done
 
