@@ -76,4 +76,12 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('update', Shelf::class)
         ->name('warehouse_of_item.status_change_scan');
 
+    Route::post('/status_change_scan/utilize_defects', [WarehouseOfItemController::class, 'utilizeDefects'])
+        ->can('update', Shelf::class)
+        ->name('warehouse_of_item.status_change_scan.utilize_defects');
+
+    Route::post('/new_refunds/utilize_all', [WarehouseOfItemController::class, 'utilizeRefunds'])
+        ->can('update', Shelf::class)
+        ->name('warehouse_of_item.new_refunds.utilize_all');
+
 });

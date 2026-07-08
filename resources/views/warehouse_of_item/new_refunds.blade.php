@@ -28,6 +28,18 @@
             </div>
         </div>
 
+        @if(auth()->user()?->isAdmin())
+            <form action="{{ route('warehouse_of_item.new_refunds.utilize_all') }}"
+                  method="POST">
+                @csrf
+                <button type="submit"
+                        class="btn btn-danger ml-2"
+                        onclick="return confirm('Уверены, что хотите утилизировать ВСЕ товары со статусом 10 (Переданные на осмотр в цех)?')">
+                    <i class="fas fa-trash"></i> Утилизировать все
+                </button>
+            </form>
+        @endif
+
         @if ($message)
             <div class="card">
                 <div class="card-body">
