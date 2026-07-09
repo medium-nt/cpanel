@@ -45,4 +45,12 @@ return [
         'verify_ssl' => filter_var(env('MAX_VERIFY_SSL', true), FILTER_VALIDATE_BOOLEAN),
     ],
 
+    'gazelka' => [
+        'token' => env('GAZELKA_TOKEN'),
+        'base_url' => env('GAZELKA_BASE_URL', 'https://gazelka.space/api'),
+        'timeout' => (int) env('GAZELKA_TIMEOUT', 30),
+        // На shared-хостингах без актуального CA-бандла (cURL error 60) выключать false.
+        'verify_ssl' => filter_var(env('GAZELKA_VERIFY_SSL', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];
