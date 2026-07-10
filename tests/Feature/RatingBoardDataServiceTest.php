@@ -2,6 +2,7 @@
 
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
+use App\Models\Schedule;
 use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\ShiftSchedule;
@@ -67,70 +68,6 @@ test('getLeaders counts completed orders for seamstress today', function () {
 });
 
 /**
- * Тест метода getLeaders для закройщиков (role_id=4).
- * Проверяет подсчёт по колонке cutting_completed_at.
- */
-test('getLeaders counts cutting_completed_orders for cutter', function () {
-    $workshop = Workshop::factory()->create();
-    $cutterA = User::factory()->create(['role_id' => 4, 'name' => 'Закройщик А']);
-    $cutterB = User::factory()->create(['role_id' => 4, 'name' => 'Закройщик Б']);
-
-    $today = Carbon::today()->toDateString().' 12:00:00';
-    MarketplaceOrderItem::factory()->count(2)->create([
-        'workshop_id' => $workshop->id,
-        'cutter_id' => $cutterA->id,
-        'cutting_completed_at' => $today,
-        'status' => 3,
-    ]);
-
-    MarketplaceOrderItem::factory()->create([
-        'workshop_id' => $workshop->id,
-        'cutter_id' => $cutterB->id,
-        'cutting_completed_at' => $today,
-        'status' => 3,
-    ]);
-
-    $service = new RatingBoardDataService;
-    $leaders = $service->getLeaders($workshop->id);
-
-    expect($leaders)->toHaveCount(2);
-    expect($leaders[0]['count'])->toBe(2);
-    expect($leaders[1]['count'])->toBe(1);
-});
-
-/**
- * Тест метода getLeaders для ОТК (role_id=5).
- * Проверяет подсчёт по колонке packed_at.
- */
-test('getLeaders counts packed_orders for otk', function () {
-    $workshop = Workshop::factory()->create();
-    $otkA = User::factory()->create(['role_id' => 5, 'name' => 'ОТК А']);
-    $otkB = User::factory()->create(['role_id' => 5, 'name' => 'ОТК Б']);
-
-    $today = Carbon::today()->toDateString().' 12:00:00';
-    MarketplaceOrderItem::factory()->count(4)->create([
-        'workshop_id' => $workshop->id,
-        'otk_id' => $otkA->id,
-        'packed_at' => $today,
-        'status' => 3,
-    ]);
-
-    MarketplaceOrderItem::factory()->create([
-        'workshop_id' => $workshop->id,
-        'otk_id' => $otkB->id,
-        'packed_at' => $today,
-        'status' => 3,
-    ]);
-
-    $service = new RatingBoardDataService;
-    $leaders = $service->getLeaders($workshop->id);
-
-    expect($leaders)->toHaveCount(2);
-    expect($leaders[0]['count'])->toBe(4);
-    expect($leaders[1]['count'])->toBe(1);
-});
-
-/**
  * Тест метода getStickers.
  * Проверяет подсчёт заказов со статусом 5 (стикеровка) по FBO/FBS.
  */
@@ -171,26 +108,26 @@ test('getStickers counts items with status 5 by fulfillment_type', function () {
 });
 
 /**
- * Тест метода getStatistics.
- * Проверяет, что учитываются только заказы текущего месяца.
+ * Тест метода getStatistics для швеи с заказами за вчера.
+ * Проверяет, что создаётся запись с датой вчерашнего дня, значением и медалью.
  */
-test('getStatistics only counts orders in current month', function () {
+test('getStatistics creates record for seamstress with orders from yesterday', function () {
     $workshop = Workshop::factory()->create();
-    $seamstress = User::factory()->create(['role_id' => 1]);
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея Анна']);
+    $shift = Shift::factory()->create(['name' => 'Дневная']);
 
-    // Заказ текущего месяца
-    MarketplaceOrderItem::factory()->create([
-        'workshop_id' => $workshop->id,
-        'seamstress_id' => $seamstress->id,
-        'completed_at' => Carbon::now()->toDateString().' 12:00:00',
-        'status' => 3,
+    // Создаём расписание на вчерашний день
+    Schedule::factory()->create([
+        'user_id' => $seamstress->id,
+        'date' => Carbon::yesterday()->toDateString(),
+        'shift_id' => $shift->id,
     ]);
 
-    // Заказ прошлого месяца
-    MarketplaceOrderItem::factory()->create([
+    // Создаём 2 заказа, выполненных вчера
+    MarketplaceOrderItem::factory()->count(2)->create([
         'workshop_id' => $workshop->id,
         'seamstress_id' => $seamstress->id,
-        'completed_at' => Carbon::now()->subMonth()->toDateString().' 12:00:00',
+        'completed_at' => Carbon::yesterday()->toDateString().' 14:00:00',
         'status' => 3,
     ]);
 
@@ -198,7 +135,373 @@ test('getStatistics only counts orders in current month', function () {
     $statistics = $service->getStatistics($workshop->id);
 
     expect($statistics)->toHaveCount(1);
+    expect($statistics[0])->toMatchArray([
+        'name' => 'Швея Анна',
+        'profession' => 'Швея',
+        'value' => Carbon::yesterday()->format('d.m.y').' выполнено 2 заказов!',
+        'shift' => 'Дневная',
+        'medal' => 'gold',
+    ]);
+});
+
+/**
+ * Тест метода getStatistics: сегодняшние заказы НЕ включаются.
+ * Период статистики — с начала месяца до ВЧЕРА (не включая сегодня).
+ */
+test('getStatistics excludes orders from today', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1]);
+
+    // Заказы сегодня (НЕ должны включаться)
+    MarketplaceOrderItem::factory()->count(3)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => Carbon::today()->toDateString().' 10:00:00',
+        'status' => 3,
+    ]);
+
+    // Заказы вчера (должны включаться)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => Carbon::yesterday()->toDateString().' 15:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(1);
+    expect($statistics[0]['value'])->toContain(Carbon::yesterday()->format('d.m.y'));
     expect($statistics[0]['value'])->toContain('выполнено 1 заказов!');
+});
+
+/**
+ * Тест метода getStatistics для всех трёх ролей.
+ * Проверяет, что швеи, закройщики и ОТК создают записи по своим колонкам дат.
+ */
+test('getStatistics creates records for all three roles', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея']);
+    $cutter = User::factory()->create(['role_id' => 4, 'name' => 'Закройщик']);
+    $otk = User::factory()->create(['role_id' => 5, 'name' => 'ОТК']);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // Заказы для швеи (completed_at)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $yesterday.' 10:00:00',
+        'status' => 3,
+    ]);
+
+    // Заказы для закройщика (cutting_completed_at)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'cutter_id' => $cutter->id,
+        'cutting_completed_at' => $yesterday.' 11:00:00',
+        'status' => 3,
+    ]);
+
+    // Заказы для ОТК (packed_at)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'otk_id' => $otk->id,
+        'packed_at' => $yesterday.' 12:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(3);
+
+    $professions = collect($statistics)->pluck('profession')->sort()->values()->toArray();
+    expect($professions)->toBe(['Закройщик', 'Сотрудник ОТК', 'Швея']);
+});
+
+/**
+ * Тест метода getStatistics: медаль gold только у швей-рекордсменов.
+ * Закройщики и ОТК не получают медали даже с большим количеством заказов.
+ */
+test('getStatistics gold medal only for seamstress record holders', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея']);
+    $cutter = User::factory()->create(['role_id' => 4, 'name' => 'Закройщик']);
+    $otk = User::factory()->create(['role_id' => 5, 'name' => 'ОТК']);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // Швея: 1 заказ → получает gold (рекорд дня среди швей)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $yesterday.' 10:00:00',
+        'status' => 3,
+    ]);
+
+    // Закройщик: 5 заказов → medal = null (не швея)
+    MarketplaceOrderItem::factory()->count(5)->create([
+        'workshop_id' => $workshop->id,
+        'cutter_id' => $cutter->id,
+        'cutting_completed_at' => $yesterday.' 11:00:00',
+        'status' => 3,
+    ]);
+
+    // ОТК: 3 заказа → medal = null (не швея)
+    MarketplaceOrderItem::factory()->count(3)->create([
+        'workshop_id' => $workshop->id,
+        'otk_id' => $otk->id,
+        'packed_at' => $yesterday.' 12:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(3);
+
+    $seamstressRecord = collect($statistics)->first(fn ($r) => $r['profession'] === 'Швея');
+    $cutterRecord = collect($statistics)->first(fn ($r) => $r['profession'] === 'Закройщик');
+    $otkRecord = collect($statistics)->first(fn ($r) => $r['profession'] === 'Сотрудник ОТК');
+
+    expect($seamstressRecord['medal'])->toBe('gold');
+    expect($cutterRecord['medal'])->toBeNull();
+    expect($otkRecord['medal'])->toBeNull();
+});
+
+/**
+ * Тест метода getStatistics: две швеи в один день.
+ * Рекордсмен получает gold, вторая — null. При равенстве — обе получают gold.
+ */
+test('getStatistics gold medal for day record holder among seamstresses', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstressA = User::factory()->create(['role_id' => 1, 'name' => 'Швея А']);
+    $seamstressB = User::factory()->create(['role_id' => 1, 'name' => 'Швея Б']);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // Швея А: 3 заказа → gold (рекорд дня)
+    MarketplaceOrderItem::factory()->count(3)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressA->id,
+        'completed_at' => $yesterday.' 10:00:00',
+        'status' => 3,
+    ]);
+
+    // Швея Б: 1 заказ → null (не рекорд)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressB->id,
+        'completed_at' => $yesterday.' 11:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(2);
+
+    $recordA = collect($statistics)->first(fn ($r) => $r['name'] === 'Швея А');
+    $recordB = collect($statistics)->first(fn ($r) => $r['name'] === 'Швея Б');
+
+    expect($recordA['medal'])->toBe('gold');
+    expect($recordA['value'])->toContain('выполнено 3 заказов!');
+    expect($recordB['medal'])->toBeNull();
+    expect($recordB['value'])->toContain('выполнено 1 заказов!');
+});
+
+/**
+ * Тест метода getStatistics: две швеи с равным количеством заказов.
+ * При равенстве рекорда дня обе получают gold (строгое сравнение ===).
+ */
+test('getStatistics both seamstresses get gold with equal daily records', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstressA = User::factory()->create(['role_id' => 1, 'name' => 'Швея А']);
+    $seamstressB = User::factory()->create(['role_id' => 1, 'name' => 'Швея Б']);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // Обе швеи: по 2 заказа → обе получают gold
+    MarketplaceOrderItem::factory()->count(2)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressA->id,
+        'completed_at' => $yesterday.' 10:00:00',
+        'status' => 3,
+    ]);
+
+    MarketplaceOrderItem::factory()->count(2)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressB->id,
+        'completed_at' => $yesterday.' 11:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(2);
+
+    $recordA = collect($statistics)->first(fn ($r) => $r['name'] === 'Швея А');
+    $recordB = collect($statistics)->first(fn ($r) => $r['name'] === 'Швея Б');
+
+    expect($recordA['medal'])->toBe('gold');
+    expect($recordB['medal'])->toBe('gold');
+});
+
+/**
+ * Тест метода getStatistics: смена из расписания schedules.
+ * Проверяет подстановку shift.name по ключу "user_id|date", при отсутствии — пустая строка.
+ */
+test('getStatistics gets shift from schedules by user and date', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1]);
+    $shift = Shift::factory()->create(['name' => 'Утренняя']);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // Расписание на вчерашний день
+    Schedule::factory()->create([
+        'user_id' => $seamstress->id,
+        'date' => $yesterday,
+        'shift_id' => $shift->id,
+    ]);
+
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $yesterday.' 12:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(1);
+    expect($statistics[0]['shift'])->toBe('Утренняя');
+});
+
+/**
+ * Тест метода getStatistics: отсутствие расписания → пустая смена.
+ */
+test('getStatistics returns empty shift when no schedule exists', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1]);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // Расписание НЕ создаём
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $yesterday.' 12:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(1);
+    expect($statistics[0]['shift'])->toBe('');
+});
+
+/**
+ * Тест метода getStatistics: фильтрация по workshop_id.
+ * Заказы других цехов не попадают в статистику.
+ */
+test('getStatistics filters by workshop_id', function () {
+    $workshopA = Workshop::factory()->create();
+    $workshopB = Workshop::factory()->create();
+    $seamstressA = User::factory()->create(['role_id' => 1, 'name' => 'Швея А']);
+    $seamstressB = User::factory()->create(['role_id' => 1, 'name' => 'Швея Б']);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // Заказы цеха A (должны включаться)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshopA->id,
+        'seamstress_id' => $seamstressA->id,
+        'completed_at' => $yesterday.' 10:00:00',
+        'status' => 3,
+    ]);
+
+    // Заказы цеха B (НЕ должны включаться)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshopB->id,
+        'seamstress_id' => $seamstressB->id,
+        'completed_at' => $yesterday.' 11:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshopA->id);
+
+    expect($statistics)->toHaveCount(1);
+    expect($statistics[0]['name'])->toBe('Швея А');
+});
+
+/**
+ * Тест метода getStatistics: группировка по дням.
+ * Два заказа одной швеи в один день = одна запись с count=2 (не две записи).
+ */
+test('getStatistics groups orders by day not by individual orders', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1]);
+    $yesterday = Carbon::yesterday()->toDateString();
+
+    // 3 заказа одной швеи вчера в разное время
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $yesterday.' 09:00:00',
+        'status' => 3,
+    ]);
+
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $yesterday.' 11:00:00',
+        'status' => 3,
+    ]);
+
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $yesterday.' 15:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    // Одна запись с count=3, не три записи с count=1
+    expect($statistics)->toHaveCount(1);
+    expect($statistics[0]['value'])->toContain('выполнено 3 заказов!');
+});
+
+/**
+ * Тест метода getStatistics: заказы прошлого месяца не учитываются.
+ * Период — только текущий месяц (startOfMonth → yesterday).
+ */
+test('getStatistics excludes orders from previous month', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1]);
+
+    // Заказ прошлого месяца (НЕ должен включаться)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => Carbon::now()->subMonth()->toDateString().' 12:00:00',
+        'status' => 3,
+    ]);
+
+    // Заказ текущего месяца (должен включаться)
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => Carbon::yesterday()->toDateString().' 12:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $statistics = $service->getStatistics($workshop->id);
+
+    expect($statistics)->toHaveCount(1);
+    expect($statistics[0]['value'])->toContain(Carbon::yesterday()->format('d.m.y'));
 });
 
 /**

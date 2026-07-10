@@ -742,3 +742,32 @@
 - Тесты: tests/Feature/Services/GazelkaApiServiceTest.php (13 тестов, зелёные).
 - Обновлён INDEX.md (Services: 27)
 - Обновлены maps: services.md (методы GazelkaApiService)
+
+## [2026-07-10] update | rating-board
+
+- Создан новый topic: rating-board.md — доска рейтинга сотрудников
+  - Лидеры и подиум: ТОЛЬКО швеи (`RATING_ROLE_IDS = [1]`), максимум 9 строк
+  - Статистика: все 3 роли (швеи, закройщики, ОТК) по дням, период с 1-го числа
+    месяца до ВЧЕРА
+  - Медаль gold в статистике: только швея с дневным рекордом, закройщики/ОТК без
+    медалей
+  - Смена в статистике: из индивидуального расписания (`schedules`), не из
+    `shift_schedule`
+  - Фраза золотого медалиста: случайная из 100 вариантов (JS), меняется при
+    смене лидера
+  - Звук стикеров FBO/FBS: только при росте (`newValue > oldValue`)
+  - Фикс пустого подиума: проверки `&& g1 && s1` в условиях свапов
+  - Фронт очищен от демо-данных, заголовок статистики динамический (
+    `now()->month`)
+- Обновлён topic: shift-system.md — добавлено примечание об использовании
+  `schedules` в статистике рейтинговой доски
+- Затронутые файлы:
+  - `app/Services/RatingBoard/RatingBoardDataService.php` — бизнес-логика (
+    константы ролей, getStatistics переписан, buildLeaders лимит 9, новая логика
+    смены)
+  - `public/rating_board/js/app.js` — GOLD_PHRASES, applyPodiumDiff фикс,
+    animateStickerValue звук при росте
+  - `resources/views/rating_board/index.blade.php` — очищен от статичных данных,
+    динамический месяц
+  - `tests/Feature/RatingBoardDataServiceTest.php` — 11 новых тестов
+    getStatistics

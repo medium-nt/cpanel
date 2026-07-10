@@ -2,6 +2,7 @@
 
 namespace App\Services\RatingBoard;
 
+use App\Models\Schedule;
 use App\Models\Setting;
 use App\Models\ShiftSchedule;
 use App\Models\User;
@@ -170,7 +171,18 @@ class RatingBoardDataService
             }
         }
 
-        $shiftName = (string) $this->shiftNameAt($workshopId, Carbon::today());
+        // Мапа смен по индивидуальному расписанию: "user_id|date" => shift.name
+        $fromDate = Carbon::now()->startOfMonth()->toDateString();
+        $toDate = Carbon::yesterday()->toDateString();
+        $shiftMap = [];
+        Schedule::query()
+            ->whereIn('user_id', $userIds)
+            ->whereBetween('date', [$fromDate, $toDate])
+            ->with('shift')
+            ->get()
+            ->each(function (Schedule $schedule) use (&$shiftMap) {
+                $shiftMap[$schedule->user_id.'|'.$schedule->date] = $schedule->shift?->name;
+            });
 
         $result = [];
         foreach ($records as $record) {
@@ -190,7 +202,7 @@ class RatingBoardDataService
                 'profession' => UserService::translateRoleName($user->role?->name),
                 'avatar' => $user->adminlte_image(),
                 'value' => Carbon::parse($record['work_date'])->format('d.m.y').' выполнено '.$record['count'].' заказов!',
-                'shift' => 'Смена:'.$shiftName,
+                'shift' => $shiftMap[$record['user_id'].'|'.$record['work_date']] ?? '',
                 'medal' => $medal,
             ];
         }
