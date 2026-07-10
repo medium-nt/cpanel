@@ -26,6 +26,7 @@ Route::get('/sticker_printing', [StickerPrintingController::class, 'index'])->na
 Route::prefix('')
     ->group(function () {
         require base_path('routes/kiosk.php');
+        require base_path('routes/rating_board.php');
     });
 
 Route::get('/open_close_work_shift', [StickerPrintingController::class, 'openCloseWorkShift'])

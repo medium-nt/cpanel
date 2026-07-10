@@ -53,4 +53,9 @@ return [
         'verify_ssl' => filter_var(env('GAZELKA_VERIFY_SSL', false), FILTER_VALIDATE_BOOLEAN),
     ],
 
+    // Доска рейтинга сотрудников (телевизор в цехе). Доступ по токену из URL.
+    'rating_board' => [
+        'token' => env('RATING_BOARD_ACCESS_TOKEN'),
+    ],
+
 ];
