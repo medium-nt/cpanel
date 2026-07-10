@@ -719,3 +719,26 @@
 - Фикс TypeError: раньше падал при `null` из складского сценария.
 - Обновлён topic: order-lifecycle.md
 - Обновлён map: services.md
+
+## [2026-07-08] add | gazelka-api-service
+
+- Создан `App\Services\GazelkaApiService` — API-клиент доставки Газелька (
+  gazelka.space).
+  Инстанс-класс с DI (НЕ статика, в отличие от MarketplaceApiService), 9
+  публичных
+  методов.
+- Конфигурация: секция `gazelka` в config/services.php (token, base_url,
+  timeout,
+  verify_ssl=false по умолчанию для shared-хостинга Beget).
+- Методы: descriptions() (справочник статусов+МП), schedule() (график по
+  городу),
+  newPlan() (создать заявку), deletePlan() (удалить заявку), myPlans() (мои
+  заявки),
+  createPickup() (забор груза), addToPickup() (добавить в забор),
+  removeFromPickup() (убрать из забора), pricelist() (прайслист).
+- Const-справочники: SUPPLY_TYPE_* (monomix 1-7), CITY_* (1-5), PAYMENT_* (1-3).
+- Авторизация Bearer-токен из config('services.gazelka.token').
+- Логи ошибок → канал `marketplace_supplies`.
+- Тесты: tests/Feature/Services/GazelkaApiServiceTest.php (13 тестов, зелёные).
+- Обновлён INDEX.md (Services: 27)
+- Обновлены maps: services.md (методы GazelkaApiService)
