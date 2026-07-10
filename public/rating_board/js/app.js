@@ -1089,9 +1089,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     function renderShift(shift) {
         const topTitle = document.querySelector('.top__title');
-        if (topTitle) topTitle.textContent = shift.name ? ('СМЕНА ' + shift.name) : '';
+        if (topTitle) topTitle.textContent = shift.name ? (shift.name) : '';
         const winnerTitles = document.querySelectorAll('.winner__title');
-        if (winnerTitles[0]) winnerTitles[0].textContent = shift.previous_name ? ('СМЕНА ' + shift.previous_name) : '';
+        if (winnerTitles[0]) winnerTitles[0].textContent = shift.previous_name ? (shift.previous_name) : '';
     }
 
     function renderWinner(winner) {

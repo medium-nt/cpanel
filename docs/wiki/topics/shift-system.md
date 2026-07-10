@@ -1,6 +1,6 @@
 # Shift System — Смены и цеха
 
-> Last reviewed: 2026-06-29
+> Last reviewed: 2026-07-10
 
 ## Обзор
 
@@ -222,7 +222,9 @@
   включая max_fabric_rolls_per_shift)
 - `app/Services/MovementMaterialToWorkshopService.php` — проверка доступности
   материала цеху
-- `app/Models/Schedule.php` — индивидуальное расписание
+- `app/Models/Schedule.php` — индивидуальное расписание (используется для
+  определения смены сотрудника в конкретный день, например, в статистике
+  рейтинговой доски)
 - `app/Http/Middleware/RequireOpenShift.php` — middleware проверки смены
 - `app/Http/Controllers/StickerPrintingController.php` — работа с рулонами
   (изоляция по сменам: rolls(), completeRoll(), getRollByCode(), saveDefects())
