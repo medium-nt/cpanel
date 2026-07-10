@@ -195,7 +195,7 @@ class RatingBoardDataService
             ];
         }
 
-        return array_slice($result, 0, 10);
+        return $result;
     }
 
     /**
