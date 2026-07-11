@@ -40,6 +40,10 @@ Route::prefix('/warehouse_of_item')->group(function () {
         ->can('create', Shelf::class)
         ->name('warehouse_of_item.to_inspection');
 
+    Route::post('/delete/{marketplace_item}', [WarehouseOfItemController::class, 'delete'])
+        ->can('createAdmin', Shelf::class)
+        ->name('warehouse_of_item.delete');
+
     Route::get('/to_pick_list', [WarehouseOfItemController::class, 'toPickList'])
         ->can('viewAny', Shelf::class)
         ->name('warehouse_of_item.to_pick_list');

@@ -145,6 +145,7 @@
                         <th scope="col">№ полки</th>
                         <th scope="col">Дата отгрузки</th>
                         <th scope="col">Дата возврата</th>
+                        <th scope="col">Действия</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -173,6 +174,22 @@
                             </td>
                             <td>{{ $item->marketplaceOrder->completed_date }}</td>
                             <td>{{ $item->marketplaceOrder->returned_date }}</td>
+                            <td>
+                                @if ($item->status === 11)
+                                    @can('createAdmin', App\Models\Shelf::class)
+                                        <form action="{{ route('warehouse_of_item.delete', ['marketplace_item' => $item]) }}"
+                                              method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Удалить товар #{{ $item->id }} с полки хранения? Товар будет помечен как утилизированный.')">
+                                                <i class="fas fa-trash mr-1"></i>
+                                                Удалить
+                                            </button>
+                                        </form>
+                                    @endcan
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>
