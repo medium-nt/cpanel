@@ -62,21 +62,47 @@
                             <tr>
                                 <td>{{ $order->id }}</td>
                                 <td>
-                                    @foreach($order->movementMaterials as $material)
-                                        <b>{{ $material->material->title }}</b>
-                                        - {{ $material->quantity }} {{ $material->material->unit }}
-                                        @if($material->roll_id)
-                                            <a href="{{ route('rolls.printRoll', ['roll' => $material->roll_id]) }}"
-                                               class="btn
-                                           @if($material->roll->is_printed) btn-outline-secondary @else btn-danger @endif
-                                           btn-xs mr-1 py-0" target="_blank">
-                                                <i class="fas fa-barcode"></i>
-                                            </a>
-                                            (рулон: {{ $material->roll->roll_code }}
-                                            )
-                                        @endif
-                                        <br>
-                                    @endforeach
+                                    @php
+                                        $rolls = $order->movementMaterials->filter(fn ($m) => $m->roll_id);
+                                        $rollsCount = $rolls->count();
+                                        $totalQuantity = $order->movementMaterials->sum('quantity');
+                                        $unit = $order->movementMaterials->first()?->material?->unit;
+                                    @endphp
+
+                                    <div class="mb-1">
+                                        <b>Итого: {{ $rollsCount }}
+                                            рул., {{ $totalQuantity }} {{ $unit }}</b>
+                                    </div>
+
+                                    @if ($rollsCount > 0)
+                                        <a class="btn btn-link btn-sm py-0 px-1 ml-n2"
+                                           data-toggle="collapse"
+                                           href="#rolls-desktop-{{ $order->id }}"
+                                           role="button"
+                                           aria-expanded="false"
+                                           aria-controls="rolls-desktop-{{ $order->id }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                            Показать рулоны ({{ $rollsCount }})
+                                        </a>
+                                        <div class="collapse mt-1"
+                                             id="rolls-desktop-{{ $order->id }}">
+                                            @foreach ($rolls as $material)
+                                                <div class="ml-2">
+                                                    <b>{{ $material->material->title }}</b>
+                                                    - {{ $material->quantity }} {{ $material->material->unit }}
+                                                    <a href="{{ route('rolls.printRoll', ['roll' => $material->roll_id]) }}"
+                                                       class="btn
+                                                   @if($material->roll->is_printed) btn-outline-secondary @else btn-danger @endif
+                                                   btn-xs mr-1 py-0"
+                                                       target="_blank">
+                                                        <i class="fas fa-barcode"></i>
+                                                    </a>
+                                                    (рулон: {{ $material->roll->roll_code }}
+                                                    )
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
@@ -122,22 +148,49 @@
                                 <span class="badge ml-1 {{ $order->status_color }}"> {{ $order->status_name }}</span>
 
                                 <div class="my-3">
-                                    @foreach($order->movementMaterials as $material)
-                                    <li>
-                                        <b>{{ $material->material->title }}</b>
-                                        - {{ $material->quantity }} {{ $material->material->unit }}
-                                        @if($material->roll_id)
-                                            <a href="{{ route('rolls.printRoll', ['roll' => $material->roll_id]) }}"
-                                               class="btn
-                                           @if($material->roll->is_printed) btn-outline-secondary @else btn-danger @endif
-                                           btn-xs mr-1 py-0" target="_blank">
-                                                <i class="fas fa-barcode"></i>
-                                            </a>
-                                            (рулон: {{ $material->roll->roll_code }}
-                                            )
-                                        @endif
-                                    </li>
-                                    @endforeach
+                                    @php
+                                        $rolls = $order->movementMaterials->filter(fn ($m) => $m->roll_id);
+                                        $rollsCount = $rolls->count();
+                                        $totalQuantity = $order->movementMaterials->sum('quantity');
+                                        $unit = $order->movementMaterials->first()?->material?->unit;
+                                    @endphp
+
+                                    <div class="mb-2">
+                                        <b>Итого: {{ $rollsCount }}
+                                            рул., {{ $totalQuantity }} {{ $unit }}</b>
+                                    </div>
+
+                                    @if ($rollsCount > 0)
+                                        <a class="btn btn-link btn-sm py-0 px-1 ml-n2 d-block"
+                                           data-toggle="collapse"
+                                           href="#rolls-mobile-{{ $order->id }}"
+                                           role="button"
+                                           aria-expanded="false"
+                                           aria-controls="rolls-mobile-{{ $order->id }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                            Показать рулоны ({{ $rollsCount }})
+                                        </a>
+                                        <div class="collapse mt-1"
+                                             id="rolls-mobile-{{ $order->id }}">
+                                            @foreach ($rolls as $material)
+                                                <li class="ml-3">
+                                                    <b>{{ $material->material->title }}</b>
+                                                    - {{ $material->quantity }} {{ $material->material->unit }}
+                                                    @if($material->roll_id)
+                                                        <a href="{{ route('rolls.printRoll', ['roll' => $material->roll_id]) }}"
+                                                           class="btn
+                                                       @if($material->roll->is_printed) btn-outline-secondary @else btn-danger @endif
+                                                       btn-xs mr-1 py-0"
+                                                           target="_blank">
+                                                            <i class="fas fa-barcode"></i>
+                                                        </a>
+                                                        (рулон: {{ $material->roll->roll_code }}
+                                                        )
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </div>
+                                    @endif
 
                                     <div class="mt-3">
                                         Комментарий: {{ $order->comment }}
