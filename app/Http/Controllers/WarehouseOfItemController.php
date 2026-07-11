@@ -460,6 +460,25 @@ class WarehouseOfItemController extends Controller
 
     }
 
+    /**
+     * Удаляет товар с полки хранения: переводит marketplace_order_item
+     * со статуса 11 («На хранении») в статус 17 («Утилизировано»).
+     * Доступ — только администратор (роут защищён через ShelfPolicy::createAdmin).
+     */
+    public function delete(MarketplaceOrderItem $marketplace_item): RedirectResponse
+    {
+        $marketplace_item->update(['status' => 17]);
+
+        Log::channel('items')->info(
+            'Админ '.auth()->user()->name.
+            ' удалил товар id: '.$marketplace_item->id.' с полки хранения (статус: Утилизировано)'
+        );
+
+        return redirect()
+            ->back()
+            ->with('success', "Товар #{$marketplace_item->id} удалён с полки хранения.");
+    }
+
     public function printInspectionList(): \Illuminate\Http\Response
     {
         $items = MarketplaceOrderItem::query()
