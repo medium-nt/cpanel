@@ -24,6 +24,7 @@ class MovementMaterialFromSupplierController extends Controller
                 ->when(request()->has('status'), function ($query) {
                     return $query->where('status', request('status'));
                 })
+                ->with(['movementMaterials.material', 'movementMaterials.roll', 'user', 'supplier'])
                 ->latest()
                 ->paginate(10)
                 ->withQueryString(),
