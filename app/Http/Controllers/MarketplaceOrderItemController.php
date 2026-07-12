@@ -96,13 +96,24 @@ class MarketplaceOrderItemController extends Controller
 
         $bonus = TransactionService::getBonusForTodayOrdersByUsers();
 
+        // whereIn вместо whereHas: заставляет MySQL идти от селективной orders
+        // (по marketplace_order_id) и соединять movement_materials по индексу order_id.
+        // whereHas (= WHERE EXISTS) давал full scan всех movement_materials (~85k строк).
         $assignedRolls = MovementMaterial::query()
-            ->whereHas('order', function ($query) use ($marketplaceOrderItem) {
-                $query->where('type_movement', 3)
-                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id);
-            })
+            ->whereIn('order_id', Order::query()
+                ->where('type_movement', 3)
+                ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id)
+                ->select('id'))
             ->whereNotNull('roll_id')
             ->pluck('roll_id', 'material_id');
+
+        //        $assignedRolls = MovementMaterial::query()
+        //            ->whereHas('order', function ($query) use ($marketplaceOrderItem) {
+        //                $query->where('type_movement', 3)
+        //                    ->where('marketplace_order_id', $marketplaceOrderItem->marketplaceOrder->id);
+        //            })
+        //            ->whereNotNull('roll_id')
+        //            ->pluck('roll_id', 'material_id');
 
         return view('marketplace_order_items.show', [
             'title' => 'Карточка товара #'.$marketplaceOrderItem->id,
