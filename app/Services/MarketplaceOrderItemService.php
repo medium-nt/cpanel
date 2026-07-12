@@ -877,6 +877,8 @@ class MarketplaceOrderItemService
                 ]);
 
             if ($affected === 0) {
+                DB::rollBack();
+
                 return [
                     'success' => false,
                     'message' => 'Заказ уже был взят другим сотрудником. Попробуйте ещё раз.',
