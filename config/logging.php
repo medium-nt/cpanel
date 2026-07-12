@@ -157,6 +157,13 @@ return [
             'days' => 30,
         ],
 
+        'slow-query-db' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/slow-query-db/slow-query-db.log'),
+            'level' => 'warning',
+            'days' => 30,
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),

@@ -4,9 +4,13 @@ namespace App\Providers;
 
 use App\Models\Ticket;
 use App\Models\User;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 
@@ -27,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
+
+        $this->registerSlowQueryLogger();
 
         // Бейдж-счётчик новых тикетов на пункте «Поддержка» (только для админа).
         Event::listen(BuildingMenu::class, function (BuildingMenu $event): void {
@@ -124,6 +130,38 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('is-admin-or-manager', function (User $user) {
             return $user->isAdmin() || $user->isManager();
+        });
+    }
+
+    /**
+     * Регистрирует слушатель медленных SQL-запросов (DB::listen).
+     *
+     * Пишет в канал slow-query-db записи с SQL, bindings, временем,
+     * URL и user_id для каждого запроса длительнее threshold_ms.
+     * Полностью пропускается, если выключатель SLOW_QUERY_DB_LOG=false.
+     */
+    private function registerSlowQueryLogger(): void
+    {
+        if (! config('slow-query-db.enabled')) {
+            return;
+        }
+
+        $threshold = (float) config('slow-query-db.threshold_ms', 500);
+        $bindingsLimit = (int) config('slow-query-db.bindings_limit', 20);
+
+        DB::listen(function (QueryExecuted $query) use ($threshold, $bindingsLimit): void {
+            if ($query->time < $threshold) {
+                return;
+            }
+
+            Log::channel('slow-query-db')->warning('Slow query', [
+                'sql' => $query->sql,
+                'bindings' => array_slice($query->bindings, 0, $bindingsLimit),
+                'time_ms' => round($query->time, 2),
+                'connection' => $query->connectionName,
+                'url' => request()?->path(),
+                'user_id' => Auth::id(),
+            ]);
         });
     }
 }
