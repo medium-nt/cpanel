@@ -193,6 +193,7 @@
 - **File:** `app/Services/NotificationService.php`
 - **Methods:**
   - `static notify(App\Models\User $user, string $text, bool $queued, int $delaySeconds)`
+  - `static notifyAdmin(string $text, bool $queued, ?int $delaySeconds)`
 
 ### OrderService
 - **File:** `app/Services/OrderService.php`

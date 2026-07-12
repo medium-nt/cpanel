@@ -10,8 +10,7 @@ use App\Models\MarketplaceWarehouse;
 use App\Services\MarketplaceApiService;
 use App\Services\MarketplaceOrderService;
 use App\Services\MarketplaceSupplyService;
-use App\Services\MaxService;
-use App\Services\TgService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -713,8 +712,7 @@ class MarketplaceSupplyController extends Controller
             Log::channel('tg')
                 ->error('Отправили сообщение в ТГ админу: '.$text);
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
-            MaxService::sendMessage(config('services.max.admin_id'), $text);
+            NotificationService::notifyAdmin($text);
         }
 
         $marketplace_supply->update([

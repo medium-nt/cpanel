@@ -791,3 +791,29 @@
   `storage/app/public/videos`)
 - Обновлены topics: marketplace-integration.md
 - Обновлён map: services.md (добавлен метод deleteOldChunks)
+
+## [2026-07-12] update | notifications-async
+
+- Рефакторинг отправки TG/MAX уведомлений: синхронные точки переведены в
+  асинхронные через Job'ы
+-
+`NotificationService::notifyAdmin(string $text, bool $queued=true, ?int $delaySeconds=null)` —
+новый метод для admin-уведомлений (TG + MAX), заменяет 14 точек прямого вызова
+`TgService::sendMessage(config('telegram.admin_id'), $text)`
+- `NotificationService::notify($user, $text, queued, delaySeconds)` — все 4
+  dispatch-точки теперь используют `->afterCommit()` (защита от отправки при
+  rollback транзакции)
+- Массовые рассылки (9 точек foreach) переведены на
+  `notify($user, $text, queued: true, delaySeconds: $index+1)` — stagger 1с
+  против 429
+- Рассылка смены в `UserService::sendMessageForWorkingTodayEmployees()` — с
+  прямых `TgService/MaxService::sendMessage` на
+  `NotificationService::notify($schedule->user, $text, queued: true, delaySeconds: $i+1)`
+- Синхронные точки (НЕ трогали): webhooks (TelegramController, MaxController),
+  привязка аккаунтов (UsersController), dev-метод (SettingController::test)
+- Circuit Breaker (429→30мин, 403→6ч) остался внутри TgService/MaxService без
+  изменений
+- Создан topic: notifications.md — архитектура TG/MAX рассылки (sync vs async,
+  CB, afterCommit, NotificationService)
+- Обновлён map: services.md (добавлен метод notifyAdmin)
+- Обновлён topic: max-integration.md (связь с notifications.md)

@@ -115,11 +115,10 @@ class MovementMaterialToWorkshopService
             Log::channel('tg')
                 ->notice('Отправляем сообщение в ТГ админу и работающим кладовщикам: '.$text);
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
-            MaxService::sendMessage(config('services.max.admin_id'), $text);
+            NotificationService::notifyAdmin($text);
 
-            foreach (UserService::getListStorekeepersWorkingToday() as $user) {
-                NotificationService::notify($user, $text);
+            foreach (UserService::getListStorekeepersWorkingToday() as $index => $user) {
+                NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
             }
 
             DB::commit();
@@ -182,12 +181,11 @@ class MovementMaterialToWorkshopService
             Log::channel('tg')
                 ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
-            MaxService::sendMessage(config('services.max.admin_id'), $text);
+            NotificationService::notifyAdmin($text);
 
             $workshopId = $order->shift?->workshop_id;
-            foreach (UserService::getListSeamstressesWorkingToday($workshopId) as $user) {
-                NotificationService::notify($user, $text);
+            foreach (UserService::getListSeamstressesWorkingToday($workshopId) as $index => $user) {
+                NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
             }
 
             DB::commit();

@@ -7,9 +7,7 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Setting;
-use App\Services\MaxService;
 use App\Services\NotificationService;
-use App\Services\TgService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -254,11 +252,10 @@ class WorkshopRollScan extends Component
             Log::channel('tg')
                 ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
-            MaxService::sendMessage(config('services.max.admin_id'), $text);
+            NotificationService::notifyAdmin($text);
 
-            foreach (UserService::getListSeamstressesWorkingToday() as $user) {
-                NotificationService::notify($user, $text);
+            foreach (UserService::getListSeamstressesWorkingToday() as $index => $user) {
+                NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
             }
 
             DB::commit();

@@ -722,8 +722,7 @@ class MarketplaceOrderItemService
 
         if ($materialConsumptions->isEmpty()) {
             $text = 'Для заказа #'.$marketplaceOrderItem->id.' не указаны материалы!';
-            TgService::sendMessage(config('telegram.admin_id'), $text);
-            MaxService::sendMessage(config('services.max.admin_id'), $text);
+            NotificationService::notifyAdmin($text);
 
             return false;
         }
@@ -1133,8 +1132,7 @@ class MarketplaceOrderItemService
             $item->height
         );
 
-        TgService::sendMessage(config('telegram.admin_id'), $text);
-        MaxService::sendMessage(config('services.max.admin_id'), $text);
+        NotificationService::notifyAdmin($text);
 
         Cache::put($cacheKey, true, self::NO_MATERIAL_TTL);
     }

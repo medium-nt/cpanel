@@ -495,8 +495,7 @@ class MarketplaceApiService
                         Log::channel('marketplace_api')
                             ->notice('Отправляем сообщение в ТГ работающему кладовщику и админу: '.$text);
 
-                        TgService::sendMessage(config('telegram.admin_id'), $text);
-                        MaxService::sendMessage(config('services.max.admin_id'), $text);
+                        NotificationService::notifyAdmin($text);
 
                         foreach (UserService::getListStorekeepersWorkingToday() as $index => $user) {
                             NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
@@ -516,8 +515,7 @@ class MarketplaceApiService
                         Log::channel('marketplace_api')
                             ->notice('Отправляем сообщение в ТГ админу и работающим швеям: '.$text);
 
-                        TgService::sendMessage(config('telegram.admin_id'), $text);
-                        MaxService::sendMessage(config('services.max.admin_id'), $text);
+                        NotificationService::notifyAdmin($text);
 
                         foreach (UserService::getListSeamstressesWorkingToday() as $index => $user) {
                             NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);

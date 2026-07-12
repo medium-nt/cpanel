@@ -164,12 +164,9 @@ class UserService
 
         $text = "Сегодня работают: \n".$list;
 
-        foreach ($schedules as $schedule) {
-            if ($schedule->user?->tg_id) {
-                TgService::sendMessage($schedule->user->tg_id, $text);
-            }
-            if ($schedule->user?->max_id) {
-                MaxService::sendMessage($schedule->user->max_id, $text);
+        foreach ($schedules as $index => $schedule) {
+            if ($schedule->user) {
+                NotificationService::notify($schedule->user, $text, queued: true, delaySeconds: $index + 1);
             }
         }
 
@@ -299,8 +296,7 @@ class UserService
 
             Log::channel('work_shift')->error($text);
 
-            TgService::sendMessage(config('telegram.admin_id'), $text);
-            MaxService::sendMessage(config('services.max.admin_id'), $text);
+            NotificationService::notifyAdmin($text);
         }
     }
 
