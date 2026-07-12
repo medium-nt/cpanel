@@ -10,11 +10,9 @@ use App\Models\Order;
 use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\Shift;
-use App\Services\MaxService;
 use App\Services\MovementMaterialToWorkshopService;
 use App\Services\NotificationService;
 use App\Services\ShiftService;
-use App\Services\TgService;
 use App\Services\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -218,15 +216,14 @@ class MovementMaterialToWorkshopController extends Controller
         Log::channel('tg')
             ->notice('Отправляем сообщение в ТГ админу и работающим швеям и кладовщикам: '.$text);
 
-        TgService::sendMessage(config('telegram.admin_id'), $text);
-        MaxService::sendMessage(config('services.max.admin_id'), $text);
+        NotificationService::notifyAdmin($text);
 
-        foreach (UserService::getListSeamstressesWorkingToday() as $user) {
-            NotificationService::notify($user, $text);
+        foreach (UserService::getListSeamstressesWorkingToday() as $index => $user) {
+            NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
         }
 
-        foreach (UserService::getListStorekeepersWorkingToday() as $user) {
-            NotificationService::notify($user, $text);
+        foreach (UserService::getListStorekeepersWorkingToday() as $index => $user) {
+            NotificationService::notify($user, $text, queued: true, delaySeconds: $index + 1);
         }
 
         return redirect($this->getFilteredIndexUrl())->with('success', 'Поставка принята');

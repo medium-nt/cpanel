@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -98,5 +99,66 @@ class NotificationServiceTest extends TestCase
         NotificationService::notify($user, 'Hi', queued: true);
 
         Bus::assertNothingDispatched();
+    }
+
+    #[Test]
+    public function it_dispatches_both_jobs_for_admin(): void
+    {
+        Bus::fake([SendTelegramMessageJob::class, SendMaxMessageJob::class]);
+
+        NotificationService::notifyAdmin('Admin message', queued: true);
+
+        Bus::assertDispatched(SendTelegramMessageJob::class, function ($job) {
+            return $job->chatId === config('telegram.admin_id');
+        });
+        Bus::assertDispatched(SendMaxMessageJob::class, function ($job) {
+            return $job->chatId === config('services.max.admin_id');
+        });
+    }
+
+    #[Test]
+    public function it_dispatches_jobs_for_admin_with_delay(): void
+    {
+        Bus::fake([SendTelegramMessageJob::class, SendMaxMessageJob::class]);
+
+        NotificationService::notifyAdmin('Admin message', queued: true, delaySeconds: 30);
+
+        Bus::assertDispatched(SendTelegramMessageJob::class, function ($job) {
+            return $job->delay !== null;
+        });
+        Bus::assertDispatched(SendMaxMessageJob::class, function ($job) {
+            return $job->delay !== null;
+        });
+    }
+
+    #[Test]
+    public function it_sends_to_both_channels_sync_for_admin(): void
+    {
+        // В sync-режиме реальные сервисы вызываются напрямую.
+        // Мокаем Log чтобы убедиться что логирование работает.
+        Log::shouldReceive('channel')->once()->with('tg')->andReturnSelf();
+        Log::shouldReceive('info')->once()->with('Отправляется сообщение... в ТГ: '.config('telegram.admin_id').' : Admin sync');
+        Log::shouldReceive('channel')->once()->with('max')->andReturnSelf();
+        Log::shouldReceive('info')->once()->with('Отправляется сообщение... в MAX: '.config('services.max.admin_id').' : Admin sync');
+
+        NotificationService::notifyAdmin('Admin sync', queued: false);
+
+        $this->assertTrue(true);
+    }
+
+    #[Test]
+    public function it_skips_tg_when_admin_id_is_empty(): void
+    {
+        Config::set('telegram.admin_id', null);
+        Config::set('services.max.admin_id', 'max_admin_123');
+
+        Bus::fake([SendTelegramMessageJob::class, SendMaxMessageJob::class]);
+
+        NotificationService::notifyAdmin('Admin message', queued: true);
+
+        Bus::assertNotDispatched(SendTelegramMessageJob::class);
+        Bus::assertDispatched(SendMaxMessageJob::class, function ($job) {
+            return $job->chatId === 'max_admin_123';
+        });
     }
 }

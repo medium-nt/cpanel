@@ -223,9 +223,9 @@ Log::shouldReceive('info')->with(Mockery::on(fn ($s) => str_contains($s, '...'))
 
 ## Связанные topics
 
+- [notifications.md](notifications.md) — единая система уведомлений TG/MAX
+  (NotificationService, синхронные vs асинхронные точки, CB, afterCommit).
 - [user-management.md](user-management.md) — `users.max_id`, привязка/отключение
-  мессенджера, роли (admin-only для `/users`), NotificationService.
+  мессенджера, роли (admin-only для `/users`).
 - [logging-channels.md](logging-channels.md) — канал `max` для вебхука и
   Circuit Breaker событий.
-- [marketplace-integration.md](marketplace-integration.md) — TG+MAX дублирование
-  уведомлений в цепочках обработки заказов.
