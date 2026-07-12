@@ -37,6 +37,38 @@ class MarketplaceSupplyService
             ->info('Очистка старых видео завершена.');
     }
 
+    /**
+     * Ежедневная очистка папок с частями незавершённых chunked-загрузок видео.
+     *
+     * Перебирает все подпапки в `chunks/` (каждая соответствует одной загрузке
+     * по dzuuid) и удаляет те, время последнего изменения которых старее
+     * указанного порога. Успешно собранные видео очищаются внутри chunkedUpload(),
+     * здесь подбираются только брошенные/оборванные загрузки.
+     *
+     * @param  int  $days  Порог возраста папки чанков в днях.
+     */
+    public static function deleteOldChunks(int $days = 1): void
+    {
+        Log::channel('system')
+            ->info("Запускаем очистку устаревших чанков (старше {$days} дн.)...");
+
+        $cutoff = now()->subDays($days)->getTimestamp();
+        $deleted = 0;
+
+        foreach (Storage::directories('chunks') as $dir) {
+            if (Storage::lastModified($dir) < $cutoff) {
+                Storage::deleteDirectory($dir);
+                $deleted++;
+
+                Log::channel('system')
+                    ->notice("Удалена папка устаревших чанков: {$dir}");
+            }
+        }
+
+        Log::channel('system')
+            ->info("Очистка чанков завершена. Удалено папок: {$deleted}.");
+    }
+
     public static function chunkedUpload(Request $request): JsonResponse
     {
         $file = $request->file('video');

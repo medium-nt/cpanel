@@ -157,6 +157,7 @@
 - **File:** `app/Services/MarketplaceSupplyService.php`
 - **Methods:**
   - `static deleteOldVideos()`
+  - `static deleteOldChunks(int $days = 1)`
   - `static chunkedUpload(Illuminate\Http\Request $request)`
   - `static updateStatusSupply()`
 

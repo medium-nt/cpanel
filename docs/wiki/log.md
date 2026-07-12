@@ -771,3 +771,23 @@
     динамический месяц
   - `tests/Feature/RatingBoardDataServiceTest.php` — 11 новых тестов
     getStatistics
+
+## [2026-07-12] add | chunks-auto-cleanup
+
+- Добавлен ежедневный авто-очистка папки `chunks/` от брошенных chunked-загрузок
+  видео — метод `MarketplaceSupplyService::deleteOldChunks(int $days = 1)`
+  перебирает `Storage::directories('chunks')` (дефолтный диск `local` =
+  `storage/app/private`) и удаляет папки старше порога через
+  `Storage::deleteDirectory`. Логирует в канал `system`
+- В `routes/console.php` добавлен `Schedule::call` → `deleteOldChunks(days: 1)`
+  на
+  `dailyAt('01:05')` — сразу после `deleteOldVideos` (01:00)
+- **Бизнес-логика:** папка `chunks/{dzuuid}/N.part` — части видео для поставок
+  маркетплейса (Dropzone.js → `chunkedUpload()`). Ранее папка удалялась ТОЛЬКО
+  при успешной сборке видео; брошенные/оборванные загрузки копились навсегда.
+  Теперь чистятся автоматом старше 1 суток. НЕ путать с `deleteOldVideos()` —
+  тот
+  чистит ГОТОВЫЕ видео старше 60 дней на `public` диске (
+  `storage/app/public/videos`)
+- Обновлены topics: marketplace-integration.md
+- Обновлён map: services.md (добавлен метод deleteOldChunks)
