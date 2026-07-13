@@ -27,6 +27,20 @@
   - `static matchRow(string $articleValue)`
   - `static createOrders(array $rows, int $marketplaceId, string $cluster)`
 
+### GazelkaApiService
+
+- **File:** `app/Services/GazelkaApiService.php`
+- **Methods:**
+    - `descriptions()`
+    - `schedule(int $pricelistId)`
+    - `newPlan(array $data)`
+    - `deletePlan(int $planId)`
+    - `myPlans()`
+    - `createPickup(array $data)`
+    - `addToPickup(int $pickupId, int $planId)`
+    - `removeFromPickup(int $pickupId, array $plansToRemove)`
+    - `pricelist(int $type, int $weekday)`
+
 ### InventoryService
 - **File:** `app/Services/InventoryService.php`
 - **Methods:**
@@ -128,8 +142,7 @@
   - `static getMaxQuantityOrdersToUserRole()`
   - `static getNewOrderItem()`
   - `static fillEntireStack()`
-  - `static resetClusterPriorityIfExhausted(?int $workshopId)`
-  - `static resetClusterPriorityForWorkshop(int $workshopId)`
+  - `static resetClusterPriorityIfExhausted(int $workshopId)`
   - `static createItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
   - `static hasReadyItem(App\Models\Sku $sku)`
   - `static reserveReadyItem(App\Models\Sku $sku, App\Models\MarketplaceOrder $marketplaceOrder)`
@@ -157,7 +170,7 @@
 - **File:** `app/Services/MarketplaceSupplyService.php`
 - **Methods:**
   - `static deleteOldVideos()`
-  - `static deleteOldChunks(int $days = 1)`
+  - `static deleteOldChunks(int $days)`
   - `static chunkedUpload(Illuminate\Http\Request $request)`
   - `static updateStatusSupply()`
 
@@ -193,7 +206,7 @@
 - **File:** `app/Services/NotificationService.php`
 - **Methods:**
   - `static notify(App\Models\User $user, string $text, bool $queued, int $delaySeconds)`
-  - `static notifyAdmin(string $text, bool $queued, ?int $delaySeconds)`
+  - `static notifyAdmin(string $text, bool $queued, int $delaySeconds)`
 
 ### OrderService
 - **File:** `app/Services/OrderService.php`

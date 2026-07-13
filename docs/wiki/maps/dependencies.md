@@ -4,38 +4,37 @@
 
 ## Top 10 God Nodes
 
-| Rank | Class | Type | Indegree | Outdegree | Score |
-|------|-------|------|----------|-----------|-------|
-| 1 | **MarketplaceApiService** | service | 25 | 8 | 58 |
-| 2 | **UserService** | service | 19 | 4 | 42 |
-| 3 | **MarketplaceOrderService** | service | 16 | 0 | 32 |
-| 4 | **TgService** | service | 14 | 0 | 28 |
-| 5 | **MarketplaceOrderItemService** | service | 12 | 3 | 27 |
-| 6 | **MaxService** | service | 13 | 0 | 26 |
-| 7 | **MarketplaceSupplyController** | controller | 0 | 23 | 23 |
-| 8 | **NotificationService** | service | 10 | 2 | 22 |
-| 9 | **MovementMaterialToWorkshopService** | service | 5 | 8 | 18 |
-| 10 | **TransactionService** | service | 9 | 0 | 18 |
+| Rank | Class                                 | Type       | Indegree | Outdegree | Score |
+|------|---------------------------------------|------------|----------|-----------|-------|
+| 1    | **MarketplaceApiService**             | service    | 25       | 4         | 54    |
+| 2    | **UserService**                       | service    | 19       | 2         | 40    |
+| 3    | **MarketplaceOrderService**           | service    | 16       | 0         | 32    |
+| 4    | **NotificationService**               | service    | 13       | 4         | 30    |
+| 5    | **MarketplaceOrderItemService**       | service    | 12       | 3         | 27    |
+| 6    | **MarketplaceSupplyController**       | controller | 0        | 22        | 22    |
+| 7    | **TransactionService**                | service    | 9        | 0         | 18    |
+| 8    | **InventoryService**                  | service    | 7        | 0         | 14    |
+| 9    | **MovementMaterialToWorkshopService** | service    | 5        | 4         | 14    |
+| 10   | **ShiftService**                      | service    | 6        | 0         | 12    |
 
 ## Dependency Graph (Top 5 God Nodes + их соседи)
 
 ```mermaid
 graph TD
     AutoOrderService["AutoOrderService"]
-    TgService["TgService"]
+    NotificationService["NotificationService"]
     UserService["UserService"]
     DefectMaterialService["DefectMaterialService"]
     MarketplaceApiService["MarketplaceApiService"]
     MarketplaceOrderItemService["MarketplaceOrderItemService"]
-    MaxService["MaxService"]
-    NotificationService["NotificationService"]
     MarketplaceOrderService["MarketplaceOrderService"]
-    StickerService["StickerService"]
     StackService["StackService"]
     TransactionService["TransactionService"]
     MarketplaceSupplyService["MarketplaceSupplyService"]
     MovementDefectMaterialToSupplierService["MovementDefectMaterialToSupplierService"]
     MovementMaterialToWorkshopService["MovementMaterialToWorkshopService"]
+    TgService["TgService"]
+    MaxService["MaxService"]
     WarehouseOfItemService["WarehouseOfItemService"]
     BarcodeSearchController("BarcodeSearchController")
     HomeController("HomeController")
@@ -51,29 +50,26 @@ graph TD
     TelegramController("TelegramController")
     UsersController("UsersController")
     WarehouseOfItemController("WarehouseOfItemController")
-    AutoOrderService -.->|static| TgService
+    AutoOrderService -.->|static| NotificationService
     AutoOrderService -.->|static| UserService
-    DefectMaterialService -.->|static| TgService
+    DefectMaterialService -.->|static| NotificationService
     DefectMaterialService -.->|static| UserService
     MarketplaceApiService -.->|static| MarketplaceOrderItemService
-    MarketplaceApiService -.->|static| TgService
-    MarketplaceApiService -.->|static| MaxService
-    MarketplaceApiService -.->|static| UserService
     MarketplaceApiService -.->|static| NotificationService
+    MarketplaceApiService -.->|static| UserService
     MarketplaceApiService -.->|static| MarketplaceOrderService
-    MarketplaceApiService -.->|static| StickerService
     MarketplaceOrderItemService -.->|static| MarketplaceApiService
     MarketplaceOrderItemService -.->|static| StackService
     MarketplaceOrderItemService -.->|static| TransactionService
     MarketplaceSupplyService -.->|static| MarketplaceApiService
-    MovementDefectMaterialToSupplierService -.->|static| TgService
+    MovementDefectMaterialToSupplierService -.->|static| NotificationService
     MovementDefectMaterialToSupplierService -.->|static| UserService
-    MovementMaterialToWorkshopService -.->|static| TgService
+    MovementMaterialToWorkshopService -.->|static| NotificationService
     MovementMaterialToWorkshopService -.->|static| UserService
     NotificationService -.->|static| TgService
+    NotificationService -.->|static| MaxService
     StackService -.->|static| MarketplaceOrderItemService
-    UserService -.->|static| TgService
-    UserService -.->|static| MaxService
+    UserService -.->|static| NotificationService
     WarehouseOfItemService -.->|static| MarketplaceApiService
     BarcodeSearchController -.->|static| MarketplaceApiService
     HomeController -.->|static| MarketplaceOrderItemService
@@ -84,34 +80,33 @@ graph TD
     MarketplaceOrderItemController -.->|static| MarketplaceApiService
     MarketplaceSupplyController -.->|static| MarketplaceOrderService
     MarketplaceSupplyController -.->|static| MarketplaceApiService
-    MarketplaceSupplyController -.->|static| TgService
+    MarketplaceSupplyController -.->|static| NotificationService
     MaxController -.->|static| UserService
-    MovementMaterialToWorkshopController -.->|static| TgService
+    MovementMaterialToWorkshopController -.->|static| NotificationService
     MovementMaterialToWorkshopController -.->|static| UserService
-    SettingController -.->|static| TgService
     SettingController -.->|static| MarketplaceApiService
     StickerPrintingController -.->|static| MarketplaceOrderItemService
     StickerPrintingController -.->|static| UserService
+    StickerPrintingController -.->|static| NotificationService
     StickerPrintingController -.->|static| MarketplaceApiService
     SupplyBoxController -.->|static| UserService
-    TelegramController -.->|static| TgService
+    SupplyBoxController -.->|static| NotificationService
     TelegramController -.->|static| UserService
     UsersController -.->|static| UserService
-    UsersController -.->|static| TgService
     WarehouseOfItemController -.->|static| MarketplaceOrderService
     WarehouseOfItemController -.->|static| MarketplaceApiService
     WarehouseOfItemController -.->|static| MarketplaceOrderItemService
     style MarketplaceApiService fill:#ffe066,stroke:#333,stroke-width:2px
     style UserService fill:#ffe066,stroke:#333,stroke-width:2px
     style MarketplaceOrderService fill:#ffe066,stroke:#333,stroke-width:2px
-    style TgService fill:#ffe066,stroke:#333,stroke-width:2px
+    style NotificationService fill:#ffe066,stroke:#333,stroke-width:2px
     style MarketplaceOrderItemService fill:#ffe066,stroke:#333,stroke-width:2px
 ```
 
 ## Graph Statistics
 
-- **Total Nodes:** 69
-- **Total Edges:** 159
+- **Total Nodes:** 71
+- **Total Edges:** 142
 - **DI Edges:** 1 (constructor dependencies)
-- **Static Call Edges:** 158 (Service::method calls)
-- **Avg Edges per Node:** 2.3
+- **Static Call Edges:** 141 (Service::method calls)
+- **Avg Edges per Node:** 2

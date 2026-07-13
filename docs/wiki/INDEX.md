@@ -1,5 +1,7 @@
 # cpanel — Project Wiki Index
-> Generated: 2026-07-04 10:59 | Models: 38 | Services: 26 | Controllers: 43 | Livewire: 13
+
+> Generated: 2026-07-12 18:32 | Models: 38 | Services: 27 | Controllers: 44 |
+> Livewire: 13
 
 ## Quick Orientation
 Warehouse/inventory management with Ozon/WB marketplace integration.
@@ -47,82 +49,84 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | UserTariff | `user_tariffs` | user, tariffs | HasFactory |
 | Workshop | `workshops` | shifts, orders, marketplaceOrderItems +3 | HasFactory |
 
-## Services (26)
-| Service | Methods | Dependencies |
-|---------|---------|-------------|
-| ActionAccrualService | 2 | — |
-| AutoOrderService | 2 | — |
-| DefectMaterialService | 3 | — |
-| ExcelOrderImportService | 3 | — |
-| InventoryService | 13 | — |
-| MarketplaceApiService | 59 | — |
-| MarketplaceOrderItemService | 27 | — |
-| MarketplaceOrderService | 10 | — |
-| MarketplaceSupplyService | 3 | — |
-| MaxService | 1 | — |
-| MovementDefectMaterialToSupplierService | 2 | — |
-| MovementMaterialFromSupplierService | 2 | — |
-| MovementMaterialToWorkshopService | 7 | — |
-| NotificationService | 1 | — |
-| OrderService | 1 | — |
-| RollService | 3 | — |
-| ScheduleService | 9 | — |
-| ShiftService | 7 | — |
-| StackService | 4 | — |
-| StickerService | 2 | — |
-| TgService | 1 | — |
-| TicketService | 4 | — |
-| TransactionService | 12 | — |
-| UserService | 15 | — |
-| WarehouseOfItemService | 8 | — |
-| WriteOffRemnantService | 1 | — |
+## Services (27)
+| Service                                 | Methods | Dependencies |
+|-----------------------------------------|---------|--------------|
+| ActionAccrualService                    | 2       | —            |
+| AutoOrderService                        | 2       | —            |
+| DefectMaterialService                   | 3       | —            |
+| ExcelOrderImportService                 | 3       | —            |
+| GazelkaApiService                       | 9       | —            |
+| InventoryService                        | 13      | —            |
+| MarketplaceApiService                   | 59      | —            |
+| MarketplaceOrderItemService             | 27      | —            |
+| MarketplaceOrderService                 | 10      | —            |
+| MarketplaceSupplyService                | 4       | —            |
+| MaxService                              | 1       | —            |
+| MovementDefectMaterialToSupplierService | 2       | —            |
+| MovementMaterialFromSupplierService     | 2       | —            |
+| MovementMaterialToWorkshopService       | 7       | —            |
+| NotificationService                     | 2       | —            |
+| OrderService                            | 1       | —            |
+| RollService                             | 3       | —            |
+| ScheduleService                         | 9       | —            |
+| ShiftService                            | 7       | —            |
+| StackService                            | 4       | —            |
+| StickerService                          | 2       | —            |
+| TgService                               | 1       | —            |
+| TicketService                           | 4       | —            |
+| TransactionService                      | 12      | —            |
+| UserService                             | 15      | —            |
+| WarehouseOfItemService                  | 8       | —            |
+| WriteOffRemnantService                  | 1       | —            |
 
-## Controllers (43)
-| Controller | Key Methods |
-|------------|------------|
-| ConfirmPasswordController | showConfirmForm, confirm, redirectPath |
-| ForgotPasswordController | showLinkRequestForm, sendResetLinkEmail, broker |
-| LoginController | showLoginForm, login, username, logout, redirectPath +2 |
-| RegisterController | showRegistrationForm, register, redirectPath |
-| ResetPasswordController | showResetForm, reset, broker, redirectPath |
-| VerificationController | show, verify, resend, redirectPath |
-| BarcodeSearchController | index, findItemByBarcode |
-| Controller | authorize, authorizeForUser, authorizeResource, validateWith, validate +1 |
-| DefectMaterialController | index, create, store, approve_reject, pick_up +3 |
-| HomeController | index |
-| InventoryController | byWarehouse, byWorkshop, inventoryChecks, show, create +2 |
-| MarketplaceApiController | checkSkuz, checkDuplicateSkuz, uploadingNewProducts, uploadingCancelledProducts, getBarcodeFile +2 |
-| MarketplaceItemController | index, create, store, edit, update +1 |
-| MarketplaceOrderController | index, create, store, edit, update +7 |
-| MarketplaceOrderItemController | index, show, done, cancel, labeling +7 |
-| MarketplaceSupplyController | index, show, linkWbFbo, loadFboGoods, editFbo +23 |
-| MaterialConsumptionController | destroy |
-| MaterialController | index, create, store, edit, update +1 |
-| MaterialMovementController | index |
-| MaterialSupplierController | attach, updateShortages, detach |
-| MaxController | webhook |
-| MovementDefectMaterialToSupplierController | index, create, store |
-| MovementMaterialByMarketplaceOrderController | index |
-| MovementMaterialFromSupplierController | index, create, store, show, edit +2 |
-| MovementMaterialToWorkshopController | index, create, store, collect, write_off +6 |
-| OzonReturnsController | index, refreshBarcode, giveoutInfo, products |
-| PageController | index |
-| ProductStickerController | index, create, store, edit, update +1 |
-| RollController | index, show, printRoll, printOrder, returnToStorage +1 |
-| ScheduleController | changeDate |
-| SettingController | index, save, test, syncWarehousesOzon, syncWarehousesWb +1 |
-| ShelfController | index, create, store, edit, update +1 |
-| ShiftController | index, create, store, show, update +8 |
-| StickerPrintingController | enterKiosk, index, openCloseWorkShift, openCloseWorkShiftAdmin, kiosk +18 |
-| SupplierController | index, create, store, edit, update +1 |
-| SupplyBoxController | index, markAssembled, store, destroy, show +4 |
-| TelegramController | webhook |
-| TicketController | index, create, store, show, start +2 |
-| TransactionController | index, create, store, destroy, createPayoutSalary +3 |
-| UsersController | index, create, store, edit, update +8 |
-| WarehouseOfItemController | index, exportExcel, inspection, newRefunds, getStorageBarcodeFile +14 |
-| WorkshopController | index, create, store, edit, update +1 |
-| WriteOffRemnantsController | index, create, store |
+## Controllers (44)
+| Controller                                   | Key Methods                                                                                        |
+|----------------------------------------------|----------------------------------------------------------------------------------------------------|
+| ConfirmPasswordController                    | showConfirmForm, confirm, redirectPath                                                             |
+| ForgotPasswordController                     | showLinkRequestForm, sendResetLinkEmail, broker                                                    |
+| LoginController                              | showLoginForm, login, username, logout, redirectPath +2                                            |
+| RegisterController                           | showRegistrationForm, register, redirectPath                                                       |
+| ResetPasswordController                      | showResetForm, reset, broker, redirectPath                                                         |
+| VerificationController                       | show, verify, resend, redirectPath                                                                 |
+| BarcodeSearchController                      | index, findItemByBarcode                                                                           |
+| Controller                                   | authorize, authorizeForUser, authorizeResource, validateWith, validate +1                          |
+| DefectMaterialController                     | index, create, store, approve_reject, pick_up +3                                                   |
+| HomeController                               | index                                                                                              |
+| InventoryController                          | byWarehouse, byWorkshop, inventoryChecks, show, create +2                                          |
+| MarketplaceApiController                     | checkSkuz, checkDuplicateSkuz, uploadingNewProducts, uploadingCancelledProducts, getBarcodeFile +2 |
+| MarketplaceItemController                    | index, create, store, edit, update +1                                                              |
+| MarketplaceOrderController                   | index, create, store, edit, update +7                                                              |
+| MarketplaceOrderItemController               | index, show, done, cancel, labeling +7                                                             |
+| MarketplaceSupplyController                  | index, show, linkWbFbo, loadFboGoods, editFbo +23                                                  |
+| MaterialConsumptionController                | destroy                                                                                            |
+| MaterialController                           | index, create, store, edit, update +1                                                              |
+| MaterialMovementController                   | index                                                                                              |
+| MaterialSupplierController                   | attach, updateShortages, detach                                                                    |
+| MaxController                                | webhook                                                                                            |
+| MovementDefectMaterialToSupplierController   | index, create, store                                                                               |
+| MovementMaterialByMarketplaceOrderController | index                                                                                              |
+| MovementMaterialFromSupplierController       | index, create, store, show, edit +2                                                                |
+| MovementMaterialToWorkshopController         | index, create, store, collect, write_off +6                                                        |
+| OzonReturnsController                        | index, refreshBarcode, giveoutInfo, products                                                       |
+| PageController                               | index                                                                                              |
+| ProductStickerController                     | index, create, store, edit, update +1                                                              |
+| RatingBoardController                        | index, data                                                                                        |
+| RollController                               | index, show, printRoll, printOrder, returnToStorage +1                                             |
+| ScheduleController                           | changeDate                                                                                         |
+| SettingController                            | index, save, test, syncWarehousesOzon, syncWarehousesWb +1                                         |
+| ShelfController                              | index, create, store, edit, update +1                                                              |
+| ShiftController                              | index, create, store, show, update +8                                                              |
+| StickerPrintingController                    | enterKiosk, index, openCloseWorkShift, openCloseWorkShiftAdmin, kiosk +18                          |
+| SupplierController                           | index, create, store, edit, update +1                                                              |
+| SupplyBoxController                          | index, markAssembled, store, destroy, show +4                                                      |
+| TelegramController                           | webhook                                                                                            |
+| TicketController                             | index, create, store, show, start +2                                                               |
+| TransactionController                        | index, create, store, destroy, createPayoutSalary +3                                               |
+| UsersController                              | index, create, store, edit, update +8                                                              |
+| WarehouseOfItemController                    | index, exportExcel, inspection, newRefunds, getStorageBarcodeFile +17                              |
+| WorkshopController                           | index, create, store, edit, update +1                                                              |
+| WriteOffRemnantsController                   | index, create, store                                                                               |
 
 ## Livewire (13)
 | Component | View | Properties |
@@ -160,13 +164,13 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 ## Top 5 God Nodes (High Dependency)
 > High indegree = many classes depend on this | candidates for refactoring
 
-| Class | Type | Indegree | Outdegree | Score |
-|-------|------|----------|-----------|-------|
-| **MarketplaceApiService** | service | 25 | 8 | 58 |
-| **UserService** | service | 19 | 4 | 42 |
-| **MarketplaceOrderService** | service | 16 | 0 | 32 |
-| **TgService** | service | 14 | 0 | 28 |
-| **MarketplaceOrderItemService** | service | 12 | 3 | 27 |
+| Class                           | Type    | Indegree | Outdegree | Score |
+|---------------------------------|---------|----------|-----------|-------|
+| **MarketplaceApiService**       | service | 25       | 4         | 54    |
+| **UserService**                 | service | 19       | 2         | 40    |
+| **MarketplaceOrderService**     | service | 16       | 0         | 32    |
+| **NotificationService**         | service | 13       | 4         | 30    |
+| **MarketplaceOrderItemService** | service | 12       | 3         | 27    |
 
 ## Detailed Maps
 - [Models](maps/models.md) — полные fillable, casts, relationships

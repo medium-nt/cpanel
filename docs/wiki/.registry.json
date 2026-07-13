@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-07-04T10:59:36+03:00",
+    "generated_at": "2026-07-12T18:32:33+03:00",
     "counts": {
         "models": 38,
-        "services": 26,
-        "controllers": 43,
+        "services": 27,
+        "controllers": 44,
         "livewire": 13
     },
     "models": {
@@ -253,6 +253,10 @@
             "file": "app\/Services\/ExcelOrderImportService.php",
             "methods_count": 3
         },
+        "GazelkaApiService": {
+            "file": "app\/Services\/GazelkaApiService.php",
+            "methods_count": 9
+        },
         "InventoryService": {
             "file": "app\/Services\/InventoryService.php",
             "methods_count": 13
@@ -271,7 +275,7 @@
         },
         "MarketplaceSupplyService": {
             "file": "app\/Services\/MarketplaceSupplyService.php",
-            "methods_count": 3
+            "methods_count": 4
         },
         "MaxService": {
             "file": "app\/Services\/MaxService.php",
@@ -291,7 +295,7 @@
         },
         "NotificationService": {
             "file": "app\/Services\/NotificationService.php",
-            "methods_count": 1
+            "methods_count": 2
         },
         "OrderService": {
             "file": "app\/Services\/OrderService.php",
@@ -455,6 +459,10 @@
             "file": "app\/Http\/Controllers\/ProductStickerController.php",
             "methods_count": 6
         },
+        "RatingBoardController": {
+            "file": "app\/Http\/Controllers\/RatingBoardController.php",
+            "methods_count": 2
+        },
         "RollController": {
             "file": "app\/Http\/Controllers\/RollController.php",
             "methods_count": 6
@@ -505,7 +513,7 @@
         },
         "WarehouseOfItemController": {
             "file": "app\/Http\/Controllers\/WarehouseOfItemController.php",
-            "methods_count": 19
+            "methods_count": 22
         },
         "WorkshopController": {
             "file": "app\/Http\/Controllers\/WorkshopController.php",

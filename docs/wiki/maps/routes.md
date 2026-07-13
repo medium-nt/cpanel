@@ -11,6 +11,7 @@
 - Available without open shift
 - `routes/kiosk.php`
 - `routes/profile.php`
+- `routes/rating_board.php`
 - `routes/shifts.php`
 - `routes/tickets.php`
 - `routes/transactions.php`
