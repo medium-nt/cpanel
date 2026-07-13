@@ -626,6 +626,12 @@ body {
     font-family: "Inter";
     font-weight: 700;
     font-size: 3rem;
+    /* Равные доли: FBO/FBS занимают по половине ширины контейнера,
+       поэтому анимация ширины цифры (animateStickerValue) не сдвигает соседа. */
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 0;
+    flex: 1 1 0;
+    text-align: center;
 }
 
 .statistics {
@@ -731,6 +737,10 @@ body {
     display: -ms-grid;
     display: grid;
     gap: 0.25rem;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 0;
 }
 
 .statistics__name {
@@ -755,11 +765,9 @@ body {
     display: -ms-grid;
     display: grid;
     justify-items: end;
-    -webkit-box-pack: end;
-    -ms-flex-pack: end;
-    justify-content: end;
     gap: 0.5rem;
-    margin-left: auto;
+    -ms-flex: 0 0 7rem;
+    flex: 0 0 7rem;
 }
 
 .statistics__icon {
@@ -770,6 +778,7 @@ body {
 .statistics__shift {
     font-size: 1rem;
     color: #e5c987;
+    text-align: right;
 }
 
 .winner {
