@@ -115,7 +115,7 @@ class RatingBoardDataService
 
     /**
      * Статистика за текущий месяц: записи по дням для всех ролей (швеи/закройщики/ОТК).
-     * Каждая строка = один день работы одного сотрудника. Сортировка по дате DESC.
+     * Каждая строка = один день работы одного сотрудника. Сортировка по дате ASC (с первого числа месяца).
      *
      * @return list<array{name:string,profession:string,avatar:string,value:string,shift:string,medal:string|null}>
      */
@@ -156,8 +156,8 @@ class RatingBoardDataService
             ->get()
             ->keyBy('id');
 
-        // Сортируем по дате DESC (свежие сверху)
-        usort($records, fn ($a, $b) => strcmp($b['work_date'], $a['work_date']));
+        // Сортируем по дате ASC (с первого числа месяца)
+        usort($records, fn ($a, $b) => strcmp($a['work_date'], $b['work_date']));
 
         // Находим рекорд дня для каждой даты (только среди швей)
         $dailyMax = [];
@@ -201,7 +201,7 @@ class RatingBoardDataService
                 'name' => $user->name,
                 'profession' => UserService::translateRoleName($user->role?->name),
                 'avatar' => $user->adminlte_image(),
-                'value' => Carbon::parse($record['work_date'])->format('d.m.y').' выполнено '.$record['count'].' заказов!',
+                'value' => Carbon::parse($record['work_date'])->format('d.m.y').' выполнено '.$record['count'].' заказ(ов)!',
                 'shift' => $shiftMap[$record['user_id'].'|'.$record['work_date']] ?? '',
                 'medal' => $medal,
             ];
@@ -344,16 +344,21 @@ class RatingBoardDataService
             ->get()
             ->keyBy('id');
 
+        // Позиция считается только по реально добавленным швеям:
+        // строки не-швей (закройщики/ОТК) пропускаются через continue
+        // и не должны сдвигать нумерацию лидеров.
         $leaders = [];
-        foreach ($counts->sortByDesc('count')->values() as $i => $row) {
-            if ($i >= 9) {
+        $added = 0;
+        foreach ($counts->sortByDesc('count')->values() as $row) {
+            if ($added >= 9) {
                 break;
             } // Максимум 9 лидеров
             $user = $users->get($row->user_id);
             if (! $user) {
                 continue;
             }
-            $position = $i + 1;
+            $added++;
+            $position = $added;
             $leaders[] = [
                 'id' => $user->id,
                 'name' => $user->name,

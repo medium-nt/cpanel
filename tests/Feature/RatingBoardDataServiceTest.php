@@ -68,6 +68,88 @@ test('getLeaders counts completed orders for seamstress today', function () {
 });
 
 /**
+ * Регрессионный тест: позиции швей считаются отдельно, игнорируя других ролей.
+ * Баг: если до швей в сортировке были закройщики/ОТК с бóльшим count, позиции сдвигались.
+ * Фикс: позиции считаются только для реально добавленных швей ($added), не для всех строк.
+ */
+test('getLeaders assigns positions starting from 1 ignoring non-seamstresses with higher counts', function () {
+    // Arrange: создаём цех и сотрудников разных ролей
+    $workshop = Workshop::factory()->create();
+
+    // НЕ-швеи с БОЛЬШИМ count (должны игнорироваться в getLeaders)
+    $cutter = User::factory()->create(['role_id' => 4, 'name' => 'Закройщик Топ']);
+    $otk = User::factory()->create(['role_id' => 5, 'name' => 'ОТК Топ']);
+
+    // Швеи с МЕНЬШИМ count (должны получить position 1 и 2)
+    $seamstressA = User::factory()->create(['role_id' => 1, 'name' => 'Швея А']);
+    $seamstressB = User::factory()->create(['role_id' => 1, 'name' => 'Швея Б']);
+
+    $today = Carbon::today()->toDateString().' 12:00:00';
+
+    // Создаём заказы для закройщика (cutting_completed_at) - 5 заказов
+    MarketplaceOrderItem::factory()->count(5)->create([
+        'workshop_id' => $workshop->id,
+        'cutter_id' => $cutter->id,
+        'cutting_completed_at' => $today,
+        'status' => 3,
+    ]);
+
+    // Создаём заказы для ОТК (packed_at) - 4 заказа
+    MarketplaceOrderItem::factory()->count(4)->create([
+        'workshop_id' => $workshop->id,
+        'otk_id' => $otk->id,
+        'packed_at' => $today,
+        'status' => 3,
+    ]);
+
+    // Создаём заказы для швей (completed_at) - меньше, чем у закройщика/ОТК
+    MarketplaceOrderItem::factory()->count(2)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressA->id,
+        'completed_at' => $today,
+        'status' => 3,
+    ]);
+
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressB->id,
+        'completed_at' => $today,
+        'status' => 3,
+    ]);
+
+    // Act: получаем лидеров
+    $service = new RatingBoardDataService;
+    $leaders = $service->getLeaders($workshop->id);
+
+    // Assert: проверяем, что в ТОЛЬКО швеи (закройщики/ОТК не попали)
+    expect($leaders)->toHaveCount(2);
+
+    // Первая швея имеет position 1 (не 3!), medal gold, несмотря на то что
+    // в $counts были записи с бóльшим count (закройщик 5, ОТК 4)
+    expect($leaders[0])->toMatchArray([
+        'id' => $seamstressA->id,
+        'name' => 'Швея А',
+        'position' => 1,
+        'medal' => 'gold',
+        'count' => 2,
+    ]);
+
+    // Вторая швея имеет position 2 (не 4!), medal silver
+    expect($leaders[1])->toMatchArray([
+        'id' => $seamstressB->id,
+        'name' => 'Швея Б',
+        'position' => 2,
+        'medal' => 'silver',
+        'count' => 1,
+    ]);
+
+    // Дополнительная проверка: ID закройщика и ОТК отсутствуют в результатах
+    $leaderIds = collect($leaders)->pluck('id')->toArray();
+    expect($leaderIds)->not->toContain($cutter->id);
+    expect($leaderIds)->not->toContain($otk->id);
+});
+
+/**
  * Тест метода getStickers.
  * Проверяет подсчёт заказов со статусом 5 (стикеровка) по FBO/FBS.
  */
@@ -138,7 +220,7 @@ test('getStatistics creates record for seamstress with orders from yesterday', f
     expect($statistics[0])->toMatchArray([
         'name' => 'Швея Анна',
         'profession' => 'Швея',
-        'value' => Carbon::yesterday()->format('d.m.y').' выполнено 2 заказов!',
+        'value' => Carbon::yesterday()->format('d.m.y').' выполнено 2 заказ(ов)!',
         'shift' => 'Дневная',
         'medal' => 'gold',
     ]);
@@ -173,7 +255,7 @@ test('getStatistics excludes orders from today', function () {
 
     expect($statistics)->toHaveCount(1);
     expect($statistics[0]['value'])->toContain(Carbon::yesterday()->format('d.m.y'));
-    expect($statistics[0]['value'])->toContain('выполнено 1 заказов!');
+    expect($statistics[0]['value'])->toContain('выполнено 1 заказ(ов)!');
 });
 
 /**
@@ -304,9 +386,9 @@ test('getStatistics gold medal for day record holder among seamstresses', functi
     $recordB = collect($statistics)->first(fn ($r) => $r['name'] === 'Швея Б');
 
     expect($recordA['medal'])->toBe('gold');
-    expect($recordA['value'])->toContain('выполнено 3 заказов!');
+    expect($recordA['value'])->toContain('выполнено 3 заказ(ов)!');
     expect($recordB['medal'])->toBeNull();
-    expect($recordB['value'])->toContain('выполнено 1 заказов!');
+    expect($recordB['value'])->toContain('выполнено 1 заказ(ов)!');
 });
 
 /**
@@ -470,7 +552,7 @@ test('getStatistics groups orders by day not by individual orders', function () 
 
     // Одна запись с count=3, не три записи с count=1
     expect($statistics)->toHaveCount(1);
-    expect($statistics[0]['value'])->toContain('выполнено 3 заказов!');
+    expect($statistics[0]['value'])->toContain('выполнено 3 заказ(ов)!');
 });
 
 /**
