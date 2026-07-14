@@ -855,6 +855,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
     let lastData = null;      // последнее состояние (для diff быстроменящихся блоков)
     let audioUnlocked = false;
 
+    /** Порог утреннего попапа: показать «до открытия» за 10 минут. */
+    const MORNING_THRESHOLD_SEC = 600;
     /** Порог вечернего попапа: показать «до закрытия» за 30 минут. */
     const EVENING_THRESHOLD_SEC = 1800;
     /** Состояние попапов смен (чтобы не переоткрывать каждый polling). */
@@ -1303,7 +1305,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         const morning = timers.morning_seconds_left || 0;
         const evening = timers.evening_seconds_left || 0;
 
-        if (morning > 0) {
+        if (morning > 0 && morning <= MORNING_THRESHOLD_SEC) {
             if (!popupState.morningShown) {
                 popupState.morningShown = true;
                 initMorningShift(morning);
