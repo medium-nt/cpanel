@@ -78,6 +78,7 @@
                             </div>
                             <div class="winner__text">
                                 <p></p>
+                                <p class="winner__date"></p>
                             </div>
                         </div>
                         <h2 class="winner__title">Победитель смены</h2>

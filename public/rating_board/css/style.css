@@ -851,6 +851,12 @@ body {
     text-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, .25);
 }
 
+.winner__date {
+    font-size: 1.25rem;
+    opacity: 0.85;
+    margin-top: 0.25rem;
+}
+
 .winner__body {
     display: -webkit-box;
     display: -ms-flexbox;
