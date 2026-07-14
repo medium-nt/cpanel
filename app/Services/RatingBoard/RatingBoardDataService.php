@@ -131,7 +131,7 @@ class RatingBoardDataService
                 ->whereNotNull($fk)
                 ->whereBetween($dateCol, [$from, $to])
                 ->selectRaw("{$fk} as user_id, CAST(DATE({$dateCol}) AS CHAR) as work_date, COUNT(*) as cnt")
-                ->groupBy($fk, DB::raw("DATE({$dateCol})"))
+                ->groupBy($fk, DB::raw("CAST(DATE({$dateCol}) AS CHAR)"))
                 ->get();
 
             foreach ($rows as $row) {
@@ -360,7 +360,7 @@ class RatingBoardDataService
                 ->whereNotNull($fk)
                 ->whereIn(DB::raw("DATE({$dateCol})"), $dayList)
                 ->selectRaw($fk.' as user_id, CAST(DATE('.$dateCol.') AS CHAR) as work_date, COUNT(*) as cnt')
-                ->groupBy($fk, DB::raw("DATE({$dateCol})"));
+                ->groupBy($fk, DB::raw("CAST(DATE({$dateCol}) AS CHAR)"));
         }
 
         $rows = array_reduce($queries, function ($carry, $query) {
