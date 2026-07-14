@@ -211,14 +211,23 @@ class RatingBoardDataService
     }
 
     /**
-     * Победитель прошлой смены: топ-1 сотрудник за предыдущий рабочий день цеха.
+     * Победитель за последние 2 смены: топ-швея по лучшему дневному результату (MAX, не сумма).
      *
-     * @return array{name:string|null,avatar:string|null,orders_count:int,description:string|null}
+     * Берёт 2 последние рабочие смены цеха из shift_schedule, считает по каждой швее
+     * кол-во выполненных заказов за каждый из этих дней и выбирает швею с максимальным
+     * дневным результатом. Если прошлых смен нет — возвращает пустой результат.
+     *
+     * @return array{name:string|null,avatar:string|null,orders_count:int,date:string|null,description:string|null}
      */
     public function getWinner(int $workshopId): array
     {
-        $date = $this->previousWorkDate($workshopId);
-        $counts = $this->countCompletedByDate($workshopId, $date, $date);
+        $dates = $this->previousWorkDates($workshopId, 2);
+
+        if ($dates->isEmpty()) {
+            return ['name' => null, 'avatar' => null, 'orders_count' => 0, 'date' => null, 'description' => null];
+        }
+
+        $counts = $this->maxDailyCountByDates($workshopId, $dates);
         $leaders = $this->buildLeaders($counts);
         $top = $leaders[0] ?? null;
 
@@ -226,6 +235,7 @@ class RatingBoardDataService
             'name' => $top['name'] ?? null,
             'avatar' => $top['avatar'] ?? null,
             'orders_count' => $top['count'] ?? 0,
+            'date' => $top['date'] ?? null,
             'description' => $top ? 'Мастерство, покоряющее сердца.' : null,
         ];
     }
@@ -326,6 +336,51 @@ class RatingBoardDataService
     }
 
     /**
+     * Максимальный дневной результат каждого сотрудника за указанные даты (по ролям).
+     *
+     * В отличие от countCompletedByDate (сумма за период), здесь для каждого user_id
+     * берётся максимум по отдельным дням — нужно для выбора победителя по лучшему дню,
+     * а не по сумме за несколько смен.
+     *
+     * @param  Collection<int, string>  $dates  даты Y-m-d
+     * @return Collection<int, object{user_id:int, count:int}>
+     */
+    protected function maxDailyCountByDates(int $workshopId, Collection $dates): Collection
+    {
+        if ($dates->isEmpty()) {
+            return collect();
+        }
+
+        $dayList = $dates->values()->all();
+
+        $queries = [];
+        foreach (self::ROLE_METRIC_MAP as [$fk, $dateCol]) {
+            $queries[] = DB::table('marketplace_order_items')
+                ->where('workshop_id', $workshopId)
+                ->whereNotNull($fk)
+                ->whereIn(DB::raw("DATE({$dateCol})"), $dayList)
+                ->selectRaw($fk.' as user_id, DATE('.$dateCol.') as work_date, COUNT(*) as cnt')
+                ->groupBy($fk, DB::raw("DATE({$dateCol})"));
+        }
+
+        $rows = array_reduce($queries, function ($carry, $query) {
+            return $carry ? $carry->unionAll($query) : $query;
+        })->get();
+
+        return $rows->groupBy('user_id')
+            ->map(function (Collection $g) {
+                $best = $g->sortByDesc('cnt')->first();
+
+                return (object) [
+                    'user_id' => (int) $g->first()->user_id,
+                    'count' => (int) $best->cnt,
+                    'date' => $best->work_date, // Y-m-d дня с максимальным count
+                ];
+            })
+            ->values();
+    }
+
+    /**
      * Преобразует сырые счётчики в список лидеров с позициями и медалями.
      *
      * @param  Collection<int, object{user_id:int, count:int}>  $counts
@@ -367,6 +422,7 @@ class RatingBoardDataService
                 'position' => $position,
                 'medal' => $this->medalForPosition($position),
                 'count' => $row->count,
+                'date' => $row->date ?? null,
             ];
         }
 
@@ -437,13 +493,19 @@ class RatingBoardDataService
     }
 
     /**
-     * Дата предыдущего рабочего дня цеха (fallback — вчера, если расписания нет).
+     * Даты N последних рабочих смен цеха (shift_id не null, дата раньше сегодня).
+     *
+     * @return Collection<int, string>
      */
-    protected function previousWorkDate(int $workshopId): Carbon
+    protected function previousWorkDates(int $workshopId, int $limit = 2): Collection
     {
-        $record = $this->shiftRecordBefore($workshopId);
-
-        return $record ? Carbon::parse($record->date) : Carbon::yesterday();
+        return ShiftSchedule::query()
+            ->where('workshop_id', $workshopId)
+            ->where('date', '<', Carbon::today()->toDateString())
+            ->whereNotNull('shift_id')
+            ->orderByDesc('date')
+            ->limit($limit)
+            ->pluck('date');
     }
 
     /**

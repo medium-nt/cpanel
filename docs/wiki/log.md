@@ -864,3 +864,39 @@
 - Затронутые файлы: public/rating_board/js/app.js (toggleAllShiftDone),
   public/rating_board/css/style.css (all-shift-done)
 - Обновлён topic: rating-board.md
+
+## [2026-07-14] update | rating-board
+
+- `RatingBoardDataService::getWinner()`: переписана логика победителя смены —
+  теперь
+  топ-швея по максимальному дневному результату (MAX) за последние 2 смены, а не
+  по
+  сумме за последний рабочий день
+- Методы: `previousWorkDates($workshopId, 2)` — 2 последние смены из
+  shift_schedule,
+  `maxDailyCountByDates($workshopId, $dates)` — MAX по дням (GROUP BY user_id +
+  DATE)
+- Если смен нет → возвращает null-результат (пустые поля)
+- `orders_count` = лучший дневной результат победителя (не сумма за 2 дня)
+- Удалён мёртвый метод `previousWorkDate()`
+- Фронт: `renderWinner()` снова рендерит `.winner__desc` из `winner.description`
+- Обновлён topic: rating-board.md
+
+## [2026-07-14] update | rating-board
+
+- Добавлено поле `date` в контракт метода `getWinner()` — день-максимум
+  победителя (когда
+  сделано X заказов = orders_count). Формат Y-m-d (строка).
+- Реализация: в `maxDailyCountByDates()` добавлен `DATE(dateCol) as work_date`,
+  для каждого
+  user_id берётся work_date строки с max cnt.
+- Фронт: `renderWinner()` показывает дату под счётчиком в новом
+  `<p class="winner__date">`
+  как «12 июля». Новая функция `formatWinnerDate(iso)` парсит дату с учётом
+  TZ-смещения.
+- 0 смен в shift_schedule → `date = null`.
+- Затронутые файлы: RatingBoardDataService.php, public/rating_board/js/app.js,
+  resources/views/rating_board/index.blade.php,
+  public/rating_board/css/style.css
+- Тесты: +4 assert на поле date в RatingBoardDataServiceTest.php
+- Обновлён topic: rating-board.md

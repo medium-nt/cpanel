@@ -587,23 +587,88 @@ test('getStatistics excludes orders from previous month', function () {
 });
 
 /**
- * Тест метода getWinner.
- * Проверяет определение победителя за предыдущий рабочий день.
+ * Тест метода getWinner: победитель по лучшему дню (MAX), не по сумме.
+ * Ключевой тест: швея А имеет лучший день 10 (вчера) + 7 (позавчера) = max 10, сумма 17.
+ * Швея Б имеет 9 (вчера) + 9 (позавчера) = max 9, сумма 18.
+ * Победитель = А (max 10 > 9), хотя сумма у Б больше. orders_count = 10 (не 17).
  */
-test('getWinner returns top employee from previous work day', function () {
+test('getWinner picks winner by best daily result not sum', function () {
     $workshop = Workshop::factory()->create();
-    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Победитель']);
+    $seamstressA = User::factory()->create(['role_id' => 1, 'name' => 'Швея А']);
+    $seamstressB = User::factory()->create(['role_id' => 1, 'name' => 'Швея Б']);
 
-    // Создаём смену и расписание на вчера
-    $shift = Shift::factory()->create(['workshop_id' => $workshop->id, 'name' => 'Утренняя']);
+    // Создаём 2 смены: вчера и позавчера
+    $shift = Shift::factory()->create(['workshop_id' => $workshop->id]);
+    ShiftSchedule::factory()->create([
+        'workshop_id' => $workshop->id,
+        'shift_id' => $shift->id,
+        'date' => Carbon::yesterday()->toDateString(),
+    ]);
+    ShiftSchedule::factory()->create([
+        'workshop_id' => $workshop->id,
+        'shift_id' => $shift->id,
+        'date' => Carbon::yesterday()->subDay()->toDateString(), // позавчера
+    ]);
+
+    // Швея А: вчера=10, позавчера=7
+    MarketplaceOrderItem::factory()->count(10)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressA->id,
+        'completed_at' => Carbon::yesterday()->toDateString().' 12:00:00',
+        'status' => 3,
+    ]);
+    MarketplaceOrderItem::factory()->count(7)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressA->id,
+        'completed_at' => Carbon::yesterday()->subDay()->toDateString().' 12:00:00',
+        'status' => 3,
+    ]);
+
+    // Швея Б: вчера=9, позавчера=9
+    MarketplaceOrderItem::factory()->count(9)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressB->id,
+        'completed_at' => Carbon::yesterday()->toDateString().' 13:00:00',
+        'status' => 3,
+    ]);
+    MarketplaceOrderItem::factory()->count(9)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstressB->id,
+        'completed_at' => Carbon::yesterday()->subDay()->toDateString().' 13:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $winner = $service->getWinner($workshop->id);
+
+    // Победитель = А (max 10 > 9), orders_count = 10 (лучший день, не сумма 17)
+    expect($winner)->toMatchArray([
+        'name' => 'Швея А',
+        'orders_count' => 10,
+        'description' => 'Мастерство, покоряющее сердца.',
+    ]);
+    expect($winner['avatar'])->not->toBeNull();
+    expect($winner['date'])->toBe(Carbon::yesterday()->toDateString());
+});
+
+/**
+ * Тест метода getWinner: только 1 смена в shift_schedule.
+ * Проверяет корректный выбор победителя за 1 день.
+ */
+test('getWinner works correctly with only one previous work day', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея-победитель']);
+
+    // Создаём только 1 смену на вчера
+    $shift = Shift::factory()->create(['workshop_id' => $workshop->id]);
     ShiftSchedule::factory()->create([
         'workshop_id' => $workshop->id,
         'shift_id' => $shift->id,
         'date' => Carbon::yesterday()->toDateString(),
     ]);
 
-    // Создаём выполненный заказ на вчера
-    MarketplaceOrderItem::factory()->create([
+    // Создаём 5 выполненных заказов вчера
+    MarketplaceOrderItem::factory()->count(5)->create([
         'workshop_id' => $workshop->id,
         'seamstress_id' => $seamstress->id,
         'completed_at' => Carbon::yesterday()->toDateString().' 12:00:00',
@@ -614,19 +679,22 @@ test('getWinner returns top employee from previous work day', function () {
     $winner = $service->getWinner($workshop->id);
 
     expect($winner)->toMatchArray([
-        'name' => 'Победитель',
-        'orders_count' => 1,
+        'name' => 'Швея-победитель',
+        'orders_count' => 5,
         'description' => 'Мастерство, покоряющее сердца.',
     ]);
     expect($winner['avatar'])->not->toBeNull();
+    expect($winner['date'])->toBe(Carbon::yesterday()->toDateString());
 });
 
 /**
- * Тест метода getWinner без данных.
- * Проверяет возврат null-значений при отсутствии заказов.
+ * Тест метода getWinner: 0 смен в shift_schedule → null.
+ * Проверяет возврат null-значений при отсутствии прошлых смен.
  */
-test('getWinner returns null when no orders exist', function () {
+test('getWinner returns null when no previous work shifts exist', function () {
     $workshop = Workshop::factory()->create();
+
+    // Не создаём shift_schedule записей
 
     $service = new RatingBoardDataService;
     $winner = $service->getWinner($workshop->id);
@@ -637,6 +705,53 @@ test('getWinner returns null when no orders exist', function () {
         'orders_count' => 0,
         'description' => null,
     ]);
+    expect($winner['date'])->toBeNull();
+});
+
+/**
+ * Тест метода getWinner: не-швея не становится победителем.
+ * Закройщик/ОТК с бóльшим count не побеждает швею с меньшим count.
+ */
+test('getWinner ignores non-seamstresses even with higher counts', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея-победитель']);
+    $cutter = User::factory()->create(['role_id' => 4, 'name' => 'Закройщик']);
+
+    // Создаём смену на вчера
+    $shift = Shift::factory()->create(['workshop_id' => $workshop->id]);
+    ShiftSchedule::factory()->create([
+        'workshop_id' => $workshop->id,
+        'shift_id' => $shift->id,
+        'date' => Carbon::yesterday()->toDateString(),
+    ]);
+
+    // Закройщик: 15 заказов (больше, чем у швеи)
+    MarketplaceOrderItem::factory()->count(15)->create([
+        'workshop_id' => $workshop->id,
+        'cutter_id' => $cutter->id,
+        'cutting_completed_at' => Carbon::yesterday()->toDateString().' 12:00:00',
+        'status' => 3,
+    ]);
+
+    // Швея: 5 заказов (меньше, но только она может стать победителем)
+    MarketplaceOrderItem::factory()->count(5)->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => Carbon::yesterday()->toDateString().' 13:00:00',
+        'status' => 3,
+    ]);
+
+    $service = new RatingBoardDataService;
+    $winner = $service->getWinner($workshop->id);
+
+    // Победитель = швея (не закройщик), несмотря на меньший count
+    expect($winner)->toMatchArray([
+        'name' => 'Швея-победитель',
+        'orders_count' => 5,
+        'description' => 'Мастерство, покоряющее сердца.',
+    ]);
+    expect($winner['avatar'])->not->toBeNull();
+    expect($winner['date'])->toBe(Carbon::yesterday()->toDateString());
 });
 
 /**
