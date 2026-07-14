@@ -125,7 +125,7 @@
 </div>
 
 
-<script>window.RATING_BOARD_IMG = "{{ asset('rating_board/img/') }}";</script>
+<script>window.RATING_BOARD_IMG = "{{ asset('rating_board/img') }}/";</script>
 <script src="{{ asset('rating_board/js/gsap.min.js') }}"></script>
 <script src="{{ asset('rating_board/js/Flip.min.js') }}"></script>
 <script src="{{ asset('rating_board/js/app.js') }}"></script>

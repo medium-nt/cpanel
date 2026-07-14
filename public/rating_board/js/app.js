@@ -998,12 +998,24 @@ document.addEventListener("DOMContentLoaded", function (event) {
         return escapeHtml(value).replace(/"/g, '&quot;');
     }
 
+    /** Inline SVG замка для бейджа «смена закрыта» (без шрифтов/иконочных пакетов). */
+    const LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+        + '<path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+        + '<rect x="4.5" y="10" width="15" height="11" rx="2.5" fill="currentColor"/>'
+        + '</svg>';
+
+    /** HTML бейджа «смена закрыта» (замок рядом с именем). */
+    function shiftDoneBadgeHtml() {
+        return `<span class="leaders__shift-done">${LOCK_SVG}</span>`;
+    }
+
     /** HTML карточки лидера (таблица лидеров). */
     function buildLeaderHtml(leader) {
         const medal = leader.medal ? ` leaders__item--${leader.medal}` : '';
-        return `<div data-id="${escapeAttr(leader.id)}" class="leaders__item${medal}">
+        const done = leader.shift_done ? ' leaders__item--done' : '';
+        return `<div data-id="${escapeAttr(leader.id)}" class="leaders__item${medal}${done}">
             <div class="leaders__avatar"><img src="${escapeAttr(leader.avatar)}" alt="${escapeAttr(leader.name)}"></div>
-            <div class="leaders__name">${escapeHtml(leader.name)}</div>
+            <div class="leaders__name">${escapeHtml(leader.name)}${leader.shift_done ? shiftDoneBadgeHtml() : ''}</div>
             <div class="leaders__position">${escapeHtml(leader.position)}</div>
         </div>`;
     }
@@ -1064,6 +1076,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     /** Полная первичная отрисовка всех блоков из JSON (первый fetch). */
     function renderInitial(data) {
         renderLeaders(data.leaders || []);
+        syncShiftDone(data.leaders || []);
         renderPodium(data.podium || {});
         renderShift(data.shift || {});
         renderWinner(data.winner || {});
@@ -1075,6 +1088,28 @@ document.addEventListener("DOMContentLoaded", function (event) {
     function renderLeaders(leaders) {
         const container = document.getElementById('leaders-container');
         if (container) container.innerHTML = leaders.map(buildLeaderHtml).join('');
+    }
+
+    /** Синхронизирует метку «смена закрыта» по data-id. Нужна на каждом poll: applyLeadersDiff не всегда пересобирает DOM (тот же порядок → return; смена порядка → swapLeaders двигает узлы без пересоздания). */
+    function syncShiftDone(leaders) {
+        const container = document.getElementById('leaders-container');
+        if (!container) return;
+        const doneIds = {};
+        (leaders || []).forEach(l => {
+            if (l.shift_done) doneIds[l.id] = true;
+        });
+        container.querySelectorAll('.leaders__item').forEach(item => {
+            const isDone = doneIds[item.getAttribute('data-id')] === true;
+            item.classList.toggle('leaders__item--done', isDone);
+            const nameEl = item.querySelector('.leaders__name');
+            if (!nameEl) return;
+            const badge = nameEl.querySelector(':scope > .leaders__shift-done');
+            if (isDone && !badge) {
+                nameEl.insertAdjacentHTML('beforeend', shiftDoneBadgeHtml());
+            } else if (!isDone && badge) {
+                badge.remove();
+            }
+        });
     }
 
     function renderPodium(podium) {
@@ -1198,8 +1233,15 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     /** Diff подиума: точечные свапы для типичных ротаций, иначе — перестройка. */
     function applyPodiumDiff(prev, next) {
-        // Если подиум пустой (нет лидеров) — ничего не делаем
-        if (!next.gold && !next.silver && !next.bronze) return;
+        const nextEmpty = !next.gold && !next.silver && !next.bronze;
+        const prevEmpty = !prev.gold && !prev.silver && !prev.bronze;
+        // Подиум пустой и был пустым — ничего не делаем (избегаем перерисовки каждый poll).
+        if (nextEmpty && prevEmpty) return;
+        // Перешли в пустое состояние (все лидеры закрыли смену / данных нет) — пустые слоты.
+        if (nextEmpty) {
+            renderPodium(next);
+            return;
+        }
 
         const g0 = prev.gold?.id, s0 = prev.silver?.id, b0 = prev.bronze?.id;
         const g1 = next.gold?.id, s1 = next.silver?.id, b1 = next.bronze?.id;
@@ -1235,6 +1277,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     /** Применяет diff к быстроменяющимся блокам. Медленные (shift/winner/statistics) обновятся при reload страницы. */
     function applyPollDiff(prev, next) {
         applyLeadersDiff(prev.leaders || [], next.leaders || []);
+        syncShiftDone(next.leaders || []);
         applyPodiumDiff(prev.podium || {}, next.podium || {});
         applyStickersDiff(prev.stickers || {
             fbo: 0,
@@ -1279,9 +1322,23 @@ document.addEventListener("DOMContentLoaded", function (event) {
         }
     }
 
+    /** Если ВСЕ лидеры текущего списка закрыли смену — возвращает данные с пустой таблицей лидеров и empty-подиумом (карточки/слоты остаются, данные пустые). Иначе отдаёт data как есть. */
+    function normalizeData(data) {
+        const leaders = data && data.leaders ? data.leaders : [];
+        const allDone = leaders.length > 0 && leaders.every(l => l.shift_done);
+        if (!allDone) {
+            return data;
+        }
+
+        return Object.assign({}, data, {
+            leaders: [],
+            podium: {gold: null, silver: null, bronze: null},
+        });
+    }
+
     async function poll() {
         try {
-            const data = await fetchData();
+            const data = normalizeData(await fetchData());
             applyTimers(data.timers);
             if (!lastData) {
                 renderInitial(data);

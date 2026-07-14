@@ -59,7 +59,7 @@ class RatingBoardDataService
     /**
      * Лидеры: кол-во выполненных заказов за сегодня (только швеи).
      *
-     * @return list<array{id:int,name:string,profession:string,avatar:string,position:int,medal:string|null,count:int}>
+     * @return list<array{id:int,name:string,profession:string,avatar:string,position:int,medal:string|null,count:int,shift_done:bool}>
      */
     public function getLeaders(int $workshopId): array
     {
@@ -329,7 +329,7 @@ class RatingBoardDataService
      * Преобразует сырые счётчики в список лидеров с позициями и медалями.
      *
      * @param  Collection<int, object{user_id:int, count:int}>  $counts
-     * @return list<array{id:int,name:string,profession:string,avatar:string,position:int,medal:string|null,count:int}>
+     * @return list<array{id:int,name:string,profession:string,avatar:string,position:int,medal:string|null,count:int,shift_done:bool}>
      */
     protected function buildLeaders(Collection $counts): array
     {
@@ -370,7 +370,36 @@ class RatingBoardDataService
             ];
         }
 
+        $this->applyShiftDone($leaders);
+
         return $leaders;
+    }
+
+    /**
+     * Проставляет лидерам признак shift_done = true тем, кто сегодня открыл И закрыл смену.
+     *
+     * Источник — таблица schedules (персистентна по дате, в отличие от users.shift_is_open,
+     * который обнуляется в 00:01). Признак: shift_opened_time и shift_closed_time оба != '00:00:00'.
+     *
+     * @param  list<array{id:int,...}>  $leaders  изменяется по ссылке
+     */
+    protected function applyShiftDone(array &$leaders): void
+    {
+        if (empty($leaders)) {
+            return;
+        }
+
+        $closedIds = Schedule::query()
+            ->whereIn('user_id', array_column($leaders, 'id'))
+            ->where('date', Carbon::today()->toDateString())
+            ->where('shift_opened_time', '!=', '00:00:00')
+            ->where('shift_closed_time', '!=', '00:00:00')
+            ->pluck('user_id')
+            ->all();
+
+        foreach ($leaders as $i => $leader) {
+            $leaders[$i]['shift_done'] = in_array($leader['id'], $closedIds, true);
+        }
     }
 
     /**

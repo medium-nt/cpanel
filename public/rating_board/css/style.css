@@ -301,6 +301,30 @@ body {
     margin-left: auto;
 }
 
+/* Смена закрыта: лёгкое затемнение карточки. БЕЗ !important, чтобы анимации climbing/falling перекрывали opacity во время bubble-sort. */
+.leaders__item--done {
+    opacity: .55;
+}
+
+.leaders__shift-done {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-left: .5rem;
+    vertical-align: middle;
+    color: #c9a23a;
+}
+
+.leaders__shift-done svg {
+    width: 100%;
+    height: 100%;
+}
+
 .top {
     height: 47.8125rem;
     border: 0.125rem solid #8f8f8f;

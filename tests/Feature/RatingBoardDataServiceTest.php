@@ -762,3 +762,105 @@ test('getLeaders returns empty array when no completed orders', function () {
 
     expect($leaders)->toBeEmpty();
 });
+
+/**
+ * Тест поля shift_done: открыл и закрыл смену сегодня → shift_done === true.
+ * Проверяет, что у швеи с выполненными заказами и закрытой сменой поле shift_done=true.
+ */
+test('getLeaders marks shift_done as true when seamstress opened and closed shift today', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея с закрытой сменой']);
+
+    // Создаём выполненный заказ сегодня (чтобы швея попала в getLeaders)
+    $today = Carbon::today()->toDateString().' 12:00:00';
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $today,
+        'status' => 3,
+    ]);
+
+    // Создаём расписание: открыта И закрыта смена сегодня
+    $schedule = new Schedule;
+    $schedule->user_id = $seamstress->id;
+    $schedule->date = Carbon::today()->toDateString();
+    $schedule->shift_opened_time = '08:00:00';
+    $schedule->shift_closed_time = '17:00:00';
+    $schedule->save();
+
+    $service = new RatingBoardDataService;
+    $leaders = $service->getLeaders($workshop->id);
+
+    expect($leaders)->toHaveCount(1);
+    expect($leaders[0])->toMatchArray([
+        'id' => $seamstress->id,
+        'name' => 'Швея с закрытой сменой',
+        'shift_done' => true,
+    ]);
+});
+
+/**
+ * Тест поля shift_done: открыл но НЕ закрыл смену → shift_done === false.
+ * Проверяет, что при открытии смены без закрытия поле shift_done=false.
+ */
+test('getLeaders marks shift_done as false when seamstress opened but not closed shift', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея без закрытия']);
+
+    // Создаём выполненный заказ сегодня
+    $today = Carbon::today()->toDateString().' 12:00:00';
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $today,
+        'status' => 3,
+    ]);
+
+    // Создаём расписание: открыта смена, но НЕ закрыта (shift_closed_time = '00:00:00')
+    $schedule = new Schedule;
+    $schedule->user_id = $seamstress->id;
+    $schedule->date = Carbon::today()->toDateString();
+    $schedule->shift_opened_time = '08:00:00';
+    $schedule->shift_closed_time = '00:00:00';
+    $schedule->save();
+
+    $service = new RatingBoardDataService;
+    $leaders = $service->getLeaders($workshop->id);
+
+    expect($leaders)->toHaveCount(1);
+    expect($leaders[0])->toMatchArray([
+        'id' => $seamstress->id,
+        'name' => 'Швея без закрытия',
+        'shift_done' => false,
+    ]);
+});
+
+/**
+ * Тест поля shift_done: нет записи в schedules → shift_done === false.
+ * Проверяет, что при отсутствии расписания на сегодня поле shift_done=false.
+ */
+test('getLeaders marks shift_done as false when no schedule record exists', function () {
+    $workshop = Workshop::factory()->create();
+    $seamstress = User::factory()->create(['role_id' => 1, 'name' => 'Швея без расписания']);
+
+    // Создаём выполненный заказ сегодня
+    $today = Carbon::today()->toDateString().' 12:00:00';
+    MarketplaceOrderItem::factory()->create([
+        'workshop_id' => $workshop->id,
+        'seamstress_id' => $seamstress->id,
+        'completed_at' => $today,
+        'status' => 3,
+    ]);
+
+    // Расписание НЕ создаём
+
+    $service = new RatingBoardDataService;
+    $leaders = $service->getLeaders($workshop->id);
+
+    expect($leaders)->toHaveCount(1);
+    expect($leaders[0])->toMatchArray([
+        'id' => $seamstress->id,
+        'name' => 'Швея без расписания',
+        'shift_done' => false,
+    ]);
+});
