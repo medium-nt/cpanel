@@ -130,7 +130,7 @@ class RatingBoardDataService
                 ->where('workshop_id', $workshopId)
                 ->whereNotNull($fk)
                 ->whereBetween($dateCol, [$from, $to])
-                ->selectRaw("{$fk} as user_id, DATE({$dateCol}) as work_date, COUNT(*) as cnt")
+                ->selectRaw("{$fk} as user_id, CAST(DATE({$dateCol}) AS CHAR) as work_date, COUNT(*) as cnt")
                 ->groupBy($fk, DB::raw("DATE({$dateCol})"))
                 ->get();
 
@@ -359,7 +359,7 @@ class RatingBoardDataService
                 ->where('workshop_id', $workshopId)
                 ->whereNotNull($fk)
                 ->whereIn(DB::raw("DATE({$dateCol})"), $dayList)
-                ->selectRaw($fk.' as user_id, DATE('.$dateCol.') as work_date, COUNT(*) as cnt')
+                ->selectRaw($fk.' as user_id, CAST(DATE('.$dateCol.') AS CHAR) as work_date, COUNT(*) as cnt')
                 ->groupBy($fk, DB::raw("DATE({$dateCol})"));
         }
 
