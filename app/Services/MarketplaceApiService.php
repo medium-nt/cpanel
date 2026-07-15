@@ -278,6 +278,7 @@ class MarketplaceApiService
                     'fulfillment_type' => 'FBS',
                     'status' => 0,
                     'created_at' => Carbon::parse($order->order_created)->setTimezone('Europe/Moscow'),
+                    'is_b2b' => $order->is_b2b ?? false,
                 ]);
 
                 foreach ($order->skus as $skus) {

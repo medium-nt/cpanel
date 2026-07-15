@@ -422,7 +422,11 @@
                             <tr>
                                 <td>{{ $order->id }}</td>
                                 <td><span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span></td>
-                                <td>{{ $order->order_id }}</td>
+                                <td>{{ $order->order_id }}
+                                    @if($order->is_b2b)
+                                        <span class="badge badge-warning">юр.лицо</span>
+                                    @endif
+                                </td>
                                 @if(request()->status == 3)
                                     <td>
                                         @isset($order->supply_id)

@@ -1,6 +1,6 @@
 # Marketplace Integration — Интеграция Ozon и Wildberries
 
-> Last reviewed: 2026-07-12
+> Last reviewed: 2026-07-15
 
 ## Обзор
 
@@ -61,6 +61,22 @@ MarketplaceApiService разделён на 4 файла:
 2. **Отмены:** `MarketplaceApiService::uploadingCancelledProducts()` —
    оркестратор обрабатывает отменённые заказы через private helpers
    `getCancelledProductsOZON/WB()` и обновляет статусы
+
+**B2B-признак заказов (is_b2b):**
+
+- Поле `is_b2b` в `marketplace_orders` (boolean, default `false`) различает
+  заказы от юридических (B2B) и физических лиц
+- **Определяется ТОЛЬКО при автоимпорте** через API (каждые 10 мин):
+    - **Ozon:** в `OzonApiService::getAllNewOrders()` — признак берётся из
+      поля `legal_info` ответа `/v3/posting/fbs/unfulfilled/list`
+      (проверяет `inn` или `company_name`)
+    - **Wildberries:** в `WbApiService::getAllNewOrders()` — из поля
+      `options.isB2B` ответа `/api/v3/orders/new`
+- **Бизнес-правило:** заказы из других источников (Excel-импорт, ручное
+  добавление, разбор FBO-поставок) остаются `is_b2b=false` — это НЕ баг,
+  просто нет данных о типе заказчика в этих источниках
+- FBO-заказа не проходят через `getAllNewOrders` (только FBS), поэтому
+  B2B-флаг для них не определяется
 
 ### Ozon API (OzonApiService)
 
@@ -233,7 +249,8 @@ MarketplaceApiService разделён на 4 файла:
   TG+MAX-уведомления (параллельно) + генерация стикеров для коробов (OZON через
   API,
   WB через PDF, с возможностью перегенерации)
-- `app/Models/MarketplaceOrder.php` — заказы
+- `app/Models/MarketplaceOrder.php` — заказы с полем `is_b2b` (boolean,
+  признак B2B-заказа от юрлица, заполняется при автоимпорте из API)
 - `app/Models/MarketplaceOrderItem.php` — позиции заказов
 - `app/Models/MarketplaceItem.php` — товары
 - `app/Models/MarketplaceSupply.php` — поставки
