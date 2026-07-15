@@ -9,21 +9,28 @@ use App\Models\MovementMaterial;
 use App\Models\Order;
 use App\Models\Supplier;
 use App\Services\MovementMaterialFromSupplierService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class MovementMaterialFromSupplierController extends Controller
 {
-    public function index()
+    /**
+     * Список поступлений материалов от поставщика с фильтрами по статусу,
+     * поставщику и диапазону дат создания.
+     */
+    public function index(Request $request)
     {
         return view('movements_from_supplier.index', [
             'title' => 'Поступление материалов на склад',
+            'suppliers' => Supplier::orderBy('title')->pluck('title', 'id'),
             'orders' => Order::query()
                 ->where('type_movement', 1)
-                ->when(request()->has('status'), function ($query) {
-                    return $query->where('status', request('status'));
-                })
+                ->when($request->filled('status'), fn ($q) => $q->where('status', $request->integer('status')))
+                ->when($request->filled('supplier_id'), fn ($q) => $q->where('supplier_id', $request->integer('supplier_id')))
+                ->when($request->filled('date_from'), fn ($q) => $q->whereDate('created_at', '>=', $request->input('date_from')))
+                ->when($request->filled('date_to'), fn ($q) => $q->whereDate('created_at', '<=', $request->input('date_to')))
                 ->with(['movementMaterials.material', 'movementMaterials.roll', 'user', 'supplier'])
                 ->latest()
                 ->paginate(10)

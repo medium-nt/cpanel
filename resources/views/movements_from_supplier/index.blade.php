@@ -13,7 +13,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-2 mb-1 mr-1">
+                    <div class="col-md-1 mb-1 mr-1">
                         <select class="form-control"
                                 id="status"
                                 name="status"
@@ -29,6 +29,38 @@
                                 Завершено
                             </option>
                         </select>
+                    </div>
+
+                    <div class="col-md-2 mb-1 mr-1">
+                        <select class="form-control"
+                                name="supplier_id"
+                                onchange="updatePageWithQueryParam(this)">
+                            <option value="">Все поставщики</option>
+                            @foreach ($suppliers as $id => $title)
+                                <option value="{{ $id }}"
+                                        @if(request('supplier_id') == $id) selected @endif>
+                                    {{ $title }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 mb-1 mr-1">
+                        <input type="date"
+                               name="date_from"
+                               class="form-control"
+                               value="{{ request('date_from') }}"
+                               title="Дата от"
+                               onchange="updatePageWithQueryParam(this)">
+                    </div>
+
+                    <div class="col-md-1 mb-1 mr-1">
+                        <input type="date"
+                               name="date_to"
+                               class="form-control"
+                               value="{{ request('date_to') }}"
+                               title="Дата до"
+                               onchange="updatePageWithQueryParam(this)">
                     </div>
 
                     <div class="col-md-3">
