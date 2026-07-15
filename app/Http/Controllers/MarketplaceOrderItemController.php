@@ -268,6 +268,10 @@ class MarketplaceOrderItemController extends Controller
             ' (товар #'.$marketplaceOrderItem->id.')';
         Log::channel('items')->notice($text);
 
+        Log::channel('orders')
+            ->notice('Заказ '.$marketplaceOrderItem->marketplaceOrder->order_id.
+                ' ('.$marketplaceOrderItem->marketplaceOrder->id.' товар #'.$marketplaceOrderItem->id.') передан в статус "на поставку"');
+
         // собираем новый url для редиректа
         $parsed = parse_url(url()->previous());
 
