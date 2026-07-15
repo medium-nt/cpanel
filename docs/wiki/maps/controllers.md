@@ -113,6 +113,11 @@
 - **File:** `app/Http/Controllers/ProductStickerController.php`
 - **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`
 
+### RatingBoardController
+
+- **File:** `app/Http/Controllers/RatingBoardController.php`
+- **Methods:** `index`, `data`
+
 ### RollController
 - **File:** `app/Http/Controllers/RollController.php`
 - **Methods:** `index`, `show`, `printRoll`, `printOrder`, `returnToStorage`, `destroy`
@@ -164,7 +169,11 @@
 
 ### WarehouseOfItemController
 - **File:** `app/Http/Controllers/WarehouseOfItemController.php`
-- **Methods:** `index`, `exportExcel`, `inspection`, `newRefunds`, `getStorageBarcodeFile`, `saveStorage`, `toPickList`, `toPickListPrint`, `toPick`, `labeling`, `done`, `toWork`, `addGroup`, `saveGroup`, `shelfChange`, `statusChangeScan`, `pickupScan`, `toInspection`, `printInspectionList`
+- **Methods:** `index`, `exportExcel`, `inspection`, `newRefunds`,
+  `getStorageBarcodeFile`, `saveStorage`, `toPickList`, `toPickListPrint`,
+  `toPick`, `labeling`, `done`, `toWork`, `addGroup`, `saveGroup`,
+  `shelfChange`, `statusChangeScan`, `utilizeDefects`, `utilizeRefunds`,
+  `pickupScan`, `toInspection`, `delete`, `printInspectionList`
 
 ### WorkshopController
 - **File:** `app/Http/Controllers/WorkshopController.php`

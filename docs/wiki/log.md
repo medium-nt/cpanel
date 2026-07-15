@@ -830,6 +830,34 @@
 - Обновлён map: services.md (добавлен метод notifyAdmin)
 - Обновлён topic: max-integration.md (связь с notifications.md)
 
+## [2026-07-12] refactor | marketplace-api-split
+
+- God-объект `MarketplaceApiService.php` (3257 строк, 59 методов, indegree=25)
+  разделён на 4 файла по рефакторингу:
+    - `app/Services/Marketplace/MakesApiRequests.php` — trait (64 строки) с
+      переиспользуемой HTTP-обвязкой: `ozonRequest()`, `wbRequest()`, getters
+      для
+      API-ключей
+    - `app/Services/Marketplace/OzonApiService.php` — 39 Ozon-методов (~1870
+      строк, static). Имена без суффикса Ozon (`collectOrder`,
+      `getAllNewOrders`,
+      `supply` и т.д.)
+    - `app/Services/Marketplace/WbApiService.php` — 14 WB-методов (~790 строк,
+      static). Имена без суффикса Wb
+    - `app/Services/MarketplaceApiService.php` — фасад-делегатор +
+      координатор (~970
+      строк). 53 метода-делегата для обратной совместимости + оркестрация (
+      `uploadingNewProducts`, `uploadingCancelledProducts`) + роутеры по
+      marketplace_id (`getStatusOrder`, `getReturnReason`) + утилиты
+- **Обратная совместимость:** все 21 потребитель (контроллеры, сервисы, jobs)
+  продолжают вызывать старые методы — код потребителей не трогался
+- **Тесты:** 129 characterization-тестов в `MarketplaceApiServiceTest.php`
+  зелёные (118 оригинальных + 11 BarcodeGenerationTest), 100% coverage
+- **Архитектура:** static сохранён, trait MakesApiRequests переиспользуется,
+  имена методов в новых классах без суффикса маркетплейса
+- Обновлён topic: marketplace-integration.md
+- Обновлён map: services.md (автогенерацией через `php artisan wiki:generate`)
+  — 3 новых сервиса + обновлённый MarketplaceApiService
 ## [2026-07-14] update | rating-board
 
 - Добавлено поле `shift_done: bool` в таблицу лидеров — визуальная метка «смена
