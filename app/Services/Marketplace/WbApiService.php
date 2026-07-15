@@ -286,12 +286,23 @@ class WbApiService
 
             $orders = $response->object()->orders;
 
+            $updated = [];
             foreach ($orders as $order) {
                 MarketplaceOrder::query()
                     ->where('order_id', (string) $order->id)
                     ->update([
                         'marketplace_status' => $order->supplierStatus,
                     ]);
+
+                $updated[(string) $order->id] = $order->supplierStatus;
+            }
+
+            if (! empty($updated)) {
+                $summary = collect($updated)->map(fn ($v, $k) => '#'.$k.'→'.$v)->implode(', ');
+
+                Log::channel('orders')
+                    ->notice('Поставка #'.$marketplace_supply->id.' (WB): обновлён marketplace_status у '.
+                        count($updated).' заказ(ов): '.$summary);
             }
         } catch (Throwable $e) {
             Log::channel('marketplace_api')

@@ -523,6 +523,8 @@ class OzonApiService
 
         $hasError = false;
 
+        $updated = [];
+
         foreach ($orders as $order) {
             $body = [
                 'posting_number' => $order,
@@ -550,6 +552,8 @@ class OzonApiService
                     ->update([
                         'marketplace_status' => $response->object()->result->status,
                     ]);
+
+                $updated[$order] = $response->object()->result->status;
             } catch (Throwable $e) {
                 Log::channel('marketplace_api')
                     ->error('Ошибка обновления статуса заказа # '.$order.' : '.$e->getMessage());
@@ -558,6 +562,14 @@ class OzonApiService
 
                 continue;
             }
+        }
+
+        if (! empty($updated)) {
+            $summary = collect($updated)->map(fn ($v, $k) => '#'.$k.'→'.$v)->implode(', ');
+
+            Log::channel('orders')
+                ->notice('Поставка #'.$marketplace_supply->id.' (Ozon): обновлён marketplace_status у '.
+                    count($updated).' заказ(ов): '.$summary);
         }
 
         return ! $hasError;
