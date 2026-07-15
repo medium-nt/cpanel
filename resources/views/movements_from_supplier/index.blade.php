@@ -107,7 +107,7 @@
                                 <td>
                                     <span class="badge {{ $order->status_color }}"> {{ $order->status_name }}</span>
                                 </td>
-                                <td>{{ $order->user->name }}</td>
+                                <td>{{ $order->user?->name ?? '—' }}</td>
                                 <td>{{ $order->supplier->title }}</td>
                                 <td>{{ $order->comment }}</td>
                                 <td>{{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</td>
@@ -201,7 +201,7 @@
                                         <b> {{ now()->parse($order->created_at)->format('d/m/Y H:i') }}</b>
                                         <br>
                                         Сотрудник:
-                                        <b> {{ $order->user->name }}</b>
+                                        <b> {{ $order->user?->name ?? '—' }}</b>
                                     </small>
                                 </div>
 
