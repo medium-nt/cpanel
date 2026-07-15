@@ -8,12 +8,20 @@ use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 class StickerServiceTest extends PHPUnitTestCase
 {
     /**
+     * Текущее значение SPECIAL_STICKER_TITLE (private) через рефлексию.
+     */
+    private function specialStickerTitle(): string
+    {
+        return (new \ReflectionClass(StickerService::class))->getConstant('SPECIAL_STICKER_TITLE');
+    }
+
+    /**
      * Test resolveTemplate method with special sticker title for OZON marketplace.
      */
     public function test_resolve_template_with_special_sticker_title_for_ozon(): void
     {
         // Arrange
-        $itemTitle = 'ВУАЛЬ (БЕЗ УТ)';
+        $itemTitle = $this->specialStickerTitle();
         $marketplaceId = 1; // OZON
 
         // Act
@@ -29,7 +37,7 @@ class StickerServiceTest extends PHPUnitTestCase
     public function test_resolve_template_with_special_sticker_title_for_wildberries(): void
     {
         // Arrange
-        $itemTitle = 'ВУАЛЬ (БЕЗ УТ)';
+        $itemTitle = $this->specialStickerTitle();
         $marketplaceId = 2; // Wildberries
 
         // Act
@@ -45,13 +53,15 @@ class StickerServiceTest extends PHPUnitTestCase
     public function test_resolve_template_case_insensitive_special_sticker(): void
     {
         // Arrange
-        $itemTitle = 'вуаль (без ут)';
+        // Create a lowercase variant of the special sticker title to test case-insensitivity
+        $itemTitle = mb_strtolower($this->specialStickerTitle());
         $marketplaceId = 1;
 
         // Act
         $template = StickerService::resolveTemplate($itemTitle, $marketplaceId);
 
         // Assert
+        // The method should match regardless of case because it uses mb_strtoupper internally
         $this->assertEquals('pdf.fbo_sticker', $template);
     }
 
@@ -61,7 +71,7 @@ class StickerServiceTest extends PHPUnitTestCase
     public function test_resolve_template_partial_match_special_sticker(): void
     {
         // Arrange
-        $itemTitle = 'ТОВАР ВУАЛЬ (БЕЗ УТ) РАЗМЕР';
+        $itemTitle = 'ТОВАР '.$this->specialStickerTitle().' РАЗМЕР';
         $marketplaceId = 1;
 
         // Act
@@ -317,7 +327,7 @@ class StickerServiceTest extends PHPUnitTestCase
     public function test_template_and_font_size_integration(): void
     {
         // Arrange
-        $itemTitle = 'ВУАЛЬ (БЕЗ УТ)';
+        $itemTitle = $this->specialStickerTitle();
         $marketplaceId = 1;
         $cluster = str_repeat('Т', 20); // Medium length text
 
@@ -400,7 +410,7 @@ class StickerServiceTest extends PHPUnitTestCase
     public function test_resolve_template_exact_special_sticker_match(): void
     {
         // Arrange
-        $itemTitle = 'ВУАЛЬ (БЕЗ УТ)';
+        $itemTitle = $this->specialStickerTitle();
         $marketplaceId = 1;
 
         // Act
@@ -416,7 +426,7 @@ class StickerServiceTest extends PHPUnitTestCase
     public function test_resolve_template_special_sticker_at_beginning(): void
     {
         // Arrange
-        $itemTitle = 'ВУАЛЬ (БЕЗ УТ) Начало';
+        $itemTitle = $this->specialStickerTitle().' Начало';
         $marketplaceId = 2;
 
         // Act
@@ -432,7 +442,7 @@ class StickerServiceTest extends PHPUnitTestCase
     public function test_resolve_template_special_sticker_at_end(): void
     {
         // Arrange
-        $itemTitle = 'Конец ВУАЛЬ (БЕЗ УТ)';
+        $itemTitle = 'Конец '.$this->specialStickerTitle();
         $marketplaceId = 1;
 
         // Act
