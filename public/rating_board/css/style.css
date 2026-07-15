@@ -783,6 +783,7 @@ body {
 .statistics__value {
     font-weight: 600;
     font-size: 1rem;
+    white-space: pre-line;
 }
 
 .statistics__box {
