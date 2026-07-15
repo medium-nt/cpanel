@@ -201,7 +201,7 @@ class RatingBoardDataService
                 'name' => $user->name,
                 'profession' => UserService::translateRoleName($user->role?->name),
                 'avatar' => $user->adminlte_image(),
-                'value' => Carbon::parse($record['work_date'])->format('d.m.y').' выполнено '.$record['count'].' заказ(ов)!',
+                'value' => Carbon::parse($record['work_date'])->format('d.m.y')."\n".'выполнено '.$record['count'].' заказ(ов)!',
                 'shift' => $shiftMap[$record['user_id'].'|'.$record['work_date']] ?? '',
                 'medal' => $medal,
             ];

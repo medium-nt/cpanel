@@ -1138,7 +1138,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         const avatarImg = document.querySelector('.winner__avatar img');
         if (avatarImg && winner.avatar) avatarImg.src = winner.avatar;
         const countP = document.querySelector('.winner__text p');
-        if (countP && winner.orders_count != null) countP.textContent = `Выполнено ${winner.orders_count} заказов!`;
+        if (countP && winner.orders_count != null) countP.textContent = `Выполнено ${winner.orders_count} заказ(ов)!`;
         const dateEl = document.querySelector('.winner__date');
         if (dateEl) dateEl.textContent = formatWinnerDate(winner.date);
         const descEl = document.querySelector('.winner__desc');

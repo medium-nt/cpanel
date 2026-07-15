@@ -220,7 +220,7 @@ test('getStatistics creates record for seamstress with orders from yesterday', f
     expect($statistics[0])->toMatchArray([
         'name' => 'Швея Анна',
         'profession' => 'Швея',
-        'value' => Carbon::yesterday()->format('d.m.y').' выполнено 2 заказ(ов)!',
+        'value' => Carbon::yesterday()->format('d.m.y')."\n".'выполнено 2 заказ(ов)!',
         'shift' => 'Дневная',
         'medal' => 'gold',
     ]);
