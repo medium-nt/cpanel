@@ -1734,12 +1734,23 @@ class MarketplaceApiService
 
             $orders = $response->object()->orders;
 
+            $updated = [];
             foreach ($orders as $order) {
                 MarketplaceOrder::query()
                     ->where('order_id', (string) $order->id)
                     ->update([
                         'marketplace_status' => $order->supplierStatus,
                     ]);
+
+                $updated[(string) $order->id] = $order->supplierStatus;
+            }
+
+            if (! empty($updated)) {
+                $summary = collect($updated)->map(fn ($v, $k) => '#'.$k.'→'.$v)->implode(', ');
+
+                Log::channel('orders')
+                    ->notice('Поставка #'.$marketplace_supply->id.' (WB): обновлён marketplace_status у '.
+                        count($updated).' заказ(ов): '.$summary);
             }
         } catch (Throwable $e) {
             Log::channel('marketplace_api')
@@ -1759,6 +1770,8 @@ class MarketplaceApiService
             ->toArray();
 
         $hasError = false;
+
+        $updated = [];
 
         foreach ($orders as $order) {
             $body = [
@@ -1787,6 +1800,8 @@ class MarketplaceApiService
                     ->update([
                         'marketplace_status' => $response->object()->result->status,
                     ]);
+
+                $updated[$order] = $response->object()->result->status;
             } catch (Throwable $e) {
                 Log::channel('marketplace_api')
                     ->error('Ошибка обновления статуса заказа # '.$order.' : '.$e->getMessage());
@@ -1795,6 +1810,14 @@ class MarketplaceApiService
 
                 continue;
             }
+        }
+
+        if (! empty($updated)) {
+            $summary = collect($updated)->map(fn ($v, $k) => '#'.$k.'→'.$v)->implode(', ');
+
+            Log::channel('orders')
+                ->notice('Поставка #'.$marketplace_supply->id.' (Ozon): обновлён marketplace_status у '.
+                    count($updated).' заказ(ов): '.$summary);
         }
 
         return ! $hasError;

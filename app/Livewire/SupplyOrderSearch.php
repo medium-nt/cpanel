@@ -142,6 +142,10 @@ class SupplyOrderSearch extends Component
         $order->marketplace_status = MarketplaceApiService::getStatusOrder($order);
         $order->save();
 
+        Log::channel('orders')
+            ->notice('Заказ №'.$order->order_id.' ('.$order->id.'): marketplace_status → '.
+                ($order->marketplace_status ?? 'null'));
+
         Log::channel('marketplace_supplies')
             ->notice('Заказ №'.$order->order_id.' успешно добавлен в поставку.');
 
