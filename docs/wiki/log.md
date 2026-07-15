@@ -10,6 +10,16 @@
   `lastData` с DOM для корректной работы diff-логики.
 - Обновлён topic: rating-board.md
 
+## [2026-07-15] feature | is_b2b-flag
+
+- Добавлено поле `is_b2b` в `marketplace_orders` (boolean, default false) для
+  различения заказов от юридических (B2B) и физических лиц
+- При автоимпорте Ozon: признак из `legal_info` (inn/company_name); WB: из
+  `options.isB2B`
+- Бизнес-правило: только автоимпорт FBS-заказов, FBO/Excel/ручное — не
+  определяются (нет источника данных)
+- Обновлён topic: marketplace-integration.md
+
 ## [2026-06-27] fix | shift-system-current-users-count
 
 - Фикс задвоения счётчиков `users_count` на страницах списков смен/цехов —

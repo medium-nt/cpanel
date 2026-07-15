@@ -99,6 +99,7 @@ class WbApiService
                     'skus' => [],
                     'marketplace_id' => '2',
                     'order_created' => $order->createdAt,
+                    'is_b2b' => (bool) ($order->options?->isB2B),
                 ];
 
                 foreach ($order->skus as $sku) {

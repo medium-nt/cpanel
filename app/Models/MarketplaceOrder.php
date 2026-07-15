@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @property int $id
  * @property string $status
+ * @property bool $is_b2b Признак заказа от юридического лица (B2B)
  * @property Carbon|null $boxed_at
  * @property-read Collection|MarketplaceOrderItem[] $items
  * @property MarketplaceSupply|null $supply
@@ -37,6 +38,7 @@ class MarketplaceOrder extends Model
         'created_at',
         'returned_at',
         'cluster',
+        'is_b2b',
     ];
 
     protected $appends = ['marketplace_name', 'status_name', 'status_color'];
@@ -50,6 +52,7 @@ class MarketplaceOrder extends Model
     {
         return [
             'boxed_at' => 'datetime',
+            'is_b2b' => 'boolean',
         ];
     }
 

@@ -120,6 +120,7 @@ class OzonApiService
                     'skus' => [],
                     'marketplace_id' => '1',
                     'order_created' => $order->in_process_at,
+                    'is_b2b' => ($order->legal_info?->inn) || ($order->legal_info?->company_name),
                 ];
 
                 foreach ($order->products as $item) {
