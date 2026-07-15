@@ -720,10 +720,17 @@ class MarketplaceSupplyController extends Controller
             'completed_at' => now(),
         ]);
 
+        $orderIds = $marketplace_supply->marketplace_orders()->pluck('order_id')->all();
+
         $marketplace_supply->marketplace_orders()->update([
             'status' => 3,
             'completed_at' => now(),
         ]);
+
+        Log::channel('orders')
+            ->notice(auth()->user()->name.' отгрузил '.count($orderIds).
+                ' заказ(ов) ['.implode(', ', $orderIds).'] из поставки #'.$marketplace_supply->id.
+                ' (переведены в статус "готово")');
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
 
@@ -980,10 +987,16 @@ class MarketplaceSupplyController extends Controller
             'completed_at' => now(),
         ]);
 
+        $orderIds = $marketplace_supply->marketplace_orders()->pluck('order_id')->all();
+
         $marketplace_supply->marketplace_orders()->update([
             'status' => 3,
             'completed_at' => now(),
         ]);
+
+        Log::channel('orders')
+            ->notice(auth()->user()->name.' закрыл поставку #'.$marketplace_supply->id.
+                ': '.count($orderIds).' заказ(ов) ['.implode(', ', $orderIds).'] переведены в статус "готово"');
 
         $marketplaceName = MarketplaceOrderService::getMarketplaceName($marketplace_supply->marketplace_id);
         Log::channel('marketplace_supplies')

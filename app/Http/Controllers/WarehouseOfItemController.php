@@ -286,6 +286,10 @@ class WarehouseOfItemController extends Controller
         $marketplaceOrder->completed_at = now();
         $marketplaceOrder->save();
 
+        Log::channel('orders')
+            ->notice('Заказ '.$marketplaceOrder->order_id.
+                ' ('.$marketplaceOrder->id.') передан в статус "на поставку"');
+
         $marketplaceOrderItem = $marketplaceOrder->items->first();
         $marketplaceOrderItem->status = 3; // выполнен
         $marketplaceOrderItem->shelf_id = null; // удаляем полку хранения

@@ -1,3 +1,15 @@
+## [2026-07-14] fix | rating-board-empty-data-behavior
+
+- Исправлено описание поведения когда все лидеры закрыли смену: раньше было
+  указано CSS-скрытие через `.all-shift-done` и `toggleAllShiftDone()`, но
+  актуальная реализация — через `normalizeData(data)` (возвращает пустые
+  `leaders: []` и `podium: { gold: null, silver: null, bronze: null }`).
+- Эффект: таблица лидеров показывает только заголовок (без карточек), подиум —
+  3 empty-слота (`top__item--empty`). Блоки остаются на экране, НЕ скрываются.
+- Подход через нормализацию данных (НЕ через CSS) обеспечивает согласованность
+  `lastData` с DOM для корректной работы diff-логики.
+- Обновлён topic: rating-board.md
+
 ## [2026-06-27] fix | shift-system-current-users-count
 
 - Фикс задвоения счётчиков `users_count` на страницах списков смен/цехов —
@@ -846,3 +858,73 @@
 - Обновлён topic: marketplace-integration.md
 - Обновлён map: services.md (автогенерацией через `php artisan wiki:generate`)
   — 3 новых сервиса + обновлённый MarketplaceApiService
+## [2026-07-14] update | rating-board
+
+- Добавлено поле `shift_done: bool` в таблицу лидеров — визуальная метка «смена
+  закрыта» (иконка-замок + затемнение карточки)
+- Источник данных: таблица `schedules` (shift_opened_time != '00:00:00' AND
+  shift_closed_time != '00:00:00' для сегодняшней даты)
+- НЕ влияет на попадание в таблицу лидеров (попадание по факту completed_at за
+  сегодня)
+- Фронт: `syncShiftDone(leaders)` вызывается в `applyPollDiff` и `renderInitial`
+  на каждом poll, CSS класс `.leaders__item--done { opacity: .55 }`
+- Тесты: +3 кейса на shift_done (закрыл/открыл но не закрыл/не открывал), всего
+  35 passed
+- Затронутые файлы: RatingBoardDataService.php (applyShiftDone),
+  public/rating_board/js/app.js (syncShiftDone, LOCK_SVG),
+  public/rating_board/css/style.css
+- Обновлён topic: rating-board.md
+
+## [2026-07-14] update | rating-board
+
+- Добавлено скрытие таблицы лидеров и подиума когда ВСЕ лидеры закрыли смену (
+  frontend-only)
+- Новая функция `toggleAllShiftDone(leaders)`: проверяет
+  `list.length > 0 && list.every(l => l.shift_done)` → добавляет класс
+  `.all-shift-done` на `body`
+- CSS: `.all-shift-done .leaders, .all-shift-done .top { display: none }`
+  скрывает блоки таблицы лидеров и подиума. Блоки стикеров/статистики/winner
+  остаются видимыми
+- Вызывается на каждом poll в `renderInitial` и `applyPollDiff` (после
+  `syncShiftDone`)
+- ПУСТОЙ список лидеров (никто не выполнил заказы сегодня) НЕ триггерит
+  скрытие (условие `length > 0`)
+- Затронутые файлы: public/rating_board/js/app.js (toggleAllShiftDone),
+  public/rating_board/css/style.css (all-shift-done)
+- Обновлён topic: rating-board.md
+
+## [2026-07-14] update | rating-board
+
+- `RatingBoardDataService::getWinner()`: переписана логика победителя смены —
+  теперь
+  топ-швея по максимальному дневному результату (MAX) за последние 2 смены, а не
+  по
+  сумме за последний рабочий день
+- Методы: `previousWorkDates($workshopId, 2)` — 2 последние смены из
+  shift_schedule,
+  `maxDailyCountByDates($workshopId, $dates)` — MAX по дням (GROUP BY user_id +
+  DATE)
+- Если смен нет → возвращает null-результат (пустые поля)
+- `orders_count` = лучший дневной результат победителя (не сумма за 2 дня)
+- Удалён мёртвый метод `previousWorkDate()`
+- Фронт: `renderWinner()` снова рендерит `.winner__desc` из `winner.description`
+- Обновлён topic: rating-board.md
+
+## [2026-07-14] update | rating-board
+
+- Добавлено поле `date` в контракт метода `getWinner()` — день-максимум
+  победителя (когда
+  сделано X заказов = orders_count). Формат Y-m-d (строка).
+- Реализация: в `maxDailyCountByDates()` добавлен `DATE(dateCol) as work_date`,
+  для каждого
+  user_id берётся work_date строки с max cnt.
+- Фронт: `renderWinner()` показывает дату под счётчиком в новом
+  `<p class="winner__date">`
+  как «12 июля». Новая функция `formatWinnerDate(iso)` парсит дату с учётом
+  TZ-смещения.
+- 0 смен в shift_schedule → `date = null`.
+- Затронутые файлы: RatingBoardDataService.php, public/rating_board/js/app.js,
+  resources/views/rating_board/index.blade.php,
+  public/rating_board/css/style.css
+- Тесты: +4 assert на поле date в RatingBoardDataServiceTest.php
+- Обновлён topic: rating-board.md

@@ -178,6 +178,7 @@
                                 style="float: left; margin-left: 5px;  font-weight: bold; margin-top: 10px; font-size: 13px">
                                 {{ $item->marketplaceOrder->MarketplaceTitle }}
                                 {{ $item->marketplaceOrder->order_id }}
+                                [{{ $item->marketplaceOrder->fulfillment_type }}]
                             </span>
                             <span
                                 style="float: right; margin-top: 10px; font-weight: bold; font-size: 14px">

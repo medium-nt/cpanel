@@ -33,6 +33,9 @@ class SupplyOrderList extends Component
             $order->marketplace_status = null;
             $order->save();
 
+            Log::channel('orders')
+                ->notice('Заказ №'.$order->order_id.' ('.$order->id.'): marketplace_status обнулён (удалён из поставки)');
+
             Log::channel('marketplace_supplies')
                 ->notice('Заказ №'.$order->order_id.' успешно удален из поставки.');
         }

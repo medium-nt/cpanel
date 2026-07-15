@@ -301,6 +301,30 @@ body {
     margin-left: auto;
 }
 
+/* Смена закрыта: лёгкое затемнение карточки. БЕЗ !important, чтобы анимации climbing/falling перекрывали opacity во время bubble-sort. */
+.leaders__item--done {
+    opacity: .55;
+}
+
+.leaders__shift-done {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-left: .5rem;
+    vertical-align: middle;
+    color: #c9a23a;
+}
+
+.leaders__shift-done svg {
+    width: 100%;
+    height: 100%;
+}
+
 .top {
     height: 47.8125rem;
     border: 0.125rem solid #8f8f8f;
@@ -626,6 +650,12 @@ body {
     font-family: "Inter";
     font-weight: 700;
     font-size: 3rem;
+    /* Равные доли: FBO/FBS занимают по половине ширины контейнера,
+       поэтому анимация ширины цифры (animateStickerValue) не сдвигает соседа. */
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 0;
+    flex: 1 1 0;
+    text-align: center;
 }
 
 .statistics {
@@ -731,6 +761,10 @@ body {
     display: -ms-grid;
     display: grid;
     gap: 0.25rem;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 0;
 }
 
 .statistics__name {
@@ -749,17 +783,16 @@ body {
 .statistics__value {
     font-weight: 600;
     font-size: 1rem;
+    white-space: pre-line;
 }
 
 .statistics__box {
     display: -ms-grid;
     display: grid;
     justify-items: end;
-    -webkit-box-pack: end;
-    -ms-flex-pack: end;
-    justify-content: end;
     gap: 0.5rem;
-    margin-left: auto;
+    -ms-flex: 0 0 7rem;
+    flex: 0 0 7rem;
 }
 
 .statistics__icon {
@@ -770,6 +803,7 @@ body {
 .statistics__shift {
     font-size: 1rem;
     color: #e5c987;
+    text-align: right;
 }
 
 .winner {
@@ -816,6 +850,12 @@ body {
 .winner__text {
     font-size: 1.5rem;
     text-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, .25);
+}
+
+.winner__date {
+    font-size: 1.25rem;
+    opacity: 0.85;
+    margin-top: 0.25rem;
 }
 
 .winner__body {
