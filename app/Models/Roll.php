@@ -125,7 +125,7 @@ class Roll extends Model
         $used = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
             ->where('roll_id', $this->id)
-            ->whereIn('orders.type_movement', [3, 4])
+            ->whereIn('orders.type_movement', [3, 4, 10])
             ->sum('quantity');
 
         return round($this->initial_quantity - $used, 3);

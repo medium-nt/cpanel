@@ -1,6 +1,6 @@
 # Material Flow — Движение материалов
 
-> Last reviewed: 2026-07-02
+> Last reviewed: 2026-07-16
 
 ## Обзор
 
@@ -31,6 +31,7 @@
 | 7   | Остатки на производстве   | Нераспределённые остатки       |
 | 8   | Утилизированные остатки   | Безвозвратные потери           |
 | 9   | Возврат на склад          | Цех → Склад (неиспользованные) |
+| 10  | Ручное списание           | Админ списывает метраж рулона  |
 
 ### Фильтрация архивных материалов (02.07.2026)
 
@@ -120,6 +121,16 @@
   → Рулоны привязаны к сменам (shift_id)
   → Каждая смена работает только со своими рулонами
   → Админ и кладовщик имеют полный доступ ко всем рулонам
+
+Ручное списание рулона (type_movement=10)
+  → Админ может списать метраж с рулона в любой момент (страница рулона)
+  → Условия: статус рулона `in_workshop`, `current_quantity > 0`, admin-only
+  → Создаётся Order с `type_movement=10`, `status=3`, `comment` из формы
+  → MovementMaterial фиксирует списанное количество с привязкой к рулону
+  → Транзакция с `lockForUpdate()` защищает от race condition
+  → Влияет на `Roll::current_quantity` (учитывается в формуле остатка)
+  → Блокирует возврат рулона на склад (как и типы 3,4)
+  → Логируется в канал `materials`
 ```
 
 ### Поставщик → Склад
@@ -276,6 +287,13 @@
   киоске (scanning, completion, defects) с изоляцией по сменам, включая
   переупаковку (processRepack) и подмену товара (processReplace) с правильным
   списанием упаковки с рулона текущей смены
+- `app/Http/Controllers\RollController.php` — ручное списание метража рулона
+  (writeOff метод, admin-only через RollPolicy), страница рулона
+  `/megatulle/rolls/show/{id}`
+- `app/Http/Requests\RollWriteOffRequest.php` — валидация формы списания
+  (quantity required|numeric|gt:0, comment nullable|max:1000)
+- `app/Policies/RollPolicy.php` — авторизация writeOff (isAdmin() + проверки
+  статуса/остатка)
 - `app/Livewire/WorkshopRollScan.php` — сканирование рулонов при сборке поставки
   с проверкой лимита рулонов ткани (scanRoll)
 
@@ -302,6 +320,21 @@
     - Считаются рулоны в статусах `IN_WORKSHOP` + `SHIPPED_TO_WORKSHOP` с тем же
       `material_id` и `shift_id`
     - Для упаковки — строго 1 рулон на смену в цехе (отдельная проверка)
+- **Ручное списание рулона (type_movement=10):**
+  - Admin-only операция: доступна только администраторам через
+    `RollPolicy@writeOff`
+  - Условия: рулон в статусе `in_workshop`, `current_quantity > 0`
+  - Создаёт Order с `type_movement=10`, `status=3`, `shift_id` из рулона,
+    `storekeeper_id = auth()->id()`, `comment` из формы
+  - Создаёт MovementMaterial с привязкой к рулону (`roll_id`)
+  - Транзакция с `lockForUpdate()` на рулоне защищает от race condition
+  - Влияет на `Roll::current_quantity` accessor (учитывается в формуле остатка
+    наряду с типами 3,4)
+  - Блокирует `RollController::returnToStorage` (после ручного списания вернуть
+    на склад нельзя)
+  - Логируется в канал `materials`
+  - Форма: modal на странице рулона (`/megatulle/rolls/show/{id}`) с полями
+    `quantity` (≤ current_quantity) и `comment` (опционально)
 
 ## Связанные topics
 
