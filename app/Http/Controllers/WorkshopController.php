@@ -181,6 +181,13 @@ class WorkshopController extends Controller
                 ->with('error', 'Нельзя деактивировать цех, у которого есть смены. Сначала перенесите или удалите смены.');
         }
 
+        // Снимок исходных значений модели для diff-логирования
+        $original = $workshop->getOriginal();
+        // Снимок текущих цеховых настроек: name => value
+        $oldSettings = Setting::query()
+            ->where('workshop_id', $workshop->id)
+            ->pluck('value', 'name');
+
         $workshop->update([
             'title' => $validated['title'],
             'status' => $validated['status'],
@@ -216,9 +223,27 @@ class WorkshopController extends Controller
             }
         }
 
+        // Diff по цеховым настройкам: что реально поменялось (new=null = удалена цеховая, fallback на глобальную)
+        $settingsDiff = [];
+        foreach ($settings as $name => $value) {
+            $old = $oldSettings->get($name);
+            $new = ($value !== null && $value !== '') ? $value : null;
+            if ((string) $old !== (string) $new) {
+                $settingsDiff[$name] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        // Diff по скалярным полям модели Workshop (title, status)
+        $diff = collect($workshop->getChanges())
+            ->except(['updated_at'])
+            ->mapWithKeys(fn ($new, $field) => [
+                $field => ['old' => $original[$field] ?? null, 'new' => $new],
+            ]);
+
         Log::channel('system')->info('Обновлён цех', [
             'workshop_id' => $workshop->id,
-            'changed' => collect($workshop->getChanges())->except(['updated_at'])->keys(),
+            'changes' => $diff->toArray(),
+            'settings_changes' => $settingsDiff,
             'allowed_items_count' => count($itemIds),
             'allowed_materials_count' => count($validated['allowed_raw_materials'] ?? []),
             'settings_count' => count($validated['settings'] ?? []),
