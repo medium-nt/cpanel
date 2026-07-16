@@ -106,6 +106,51 @@
 - Товары (`MarketplaceOrderItem`) привязываются к стеллажу через `shelf_id`
 - Используется для организации и быстрого поиска
 
+### Вешалки (Hanger)
+
+**Бизнес-смысл:** Вешалки — единицы хранения для раскроенных товаров, аналог
+стеллажей.
+Закройщик назначает вешалку в своём профиле, она автоматически проставляется в
+товар при сдаче раскроя.
+
+**Поток работы:**
+
+1. Закройщик на странице «Товары для пошива» (
+   `/megatulle/marketplace_order_items`) нажимает «Сменить вешалку»
+2. Открывается модалка с выбором вешалки из справочника
+3. Выбранная вешалка сохраняется в профиль пользователя (`users.hanger_id`)
+4. При сдаче раскроя (`MarketplaceOrderItemController::completeCutting`,
+   статус=8) в товар автоматически проставляется `hanger_id` из профиля текущего
+   юзера
+5. В карточке товара (`show.blade.php`) показывается название вешалки, если
+   `hanger_id` задан
+
+**Модель и связи:**
+
+- `Hanger` — простая модель справочника (аналог `Shelf`)
+- `User::hanger()` — связь belongsTo с вешалкой из профиля
+- `MarketplaceOrderItem::hanger()` — связь belongsTo с вешалкой товара
+- Поля `users.hanger_id` и `marketplace_order_items.hanger_id` — nullable, с
+  onDelete null
+
+**Управление справочником:**
+
+- CRUD в Настройках (`/megatulle/hangers/*`) — только для администраторов
+- `HangerPolicy` — доступ через `isAdmin()`
+- Пункт меню в config/adminlte.php (icon `fa-tshirt`, проверка `can is-admin`)
+- Перевод: `'hangers' => 'Вешалки'`
+
+**Ключевые файлы:**
+
+- `app/Models/Hanger.php` — модель вешалки
+- `app/Http/Controllers/HangerController.php` — CRUD справочника
+- `app/Policies/HangerPolicy.php` — политика доступа (admin only)
+- `app/Http/Controllers/MarketplaceOrderItemController.php` — метод
+  `setHanger` (PUT set-hanger), `completeCutting` (проставляет hanger_id)
+- `resources/views/hangers/*` — views справочника
+- `resources/views/marketplace_order_items/show.blade.php` — отображение вешалки
+  в карточке товара
+
 ### Склад товаров (WarehouseOfItemService)
 
 **Основные операции:**

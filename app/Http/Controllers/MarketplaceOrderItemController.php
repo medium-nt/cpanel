@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Hanger;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceWarehouse;
@@ -78,6 +79,7 @@ class MarketplaceOrderItemController extends Controller
             'widthMaterials' => MarketplaceItemService::getAllWidthMaterials(),
             'heightMaterials' => MarketplaceItemService::getAllHeightMaterials(),
             'workshops' => Workshop::query()->active()->get(),
+            'hangers' => auth()->user()->isCutter() ? Hanger::orderBy('title')->get() : collect(),
         ]);
     }
 
@@ -91,6 +93,7 @@ class MarketplaceOrderItemController extends Controller
             'otk',
             'repacker',
             'shelf',
+            'hanger',
             'history',
         ]);
 
@@ -343,6 +346,7 @@ class MarketplaceOrderItemController extends Controller
         $marketplaceOrderItem->update([
             'status' => 5,
             'completed_at' => now(),
+            'hanger_id' => null,
         ]);
 
         MarketplaceOrderItemService::resetClusterPriorityIfExhausted($marketplaceOrderItem->workshop_id);
@@ -394,6 +398,7 @@ class MarketplaceOrderItemController extends Controller
         $marketplaceOrderItem->update([
             'status' => 8,
             'cutting_completed_at' => now(),
+            'hanger_id' => auth()->user()->hanger_id,
         ]);
 
         StackService::reduceStack($marketplaceOrderItem->cutter_id);
@@ -406,6 +411,25 @@ class MarketplaceOrderItemController extends Controller
         $this->updateRollIds($request, $marketplaceOrderItem);
 
         return back()->with('success', 'Заказ успешно выполнен');
+    }
+
+    /**
+     * Сохраняет выбранную вешалку в профиль текущего закройщика.
+     */
+    public function setHanger(Request $request)
+    {
+        $validated = $request->validate([
+            'hanger_id' => 'nullable|exists:hangers,id',
+        ]);
+
+        $user = auth()->user();
+        if (! $user->isCutter()) {
+            abort(403);
+        }
+
+        $user->update(['hanger_id' => $validated['hanger_id']]);
+
+        return back()->with('success', 'Вешалка сохранена');
     }
 
     public function printCutting(MarketplaceOrderItemService $service)

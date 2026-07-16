@@ -49,6 +49,7 @@ return [
     'warehouse_of_item' => 'Склад товара',
     'inspection' => 'Возвраты на осмотр',
     'shelves' => 'Полки на складе',
+    'hangers' => 'Вешалки',
     'inventory_checks' => 'Инвентаризации',
     'rolls' => 'Рулоны',
     'ozon-returns' => 'Получение возвратов',

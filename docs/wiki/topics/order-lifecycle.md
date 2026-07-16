@@ -1,6 +1,6 @@
 # Order Lifecycle — Жизненный цикл заказов маркетплейса
 
-> Last reviewed: 2026-07-08
+> Last reviewed: 2026-07-16
 
 ## Обзор
 
@@ -36,9 +36,9 @@ API-синхронизацию каждые 10 минут. Каждый `Marketp
 API синхронизация (каждые 10 мин)
   → Новый заказ (status=0)
   → Закройщик берёт в работу (status=7, cutter_id=current_user)
-  → Закройщик сдаёт (status=8, cutting_completed_at=now)
+  → Закройщик сдаёт (status=8, cutting_completed_at=now, hanger_id из профиля)
   → Швея берёт в работу (status=4, seamstress_id=current_user)
-  → Швея сдаёт → ОТК проверяет (status=5, otk_id=current_user)
+  → Швея сдаёт → ОТК проверяет (status=5, otk_id=current_user, hanger_id=null)
   → Упаковщик маркирует (status=6)
   → Кладовщик упаковывает (status=3)
   → Товар на складе (status=13)

@@ -21,6 +21,7 @@ class MarketplaceOrderItem extends Model
         'marketplace_item_id',
         'storage_barcode',
         'shelf_id',
+        'hanger_id',
         'quantity',
         'price',
         'status',
@@ -88,6 +89,12 @@ class MarketplaceOrderItem extends Model
     public function shelf(): BelongsTo
     {
         return $this->belongsTo(Shelf::class);
+    }
+
+    /** Вешалка, на которую повешан товар при сдаче кроя. */
+    public function hanger(): BelongsTo
+    {
+        return $this->belongsTo(Hanger::class);
     }
 
     /**
