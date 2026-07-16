@@ -1,6 +1,6 @@
 # User Management — Управление пользователями
 
-> Last reviewed: 2026-07-04
+> Last reviewed: 2026-07-16
 
 ## Обзор
 
@@ -233,6 +233,10 @@ NotificationService::notify($user, $text[, queued: true, delaySeconds: $i]) }`.
 - **Webhook MAX:** при событии `message_created` и несуществующем max_id
   отправляется
   ссылка на профиль для привязки (route('profile', ['max_id' => ...]))
+- **Admin-only операции с рулонами:** ручное списание метража рулона доступно
+  только администраторам через `RollPolicy@writeOff` → `isAdmin()` (страница
+  рулона `/megatulle/rolls/show/{id}`, создаёт Order с `type_movement=10`,
+  влияет на `Roll::current_quantity`)
 
 ## Связанные topics
 

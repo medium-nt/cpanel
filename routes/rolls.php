@@ -18,6 +18,9 @@ Route::prefix('/rolls')->group(function () {
     Route::put('/return/{roll}', [RollController::class, 'returnToStorage'])
         ->can('returnToStorage', 'roll')
         ->name('rolls.returnToStorage');
+    Route::post('/write-off/{roll}', [RollController::class, 'writeOff'])
+        ->can('writeOff', 'roll')
+        ->name('rolls.writeOff');
     Route::delete('/delete/{roll}', [RollController::class, 'destroy'])
         ->can('delete', 'roll')
         ->name('rolls.destroy');

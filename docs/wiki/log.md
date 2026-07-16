@@ -1,4 +1,4 @@
-## [2026-07-14] fix | rating-board-empty-data-behavior
+## [2026-07-14] update | rating-board-empty-data-behavior
 
 - Исправлено описание поведения когда все лидеры закрыли смену: раньше было
   указано CSS-скрытие через `.all-shift-done` и `toggleAllShiftDone()`, но
@@ -214,7 +214,7 @@
 - Добавлена новая роль пользователя `cleaner` (ID=8) с минимальным доступом
 - Доступ: только авторизация + базовый дашборд, не входит ни в один Gate
 - Не участвует в сменной системе (не добавлена в ShiftService::SHIFT_ROLES)
-- **Обновлены topics:** user-management.md, shift-system.md
+- **Обновлены темы:** user-management.md, shift-system.md
 - Файлы изменений: RoleSeeder.php, User.php, UserService.php, create.blade.php,
   RoleFactory.php, UserTest.php
 
@@ -232,7 +232,7 @@
     - admin, storekeeper — полный функционал киоска
     - cleaner, driver — только "Открытие/Закрытие смены" (учёт времени), без
       привязки к цеху
-- Обновлены topics: shift-system.md, user-management.md, warehouse-operations.md
+- Обновлены темы: shift-system.md, user-management.md, warehouse-operations.md
 - Файлы изменений: StickerPrintingController.php,
   resources/views/kiosk/kiosk.blade.php,
   tests/Feature/KioskLimitedAccessTest.php (переименован из
@@ -243,20 +243,20 @@
 - Уборщица (cleaner) получила доступ в киоск любого цеха через
   `StickerPrintingController::canAccessWorkshop()`: добавлен
   `|| $user->isCleaner()`
-- В киоске для cleaner скрыт весь операциональный функционал (печать заказов,
+- В киоске для cleaner скрыт весь операционный функционал (печать заказов,
   статистика, работа с рулонами, браком, возвратами, стикерами)
 - В виден только пункт "Открытие / Закрытие смены" для учёта рабочего времени
 - Уборщица не привязана к сменному графику (`ShiftService::SHIFT_ROLES`), но
   `canWorkToday(cleaner) = true`
 - Middleware RequireOpenShift пропускает cleaner после открытия смены
-- Обновлены topics: shift-system.md, user-management.md, warehouse-operations.md
+- Обновлены темы: shift-system.md, user-management.md, warehouse-operations.md
 - Файлы изменений: StickerPrintingController.php,
   resources/views/kiosk/kiosk.blade.php,
   tests/Feature/KioskCleanerAccessTest.php
 
 ## [2026-06-17] update | salary-system
 
-- Новое правило для cleaner/driver: дневной окład начисляется ТОЛЬКО если
+- Новое правило для cleaner/driver: дневной оклад начисляется ТОЛЬКО если
   сотрудник
   в день начисления открыл смену И закрыл её. Источник правды:
   `schedules.shift_*_time` (не `users.shift_*`, которые обнуляются nightly
@@ -272,7 +272,7 @@
 - **Связь с shift-system.md:** cleaner/driver не участвуют в сменном графике, но
   имеют доступ в киоск для учёта рабочего времени → логика оклада привязана к их
   фактическому присутствию
-- Обновлены topics: salary-system.md, shift-system.md, user-management.md
+- Обновлены темы: salary-system.md, shift-system.md, user-management.md
 - Файлы изменений: `app/Services/ActionAccrualService.php` (константа + guard),
   `tests/Feature/Services/ActionAccrualServiceTest.php`
 
@@ -287,7 +287,7 @@
   "Рулон еще не заканчивается!" (доступен кладовщикам/админам)
 - Проверка порога только в шаблоне kiosk/rolls.blade.php:89 (серверная проверка
   completeRoll() отсутствует)
-- Обновлены topics: material-flow.md, shift-system.md, создан materials.md
+- Обновлены темы: material-flow.md, shift-system.md, создан materials.md
 - Удалена настройка roll_close_min_remaining из settings/seeders/Controllers
 
 ## [2026-06-18] fix | accessory-check-only-for-seamstress
@@ -309,7 +309,7 @@
   поток упаковщика |
 - **Принцип:** материал проверяется у той роли, которая с ним физически работает
   (ткань — у кроящего, аксессуары — у шьющей швеи, упаковка — у упаковщика)
-- Обновлены topics: order-lifecycle.md, warehouse-operations.md, materials.md,
+- Обновлены темы: order-lifecycle.md, warehouse-operations.md, materials.md,
   material-flow.md
 
 ## [2026-06-18] fix | packaging-check-excluded-from-workshop-availability
@@ -324,7 +324,7 @@
   магического числа `type_id == 1`
 - Швеи без кроя (`seamstressNotCut`) пропускают проверку тканей — крой делает
   закройщик
-- Обновлены topics: order-lifecycle.md, warehouse-operations.md, materials.md,
+- Обновлены темы: order-lifecycle.md, warehouse-operations.md, materials.md,
   material-flow.md
 
 ## [2026-06-19] feature | material-supplier-shortage-tracking
@@ -347,7 +347,7 @@
   таблицей
   поставщиков и формами управления
 - Логирование операций в канал `materials` (привязка/обновление/отвязка)
-- Обновлены topics: materials.md, material-flow.md, INDEX.md
+- Обновлены темы: materials.md, material-flow.md, INDEX.md
 
 ## [2026-06-25] fix | kiosk-packaging-roll-deduction
 
@@ -375,7 +375,7 @@
   `app/Http/Controllers/StickerPrintingController.php`,
   `tests/Feature/Services/KioskServiceTest.php`,
   `tests/Feature/Controllers/ProcessRepackTest.php` (новый).
-- Обновлены topics: material-flow.md, materials.md, warehouse-operations.md,
+- Обновлены темы: material-flow.md, materials.md, warehouse-operations.md,
   order-lifecycle.md
 
 ## [2026-06-25] update | fbo-supply-date-editable
@@ -432,7 +432,7 @@
   `0 (Открытая) → 13 (Сформирована) → 4 (Отгрузка) → 3 (Закрытая)` добавлена
   обратная стрелка `3 → 4` через `unmarkShipped` (admin only).
 - Тесты: `tests/Feature/MarketplaceSupplyUnmarkShippedTest.php` — 3 pest-теста.
-- Обновлены topics: marketplace-integration.md
+- Обновлены темы: marketplace-integration.md
 
 ## [2026-06-25] update | max_fabric_rolls_per_shift в настройках
 
@@ -464,7 +464,7 @@
     - `app/Http/Requests/SaveSettingRequest.php` — правило валидации
       (sometimes|integer|min:1)
     - `resources/views/settings/index.blade.php` — поле в глобальном UI настроек
-- Обновлены topics: material-flow.md, materials.md, shift-system.md
+- Обновлены темы: material-flow.md, materials.md, shift-system.md
 
 ## [2026-06-26] update | box-order-scanner-sorting
 
@@ -498,7 +498,7 @@
     - `app/Livewire/BoxOrderScanner.php` (handleScan, removeOrder, render)
     - `resources/views/livewire/box-order-scanner.blade.php`
     - `tests/Feature/BoxOrderScannerTest.php`
-- Обновлены topics: marketplace-integration.md, warehouse-operations.md
+- Обновлены темы: marketplace-integration.md, warehouse-operations.md
 
 ## [2026-06-28] add | support-system
 
@@ -528,7 +528,7 @@
 - Blade views: index (вкладки), create (форма), show (детали)
 - Жизненный цикл: new → closed (показ в «Обработанные») / deleted (корзина)
 - Создан topic: support-system.md
-- Обновлены topics: user-management.md (связь с ролями)
+- Обновлены темы: user-management.md (связь с ролями)
 
 ## [2026-06-28] fix | support-system
 
@@ -602,7 +602,7 @@
   `no_material:item:{itemId}` → защита от спама при повторных кликах «Получить
   новый заказ»
 - Логи CB-событий пишутся в каналы `tg`/`max` (уровни info/warning)
-- Обновлены topics: user-management.md, marketplace-integration.md,
+- Обновлены темы: user-management.md, marketplace-integration.md,
   logging-channels.md
 
 ## [2026-06-28] update | max-messenger-notifications
@@ -637,7 +637,7 @@
   getListSeamstressesWorkingToday
   и др.) — хелперы возвращают Collection<tg_id>, для MAX нужна адаптация (~25
   точек)
-- Обновлены topics: logging-channels.md (канал `max`), user-management.md (
+- Обновлены темы: logging-channels.md (канал `max`), user-management.md (
   мессенджер-интеграции),
   marketplace-integration.md (TG+MAX-уведомления), warehouse-operations.md (
   TG+MAX при сборке),
@@ -658,7 +658,7 @@
 - Карта фильтрации: просмотры остатков → только `is_archive=false` (видны
   активные и «нельзя заказать»); формы заказа (Этап 2) → оба флага; админка →
   все материалы
-- Обновлены topics: materials.md, warehouse-operations.md, material-flow.md
+- Обновлены темы: materials.md, warehouse-operations.md, material-flow.md
 
 ## [2026-07-02] update | materials-archive-phase2-forms-canarchive
 
@@ -682,7 +682,7 @@
 - UI `materials/edit.blade.php`: option «В архиве» @disabled когда материал
   активный; alert для session('error')
 - Бизнес-правило пути статусов: `Активен → Нельзя заказать → Архив`
-- Обновлены topics: materials.md (добавлены scopeActive, canArchive, путь
+- Обновлены темы: materials.md (добавлены scopeActive, canArchive, путь
   статусов, список контроллеров), material-flow.md (раздел фильтрации расширен),
   warehouse-operations.md (добавлен canArchive)
 
@@ -811,7 +811,7 @@
   тот
   чистит ГОТОВЫЕ видео старше 60 дней на `public` диске (
   `storage/app/public/videos`)
-- Обновлены topics: marketplace-integration.md
+- Обновлены темы: marketplace-integration.md
 - Обновлён map: services.md (добавлен метод deleteOldChunks)
 
 ## [2026-07-12] update | notifications-async
@@ -938,3 +938,34 @@
   public/rating_board/css/style.css
 - Тесты: +4 assert на поле date в RatingBoardDataServiceTest.php
 - Обновлён topic: rating-board.md
+
+## [2026-07-16] update | roll-write-off
+
+- Добавлен новый тип движения материалов
+  `TypeMovement::TYPES[10] = 'Ручное списание'`
+  — админ может списать метраж рулона в любой момент (страница рулона
+  `/megatulle/rolls/show/{id}`)
+- Новые файлы: `RollController@writeOff(RollWriteOffRequest, Roll)`,
+  `RollWriteOffRequest` (валидация quantity ≤ current_quantity дважды:
+  FormRequest
+    + под lock в controller), `RollPolicy@writeOff` (isAdmin() + проверки
+      статуса/остатка)
+- Логика: создаёт Order (type_movement=10, status=3, shift_id из рулона,
+  storekeeper_id=auth()->id(), comment из формы) + MovementMaterial (с привязкой
+  к roll_id) в транзакции с lockForUpdate() (защита от race condition)
+- Влияние на остаток: тип 10 добавлен в `Roll::current_quantity` accessor
+  (формула:
+  `initial_quantity − Σ(quantity MovementMaterial где order.type_movement ∈ [3,4,10])`)
+- Побочный эффект: тип 10 добавлен в проверку блокировки
+  `RollController::returnToStorage` (после ручного списания вернуть рулон на
+  склад нельзя, как и после типов 3,4)
+- Доступ: только админ (RollPolicy@writeOff → isAdmin()), условия: рулон в
+  статусе `in_workshop`, `current_quantity > 0`
+- UI: modal форма на странице рулона с полями `quantity` (required|numeric|gt:0,
+  ≤ current_quantity) и `comment` (nullable|max:1000), защита open redirect
+  (back_url тот же хост)
+- Логирование в канал `materials`
+- Обновлены темы: material-flow.md (типы движения, рулоны, ключевые файлы,
+  бизнес-правила), materials.md (движение материалов, рулоны, ключевые файлы,
+  бизнес-правила), warehouse-operations.md (admin-only операции в киоске),
+  user-management.md (admin-only операции с рулонами)

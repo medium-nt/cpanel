@@ -35,4 +35,10 @@ class RollPolicy
     {
         return $user->isAdmin();
     }
+
+    /** Ручное списание метража рулона может только админ. */
+    public function writeOff(User $user): bool
+    {
+        return $user->isAdmin();
+    }
 }

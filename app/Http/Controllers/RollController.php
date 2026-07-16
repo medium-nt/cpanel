@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RollWriteOffRequest;
 use App\Models\Material;
 use App\Models\MovementMaterial;
 use App\Models\Order;
@@ -48,13 +49,20 @@ class RollController extends Controller
 
     public function show(Roll $roll)
     {
+        // После POST-редиректа списания url()->previous() указывает на write-off
+        // endpoint — пропускаем его, чтобы кнопка «Назад» не вела на 405.
+        $previous = url()->previous();
+        if ($previous && str_contains($previous, '/rolls/write-off/')) {
+            $previous = route('rolls.index');
+        }
+
         return view('rolls.show', [
             'title' => 'Рулон '.$roll->roll_code,
             'roll' => Roll::query()
-                ->with(['material', 'shift', 'completedBy', 'movementMaterialsNotFromSuppler.order.seamstress', 'movementMaterialsNotFromSuppler.order.cutter', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
+                ->with(['material', 'shift', 'completedBy', 'movementMaterialsNotFromSuppler.order.seamstress', 'movementMaterialsNotFromSuppler.order.cutter', 'movementMaterialsNotFromSuppler.order.user', 'movementMaterialsNotFromSuppler.order.marketplaceOrder.items.item'])
                 ->find($roll->id),
             'canDelete' => $roll->status == 'in_storage',
-            'backUrl' => session('return_back_url', url()->previous()),
+            'backUrl' => session('return_back_url', $previous),
         ]);
     }
 
@@ -108,7 +116,7 @@ class RollController extends Controller
         $hasUsage = MovementMaterial::query()
             ->join('orders', 'orders.id', '=', 'movement_materials.order_id')
             ->where('movement_materials.roll_id', $roll->id)
-            ->whereIn('orders.type_movement', [3, 4])
+            ->whereIn('orders.type_movement', [3, 4, 10])
             ->exists();
 
         if ($hasUsage) {
@@ -155,6 +163,72 @@ class RollController extends Controller
             ->route('rolls.show', $roll)
             ->with('success', 'Рулон возвращен на склад')
             ->with('return_back_url', route('rolls.index'));
+    }
+
+    /**
+     * Ручное списание метража рулона администратором.
+     *
+     * Создает order с type_movement=10 и movement_material, уменьшая остаток рулона.
+     */
+    public function writeOff(RollWriteOffRequest $request, Roll $roll)
+    {
+        $validated = $request->validated();
+
+        if ($roll->status !== Roll::STATUS_IN_WORKSHOP) {
+            return redirect()
+                ->route('rolls.show', $roll)
+                ->with('error', 'Списание доступно только для рулона в цехе');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Блокируем рулон от параллельного списания и перепроверяем остаток
+            // актуальным значением внутри транзакции (защита от race condition).
+            $lockedRoll = Roll::lockForUpdate()->find($roll->id);
+
+            if ((float) $validated['quantity'] > (float) $lockedRoll->current_quantity) {
+                DB::rollBack();
+
+                return redirect()
+                    ->route('rolls.show', $roll)
+                    ->with('error', "Количество превышает остаток рулона ({$lockedRoll->current_quantity}).")
+                    ->with('return_back_url', $validated['back_url'] ?? route('rolls.index'));
+            }
+
+            $order = Order::query()->create([
+                'type_movement' => 10,
+                'status' => 3,
+                'shift_id' => $roll->shift_id,
+                'comment' => $validated['comment'] ?? null,
+                'storekeeper_id' => auth()->id(),
+            ]);
+
+            MovementMaterial::create([
+                'material_id' => $roll->material_id,
+                'order_id' => $order->id,
+                'quantity' => $validated['quantity'],
+                'roll_id' => $roll->id,
+            ]);
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::channel('materials')->error('Ошибка при ручном списании рулона: '.$e->getMessage());
+
+            return redirect()
+                ->route('rolls.show', $roll)
+                ->with('error', 'Внутренняя ошибка при списании')
+                ->with('return_back_url', $validated['back_url'] ?? route('rolls.index'));
+        }
+
+        Log::channel('materials')
+            ->notice('С рулона "'.$roll->roll_code.'" списано '.$validated['quantity'].' администратором '.auth()->user()->name);
+
+        return redirect()
+            ->route('rolls.show', $roll)
+            ->with('success', 'Метраж списан')
+            ->with('return_back_url', $validated['back_url'] ?? route('rolls.index'));
     }
 
     /**

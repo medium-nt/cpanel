@@ -34,11 +34,19 @@
                             method="POST">
                             @csrf
                             @method('PUT')
-                            <button type="submit" class="btn btn-warning"
+                            <button type="submit" class="btn btn-warning mr-3"
                                     onclick="return confirm('Вернуть рулон #{{ $roll->roll_code }} на склад?')">
                                 <i class="fa fa-undo mr-1"></i> Вернуть на склад
                             </button>
                         </form>
+
+                        @if($roll->current_quantity > 0)
+                            <button type="button" class="btn btn-danger"
+                                    data-toggle="modal"
+                                    data-target="#writeOffModal">
+                                <i class="fa fa-minus mr-1"></i> Списать метраж
+                            </button>
+                        @endif
                     @endif
                 </div>
 
@@ -89,6 +97,85 @@
             </div>
         </div>
 
+        @if(auth()->user()->isAdmin() && $roll->status === \App\Models\Roll::STATUS_IN_WORKSHOP && $roll->current_quantity > 0)
+            <div class="modal fade" id="writeOffModal" tabindex="-1"
+                 role="dialog">
+                <div class="modal-dialog" role="document">
+                    <form
+                        action="{{ route('rolls.writeOff', ['roll' => $roll->id]) }}"
+                        method="POST">
+                        @csrf
+                        <input type="hidden" name="back_url"
+                               value="{{ $backUrl }}">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    Ручное списание метража
+                                </h5>
+                                <button type="button" class="close"
+                                        data-dismiss="modal"
+                                        aria-label="Закрыть">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-muted mb-3">
+                                    Доступно:
+                                    <strong>{{ $roll->current_quantity }} {{ $roll->material->unit }}</strong>
+                                </p>
+                                <div class="form-group">
+                                    <label
+                                        for="writeoff-quantity">Количество</label>
+                                    <input type="number"
+                                           name="quantity"
+                                           id="writeoff-quantity"
+                                           class="form-control {{ $errors->has('quantity') ? 'is-invalid' : '' }}"
+                                           step="0.001"
+                                           min="0.001"
+                                           max="{{ $roll->current_quantity }}"
+                                           value="{{ old('quantity') }}"
+                                           required>
+                                    @error('quantity')
+                                    <span
+                                        class="invalid-feedback d-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="writeoff-comment">Комментарий
+                                        (причина)</label>
+                                    <textarea name="comment"
+                                              id="writeoff-comment"
+                                              class="form-control {{ $errors->has('comment') ? 'is-invalid' : '' }}"
+                                              rows="2"
+                                              maxlength="1000">{{ old('comment') }}</textarea>
+                                    @error('comment')
+                                    <span
+                                        class="invalid-feedback d-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default"
+                                        data-dismiss="modal">Отмена
+                                </button>
+                                <button type="submit" class="btn btn-danger">
+                                    Списать
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if($errors->has('quantity') || $errors->has('comment'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        $('#writeOffModal').modal('show');
+                    });
+                </script>
+            @endif
+        @endif
+
         <div class="card only-on-desktop">
             <div class="card-header">
                 <h3 class="card-title">История движений</h3>
@@ -130,6 +217,7 @@
                                         $employees = array_filter([
                                             $order?->seamstress?->name,
                                             $order?->cutter?->name,
+                                            $order?->user?->name,
                                         ]);
                                     @endphp
                                     {{ $employees ? implode(', ', $employees) : '—' }}
