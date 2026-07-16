@@ -170,6 +170,12 @@
                                         <th>Кластер</th>
                                         <td>{{ $item->marketplaceOrder->cluster ?? '---' }}</td>
                                     </tr>
+                                    @if($item->hanger_id)
+                                        <tr>
+                                            <th>Вешалка</th>
+                                            <td>{{ $item->hanger?->title }}</td>
+                                        </tr>
+                                    @endif
                                 </table>
                                 </div>
                             </div>

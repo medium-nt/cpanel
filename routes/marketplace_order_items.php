@@ -24,6 +24,9 @@ Route::prefix('/marketplace_order_items')->group(function () {
         ->can('update', 'marketplace_order_item')
         ->name('marketplace_order_items.completeCutting');
 
+    Route::put('/set-hanger', [MarketplaceOrderItemController::class, 'setHanger'])
+        ->name('marketplace_order_items.setHanger');
+
     Route::put('/cancel/{marketplace_order_item}', [MarketplaceOrderItemController::class, 'cancel'])
         ->can('update', 'marketplace_order_item')
         ->name('marketplace_order_items.cancel');

@@ -525,6 +525,12 @@ return [
                     'icon' => 'fas fa-fw fa-pallet',
                     'can' => 'is-storekeeper-or-admin',
                 ],
+                [
+                    'text' => 'hangers',
+                    'url' => 'megatulle/hangers',
+                    'icon' => 'fas fa-fw fa-tags',
+                    'can' => 'is-admin',
+                ],
             ],
         ],
         [

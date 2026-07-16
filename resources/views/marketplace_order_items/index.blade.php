@@ -256,6 +256,17 @@
                            class="btn btn-outline-secondary ml-3 mb-3"><i
                                 class="fas fa-print mr-1"></i>Распечатать заказы</a>
                     @endif
+                    @if($user->isCutter())
+                        <button type="button"
+                                class="btn btn-warning mb-3 ml-3"
+                                data-toggle="modal"
+                                data-target="#hangerModal">
+                            <i class="fas fa-tags mr-1"></i>Сменить вешалку
+                            @if($user->hanger)
+                                ({{ $user->hanger->title }})
+                            @endif
+                        </button>
+                    @endif
                 @endif
 
                 <div class="table-responsive">
@@ -428,6 +439,19 @@
                                target="_blank"
                                class="btn btn-outline-secondary mb-2 ml-2"><i
                                     class="fas fa-print"></i></a>
+                            @endif
+                            @if($user->isCutter())
+                                <br>
+                                <button type="button"
+                                        class="btn btn-warning mb-2"
+                                        data-toggle="modal"
+                                        data-target="#hangerModal">
+                                    <i class="fas fa-tags mr-1"></i>Сменить
+                                    вешалку
+                                    @if($user->hanger)
+                                        ({{ $user->hanger->title }})
+                                    @endif
+                                </button>
                         @endif
                     </div>
                 </div>
@@ -510,6 +534,53 @@
             <x-pagination-component :collection="$items"/>
         </div>
     </div>
+
+    @if($user->isCutter())
+        <div class="modal fade" id="hangerModal" tabindex="-1" role="dialog"
+             aria-labelledby="hangerModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('marketplace_order_items.setHanger') }}"
+                          method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="hangerModalLabel">
+                                Сменить вешалку</h5>
+                            <button type="button" class="close"
+                                    data-dismiss="modal" aria-label="Закрыть">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="hanger_id_select">Вешалка</label>
+                                <select name="hanger_id" id="hanger_id_select"
+                                        class="form-control">
+                                    <option value="">— не выбрана —</option>
+                                    @foreach($hangers as $hanger)
+                                        <option
+                                                value="{{ $hanger->id }}"
+                                                {{ ($user->hanger_id ?? null) == $hanger->id ? 'selected' : '' }}>
+                                            {{ $hanger->title }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">Отмена
+                            </button>
+                            <button type="submit" class="btn btn-warning">
+                                Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @stop
 
 @push('css')

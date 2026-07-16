@@ -38,6 +38,7 @@ class User extends Authenticatable
         'phone',
         'password',
         'role_id',
+        'hanger_id',
         'is_cutter',
         'avatar',
         'tg_id',
@@ -76,6 +77,12 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /** Текущая вешалка закройщика (выбирается на странице товаров для пошива). */
+    public function hanger(): BelongsTo
+    {
+        return $this->belongsTo(Hanger::class);
     }
 
     public function marketplaceOrderItems(): HasMany

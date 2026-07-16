@@ -969,3 +969,35 @@
   бизнес-правила), materials.md (движение материалов, рулоны, ключевые файлы,
   бизнес-правила), warehouse-operations.md (admin-only операции в киоске),
   user-management.md (admin-only операции с рулонами)
+
+## [2026-07-16] add | hangers-feature
+
+- Добавлен справочник Hangers (Вешалки) — полная аналогия Shelves (Полки)
+- Новые поля БД: `marketplace_order_items.hanger_id` и `users.hanger_id` (
+  FK→hangers.id, nullable, nullOnDelete)
+- Бизнес-поток: закройщик на странице «Товары для пошива» нажимает «Сменить
+  вешалку» → модалка → выбор сохраняется в профиль (`users.hanger_id`)
+- При сдаче раскроя (`MarketplaceOrderItemController::completeCutting`,
+  status=8) в товар автоматически проставляется `hanger_id` из профиля текущего
+  юзера
+- В карточке товара (`show.blade.php`) показывается название вешалки, если
+  `hanger_id` задан
+- Модель Hanger с связями `orderItems()` и `users()`
+- CRUD справочника в Настройках (`/megatulle/hangers/*`) — только для админов
+- `HangerPolicy` — доступ через `isAdmin()`, роут PUT set-hanger — только
+  `isCutter()`
+- Пункт меню в config/adminlte.php (icon `fa-tshirt`, `can is-admin`), перевод
+  `'hangers'=>'Вешалки'`
+- Обновлены темы: warehouse-operations.md (раздел Вешалки), order-lifecycle.md (
+  status=8 + hanger_id), user-management.md (вешалка в профиле)
+
+## [2026-07-16] update | hangers-clear-on-labeling
+
+- При передаче товара на стикеровку (status 4→5, метод
+  `MarketplaceOrderItemController::labeling`) поле
+  `marketplace_order_items.hanger_id` теперь обнуляется (= null)
+- Логика: швея отшила товар и отправила на стикеровку → товар больше не на
+  вешалке закройщика, привязка очищается
+- Это парное правило к проставлению hanger_id при сдаче кроя (status=8 в
+  completeCutting)
+- Обновлён topic: order-lifecycle.md
