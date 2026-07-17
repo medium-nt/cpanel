@@ -1,6 +1,6 @@
 # Marketplace Integration — Интеграция Ozon и Wildberries
 
-> Last reviewed: 2026-07-15
+> Last reviewed: 2026-07-17
 
 ## Обзор
 
@@ -140,6 +140,24 @@ MarketplaceApiService разделён на 4 файла:
 - `WbApiService::getFboSupplies()` — получение FBO-поставок
 - `WbApiService::getFboSupplyDetail()` — детали поставки
 - `WbApiService::getFboSupplyGoods()` — товары в поставке
+- **Лимит 100 заказов на FBS-поставку:** WB API ограничивает эндпоинт
+  `/api/marketplace/v3/supplies/{supplyId}/orders` до 100 order_id за один
+  PATCH.
+  Реализовано через константу `WbApiService::MAX_ORDERS_PER_SUPPLY = 100`
+  ✨ **НОВОЕ**
+- **Механизм отправки заказов в FBS-поставку:** метод `addOrdersToSupply()`
+  отправляет все order_id одним PATCH-запросом `{"orders": [...]}` вместо N
+  последовательных запросов. Раньше пробивало rate-limit WB (300
+  запросов/200мс).
+  ✨ **НОВОЕ**
+- **Safety-net при превышении лимита:** если `count(order_id) > 100` — запрос к
+  WB
+  API НЕ делается, все order_id возвращаются как «не добавленные» → `supply()`
+  возвращает false с понятной причиной. ✨ **НОВОЕ**
+- **Только для FBS:** FBO-поставки WB привязываются через
+  `MarketplaceSupplyController::linkWbFbo` (поставка создаётся на стороне WB,
+  локально лишь привязывается по ID) и через `addOrdersToSupply` НЕ проходят.
+  ✨ **НОВОЕ**
 
 **Склады:**
 

@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\MarketplaceOrder;
+use App\Services\Marketplace\WbApiService;
 use App\Services\MarketplaceApiService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -130,6 +131,18 @@ class SupplyOrderSearch extends Component
     {
         if ($order->supply_id === $this->supply->id) {
             $this->message = 'Уже добавлен.';
+            $this->messageType = 'error';
+            $this->dispatch('orderError');
+            $this->dispatch('clearMessage');
+            $this->orderId = '';
+
+            return;
+        }
+
+        // Cap WB API: в одной FBS-поставке не более MAX_ORDERS_PER_SUPPLY заказов.
+        if ($this->supply->marketplace_orders()->count() >= WbApiService::MAX_ORDERS_PER_SUPPLY) {
+            $this->message = 'Достигнут лимит '
+                .WbApiService::MAX_ORDERS_PER_SUPPLY.' заказов в поставке. Создайте новую поставку.';
             $this->messageType = 'error';
             $this->dispatch('orderError');
             $this->dispatch('clearMessage');

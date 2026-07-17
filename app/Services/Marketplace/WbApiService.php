@@ -17,6 +17,11 @@ class WbApiService
 {
     use MakesApiRequests;
 
+    /**
+     * Максимум ID сборочных заданий за один PATCH к WB (лимит WB API).
+     */
+    public const MAX_ORDERS_PER_SUPPLY = 100;
+
     public static function getItems($body = 0): object|false|null
     {
         $response = self::wbRequest()
@@ -660,45 +665,65 @@ class WbApiService
         }
     }
 
+    /**
+     * Добавляет заказы FBS-поставки в WB одним PATCH-запросом (до 100 ID).
+     *
+     * Safety-net: при превышении {@see MAX_ORDERS_PER_SUPPLY} НЕ обращается к API
+     * и возвращает все order_id как не добавленные — supply() упадёт с понятной причиной.
+     *
+     * @return array<int, string> order_id, которые не были добавлены (пустой массив при успехе)
+     */
     private static function addOrdersToSupply(MarketplaceSupply $marketplace_supply): array
     {
-        $allOrders = MarketplaceOrder::query()
+        $orderIds = MarketplaceOrder::query()
             ->where('supply_id', $marketplace_supply->id)
-            ->get();
+            ->pluck('order_id')
+            ->all();
 
-        $notAddedOrders = [];
-        foreach ($allOrders as $order) {
-            try {
-                $url = 'https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/'
-                    .$marketplace_supply->supply_id.'/orders';
-
-                $body = [
-                    'orders' => [(int) $order->order_id],
-                ];
-
-                $response = Http::accept('application/json')
-                    ->withOptions(['verify' => false])
-                    ->withHeaders(['Authorization' => self::getWbApiKey()])
-                    ->patch($url, $body);
-
-                if (! $response->noContent()) {
-                    Log::channel('marketplace_api')
-                        ->error('Заказа №'.$order->order_id.' не добавлен в поставку WB '.$marketplace_supply->supply_id.' (id '.$marketplace_supply->id.')',
-                            [
-                                'status' => $response->status(),
-                                'body' => $response->body(),
-                            ]);
-                    $notAddedOrders[] = $order->order_id;
-                }
-            } catch (Throwable $e) {
-                Log::channel('marketplace_api')->error(
-                    'Заказа №'.$order->order_id.' не добавлен в поставку WB '.$marketplace_supply->supply_id.' (id '.$marketplace_supply->id.'): '.$e->getMessage()
-                );
-                $notAddedOrders[] = $order->order_id;
-            }
+        if (empty($orderIds)) {
+            return [];
         }
 
-        return $notAddedOrders;
+        // Safety-net: защита от обхода UI-cap (гонки, прямые вызовы, импорт).
+        if (count($orderIds) > self::MAX_ORDERS_PER_SUPPLY) {
+            Log::channel('marketplace_api')->error(
+                'Превышен лимит заказов в поставке WB '.$marketplace_supply->supply_id
+                .' (id '.$marketplace_supply->id.'): '
+                .count($orderIds).' > '.self::MAX_ORDERS_PER_SUPPLY.'. Отправка в API отменена.'
+            );
+
+            return $orderIds;
+        }
+
+        $url = 'https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/'
+            .$marketplace_supply->supply_id.'/orders';
+
+        $body = [
+            'orders' => array_map(static fn ($id) => (int) $id, $orderIds),
+        ];
+
+        try {
+            $response = self::wbRequest()->patch($url, $body);
+
+            if ($response->noContent()) {
+                return [];
+            }
+
+            Log::channel('marketplace_api')
+                ->error('Заказы в поставку WB '.$marketplace_supply->supply_id.' (id '.$marketplace_supply->id.') не добавлены.',
+                    [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]);
+
+            return $orderIds;
+        } catch (Throwable $e) {
+            Log::channel('marketplace_api')->error(
+                'Заказы в поставку WB '.$marketplace_supply->supply_id.' (id '.$marketplace_supply->id.') не добавлены: '.$e->getMessage()
+            );
+
+            return $orderIds;
+        }
     }
 
     private static function sendForDelivery(MarketplaceSupply $marketplace_supply): bool
