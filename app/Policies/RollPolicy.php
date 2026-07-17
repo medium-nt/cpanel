@@ -41,4 +41,10 @@ class RollPolicy
     {
         return $user->isAdmin();
     }
+
+    /** Закрывать рулон (завершать с фиксацией фактического остатка) может только админ. */
+    public function complete(User $user): bool
+    {
+        return $user->isAdmin();
+    }
 }

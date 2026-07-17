@@ -10,6 +10,7 @@ use App\Models\Roll;
 use App\Models\Shift;
 use App\Services\RollService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -49,10 +50,10 @@ class RollController extends Controller
 
     public function show(Roll $roll)
     {
-        // После POST-редиректа списания url()->previous() указывает на write-off
-        // endpoint — пропускаем его, чтобы кнопка «Назад» не вела на 405.
+        // После POST-редиректа списания/закрытия url()->previous() указывает на
+        // write-off/complete endpoint — пропускаем его, чтобы кнопка «Назад» не вела на 405.
         $previous = url()->previous();
-        if ($previous && str_contains($previous, '/rolls/write-off/')) {
+        if ($previous && (str_contains($previous, '/rolls/write-off/') || str_contains($previous, '/rolls/complete/'))) {
             $previous = route('rolls.index');
         }
 
@@ -229,6 +230,59 @@ class RollController extends Controller
             ->route('rolls.show', $roll)
             ->with('success', 'Метраж списан')
             ->with('return_back_url', $validated['back_url'] ?? route('rolls.index'));
+    }
+
+    /**
+     * Закрывает рулон: переводит в STATUS_COMPLETED с фиксацией фактического остатка
+     * и расчётом недостачи относительно системного остатка.
+     */
+    public function complete(Request $request, Roll $roll)
+    {
+        $validated = $request->validate([
+            'actual_remaining' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Блокируем рулон от параллельного закрытия и перепроверяем статус
+            // актуальным значением внутри транзакции (защита от race condition).
+            $lockedRoll = Roll::lockForUpdate()->find($roll->id);
+
+            if ($lockedRoll->status !== Roll::STATUS_IN_WORKSHOP) {
+                DB::rollBack();
+
+                return redirect()
+                    ->route('rolls.show', $roll)
+                    ->with('error', 'Рулон нельзя завершить. Статус: '.$lockedRoll->status_name);
+            }
+
+            $shortage = round($lockedRoll->current_quantity - $validated['actual_remaining'], 2);
+
+            $lockedRoll->update([
+                'status' => Roll::STATUS_COMPLETED,
+                'completed_at' => now(),
+                'completed_by' => auth()->id(),
+                'shortage_quantity' => $shortage,
+            ]);
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::channel('materials')->error('Ошибка при закрытии рулона: '.$e->getMessage());
+
+            return redirect()
+                ->route('rolls.show', $roll)
+                ->with('error', 'Внутренняя ошибка при закрытии рулона');
+        }
+
+        Log::channel('materials')
+            ->notice('Рулон "'.$roll->roll_code.'" завершен сотрудником '.auth()->user()->name
+                .'. Недостача: '.$shortage.' '.$roll->material->unit);
+
+        return redirect()
+            ->route('rolls.show', $roll)
+            ->with('success', 'Рулон '.$roll->roll_code.' успешно закрыт. Недостача: '.$shortage.' '.$roll->material->unit);
     }
 
     /**

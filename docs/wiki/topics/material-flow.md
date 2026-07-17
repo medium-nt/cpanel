@@ -1,6 +1,6 @@
 # Material Flow — Движение материалов
 
-> Last reviewed: 2026-07-16
+> Last reviewed: 2026-07-17
 
 ## Обзор
 
@@ -111,11 +111,20 @@
   → При full расходе → статус: completed
 
 Завершение рулона:
-  → Рядовой сотрудник (швея/закройщик) может завершить рулон только если 
+  → Рядовой сотрудник (швея/закройщик) может завершить рулон только если
     `current_quantity <= material.minimum_roll_size_for_closure`
   → Если остаток больше порога — закрыть может только кладовщик или админ
   → Проверка порога осуществляется в интерфейсе киоска (`/kiosk/rolls`)
   → Значение по умолчанию: 10 метров (но может отличаться для разных материалов)
+  → **Админ может закрыть рулон из карточки (`/megatulle/rolls/show/{id}`)**
+  → Проверка статуса: только `STATUS_IN_WORKSHOP`
+  → Валидация: `actual_remaining` required/numeric/min:0
+  → Защита от race condition: `DB::transaction` + `lockForUpdate()`
+  → Расчёт недостачи: `shortage = round(current_quantity - actual_remaining, 2)`
+    (может быть отрицательной = излишек)
+  → Update: status=COMPLETED, completed_at, completed_by=auth()->id(),
+    shortage_quantity
+  → Логирование в канал `materials`
 
 Изоляция по сменам
   → Рулоны привязаны к сменам (shift_id)
@@ -288,8 +297,9 @@
   переупаковку (processRepack) и подмену товара (processReplace) с правильным
   списанием упаковки с рулона текущей смены
 - `app/Http/Controllers\RollController.php` — ручное списание метража рулона
-  (writeOff метод, admin-only через RollPolicy), страница рулона
-  `/megatulle/rolls/show/{id}`
+  (writeOff метод, admin-only через RollPolicy), закрытие рулона (complete
+  метод,
+  admin-only через RollPolicy), страница рулона `/megatulle/rolls/show/{id}`
 - `app/Http/Requests\RollWriteOffRequest.php` — валидация формы списания
   (quantity required|numeric|gt:0, comment nullable|max:1000)
 - `app/Policies/RollPolicy.php` — авторизация writeOff (isAdmin() + проверки
@@ -335,6 +345,22 @@
   - Логируется в канал `materials`
   - Форма: modal на странице рулона (`/megatulle/rolls/show/{id}`) с полями
     `quantity` (≤ current_quantity) и `comment` (опционально)
+- **Закрытие рулона из карточки (admin-only):**
+    - Admin-only операция: доступна только администраторам через
+      `RollPolicy@complete`
+    - Условия: рулон в статусе `STATUS_IN_WORKSHOP`
+    - Валидация: `actual_remaining` required/numeric/min:0 (может быть >
+      current_quantity = излишек)
+    - Расчёт недостачи:
+      `shortage = round(current_quantity - actual_remaining, 2)`
+      (отрицательное значение = излишек, допустимо как в киоске)
+    - Транзакция с `lockForUpdate()` на рулоне защищает от race condition
+    - Update: status=COMPLETED, completed_at=now(), completed_by=auth()->id(),
+      shortage_quantity=shortage
+    - Логируется в канал `materials`
+    - Форма: modal «Закрыть рулон» на странице рулона (
+      `/megatulle/rolls/show/{id}`)
+      с полем `actual_remaining` (required)
 
 ## Связанные topics
 
