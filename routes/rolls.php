@@ -21,6 +21,9 @@ Route::prefix('/rolls')->group(function () {
     Route::post('/write-off/{roll}', [RollController::class, 'writeOff'])
         ->can('writeOff', 'roll')
         ->name('rolls.writeOff');
+    Route::post('/complete/{roll}', [RollController::class, 'complete'])
+        ->can('complete', 'roll')
+        ->name('rolls.complete');
     Route::delete('/delete/{roll}', [RollController::class, 'destroy'])
         ->can('delete', 'roll')
         ->name('rolls.destroy');

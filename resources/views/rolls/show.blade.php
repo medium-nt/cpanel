@@ -41,12 +41,18 @@
                         </form>
 
                         @if($roll->current_quantity > 0)
-                            <button type="button" class="btn btn-danger"
+                            <button type="button" class="btn btn-danger mr-3"
                                     data-toggle="modal"
                                     data-target="#writeOffModal">
                                 <i class="fa fa-minus mr-1"></i> Списать метраж
                             </button>
                         @endif
+
+                        <button type="button" class="btn btn-danger"
+                                data-toggle="modal"
+                                data-target="#completeRollModal">
+                            <i class="fa fa-check mr-1"></i> Закрыть рулон
+                        </button>
                     @endif
                 </div>
 
@@ -171,6 +177,74 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         $('#writeOffModal').modal('show');
+                    });
+                </script>
+            @endif
+        @endif
+
+        @if(auth()->user()->isAdmin() && $roll->status === \App\Models\Roll::STATUS_IN_WORKSHOP)
+            <div class="modal fade" id="completeRollModal" tabindex="-1"
+                 role="dialog">
+                <div class="modal-dialog" role="document">
+                    <form
+                        action="{{ route('rolls.complete', ['roll' => $roll->id]) }}"
+                        method="POST">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    Закрытие рулона
+                                </h5>
+                                <button type="button" class="close"
+                                        data-dismiss="modal"
+                                        aria-label="Закрыть">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-muted mb-3">
+                                    Текущий остаток (по системе):
+                                    <strong>{{ $roll->current_quantity }} {{ $roll->material->unit }}</strong>
+                                </p>
+                                <div class="form-group">
+                                    <label for="actualRemaining">Фактический
+                                        остаток в рулоне</label>
+                                    <input type="number"
+                                           name="actual_remaining"
+                                           id="actualRemaining"
+                                           class="form-control {{ $errors->has('actual_remaining') ? 'is-invalid' : '' }}"
+                                           step="0.01"
+                                           min="0"
+                                           value="{{ old('actual_remaining') }}"
+                                           required>
+                                    <small class="form-text text-muted">
+                                        Недостача будет рассчитана
+                                        автоматически.
+                                    </small>
+                                    @error('actual_remaining')
+                                    <span
+                                        class="invalid-feedback d-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default"
+                                        data-dismiss="modal">Отмена
+                                </button>
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Закрыть рулон #{{ $roll->roll_code }}? Действие необратимо.')">
+                                    Закрыть рулон
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if($errors->has('actual_remaining'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        $('#completeRollModal').modal('show');
                     });
                 </script>
             @endif

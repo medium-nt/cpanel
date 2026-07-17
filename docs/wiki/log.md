@@ -1001,3 +1001,26 @@
 - Это парное правило к проставлению hanger_id при сдаче кроя (status=8 в
   completeCutting)
 - Обновлён topic: order-lifecycle.md
+
+## [2026-07-17] feature | roll-completion-from-card
+
+- Добавлен новый способ закрытия рулона — из карточки рулона
+  (`/megatulle/rolls/show/{id}`), ранее закрытие было доступно только через
+  киоск (`/kiosk/rolls`)
+- Новые файлы: `RollPolicy@complete()` (admin-only), POST-роут
+  `/megatulle/rolls/complete/{roll}`, `RollController@complete()`, кнопка и
+  модалка в
+  `resources/views/rolls/show.blade.php`
+- Логика: валидация `actual_remaining` (required/numeric/min:0), проверка
+  статуса
+  (только `STATUS_IN_WORKSHOP`), защита от race condition (`lockForUpdate()`),
+  расчёт
+  недостачи `shortage = round(current_quantity - actual_remaining, 2)` (может
+  быть
+  отрицательной = излишек), update status=COMPLETED/completed_at/completed_by/
+  shortage_quantity, логирование в канал `materials`
+- Отличия от киоска: ID из route-model-binding (не из request),
+  `completed_by = auth()->id()` (не session('user_id')), защита от race
+  condition,
+  редирект на карточку
+- Обновлены topics: warehouse-operations.md, material-flow.md
