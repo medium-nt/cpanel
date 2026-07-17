@@ -2027,3 +2027,135 @@ test('getFboSupplyGoodsWb returns goods array on success', function () {
     expect($result)->toHaveCount(2);
     expect($result[0]['sku'])->toBe('SKU001');
 });
+
+test('wbSupply отправляет ровно 1 PATCH на .../orders с массивом order_id', function () {
+    $supply = \Database\Factories\MarketplaceSupplyFactory::new()->create([
+        'supply_id' => null,
+        'marketplace_id' => 2,
+    ]);
+
+    $order1 = \Database\Factories\MarketplaceOrderFactory::new()->create([
+        'supply_id' => $supply->id,
+        'order_id' => '111',
+        'marketplace_id' => 2,
+    ]);
+
+    $order2 = \Database\Factories\MarketplaceOrderFactory::new()->create([
+        'supply_id' => $supply->id,
+        'order_id' => '222',
+        'marketplace_id' => 2,
+    ]);
+
+    $order3 = \Database\Factories\MarketplaceOrderFactory::new()->create([
+        'supply_id' => $supply->id,
+        'order_id' => '333',
+        'marketplace_id' => 2,
+    ]);
+
+    Http::fake([
+        'https://marketplace-api.wildberries.ru/api/v3/supplies' => Http::response(
+            json_encode(['id' => 'SUPPLY_X']),
+            201
+        ),
+        'https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/SUPPLY_X/orders' => Http::response('', 204),
+        'https://marketplace-api.wildberries.ru/api/v3/supplies/*/deliver' => Http::response('', 204),
+    ]);
+
+    $result = MarketplaceApiService::wbSupply($supply);
+
+    expect($result)->toBeTrue();
+
+    $ordersRequestsCount = 0;
+    $ordersRequestData = null;
+    Http::assertSent(function ($request) use (&$ordersRequestsCount, &$ordersRequestData) {
+        if (str_contains($request->url(), '/orders')) {
+            $ordersRequestsCount++;
+            $ordersRequestData = $request->data();
+
+            return true;
+        }
+
+        return false;
+    });
+
+    expect($ordersRequestsCount)->toBe(1);
+    expect($ordersRequestData)->not->toBeNull();
+    expect(data_get($ordersRequestData, 'orders'))->toBe([111, 222, 333]);
+});
+
+test('wbSupply safety-net отменяет отправку при >100 заказов', function () {
+    $supply = \Database\Factories\MarketplaceSupplyFactory::new()->create([
+        'supply_id' => null,
+        'marketplace_id' => 2,
+    ]);
+
+    \Database\Factories\MarketplaceOrderFactory::new()->count(101)->create([
+        'supply_id' => $supply->id,
+        'marketplace_id' => 2,
+    ]);
+
+    Http::fake([
+        '*' => Http::response('', 204),
+    ]);
+
+    $result = MarketplaceApiService::wbSupply($supply);
+
+    expect($result)->toBeFalse();
+
+    Http::assertNotSent(function ($request) {
+        return str_contains($request->url(), '/orders');
+    });
+});
+
+test('wbSupply возвращает false при не-204 ответе WB на .../orders', function () {
+    $supply = \Database\Factories\MarketplaceSupplyFactory::new()->create([
+        'supply_id' => null,
+        'marketplace_id' => 2,
+    ]);
+
+    \Database\Factories\MarketplaceOrderFactory::new()->count(2)->create([
+        'supply_id' => $supply->id,
+        'marketplace_id' => 2,
+    ]);
+
+    Http::fake([
+        'https://marketplace-api.wildberries.ru/api/v3/supplies' => Http::response(
+            json_encode(['id' => 'SUPPLY_X']),
+            201
+        ),
+        'https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/*/orders' => Http::response(
+            json_encode(['code' => 30, 'message' => 'bad']),
+            400
+        ),
+    ]);
+
+    $result = MarketplaceApiService::wbSupply($supply);
+
+    expect($result)->toBeFalse();
+});
+
+test('wbSupply отправляет запрос при ровно 100 заказах (граница safety-net)', function () {
+    $supply = \Database\Factories\MarketplaceSupplyFactory::new()->create([
+        'supply_id' => null,
+        'marketplace_id' => 2,
+    ]);
+
+    \Database\Factories\MarketplaceOrderFactory::new()->count(100)->create([
+        'supply_id' => $supply->id,
+        'marketplace_id' => 2,
+    ]);
+
+    Http::fake([
+        'https://marketplace-api.wildberries.ru/api/v3/supplies' => Http::response(
+            json_encode(['id' => 'SUPPLY_X']),
+            201
+        ),
+        'https://marketplace-api.wildberries.ru/api/marketplace/v3/supplies/SUPPLY_X/orders' => Http::response('', 204),
+        'https://marketplace-api.wildberries.ru/api/v3/supplies/*/deliver' => Http::response('', 204),
+    ]);
+
+    $result = MarketplaceApiService::wbSupply($supply);
+
+    expect($result)->toBeTrue();
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/orders') && $request->method() === 'PATCH');
+});

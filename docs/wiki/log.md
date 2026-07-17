@@ -1023,4 +1023,57 @@
   `completed_by = auth()->id()` (не session('user_id')), защита от race
   condition,
   редирект на карточку
+- Обновлены темы: warehouse-operations.md, material-flow.md
+
+## [2026-07-17] update | marketplace-order-items-date-filter-mobile-ux
+
+- **Бизнес-правило фильтра по датам для швей/закройщиков:** поля `date_start` и
+  `date_end` применимы только к статусу «Готовые» (done)
+  - **UI:** поля скрыты для швей/закройщиков на статусах `in_work`, `cutting`,
+    `cut` — показываются только при `request('status') === 'done'`
+  - **Backend:** параметры принудительно удаляются из request при
+    `status !== 'done'` — иначе скрытый фильтр silently портит выборку
+  - **Остальные роли** (admin, storekeeper, manager, otk) — даты видны всегда
+  - Реализовано в `MarketplaceOrderItemController::index()` (строки 66-71) и
+    view
+    `marketplace_order_items/index.blade.php` (строки 161-180)
+- **Mobile UX improvements:**
+  - Dropdown «Действия ▾» на мобильных: кнопки закройщика (получить заказ,
+    взять весь стек, печать, сменить вешалку) собраны в один Bootstrap
+    dropdown
+  - Швея видит 1 пункт, закройщик — 4 пункта
+  - Dropdown внутри блока фильтров (`col-12 only-on-smartphone`), на десктопе
+    отдельный блок кнопок
+  - Блок «Итого на странице: X п.м. (Y шт.)» минимизирован: убрана обёртка
+    `.card > .card-body`, теперь компактный inline `col-12 mb-2 small`
+- Обновлены темы: order-lifecycle.md, warehouse-operations.md
+  отрицательной = излишек), update status=COMPLETED/completed_at/completed_by/
+  shortage_quantity, логирование в канал `materials`
+- Отличия от киоска: ID из route-model-binding (не из request),
+  `completed_by = auth()->id()` (не session('user_id')), защита от race
+  condition,
+  редирект на карточку
 - Обновлены topics: warehouse-operations.md, material-flow.md
+
+## [2026-07-17] update | fbs-supply-100-orders-limit
+
+- Внедрён лимит 100 заказов на одну FBS-поставку Wildberries (ограничение WB
+  API: эндпоинт `/api/marketplace/v3/supplies/{supplyId}/orders` принимает до
+  100 ID за один PATCH)
+- `WbApiService::MAX_ORDERS_PER_SUPPLY = 100` — новая константа
+- `WbApiService::addOrdersToSupply()` — метод переписан: теперь отправляет
+  все order_id одним PATCH-запросом `{"orders": [...]}` вместо N
+  последовательных
+  (раньше пробивало rate-limit WB: 300 запросов/200мс)
+- Safety-net: при `count(order_id) > 100` запрос к WB API не делается, все
+  order_id возвращаются как «не добавленные» → `supply()` возвращает false с
+  причиной превышения лимита
+- `SupplyOrderSearch::attachOrder()` — UI-блокировка: проверяется
+  `$this->supply->marketplace_orders()->count() >= 100` → блокирует добавление
+  101-го заказа с сообщением «Достигнут лимит 100 заказов в поставке. Создайте
+  новую поставку.»
+- **Только для FBS:** FBO-поставки WB привязываются через
+  `MarketplaceSupplyController::linkWbFbo` (поставка создаётся на стороне WB,
+  локально лишь привязывается по ID) и через `addOrdersToSupply` не проходят
+- Обновлены topics: marketplace-integration.md, order-lifecycle.md,
+  warehouse-operations.md
