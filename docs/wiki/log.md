@@ -1077,3 +1077,26 @@
   локально лишь привязывается по ID) и через `addOrdersToSupply` не проходят
 - Обновлены topics: marketplace-integration.md, order-lifecycle.md,
   warehouse-operations.md
+
+## [2026-07-17] update | materials-archive-canarchive-fix
+
+- Переписано правило архивации материалов: `InventoryService::canArchive()`
+  теперь
+  проверяет наличие активных рулонов в таблице `rolls` (статусы
+  in_storage/shipped_to_workshop/in_workshop), а не расчёт остатков через
+  movement_materials
+- Раньше: условие `materialInWarehouse() == 0` И `materialInWorkshop() == 0`
+  (сумма по movement_materials с 2025-04-17) ложно блокировало материалы без
+  реальных остатков (пример: материал id=13 с 9 completed-рулонами блокировался
+  с
+  "фантомными" остатками склад=9680/цех=189365)
+- Теперь: материал можно архивировать если НЕТ активных рулонов. Рулоны в
+  статусе `completed` (даже с остатком used < initial_quantity) и материалы без
+  рулонов (старые, до эры рулонов) архивации НЕ препятствуют
+- Бизнес-решение подтверждено: completed-рулон с остатком = работа завершена,
+  остаток уже учтён как брак/списание
+- Контекст: проект перешёл на учёт остатков через таблицу `rolls` (~2025-12-18),
+  canArchive был последшим местом с устаревшим расчётом
+- Затронутые файлы: `app/Services/InventoryService.php` (метод canArchive),
+  `app/Http/Controllers/MaterialController.php` (текст ошибки)
+- Обновлены topics: materials.md, material-flow.md, warehouse-operations.md

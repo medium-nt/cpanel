@@ -86,7 +86,7 @@ class MaterialController extends Controller
 
             if (! InventoryService::canArchive($material)) {
                 return back()->withInput()
-                    ->with('error', 'Нельзя архивировать: по материалу есть остатки на складе или в цехе.');
+                    ->with('error', 'Нельзя архивировать: у материала есть незакрытые рулоны (на складе, в пути или в цехе).');
             }
         }
 

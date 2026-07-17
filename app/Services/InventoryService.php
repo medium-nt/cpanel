@@ -46,12 +46,21 @@ class InventoryService
     }
 
     /**
-     * Можно ли перевести материал в архив: остатки на складе и в цехе равны 0.
+     * Можно ли перевести материал в архив: активных рулонов нет.
+     *
+     * Блокирующие статусы рулона: in_storage, shipped_to_workshop, in_workshop.
+     * Рулоны в статусе completed и материалы без рулонов вообще (до эры рулонов)
+     * архивации не препятствуют.
      */
     public static function canArchive(Material $material): bool
     {
-        return self::materialInWarehouse($material->id) == 0
-            && self::materialInWorkshop($material->id) == 0;
+        return ! $material->rolls()
+            ->whereIn('status', [
+                Roll::STATUS_IN_STORAGE,
+                Roll::STATUS_SHIPPED_TO_WORKSHOP,
+                Roll::STATUS_IN_WORKSHOP,
+            ])
+            ->exists();
     }
 
     public static function materialInWarehouse($materialId): float
