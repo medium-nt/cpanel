@@ -63,6 +63,13 @@ class MarketplaceOrderItemController extends Controller
             return redirect()->route('marketplace_order_items.index', ['status' => 'cut']);
         }
 
+        // Швея/закройщик: даты имеют смысл только для статуса «Готово».
+        // Сбрасываем date_start/date_end — иначе скрытый (невидимый) фильтр портит выборку на in_work/cutting.
+        if ((auth()->user()->isSeamstress() || auth()->user()->isCutter()) && $request->status !== 'done') {
+            $request->query->remove('date_start');
+            $request->query->remove('date_end');
+        }
+
         $items = MarketplaceOrderItemService::getFiltered($request);
         $paginatedItems = $items->paginate(50);
 

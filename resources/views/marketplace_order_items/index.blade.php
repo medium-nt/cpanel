@@ -158,23 +158,26 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-md-3">
-                        <input type="date"
-                               name="date_start"
-                               id="date_start"
-                               class="form-control"
-                               onchange="updatePageWithQueryParam(this)"
-                               value="{{ request('date_start') }}">
-                    </div>
+                        {{-- Швея/закройщик: даты нужны только для статуса «Готовые» (done); остальные роли видят всегда --}}
+                        @if(!($user->isSeamstress() || $user->isCutter()) || request('status') === 'done')
+                            <div class="form-group col-md-3">
+                                <input type="date"
+                                       name="date_start"
+                                       id="date_start"
+                                       class="form-control"
+                                       onchange="updatePageWithQueryParam(this)"
+                                       value="{{ request('date_start') }}">
+                            </div>
 
-                    <div class="form-group col-md-3">
-                        <input type="date"
-                               name="date_end"
-                               id="date_end"
-                               class="form-control"
-                               onchange="updatePageWithQueryParam(this)"
-                               value="{{ request('date_end') }}">
-                    </div>
+                            <div class="form-group col-md-3">
+                                <input type="date"
+                                       name="date_end"
+                                       id="date_end"
+                                       class="form-control"
+                                       onchange="updatePageWithQueryParam(this)"
+                                       value="{{ request('date_end') }}">
+                            </div>
+                        @endif
 
                         @if($user->isAdmin() || $user->isStorekeeper() || $user->isManager())
                             <div class="form-group col-md-2">
@@ -190,6 +193,52 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                        @endif
+
+                        {{-- Mobile-only: действия швеи/закройщика внутри блока фильтров (десктоп использует отдельный блок кнопок) --}}
+                        @if($user->isSeamstress() || $user->isCutter())
+                            <div class="col-12 only-on-smartphone">
+                                <div class="dropdown">
+                                    <button
+                                        class="btn btn-primary dropdown-toggle"
+                                        type="button"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                        Действия
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
+                                           class="dropdown-item getNewOrderItem">
+                                            <i class="fas fa-plus mr-1"></i>
+                                            Получить новый заказ
+                                        </a>
+                                        @if($user->isCutter())
+                                            <a href="{{ route('marketplace_order_items.fillEntireStack') }}"
+                                               class="dropdown-item fillEntireStack">
+                                                <i class="fas fa-layer-group mr-1"></i>
+                                                Взять весь стек
+                                            </a>
+                                            <a href="{{ route('marketplace_order_items.printCutting') }}"
+                                               target="_blank"
+                                               class="dropdown-item">
+                                                <i class="fas fa-print mr-1"></i>
+                                                Печать списка заказов
+                                            </a>
+                                            <button type="button"
+                                                    class="dropdown-item"
+                                                    data-toggle="modal"
+                                                    data-target="#hangerModal">
+                                                <i class="fas fa-tags mr-1"></i>
+                                                Сменить вешалку
+                                                @if($user->hanger)
+                                                    ({{ $user->hanger->title }})
+                                                @endif
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         @endif
 
@@ -410,52 +459,12 @@
         </div>
 
         <div class="row only-on-smartphone">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        Итого на странице: <b>{{ $allCalcWidth / 100 }}</b> п.м.
-                        (<b>{{ $allCount }}</b> шт.)
-                    </div>
-                </div>
+
+            <div class="col-12 mb-2 ml-1 small">
+                Итого на странице: <b>{{ $allCalcWidth / 100 }}</b> п.м.
+                (<b>{{ $allCount }}</b> шт.)
             </div>
 
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        @if($user->isSeamstress() || $user->isCutter())
-                            <a href="{{ route('marketplace_order_items.getNewOrderItem') }}"
-                               class="btn btn-primary getNewOrderItem mb-2 mr-1">Получить
-                                новый заказ</a>
-                            @if($user->isCutter())
-                                <br>
-                                <a href="{{ route('marketplace_order_items.fillEntireStack') }}"
-                                   class="btn btn-success fillEntireStack mb-2">Взять
-                                    весь стек</a>
-                            @endif
-                        @endif
-
-                        @if($user->is_cutter || $user->isCutter())
-                            <a href="{{ route('marketplace_order_items.printCutting') }}"
-                               target="_blank"
-                               class="btn btn-outline-secondary mb-2 ml-2"><i
-                                    class="fas fa-print"></i></a>
-                            @endif
-                            @if($user->isCutter())
-                                <br>
-                                <button type="button"
-                                        class="btn btn-warning mb-2"
-                                        data-toggle="modal"
-                                        data-target="#hangerModal">
-                                    <i class="fas fa-tags mr-1"></i>Сменить
-                                    вешалку
-                                    @if($user->hanger)
-                                        ({{ $user->hanger->title }})
-                                    @endif
-                                </button>
-                        @endif
-                    </div>
-                </div>
-            </div>
             @foreach ($items as $item)
                 <div class="col-md-4">
                     <div class="card">
@@ -496,15 +505,11 @@
                                         <b>{{ $item->otk->shortName ?? '' }}</b>
                                     </small>
                                 @endisset
-                                <div class="my-2">
-                                    Товар: <span
-                                        style="font-size: 25px;"> <b> {{ $item->item->title }} </b> х <b>{{ $item->quantity }} шт.</b></span><br>
-                                    Ширина: <b><span
-                                            style="font-size: 25px;"> {{ $item->item->width }} </span>
-                                    </b> см.<br>
-                                    Высота: <b><span
-                                            style="font-size: 25px;"> {{ $item->item->height }} </span>
-                                    </b> см.<br>
+                                <div class="mb-2">
+                                    <span
+                                        style="font-size: 25px;"> <b> {{ $item->item->title }} {{ $item->item->width }} x {{ $item->item->height }}</b>
+                                    </span>
+                                    <br>
                                     <small class="mr-2">
                                         Создан:
                                         <b> {{ now()->parse($item->created_at)->format('d/m/Y H:i') }}</b>
