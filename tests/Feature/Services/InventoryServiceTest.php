@@ -323,7 +323,7 @@ class InventoryServiceTest extends TestCase
 
     public function test_can_archive_returns_true_when_no_stock()
     {
-        // New material without movements should have zero stock
+        // Material without rolls should be archivable
         $material = Material::factory()->create([
             'title' => 'New Material',
             'is_active' => false,
@@ -342,11 +342,8 @@ class InventoryServiceTest extends TestCase
             'is_active' => false,
         ]);
 
-        // Create movement to add stock in warehouse
-        $this->createMovement($material, 1, 3, 50);
-
-        // Verify warehouse has stock
-        $this->assertGreaterThan(0, InventoryService::materialInWarehouse($material->id));
+        // Create roll in warehouse (blocks archiving)
+        Roll::factory()->for($material)->inStorage()->create();
 
         $result = InventoryService::canArchive($material);
 
@@ -361,11 +358,40 @@ class InventoryServiceTest extends TestCase
             'is_active' => false,
         ]);
 
-        // Create movement to add stock in workshop
-        $this->createMovement($material, 2, 3, 30);
+        // Create roll in workshop (blocks archiving)
+        Roll::factory()->for($material)->inWorkshop()->create();
 
-        // Verify workshop has stock
-        $this->assertGreaterThan(0, InventoryService::materialInWorkshop($material->id));
+        $result = InventoryService::canArchive($material);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_can_archive_returns_true_when_all_rolls_completed()
+    {
+        // Create material
+        $material = Material::factory()->create([
+            'title' => 'Material With Completed Rolls',
+            'is_active' => false,
+        ]);
+
+        // Create completed roll (does not block archiving)
+        Roll::factory()->for($material)->completed()->create();
+
+        $result = InventoryService::canArchive($material);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_can_archive_returns_false_when_roll_shipped_to_workshop()
+    {
+        // Create material
+        $material = Material::factory()->create([
+            'title' => 'Material With Shipped Roll',
+            'is_active' => false,
+        ]);
+
+        // Create shipped-to-workshop roll (blocks archiving)
+        Roll::factory()->for($material)->shippedToWorkshop()->create();
 
         $result = InventoryService::canArchive($material);
 

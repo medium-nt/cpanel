@@ -3,9 +3,8 @@
 namespace Tests\Feature\Controllers;
 
 use App\Models\Material;
-use App\Models\MovementMaterial;
-use App\Models\Order;
 use App\Models\Role;
+use App\Models\Roll;
 use App\Models\Setting;
 use App\Models\TypeMaterial;
 use App\Models\User;
@@ -341,21 +340,8 @@ class MaterialControllerTest extends TestCase
             'is_archive' => false,
         ]);
 
-        // Create movements to give it stock
-        // Order type_movement=1, status=3 adds to warehouse
-        $order = Order::factory()->create([
-            'type_movement' => 1,
-            'status' => 3,
-        ]);
-
-        MovementMaterial::create([
-            'material_id' => $material->id,
-            'order_id' => $order->id,
-            'quantity' => 10,
-        ]);
-
-        // Verify stock exists
-        $this->assertGreaterThan(0, InventoryService::materialInWarehouse($material->id));
+        // Активный рулон на складе блокирует архивацию (canArchive считает рулоны, а не movements)
+        Roll::factory()->for($material)->inStorage()->create();
 
         $updateData = [
             'title' => 'Attempt Archive With Stock',
@@ -370,7 +356,7 @@ class MaterialControllerTest extends TestCase
 
         $response->assertStatus(302);
         $response->assertSessionHas('error');
-        $this->assertStringContainsString('Нельзя архивировать: по материалу есть остатки', session('error'));
+        $this->assertStringContainsString('незакрытые рулоны', session('error'));
 
         // Database should NOT have the material archived
         $this->assertDatabaseHas('materials', [
