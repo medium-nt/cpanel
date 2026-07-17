@@ -95,15 +95,15 @@
 
     <style type="text/css">
 
-        {{-- You can add AdminLTE customizations here --}}
-/*
-    .card-header {
-        border-bottom: none;
-    }
-    .card-title {
-        font-weight: 600;
-    }
-    */
+        {{-- Растягиваем хедер user-menu под контент: длинное ФИО в 2 строки
+             больше не обрезает роль (adminlte_desc) снизу. Селектор повторяет
+             adminlte.min.css чтобы перебить специфичность (0,4,1) и отдать
+             height:auto. --}}
+        .navbar-nav > .user-menu > .dropdown-menu > li.user-header {
+            height: auto;
+            min-height: 160px;
+        }
+
 
     </style>
 @endpush
