@@ -1,6 +1,6 @@
 # cpanel — Project Wiki Index
 
-> Generated: 2026-07-18 07:25 | Models: 39 | Services: 27 | Controllers: 45 |
+> Generated: 2026-07-18 16:06 | Models: 39 | Services: 27 | Controllers: 45 |
 > Livewire: 13
 
 ## Quick Orientation
@@ -8,6 +8,7 @@ Warehouse/inventory management with Ozon/WB marketplace integration.
 PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 
 ## Models (39)
+
 | Model                   | Table                         | Key Relations                                     | Traits                              |
 |-------------------------|-------------------------------|---------------------------------------------------|-------------------------------------|
 | Hanger                  | `hangers`                     | orderItems, users                                 | HasFactory                          |

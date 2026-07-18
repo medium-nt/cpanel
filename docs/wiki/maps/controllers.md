@@ -38,7 +38,6 @@
 - **Methods:** `index`, `create`, `store`, `approve_reject`, `pick_up`, `scan`, `save`, `delete`
 
 ### HangerController
-
 - **File:** `app/Http/Controllers/HangerController.php`
 - **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`
 
