@@ -28,7 +28,6 @@
   - `static createOrders(array $rows, int $marketplaceId, string $cluster)`
 
 ### GazelkaApiService
-
 - **File:** `app/Services/GazelkaApiService.php`
 - **Methods:**
     - `descriptions()`

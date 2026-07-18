@@ -1,55 +1,57 @@
 # cpanel — Project Wiki Index
 
-> Generated: 2026-07-12 18:32 | Models: 38 | Services: 27 | Controllers: 44 |
+> Generated: 2026-07-18 07:25 | Models: 39 | Services: 27 | Controllers: 45 |
 > Livewire: 13
 
 ## Quick Orientation
 Warehouse/inventory management with Ozon/WB marketplace integration.
 PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 
-## Models (38)
-| Model | Table | Key Relations | Traits |
-|-------|-------|---------------|--------|
-| InventoryCheck | `inventory_checks` | items |  |
-| InventoryCheckItem | `inventory_check_items` | expectedShelf, foundedShelf, marketplaceOrderItem |  |
-| Marketplace | `marketplaces` |  |  |
-| MarketplaceItem | `marketplace_items` | marketplaceOrderItem, sku, consumption +1 | HasFactory |
-| MarketplaceOrder | `marketplace_orders` | items, supply, box +1 | HasFactory |
-| MarketplaceOrderHistory | `marketplace_order_history` | item, order |  |
-| MarketplaceOrderItem | `marketplace_order_items` | marketplaceOrder, workshop, item +6 | HasFactory |
-| MarketplaceSupply | `marketplace_supplies` |  | HasFactory |
-| MarketplaceWarehouse | `marketplace_warehouses` |  |  |
-| Material | `materials` | type, rolls, movementMaterials +4 | HasFactory, SoftDeletes |
-| MaterialConsumption | `material_consumptions` | item, material | HasFactory |
-| MaterialWorkshop | `material_workshop` | material, workshop | HasFactory |
-| Motivation | `motivations` |  | HasFactory |
-| MovementMaterial | `movement_materials` | material, roll, order | HasFactory |
-| Order | `orders` | workshop, user, seamstress +6 | HasFactory |
-| OzonFboDraftSupplyItem | `ozon_fbo_draft_supply_items` | supply, skuRecord |  |
-| ProductSticker | `product_stickers` |  |  |
-| Rate | `rates` | material | HasFactory |
-| Role | `roles` |  | HasFactory |
-| Roll | `rolls` | supplyOrder, material, shift +3 | HasFactory |
-| Schedule | `schedules` | user, shift | HasFactory |
-| Setting | `settings` | workshop | HasFactory |
-| Shelf | `shelves` |  |  |
-| Shift | `shifts` | workshop, users, rolls +1 | HasFactory |
-| ShiftSchedule | `shift_schedule` | shift, workshop | HasFactory |
-| Sku | `skus` | item | HasFactory |
-| Stack | `stacks` |  | HasFactory |
-| StatusMovement | `status_movements` |  |  |
-| Supplier | `suppliers` | orders, materials | HasFactory, SoftDeletes |
-| SupplyBox | `supply_boxes` | supply, orders |  |
-| Tariff | `tariffs` | userTariff, material | HasFactory |
-| Ticket | `tickets` | user | HasFactory |
-| Transaction | `transactions` | user | HasFactory |
-| TypeMaterial | `type_materials` |  | HasFactory |
-| TypeMovement | `type_movements` |  |  |
-| User | `users` | role, marketplaceOrderItems, marketplaceOrderItemsByCutter +4 | HasFactory, Notifiable, SoftDeletes |
-| UserTariff | `user_tariffs` | user, tariffs | HasFactory |
-| Workshop | `workshops` | shifts, orders, marketplaceOrderItems +3 | HasFactory |
+## Models (39)
+| Model                   | Table                         | Key Relations                                     | Traits                              |
+|-------------------------|-------------------------------|---------------------------------------------------|-------------------------------------|
+| Hanger                  | `hangers`                     | orderItems, users                                 | HasFactory                          |
+| InventoryCheck          | `inventory_checks`            | items                                             |                                     |
+| InventoryCheckItem      | `inventory_check_items`       | expectedShelf, foundedShelf, marketplaceOrderItem |                                     |
+| Marketplace             | `marketplaces`                |                                                   |                                     |
+| MarketplaceItem         | `marketplace_items`           | marketplaceOrderItem, sku, consumption +1         | HasFactory                          |
+| MarketplaceOrder        | `marketplace_orders`          | items, supply, box +1                             | HasFactory                          |
+| MarketplaceOrderHistory | `marketplace_order_history`   | item, order                                       |                                     |
+| MarketplaceOrderItem    | `marketplace_order_items`     | marketplaceOrder, workshop, item +7               | HasFactory                          |
+| MarketplaceSupply       | `marketplace_supplies`        |                                                   | HasFactory                          |
+| MarketplaceWarehouse    | `marketplace_warehouses`      |                                                   |                                     |
+| Material                | `materials`                   | type, rolls, movementMaterials +4                 | HasFactory, SoftDeletes             |
+| MaterialConsumption     | `material_consumptions`       | item, material                                    | HasFactory                          |
+| MaterialWorkshop        | `material_workshop`           | material, workshop                                | HasFactory                          |
+| Motivation              | `motivations`                 |                                                   | HasFactory                          |
+| MovementMaterial        | `movement_materials`          | material, roll, order                             | HasFactory                          |
+| Order                   | `orders`                      | workshop, user, seamstress +6                     | HasFactory                          |
+| OzonFboDraftSupplyItem  | `ozon_fbo_draft_supply_items` | supply, skuRecord                                 |                                     |
+| ProductSticker          | `product_stickers`            |                                                   |                                     |
+| Rate                    | `rates`                       | material                                          | HasFactory                          |
+| Role                    | `roles`                       |                                                   | HasFactory                          |
+| Roll                    | `rolls`                       | supplyOrder, material, shift +3                   | HasFactory                          |
+| Schedule                | `schedules`                   | user, shift                                       | HasFactory                          |
+| Setting                 | `settings`                    | workshop                                          | HasFactory                          |
+| Shelf                   | `shelves`                     |                                                   |                                     |
+| Shift                   | `shifts`                      | workshop, users, rolls +1                         | HasFactory                          |
+| ShiftSchedule           | `shift_schedule`              | shift, workshop                                   | HasFactory                          |
+| Sku                     | `skus`                        | item                                              | HasFactory                          |
+| Stack                   | `stacks`                      |                                                   | HasFactory                          |
+| StatusMovement          | `status_movements`            |                                                   |                                     |
+| Supplier                | `suppliers`                   | orders, materials                                 | HasFactory, SoftDeletes             |
+| SupplyBox               | `supply_boxes`                | supply, orders                                    |                                     |
+| Tariff                  | `tariffs`                     | userTariff, material                              | HasFactory                          |
+| Ticket                  | `tickets`                     | user                                              | HasFactory                          |
+| Transaction             | `transactions`                | user                                              | HasFactory                          |
+| TypeMaterial            | `type_materials`              |                                                   | HasFactory                          |
+| TypeMovement            | `type_movements`              |                                                   |                                     |
+| User                    | `users`                       | role, hanger, marketplaceOrderItems +5            | HasFactory, Notifiable, SoftDeletes |
+| UserTariff              | `user_tariffs`                | user, tariffs                                     | HasFactory                          |
+| Workshop                | `workshops`                   | shifts, orders, marketplaceOrderItems +3          | HasFactory                          |
 
 ## Services (27)
+
 | Service                                 | Methods | Dependencies |
 |-----------------------------------------|---------|--------------|
 | ActionAccrualService                    | 2       | —            |
@@ -80,7 +82,8 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | WarehouseOfItemService                  | 8       | —            |
 | WriteOffRemnantService                  | 1       | —            |
 
-## Controllers (44)
+## Controllers (45)
+
 | Controller                                   | Key Methods                                                                                        |
 |----------------------------------------------|----------------------------------------------------------------------------------------------------|
 | ConfirmPasswordController                    | showConfirmForm, confirm, redirectPath                                                             |
@@ -92,12 +95,13 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | BarcodeSearchController                      | index, findItemByBarcode                                                                           |
 | Controller                                   | authorize, authorizeForUser, authorizeResource, validateWith, validate +1                          |
 | DefectMaterialController                     | index, create, store, approve_reject, pick_up +3                                                   |
+| HangerController                             | index, create, store, edit, update +1                                                              |
 | HomeController                               | index                                                                                              |
 | InventoryController                          | byWarehouse, byWorkshop, inventoryChecks, show, create +2                                          |
 | MarketplaceApiController                     | checkSkuz, checkDuplicateSkuz, uploadingNewProducts, uploadingCancelledProducts, getBarcodeFile +2 |
 | MarketplaceItemController                    | index, create, store, edit, update +1                                                              |
 | MarketplaceOrderController                   | index, create, store, edit, update +7                                                              |
-| MarketplaceOrderItemController               | index, show, done, cancel, labeling +7                                                             |
+| MarketplaceOrderItemController               | index, show, done, cancel, labeling +8                                                             |
 | MarketplaceSupplyController                  | index, show, linkWbFbo, loadFboGoods, editFbo +23                                                  |
 | MaterialConsumptionController                | destroy                                                                                            |
 | MaterialController                           | index, create, store, edit, update +1                                                              |
@@ -112,7 +116,7 @@ PHP 8.2, Laravel 11, Livewire 3, AdminLTE, Tailwind 3, Pest.
 | PageController                               | index                                                                                              |
 | ProductStickerController                     | index, create, store, edit, update +1                                                              |
 | RatingBoardController                        | index, data                                                                                        |
-| RollController                               | index, show, printRoll, printOrder, returnToStorage +1                                             |
+| RollController                               | index, show, printRoll, printOrder, returnToStorage +3                                             |
 | ScheduleController                           | changeDate                                                                                         |
 | SettingController                            | index, save, test, syncWarehousesOzon, syncWarehousesWb +1                                         |
 | ShelfController                              | index, create, store, edit, update +1                                                              |

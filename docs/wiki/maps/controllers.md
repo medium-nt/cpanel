@@ -37,6 +37,11 @@
 - **File:** `app/Http/Controllers/DefectMaterialController.php`
 - **Methods:** `index`, `create`, `store`, `approve_reject`, `pick_up`, `scan`, `save`, `delete`
 
+### HangerController
+
+- **File:** `app/Http/Controllers/HangerController.php`
+- **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`
+
 ### HomeController
 - **File:** `app/Http/Controllers/HomeController.php`
 - **Methods:** `index`
@@ -59,7 +64,9 @@
 
 ### MarketplaceOrderItemController
 - **File:** `app/Http/Controllers/MarketplaceOrderItemController.php`
-- **Methods:** `index`, `show`, `done`, `cancel`, `labeling`, `getNewOrderItem`, `fillEntireStack`, `completeCutting`, `printCutting`, `stickerTapeForm`, `generateStickerTape`, `stickerTapeImport`
+- **Methods:** `index`, `show`, `done`, `cancel`, `labeling`, `getNewOrderItem`,
+  `fillEntireStack`, `completeCutting`, `setHanger`, `printCutting`,
+  `stickerTapeForm`, `generateStickerTape`, `stickerTapeImport`
 
 ### MarketplaceSupplyController
 - **File:** `app/Http/Controllers/MarketplaceSupplyController.php`
@@ -114,13 +121,13 @@
 - **Methods:** `index`, `create`, `store`, `edit`, `update`, `destroy`
 
 ### RatingBoardController
-
 - **File:** `app/Http/Controllers/RatingBoardController.php`
 - **Methods:** `index`, `data`
 
 ### RollController
 - **File:** `app/Http/Controllers/RollController.php`
-- **Methods:** `index`, `show`, `printRoll`, `printOrder`, `returnToStorage`, `destroy`
+- **Methods:** `index`, `show`, `printRoll`, `printOrder`, `returnToStorage`,
+  `writeOff`, `complete`, `destroy`
 
 ### ScheduleController
 - **File:** `app/Http/Controllers/ScheduleController.php`

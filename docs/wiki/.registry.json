@@ -1,12 +1,18 @@
 {
-    "generated_at": "2026-07-12T18:32:33+03:00",
+    "generated_at": "2026-07-18T07:25:19+03:00",
     "counts": {
-        "models": 38,
+        "models": 39,
         "services": 27,
-        "controllers": 44,
+        "controllers": 45,
         "livewire": 13
     },
     "models": {
+        "Hanger": {
+            "table": "hangers",
+            "file": "app\/Models\/Hanger.php",
+            "fillable_count": 1,
+            "relationships_count": 2
+        },
         "InventoryCheck": {
             "table": "inventory_checks",
             "file": "app\/Models\/InventoryCheck.php",
@@ -34,7 +40,7 @@
         "MarketplaceOrder": {
             "table": "marketplace_orders",
             "file": "app\/Models\/MarketplaceOrder.php",
-            "fillable_count": 11,
+            "fillable_count": 12,
             "relationships_count": 4
         },
         "MarketplaceOrderHistory": {
@@ -46,8 +52,8 @@
         "MarketplaceOrderItem": {
             "table": "marketplace_order_items",
             "file": "app\/Models\/MarketplaceOrderItem.php",
-            "fillable_count": 18,
-            "relationships_count": 9
+            "fillable_count": 19,
+            "relationships_count": 10
         },
         "MarketplaceSupply": {
             "table": "marketplace_supplies",
@@ -220,8 +226,8 @@
         "User": {
             "table": "users",
             "file": "app\/Models\/User.php",
-            "fillable_count": 15,
-            "relationships_count": 7
+            "fillable_count": 16,
+            "relationships_count": 8
         },
         "UserTariff": {
             "table": "user_tariffs",
@@ -383,6 +389,10 @@
             "file": "app\/Http\/Controllers\/DefectMaterialController.php",
             "methods_count": 8
         },
+        "HangerController": {
+            "file": "app\/Http\/Controllers\/HangerController.php",
+            "methods_count": 6
+        },
         "HomeController": {
             "file": "app\/Http\/Controllers\/HomeController.php",
             "methods_count": 1
@@ -405,7 +415,7 @@
         },
         "MarketplaceOrderItemController": {
             "file": "app\/Http\/Controllers\/MarketplaceOrderItemController.php",
-            "methods_count": 12
+            "methods_count": 13
         },
         "MarketplaceSupplyController": {
             "file": "app\/Http\/Controllers\/MarketplaceSupplyController.php",
@@ -465,7 +475,7 @@
         },
         "RollController": {
             "file": "app\/Http\/Controllers\/RollController.php",
-            "methods_count": 6
+            "methods_count": 8
         },
         "ScheduleController": {
             "file": "app\/Http\/Controllers\/ScheduleController.php",

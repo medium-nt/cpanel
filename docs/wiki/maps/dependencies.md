@@ -105,8 +105,8 @@ graph TD
 
 ## Graph Statistics
 
-- **Total Nodes:** 71
+- **Total Nodes:** 72
 - **Total Edges:** 142
 - **DI Edges:** 1 (constructor dependencies)
 - **Static Call Edges:** 141 (Service::method calls)
-- **Avg Edges per Node:** 2
+- **Avg Edges per Node:** 1.97

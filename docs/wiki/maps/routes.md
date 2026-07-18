@@ -22,6 +22,7 @@
 - Requires open shift
 - `routes/barcode_search.php`
 - `routes/defect_materials.php`
+- `routes/hangers.php`
 - `routes/inventory.php`
 - `routes/marketplace_api.php`
 - `routes/marketplace_items.php`

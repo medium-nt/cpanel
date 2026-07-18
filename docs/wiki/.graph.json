@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-07-12T18:32:33+03:00",
+    "generated_at": "2026-07-18T07:25:19+03:00",
     "nodes": {
         "ActionAccrualService": {
             "type": "service",
@@ -181,6 +181,11 @@
             "file": "app\/Http\/Controllers\/DefectMaterialController.php",
             "methods_count": 8
         },
+        "HangerController": {
+            "type": "controller",
+            "file": "app\/Http\/Controllers\/HangerController.php",
+            "methods_count": 6
+        },
         "HomeController": {
             "type": "controller",
             "file": "app\/Http\/Controllers\/HomeController.php",
@@ -209,7 +214,7 @@
         "MarketplaceOrderItemController": {
             "type": "controller",
             "file": "app\/Http\/Controllers\/MarketplaceOrderItemController.php",
-            "methods_count": 12
+            "methods_count": 13
         },
         "MarketplaceSupplyController": {
             "type": "controller",
@@ -284,7 +289,7 @@
         "RollController": {
             "type": "controller",
             "file": "app\/Http\/Controllers\/RollController.php",
-            "methods_count": 6
+            "methods_count": 8
         },
         "ScheduleController": {
             "type": "controller",
@@ -1192,7 +1197,7 @@
         }
     ],
     "stats": {
-        "total_nodes": 71,
+        "total_nodes": 72,
         "total_edges": 142,
         "di_edges": 1,
         "static_call_edges": 141

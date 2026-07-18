@@ -175,7 +175,7 @@
                                 {{ $item->item->width }} × {{ $item->item->height }}<br>
                             </span>
                             <span
-                                style="float: left; margin-left: 5px;  font-weight: bold; margin-top: 10px; font-size: 13px">
+                                style="float: left; margin-left: 5px;  font-weight: bold; margin-top: 10px; font-size: 11px">
                                 {{ $item->marketplaceOrder->MarketplaceTitle }}
                                 {{ $item->marketplaceOrder->order_id }}
                                 [{{ $item->marketplaceOrder->fulfillment_type }}]
