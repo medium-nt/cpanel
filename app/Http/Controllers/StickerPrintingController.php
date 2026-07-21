@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendMaxMessageJob;
 use App\Jobs\SendTelegramMessageJob;
+use App\Models\Marketplace;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
@@ -1010,7 +1011,7 @@ class StickerPrintingController extends Controller
             // 3. Создаём новый MarketplaceOrder (FBO)
             $marketplaceOrder = MarketplaceOrder::query()->create([
                 'order_id' => '...',
-                'marketplace_id' => 1,
+                'marketplace_id' => Marketplace::OZON,
                 'fulfillment_type' => 'FBO',
                 'status' => 9,
                 'completed_at' => now(),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Models\ProductSticker;
 use App\Models\Sku;
@@ -77,8 +78,8 @@ class MarketplaceApiController extends Controller
         }
 
         $result = match ($order->marketplace_id) {
-            1 => $service->getBarcodeOzon($orderId),
-            2 => $service->getBarcodeWb($orderId),
+            Marketplace::OZON => $service->getBarcodeOzon($orderId),
+            Marketplace::WB => $service->getBarcodeWb($orderId),
             default => null,
         };
 
@@ -123,8 +124,8 @@ class MarketplaceApiController extends Controller
         }
 
         return match ($order->marketplace_id) {
-            1 => $service->getBarcodeOzonFBO(collect([$order])),
-            2 => $service->getBarcodeWBFBO(collect([$order])),
+            Marketplace::OZON => $service->getBarcodeOzonFBO(collect([$order])),
+            Marketplace::WB => $service->getBarcodeWBFBO(collect([$order])),
             default => null,
         };
     }
@@ -140,7 +141,7 @@ class MarketplaceApiController extends Controller
             ->where('marketplace_id', $order->marketplace_id)
             ->first();
 
-        $barcode = ($order->marketplace_id == 1)
+        $barcode = ($order->marketplace_id == Marketplace::OZON)
             ? MarketplaceApiService::getBarcodeOzonBySku($sku->sku)
             : $sku->sku;
 
@@ -155,7 +156,7 @@ class MarketplaceApiController extends Controller
             'fontSizeCluster' => StickerService::resolveFontSizeCluster($order->cluster, 'pdf.fbo_sticker'),
             'seamstressId' => $order->items[0]->seamstress?->id,
             'cutterId' => $order->items[0]->cutter?->id,
-            'article' => ($order->marketplace_id == 2)
+            'article' => ($order->marketplace_id == Marketplace::WB)
                 ? MarketplaceApiService::getItemWbBySku($sku->sku)?->nmID ?? ''
                 : '',
             'color' => $productSticker?->color ?? '',

@@ -143,8 +143,8 @@
                                 <div
                                     class="ribbon bg-gradient-gray-dark text-lg">
                                     <img style="width: 80px;"
-                                         src="{{ asset($marketplace_supply->marketplace_name) }}"
-                                         alt="{{ $marketplace_supply->marketplace_name }}">
+                                         src="{{ asset($marketplace_supply->marketplace_logo) }}"
+                                         alt="{{ $marketplace_supply->marketplace_title }}">
                                 </div>
                             </div>
                             <div class="card-body">
@@ -274,8 +274,8 @@
                                 </td>
                                 <td>
                                     <img style="width: 80px;"
-                                         src="{{ asset($marketplace_supply->marketplace_name) }}"
-                                         alt="{{ $marketplace_supply->marketplace_name }}">
+                                         src="{{ asset($marketplace_supply->marketplace_logo) }}"
+                                         alt="{{ $marketplace_supply->marketplace_title }}">
                                 </td>
                                 <td>{{ $marketplace_supply->type }} {{ $marketplace_supply->delivery_type }}</td>
 

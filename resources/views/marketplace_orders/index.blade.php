@@ -297,8 +297,8 @@
                             <div class="ribbon-wrapper ribbon-lg">
                                 <div class="ribbon bg-gradient-gray-dark text-lg">
                                     <img style="width: 80px;"
-                                         src="{{ asset($order->marketplace_name) }}"
-                                         alt="{{ $order->marketplace_name }}">
+                                         src="{{ asset($order->marketplace_logo) }}"
+                                         alt="{{ $order->marketplace_title }}">
                                 </div>
                             </div>
                             <div class="card-body">
@@ -438,8 +438,8 @@
                                 @endif
                                 <td>
                                     <img style="width: 80px;"
-                                         src="{{ asset($order->marketplace_name) }}"
-                                         alt="{{ $order->marketplace_name }}">
+                                         src="{{ asset($order->marketplace_logo) }}"
+                                         alt="{{ $order->marketplace_title }}">
                                 </td>
                                 <td>{{ $order->fulfillment_type }}</td>
                                 <td>{{ $order->cluster }}</td>

@@ -1,6 +1,6 @@
 # cpanel — Project Wiki Index
 
-> Generated: 2026-07-18 16:06 | Models: 39 | Services: 27 | Controllers: 45 |
+> Generated: 2026-07-21 07:25 | Models: 39 | Services: 27 | Controllers: 45 |
 > Livewire: 13
 
 ## Quick Orientation

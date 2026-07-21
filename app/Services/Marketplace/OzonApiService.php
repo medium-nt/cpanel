@@ -2,6 +2,7 @@
 
 namespace App\Services\Marketplace;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
@@ -264,7 +265,7 @@ class OzonApiService
         $stickers = $orders->map(function (MarketplaceOrder $order) {
             $item = $order->items->first()->item;
             $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
-            $barcode = ($order->marketplace_id == 1) ? self::getBarcodeBySku($sku) : $sku;
+            $barcode = ($order->marketplace_id == Marketplace::OZON) ? self::getBarcodeBySku($sku) : $sku;
 
             return [
                 'barcode' => $barcode,
@@ -292,7 +293,7 @@ class OzonApiService
     {
         $item = $order->items->first()->item;
         $sku = $item->sku->where('marketplace_id', $order->marketplace_id)->first()->sku;
-        $barcode = ($order->marketplace_id == 1) ? self::getBarcodeBySku($sku) : $sku;
+        $barcode = ($order->marketplace_id == Marketplace::OZON) ? self::getBarcodeBySku($sku) : $sku;
 
         return view('pdf.fbo_ozon_sticker_html', [
             'barcode' => $barcode,
@@ -1008,7 +1009,7 @@ class OzonApiService
                         $record = MarketplaceWarehouse::query()->updateOrCreate(
                             [
                                 'name' => $warehouseName,
-                                'marketplace_id' => 1,
+                                'marketplace_id' => Marketplace::OZON,
                             ],
                             [
                                 'cluster' => $clusterName,

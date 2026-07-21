@@ -289,8 +289,8 @@
                                 <td>{{ $shipment->supply_date->format('d.m.Y') }}</td>
                                 <td>
                                     <img style="width: 80px;"
-                                         src="{{ asset($shipment->marketplace_name) }}"
-                                         alt="{{ $shipment->marketplace_name }}">
+                                         src="{{ asset($shipment->marketplace_logo) }}"
+                                         alt="{{ $shipment->marketplace_title }}">
                                 </td>
                                 <td>{{ $shipment->cluster }}</td>
                                 <td>{{ $shipment->marketplace_orders()->count() }}</td>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hanger;
+use App\Models\Marketplace;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceWarehouse;
@@ -522,7 +523,7 @@ class MarketplaceOrderItemController extends Controller
             ->where('marketplace_id', $validated['marketplace_id'])
             ->firstOrFail();
 
-        $barcode = ($validated['marketplace_id'] == 1)
+        $barcode = ($validated['marketplace_id'] == Marketplace::OZON)
             ? MarketplaceApiService::getBarcodeOzonBySku($sku->sku)
             : $sku->sku;
 
@@ -542,7 +543,7 @@ class MarketplaceOrderItemController extends Controller
             'fontSizeCluster' => StickerService::resolveFontSizeCluster($validated['cluster'], $template),
             'seamstressId' => $validated['seamstress_id'],
             'cutterId' => $validated['cutter_id'],
-            'article' => ($validated['marketplace_id'] == 2)
+            'article' => ($validated['marketplace_id'] == Marketplace::WB)
                 ? MarketplaceApiService::getItemWbBySku($sku->sku)->nmID ?? ''
                 : '',
             'color' => $productSticker?->color ?? '',

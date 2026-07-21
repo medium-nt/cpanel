@@ -393,8 +393,8 @@
                                 <td style="text-align: center">{{ $item->item->height }}</td>
                                 <td style="text-align: center">
                                     <img style="width: 80px;"
-                                         src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
-                                         alt="{{ $item->marketplaceOrder->marketplace_name }}">
+                                         src="{{ asset($item->marketplaceOrder->marketplace_logo) }}"
+                                         alt="{{ $item->marketplaceOrder->marketplace_title }}">
                                 </td>
                                 <td style="text-align: center">{{ $item->marketplaceOrder->fulfillment_type }}</td>
 
@@ -473,8 +473,8 @@
                                 <div
                                     class="ribbon bg-gradient-gray-dark text-lg">
                                     <img style="width: 80px;"
-                                         src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
-                                         alt="{{ $item->marketplaceOrder->marketplace_name }}">
+                                         src="{{ asset($item->marketplaceOrder->marketplace_logo) }}"
+                                         alt="{{ $item->marketplaceOrder->marketplace_title }}">
                                 </div>
                             </div>
                             <div class="card-body">

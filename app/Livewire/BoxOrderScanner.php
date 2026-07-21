@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Models\Sku;
 use App\Models\SupplyBox;
@@ -67,7 +68,7 @@ class BoxOrderScanner extends Component
         $sku = Sku::query()
             ->where('marketplace_id', $this->box->supply->marketplace_id)
             ->when(
-                $this->box->supply->marketplace_id === 1,
+                $this->box->supply->marketplace_id === Marketplace::OZON,
                 fn ($q) => $q->where('barcode', $code),
                 fn ($q) => $q->where('sku', $code),
             )

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceSupply;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -145,8 +146,8 @@ class MarketplaceSupplyService
         $count = 0;
         foreach ($supplies as $supply) {
             $isUpdated = match ($supply->marketplace_id) {
-                1 => MarketplaceApiService::updateStatusOrderBySupplyOzon($supply),
-                2 => MarketplaceApiService::updateStatusOrderBySupplyWB($supply),
+                Marketplace::OZON => MarketplaceApiService::updateStatusOrderBySupplyOzon($supply),
+                Marketplace::WB => MarketplaceApiService::updateStatusOrderBySupplyWB($supply),
             };
 
             if (! $isUpdated) {

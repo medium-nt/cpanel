@@ -1,3 +1,16 @@
+## [2026-07-21] a11y-fix | marketplace-integration
+
+- Исправлен alt-текст в 6 blade-шаблонах:
+  `alt="{{ $model->marketplace_logo }}"` →
+  `alt="{{ $model->marketplace_title }}"`.
+  Раньше в alt попадал путь к файлу (`/icons/ozon.png`), теперь текстовое имя ('
+  OZON'/'WB').
+- Добавлен accessor `getMarketplaceTitleAttribute()` в `MarketplaceSupply.php` (
+  раньше был только в `MarketplaceOrder.php`) — теперь доступен у ОБЕИХ моделей.
+- Семантика чёткая: `marketplace_logo` (LOGO/accessor) = путь к иконке → для
+  `src`; `marketplace_title` = текстовое имя → для `alt`, подписей.
+- Обновлён topic: marketplace-integration.md
+
 ## [2026-07-14] update | rating-board-empty-data-behavior
 
 - Исправлено описание поведения когда все лидеры закрыли смену: раньше было
@@ -1100,3 +1113,27 @@
 - Затронутые файлы: `app/Services/InventoryService.php` (метод canArchive),
   `app/Http/Controllers/MaterialController.php` (текст ошибки)
 - Обновлены topics: materials.md, material-flow.md, warehouse-operations.md
+
+## [2026-07-21] fix | fbs-supply-100-orders-limit-wb-only
+
+- Уточнён лимит 100 заказов на FBS-поставку: применяется ТОЛЬКО к WB
+  (marketplace_id=2), для Ozon лимита нет
+- `SupplyOrderSearch` — общий компонент для WB и Ozon, но проверка
+  `marketplace_id === WbApiService::MARKETPLACE_ID` (=2) применяется только к WB
+- Добавлена константа `WbApiService::MARKETPLACE_ID = 2`
+- Обновлены topics: marketplace-integration.md, warehouse-operations.md,
+  order-lifecycle.md
+
+## [2026-07-21] rename | marketplace-integration
+
+- В `app/Models/Marketplace.php` константа `const NAME` переименована в
+  `const LOGO` (семантически верно: хранит пути к логотипам)
+- Accessor `getMarketplaceNameAttribute` → `getMarketplaceLogoAttribute` в
+  MarketplaceSupply/MarketplaceOrder
+- Свойство модели `marketplace_name` → `marketplace_logo`; `$appends` обновлён
+- В 6 blade-шаблонах обращения `$model->marketplace_name` →
+  `$model->marketplace_logo`
+- Уточнено: `Marketplace::LOGO` хранит пути к логотипам, текстовые имена
+  возвращаются через accessor `marketplace_title` и метод
+  `MarketplaceOrderService::getMarketplaceName()`
+- Обновлён topic: marketplace-integration.md

@@ -32,3 +32,27 @@ test('attachOrder блокирует добавление 101-го заказа 
     expect($order101->fresh()->supply_id)->not->toBe($supply->id);
     expect($order101->fresh()->supply_id)->toBeNull();
 });
+
+test('attachOrder НЕ блокирует добавление 101-го заказа для Ozon (cap только для WB)', function () {
+    $supply = MarketplaceSupply::factory()->create([
+        'marketplace_id' => 1, // Ozon
+        'type' => 'FBS',
+    ]);
+
+    MarketplaceOrder::factory()->count(100)->create([
+        'supply_id' => $supply->id,
+        'marketplace_id' => 1,
+    ]);
+
+    $order101 = MarketplaceOrder::factory()->create([
+        'supply_id' => null,
+        'marketplace_id' => 1,
+    ]);
+
+    Livewire::test(SupplyOrderSearch::class, ['supply' => $supply])
+        ->set('selectedOrderId', $order101->id)
+        ->call('confirmSelectedOrder')
+        ->assertDontSee('лимит');
+
+    expect($order101->fresh()->supply_id)->toBe($supply->id);
+});
