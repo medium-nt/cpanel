@@ -41,12 +41,14 @@ class Ticket extends Model
 
     protected $fillable = [
         'user_id',
+        'admin_id',
         'description',
         'admin_comment',
         'page_url',
         'screenshot',
         'status',
         'closed_at',
+        'answer_read_at',
     ];
 
     /**
@@ -58,6 +60,7 @@ class Ticket extends Model
     {
         return [
             'closed_at' => 'datetime',
+            'answer_read_at' => 'datetime',
         ];
     }
 
@@ -67,6 +70,14 @@ class Ticket extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    /**
+     * Администратор, закрывший тикет с ответом (включая мягко удалённых).
+     */
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'admin_id')->withTrashed();
     }
 
     /**
@@ -93,6 +104,19 @@ class Ticket extends Model
         $query->whereIn('status', [self::STATUS_CLOSED, self::STATUS_DELETED]);
     }
 
+    /**
+     * Тикеты сотрудника с непрочитанным ответом администратора
+     * (есть admin_comment, answer_read_at ещё не проставлен).
+     *
+     * Используется для in-app бейджа в меню «Поддержка» у не-админа.
+     */
+    public function scopeUnreadAnswers(Builder $query, User $user): void
+    {
+        $query->where('user_id', $user->id)
+            ->whereNotNull('admin_comment')
+            ->whereNull('answer_read_at');
+    }
+
     public function isClosed(): bool
     {
         return $this->status === self::STATUS_CLOSED;
@@ -114,15 +138,34 @@ class Ticket extends Model
     }
 
     /**
-     * Закрыть тикет (статус + дата закрытия + опциональный комментарий админа).
+     * Закрыть тикет: статус, дата закрытия, опциональный комментарий и автор ответа.
+     *
+     * При новом/обновлённом ответе сбрасывает answer_read_at в null (непрочитано),
+     * чтобы сотрудник увидел бейдж непрочитанного ответа в меню.
+     *
+     * @param  int|null  $adminId  ID администрона, закрывающего тикет (фиксируется как автор ответа).
      */
-    public function markClosed(?string $adminComment = null): bool
+    public function markClosed(?string $adminComment = null, ?int $adminId = null): bool
     {
         $this->status = self::STATUS_CLOSED;
         $this->closed_at = now();
         if ($adminComment !== null) {
             $this->admin_comment = $adminComment;
+            $this->answer_read_at = null;
         }
+        if ($adminId !== null) {
+            $this->admin_id = $adminId;
+        }
+
+        return $this->save();
+    }
+
+    /**
+     * Пометить ответ администратора как прочитанный автором тикета.
+     */
+    public function markAnswerRead(): bool
+    {
+        $this->answer_read_at = now();
 
         return $this->save();
     }

@@ -52,9 +52,19 @@
                         </thead>
                         <tbody>
                         @forelse ($tickets as $ticket)
-                            <tr>
+                            @php
+                                // Непрочитанный ответ автора: подсветка строки + иконка-индикатор.
+                                $hasUnreadAnswer = $ticket->admin_comment && ! $ticket->answer_read_at;
+                            @endphp
+                            <tr class="{{ $hasUnreadAnswer ? 'table-warning' : '' }}">
                                 <td>{{ $ticket->id }}</td>
-                                <td>{{ \Illuminate\Support\Str::limit($ticket->description, 80) }}</td>
+                                <td>
+                                    @if ($hasUnreadAnswer)
+                                        <i class="fas fa-comment-dots text-warning"
+                                           title="Новый ответ администратора"></i>
+                                    @endif
+                                    {{ \Illuminate\Support\Str::limit($ticket->description, 80) }}
+                                </td>
                                 @can('is-admin')
                                     <td>{{ $ticket->user?->name }}</td>
                                 @endcan

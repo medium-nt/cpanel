@@ -72,16 +72,25 @@ class TicketController extends Controller
     }
 
     /**
-     * Просмотр тикета (только автор или администратор).
+     * Просмотр тикета (только автор или администратор). Подгружает автора и админа
+     * с ролями для вывода ФИО/роли в карточке. Автор при просмотре тикета с ответом
+     * помечает ответ прочитанным (answer_read_at).
      */
     public function show(Request $request, Ticket $ticket): View
     {
         $this->authorize('view', $ticket);
 
+        $ticket->loadMissing(['user.role', 'admin.role']);
+
+        $user = $request->user();
+        if ($user->id === $ticket->user_id && $ticket->admin_comment && ! $ticket->answer_read_at) {
+            $ticket->markAnswerRead();
+        }
+
         return view('tickets.show', [
             'title' => 'Тикет #'.$ticket->id,
             'ticket' => $ticket,
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
