@@ -342,3 +342,129 @@ it('shows admin comment to ticket author', function () {
         ->assertSuccessful()
         ->assertSee('TestCommentUnique123');
 });
+
+it('close sets admin_id and resets answer_read_at', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $employee = User::factory()->create();
+
+    // Create a new ticket
+    $ticket = Ticket::factory()->for($employee)->create([
+        'status' => Ticket::STATUS_NEW,
+        'description' => 'UNIQUE_DESC_MARKER_12345 - Problem with button',
+    ]);
+
+    // Admin starts the ticket
+    $this->actingAs($admin)
+        ->put(route('tickets.start', $ticket))
+        ->assertRedirect(route('tickets.index', ['scope' => 'new']));
+
+    $ticket->refresh();
+
+    // Admin closes the ticket with comment
+    $this->actingAs($admin)
+        ->put(route('tickets.close', $ticket), [
+            'admin_comment' => 'UNIQUE_ADMIN_COMMENT_67890 - Fixed the button issue',
+        ])
+        ->assertRedirect(route('tickets.index', ['scope' => 'new']));
+
+    $ticket->refresh();
+
+    // Check database state
+    expect($ticket->status)->toBe(Ticket::STATUS_CLOSED)
+        ->and($ticket->admin_id)->toBe($admin->id)
+        ->and($ticket->answer_read_at)->toBeNull()
+        ->and($ticket->closed_at)->not->toBeNull()
+        ->and($ticket->admin_comment)->toBe('UNIQUE_ADMIN_COMMENT_67890 - Fixed the button issue');
+});
+
+it('show by author marks answer as read', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $employee = User::factory()->create();
+
+    // Create a closed ticket with admin comment and unread answer
+    $ticket = Ticket::factory()->for($employee)->create([
+        'status' => Ticket::STATUS_CLOSED,
+        'admin_id' => $admin->id,
+        'admin_comment' => 'UNIQUE_SHOW_READ_ADMIN_111 - Please check the fix',
+        'answer_read_at' => null,
+    ]);
+
+    expect($ticket->answer_read_at)->toBeNull();
+
+    // Author views the ticket
+    $this->actingAs($employee)
+        ->get(route('tickets.show', $ticket))
+        ->assertSuccessful();
+
+    // Check that answer_read_at is now set
+    $ticket->refresh();
+    expect($ticket->answer_read_at)->not->toBeNull();
+});
+
+it('show by admin does not mark answer as read', function () {
+    $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin = User::factory()->create(['role_id' => $adminRole->id]);
+    $employee = User::factory()->create();
+
+    // Create a closed ticket with admin comment and unread answer
+    $ticket = Ticket::factory()->for($employee)->create([
+        'status' => Ticket::STATUS_CLOSED,
+        'admin_id' => $admin->id,
+        'admin_comment' => 'UNIQUE_SHOW_READ_ADMIN_222 - Please check the fix',
+        'answer_read_at' => null,
+    ]);
+
+    expect($ticket->answer_read_at)->toBeNull();
+
+    // Admin views the ticket
+    $this->actingAs($admin)
+        ->get(route('tickets.show', $ticket))
+        ->assertSuccessful();
+
+    // Check that answer_read_at is still null (not marked as read)
+    $ticket->refresh();
+    expect($ticket->answer_read_at)->toBeNull();
+});
+
+it('scopeUnreadAnswers returns only tickets with unread answers', function () {
+    $user1 = User::factory()->create();
+    $user2 = User::factory()->create();
+
+    // Ticket 1: user1, has admin_comment, answer_read_at = null -> SHOULD MATCH
+    Ticket::factory()->for($user1)->create([
+        'status' => Ticket::STATUS_CLOSED,
+        'admin_comment' => 'UNIQUE_SCOPE_111 - Unread answer',
+        'answer_read_at' => null,
+    ]);
+
+    // Ticket 2: user1, has admin_comment, answer_read_at = now() -> SHOULD NOT MATCH (already read)
+    Ticket::factory()->for($user1)->create([
+        'status' => Ticket::STATUS_CLOSED,
+        'admin_comment' => 'UNIQUE_SCOPE_222 - Already read answer',
+        'answer_read_at' => now(),
+    ]);
+
+    // Ticket 3: user1, no admin_comment -> SHOULD NOT MATCH (no answer yet)
+    Ticket::factory()->for($user1)->create([
+        'status' => Ticket::STATUS_IN_PROGRESS,
+        'admin_comment' => null,
+        'answer_read_at' => null,
+    ]);
+
+    // Ticket 4: user2, has admin_comment, answer_read_at = null -> SHOULD NOT MATCH (different user)
+    Ticket::factory()->for($user2)->create([
+        'status' => Ticket::STATUS_CLOSED,
+        'admin_comment' => 'UNIQUE_SCOPE_333 - Other user unread',
+        'answer_read_at' => null,
+    ]);
+
+    // Check scope for user1 - should return exactly 1 ticket
+    $count = Ticket::query()->unreadAnswers($user1)->count();
+    expect($count)->toBe(1);
+
+    // Check scope for user2 - should return exactly 1 ticket (their own unread ticket)
+    $countUser2 = Ticket::query()->unreadAnswers($user2)->count();
+    expect($countUser2)->toBe(1);
+});

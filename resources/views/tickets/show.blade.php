@@ -72,7 +72,18 @@
                     <table class="table table-bordered">
                         <tr>
                             <th style="width: 200px">Автор</th>
-                            <td>{{ $ticket->user?->name ?? '—' }}</td>
+                            <td>
+                                @if ($ticket->user)
+                                    <a href="{{ route('users.edit', $ticket->user) }}">{{ $ticket->user->name }}</a>
+                                    @if ($ticket->user->role)
+                                        <span class="badge badge-info ml-1">
+                                            {{ \App\Services\UserService::translateRoleName($ticket->user->role->name) }}
+                                        </span>
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <th>Дата создания</th>
@@ -108,6 +119,18 @@
                             администратора</label>
                         <div class="border rounded p-3 bg-light"
                              style="white-space: pre-wrap;">{{ $ticket->admin_comment }}</div>
+                        @if ($ticket->admin)
+                            <small class="text-muted d-block mt-1">
+                                Ответил: {{ $ticket->admin->name }}
+                                @if ($ticket->admin->role)
+                                    ({{ \App\Services\UserService::translateRoleName($ticket->admin->role->name) }}
+                                    )
+                                @endif
+                                @if ($ticket->closed_at)
+                                    , {{ $ticket->closed_at->format('d.m.Y H:i') }}
+                                @endif
+                            </small>
+                        @endif
                     </div>
                 @endif
 

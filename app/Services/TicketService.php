@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TicketService
 {
@@ -46,21 +47,57 @@ class TicketService
 
     /**
      * Закрыть тикет (перевести в статус «Закрыт») с обязательным комментарием админа.
-     * Только для тикетов в работе.
+     * Только для тикетов в работе. Фиксирует автора ответа (admin_id), сбрасывает
+     * answer_read_at и отправляет автору уведомление в TG/MAX с текстом ответа.
+     *
+     * @param  int|null  $adminId  ID закрывающего админа (по умолчанию текущий auth user).
      */
-    public function close(Ticket $ticket, string $adminComment): bool
+    public function close(Ticket $ticket, string $adminComment, ?int $adminId = null): bool
     {
         if ($ticket->status !== Ticket::STATUS_IN_PROGRESS || trim($adminComment) === '') {
             return false;
         }
 
-        $result = $ticket->markClosed($adminComment);
+        $adminId ??= (int) auth()->id();
+
+        $result = $ticket->markClosed($adminComment, $adminId);
+        $ticket->refresh()->loadMissing(['user', 'admin']);
+
         Log::info('Тикет закрыт администратором', [
             'ticket_id' => $ticket->id,
-            'admin_id' => auth()->id(),
+            'admin_id' => $adminId,
         ]);
 
+        $this->notifyAuthorOfAnswer($ticket, $adminComment);
+
         return $result;
+    }
+
+    /**
+     * Отправить автору тикета уведомление об ответе администратора в TG/MAX.
+     *
+     * Текст формируется синхронно (route() резолвится по APP_URL в web-контексте),
+     * отправка идёт через очередь (afterCommit внутри NotificationService).
+     * Юзеры без tg_id/max_id пропускаются тихо — у них останется in-app бейдж
+     * непрочитанного ответа в меню «Поддержка».
+     */
+    private function notifyAuthorOfAnswer(Ticket $ticket, string $adminComment): void
+    {
+        $author = $ticket->user;
+        if (! $author) {
+            return;
+        }
+
+        $text = implode("\n\n", array_filter([
+            '🎫 Поступил ответ по вашему обращению в поддержку',
+            "❓ Ваш вопрос:\n".Str::limit($ticket->description, 300),
+            '✅ Ответ администратора'
+            .($ticket->admin ? ' ('.$ticket->admin->name.')' : '')
+            .":\n".$adminComment,
+            '🔗 '.route('tickets.show', $ticket),
+        ]));
+
+        NotificationService::notify($author, $text, queued: true);
     }
 
     /**

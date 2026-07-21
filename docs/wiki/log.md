@@ -1137,3 +1137,20 @@
   возвращаются через accessor `marketplace_title` и метод
   `MarketplaceOrderService::getMarketplaceName()`
 - Обновлён topic: marketplace-integration.md
+
+## [2026-07-21] update | ticket-system-notifications
+
+- Новые поля в tickets: `admin_id` (FK→users, кто из админов ответил) и
+  `answer_read_at` (timestamp, nullable — когда автор прочитал ответ)
+- Автоматическое уведомление автора при закрытии тикета: TG/MAX через
+  NotificationService::notify(), queued. Текст: «Поступил ответ» + вопрос автора
+  (обрезка 300) + ответ админа (с ФИО) + ссылка на тикет
+- In-app бейдж непрочитанных ответов в меню «Тикеты»: зелёный `success` для
+  сотрудников, показывает количество тикетов с `answer_read_at=null`. У админов
+  остаётся красный `danger` бейдж новых тикетов.
+- Карточка тикета: ФИО автора — ссылка на профиль (users.edit) + бейдж роли на
+  русском (UserService::translateRoleName). Под комментарием админа — подпись
+  «Ответил: {ФИО} ({роль}), {дата закрытия}».
+- При просмотре тикета автором ответ помечается прочитанным
+  (`markAnswerRead()`).
+- Обновлён topic: support-system.md

@@ -34,15 +34,22 @@ class AppServiceProvider extends ServiceProvider
 
         $this->registerSlowQueryLogger();
 
-        // Бейдж-счётчик новых тикетов на пункте «Поддержка» (только для админа).
+        // Бейдж на пункте «Поддержка»: для админа — счётчик новых тикетов (danger),
+        // для сотрудника — счётчик непрочитанных ответов на его тикеты (success).
         Event::listen(BuildingMenu::class, function (BuildingMenu $event): void {
             $user = auth()->user();
 
-            if (! $user || ! $user->isAdmin() || ! $event->menu->itemKeyExists('support')) {
+            if (! $user || ! $event->menu->itemKeyExists('support')) {
                 return;
             }
 
-            $count = Ticket::query()->where('status', Ticket::STATUS_NEW)->count();
+            if ($user->isAdmin()) {
+                $count = Ticket::query()->where('status', Ticket::STATUS_NEW)->count();
+                $labelColor = 'danger';
+            } else {
+                $count = Ticket::query()->unreadAnswers($user)->count();
+                $labelColor = 'success';
+            }
 
             if ($count <= 0) {
                 return;
@@ -56,7 +63,7 @@ class AppServiceProvider extends ServiceProvider
                 'url' => 'megatulle/tickets',
                 'icon' => 'fas fa-fw fa-bug',
                 'label' => $count,
-                'label_color' => 'danger',
+                'label_color' => $labelColor,
             ]);
         });
 
