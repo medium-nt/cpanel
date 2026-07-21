@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Services\Marketplace\WbApiService;
 use App\Services\MarketplaceApiService;
@@ -139,8 +140,12 @@ class SupplyOrderSearch extends Component
             return;
         }
 
-        // Cap WB API: в одной FBS-поставке не более MAX_ORDERS_PER_SUPPLY заказов.
-        if ($this->supply->marketplace_orders()->count() >= WbApiService::MAX_ORDERS_PER_SUPPLY) {
+        // Cap WB API: в одной FBS-поставке WB не более MAX_ORDERS_PER_SUPPLY заказов.
+        // На Ozon лимит не распространяется (только ограничение WB API).
+        if (
+            $this->supply->marketplace_id === Marketplace::WB
+            && $this->supply->marketplace_orders()->count() >= WbApiService::MAX_ORDERS_PER_SUPPLY
+        ) {
             $this->message = 'Достигнут лимит '
                 .WbApiService::MAX_ORDERS_PER_SUPPLY.' заказов в поставке. Создайте новую поставку.';
             $this->messageType = 'error';

@@ -57,10 +57,20 @@ class MarketplaceSupply extends Model
         ];
     }
 
-    /** Возвращает имя маркетплейса по ID. */
-    public function getMarketplaceNameAttribute(): string
+    /** Возвращает путь к логотипу маркетплейса по ID (OZON/WB). */
+    public function getMarketplaceLogoAttribute(): string
     {
-        return Marketplace::NAME[$this->marketplace_id];
+        return Marketplace::LOGO[$this->marketplace_id];
+    }
+
+    /** Возвращает заголовок маркетплейса (OZON/WB/---) для alt-текста и подписей. */
+    public function getMarketplaceTitleAttribute(): string
+    {
+        return match ($this->marketplace_id) {
+            Marketplace::OZON => 'OZON',
+            Marketplace::WB => 'WB',
+            default => '---',
+        };
     }
 
     /** Проверяет, можно ли редактировать кол-во коробов (разрешено до даты отгрузки включительно). */

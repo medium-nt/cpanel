@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
@@ -738,8 +739,8 @@ class MarketplaceApiService
     public static function getStatusOrder(MarketplaceOrder $order)
     {
         return match ($order->marketplace_id) {
-            1 => OzonApiService::getStatusOrder($order),
-            2 => WbApiService::getStatusOrder($order),
+            Marketplace::OZON => OzonApiService::getStatusOrder($order),
+            Marketplace::WB => WbApiService::getStatusOrder($order),
             default => null
         };
     }
@@ -750,8 +751,8 @@ class MarketplaceApiService
     public static function getReturnReason(MarketplaceOrderItem $marketplace_item): string
     {
         return match ($marketplace_item->marketplaceOrder->marketplace_id) {
-            1 => OzonApiService::getReturnReason($marketplace_item),
-            2 => WbApiService::getReturnReason($marketplace_item),
+            Marketplace::OZON => OzonApiService::getReturnReason($marketplace_item),
+            Marketplace::WB => WbApiService::getReturnReason($marketplace_item),
             default => '---',
         };
     }

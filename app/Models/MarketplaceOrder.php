@@ -41,7 +41,7 @@ class MarketplaceOrder extends Model
         'is_b2b',
     ];
 
-    protected $appends = ['marketplace_name', 'status_name', 'status_color'];
+    protected $appends = ['marketplace_logo', 'status_name', 'status_color'];
 
     /**
      * Приведение типов атрибутов.
@@ -61,18 +61,18 @@ class MarketplaceOrder extends Model
         return $this->hasMany(MarketplaceOrderItem::class);
     }
 
-    /** Возвращает иконку маркетплейса по ID (OZON/WB). */
-    public function getMarketplaceNameAttribute(): string
+    /** Возвращает путь к логотипу маркетплейса по ID (OZON/WB). */
+    public function getMarketplaceLogoAttribute(): string
     {
-        return Marketplace::NAME[$this->marketplace_id];
+        return Marketplace::LOGO[$this->marketplace_id];
     }
 
     /** Возвращает заголовок маркетплейса (OZON/WB/---). */
     public function getMarketplaceTitleAttribute(): string
     {
         return match ($this->marketplace_id) {
-            1 => 'OZON',
-            2 => 'WB',
+            Marketplace::OZON => 'OZON',
+            Marketplace::WB => 'WB',
             default => '---',
         };
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendMaxMessageJob;
 use App\Jobs\SendTelegramMessageJob;
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceSupply;
 use App\Models\SupplyBox;
@@ -83,8 +84,8 @@ class SupplyBoxController extends Controller
 
         // Отправка уведомлений в ТГ менеджерам и админу
         $marketplaceName = match ($marketplaceSupply->marketplace_id) {
-            1 => 'OZON',
-            2 => 'Wildberries',
+            Marketplace::OZON => 'OZON',
+            Marketplace::WB => 'Wildberries',
             default => '---',
         };
 
@@ -217,7 +218,7 @@ class SupplyBoxController extends Controller
 
         $box->load('supply');
 
-        if ($box->supply->marketplace_id === 1) {
+        if ($box->supply->marketplace_id === Marketplace::OZON) {
             return $this->printOzonSticker($marketplaceSupply, $box, request()->boolean('regenerate'));
         }
 
@@ -332,7 +333,7 @@ class SupplyBoxController extends Controller
                 }
 
                 $article = $item->article;
-                $sku = $item->sku->first(fn (mixed $s) => $s->marketplace_id === 1);
+                $sku = $item->sku->first(fn (mixed $s) => $s->marketplace_id === Marketplace::OZON);
 
                 if (! $sku) {
                     continue;

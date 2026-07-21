@@ -2,6 +2,7 @@
 
 namespace App\Services\Marketplace;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
@@ -354,7 +355,7 @@ class WbApiService
                 $created = MarketplaceWarehouse::query()->firstOrCreate(
                     [
                         'name' => $warehouseName,
-                        'marketplace_id' => 2,
+                        'marketplace_id' => Marketplace::WB,
                     ],
                     [
                         'cluster' => '',

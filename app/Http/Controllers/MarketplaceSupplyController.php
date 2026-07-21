@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Marketplace;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
@@ -88,13 +89,13 @@ class MarketplaceSupplyController extends Controller
                 'hasOnSupplyOrders' => $supplyOrders->contains(fn ($order) => $order->box_id === null && $order->status == 6),
             ];
 
-            if ($marketplaceSupply->marketplace_id == 1) {
+            if ($marketplaceSupply->marketplace_id == Marketplace::OZON) {
                 return view('marketplace_supply.show-ozon-fbo', $baseData + [
                     'ozonSupplyOrders' => $needsDropdown ? self::getOzonSupplyOrdersForDropdown() : [],
                 ]);
             }
 
-            if ($marketplaceSupply->marketplace_id == 2) {
+            if ($marketplaceSupply->marketplace_id == Marketplace::WB) {
                 return view('marketplace_supply.show-wb-fbo', $baseData + [
                     'wbSupplies' => $needsDropdown ? MarketplaceApiService::getFboSuppliesWb() : [],
                     'canExportExcel' => $marketplaceSupply->status === 4,
@@ -302,7 +303,7 @@ class MarketplaceSupplyController extends Controller
             for ($i = 0; $i < $good['quantity']; $i++) {
                 $order = MarketplaceOrder::query()->create([
                     'order_id' => $marketplaceSupply->supply_id.'-'.$orderNumber,
-                    'marketplace_id' => 2,
+                    'marketplace_id' => Marketplace::WB,
                     'supply_id' => $marketplaceSupply->id,
                     'fulfillment_type' => 'FBO',
                     'cluster' => $marketplaceSupply->cluster,
@@ -536,7 +537,7 @@ class MarketplaceSupplyController extends Controller
             for ($i = 0; $i < $good['quantity']; $i++) {
                 $order = MarketplaceOrder::query()->create([
                     'order_id' => $marketplaceSupply->supply_id.'-'.$orderNumber,
-                    'marketplace_id' => 1,
+                    'marketplace_id' => Marketplace::OZON,
                     'supply_id' => $marketplaceSupply->id,
                     'fulfillment_type' => 'FBO',
                     'cluster' => $marketplaceSupply->cluster,
@@ -582,9 +583,9 @@ class MarketplaceSupplyController extends Controller
             }
         }
 
-        if ($marketplace_id == 1 && $type === 'FBS') {
+        if ($marketplace_id == Marketplace::OZON && $type === 'FBS') {
             $openSupplyOzon = MarketplaceSupply::query()
-                ->where('marketplace_id', 1)
+                ->where('marketplace_id', Marketplace::OZON)
                 ->where('type', 'FBS')
                 ->where('status', 0)
                 ->count();
@@ -618,7 +619,7 @@ class MarketplaceSupplyController extends Controller
                 ->with('error', 'Нельзя удалить поставку, которая содержит заказы.');
         }
 
-        if ($marketplace_supply->supply_id && ! $marketplace_supply->draft_id && $marketplace_supply->marketplace_id === 1 && $marketplace_supply->type === 'FBO') {
+        if ($marketplace_supply->supply_id && ! $marketplace_supply->draft_id && $marketplace_supply->marketplace_id === Marketplace::OZON && $marketplace_supply->type === 'FBO') {
             $cancelResult = MarketplaceApiService::cancelSupplyOzon((int) $marketplace_supply->supply_id);
 
             if ($cancelResult['error']) {
@@ -673,8 +674,8 @@ class MarketplaceSupplyController extends Controller
 
         //  обновить статусы заказов в поставке
         $isUpdated = match ($marketplace_supply->marketplace_id) {
-            1 => MarketplaceApiService::updateStatusOrderBySupplyOzon($marketplace_supply),
-            2 => MarketplaceApiService::updateStatusOrderBySupplyWB($marketplace_supply),
+            Marketplace::OZON => MarketplaceApiService::updateStatusOrderBySupplyOzon($marketplace_supply),
+            Marketplace::WB => MarketplaceApiService::updateStatusOrderBySupplyWB($marketplace_supply),
             default => false
         };
 
@@ -693,8 +694,8 @@ class MarketplaceSupplyController extends Controller
         }
 
         $result = match ($marketplace_supply->marketplace_id) {
-            1 => MarketplaceApiService::ozonSupply($marketplace_supply),
-            2 => MarketplaceApiService::wbSupply($marketplace_supply),
+            Marketplace::OZON => MarketplaceApiService::ozonSupply($marketplace_supply),
+            Marketplace::WB => MarketplaceApiService::wbSupply($marketplace_supply),
             default => false
         };
 
@@ -774,8 +775,8 @@ class MarketplaceSupplyController extends Controller
     public function getBarcode(MarketplaceSupply $marketplace_supply)
     {
         return match ($marketplace_supply->marketplace_id) {
-            1 => MarketplaceApiService::getBarcodeSupplyOzon($marketplace_supply),
-            2 => MarketplaceApiService::getBarcodeSupplyWB($marketplace_supply),
+            Marketplace::OZON => MarketplaceApiService::getBarcodeSupplyOzon($marketplace_supply),
+            Marketplace::WB => MarketplaceApiService::getBarcodeSupplyWB($marketplace_supply),
             default => redirect()
                 ->route('marketplace_supplies.show', ['marketplace_supply' => $marketplace_supply])
                 ->with('error', 'В поставке указан некорректный маркетплейс!'),
@@ -943,7 +944,7 @@ class MarketplaceSupplyController extends Controller
             return back()->with('error', 'Поставка уже отгружена.');
         }
 
-        if ($marketplaceSupply->marketplace_id == 2 && ! $marketplaceSupply->sticker) {
+        if ($marketplaceSupply->marketplace_id == Marketplace::WB && ! $marketplaceSupply->sticker) {
             return back()->with('error', 'Сначала загрузите стикер пропуска.');
         }
 

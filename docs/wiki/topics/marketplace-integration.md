@@ -1,6 +1,6 @@
 # Marketplace Integration — Интеграция Ozon и Wildberries
 
-> Last reviewed: 2026-07-17
+> Last reviewed: 2026-07-21
 
 ## Обзор
 
@@ -96,8 +96,18 @@ MarketplaceApiService разделён на 4 файла:
 **Идентификация маркетплейса:**
 
 - `marketplace_id` в БД: 1 = OZON, 2 = Wildberries
-- `Marketplace::NAME` содержит пути к иконкам (не текстовые имена)
-- Для текстовых имён в уведомлениях используется `match` по `marketplace_id`
+- `Marketplace::LOGO` (константа) — пути к файлам иконок:
+  `[OZON => '/icons/ozon.png', WB => '/icons/wb.png']`. Используется для `src`/
+  `asset()`, не для `alt`.
+- `marketplace_logo` (accessor в MarketplaceOrder/MarketplaceSupply) —
+  возвращает путь к иконке из `Marketplace::LOGO`, для использования в
+  `<img src="">`.
+- `marketplace_title` (accessor `getMarketplaceTitleAttribute()`) — текстовое
+  имя 'OZON'/'WB'/'---'. Доступен у **ОБОИХ** моделей: MarketplaceOrder И
+  MarketplaceSupply. Используется для `alt`, подписей, уведомлений.
+- `MarketplaceOrderService::getMarketplaceName()` — статический метод в сервисе,
+  возвращает текстовое имя 'OZON'/'WB'/'---'. Альтернатива accessor-у для
+  использования в сервисах.
 
 **Склады:**
 
@@ -140,11 +150,14 @@ MarketplaceApiService разделён на 4 файла:
 - `WbApiService::getFboSupplies()` — получение FBO-поставок
 - `WbApiService::getFboSupplyDetail()` — детали поставки
 - `WbApiService::getFboSupplyGoods()` — товары в поставке
-- **Лимит 100 заказов на FBS-поставку:** WB API ограничивает эндпоинт
+- **Лимит 100 заказов на FBS-поставку WB:** Wildberries API ограничивает
+  эндпоинт
   `/api/marketplace/v3/supplies/{supplyId}/orders` до 100 order_id за один
-  PATCH.
-  Реализовано через константу `WbApiService::MAX_ORDERS_PER_SUPPLY = 100`
-  ✨ **НОВОЕ**
+  PATCH. Для Ozon лимита нет. Реализовано через константу
+  `WbApiService::MAX_ORDERS_PER_SUPPLY = 100`. UI-компонент `SupplyOrderSearch`
+  общий для WB и Ozon, но проверка
+  `marketplace_id === WbApiService::MARKETPLACE_ID`
+  (=2) применяется только к WB. ✨ **НОВОЕ**
 - **Механизм отправки заказов в FBS-поставку:** метод `addOrdersToSupply()`
   отправляет все order_id одним PATCH-запросом `{"orders": [...]}` вместо N
   последовательных запросов. Раньше пробивало rate-limit WB (300
@@ -400,10 +413,11 @@ MarketplaceApiService разделён на 4 файла:
 - **TG+MAX-уведомления при сборке поставки:** при успешной сборке (статус → 4)
   отправляются уведомления админу и всем активным менеджерам с привязанным
   Telegram или MAX (параллельно). Используются `SendTelegramMessageJob` и
-  `SendMaxMessageJob` с задержкой для rate limits. Имя маркетплейса определяется
-  через `match` по `marketplace_id` (1=OZON, 2=Wildberries), т.к.
-  `Marketplace::NAME`
-  содержит пути к иконкам.
+  `SendMaxMessageJob` с задержкой для rate limits. Имя маркетплейса ('OZON'/'
+  WB')
+  берётся из accessor `marketplace_title` или метода
+  `MarketplaceOrderService::getMarketplaceName()`, т.к. `Marketplace::LOGO`
+  содержит пути к логотипам, а не текстовые имена.
 
 **Cooldown уведомлений "нет материала":**
 

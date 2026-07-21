@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\StoreMarketplaceOrderRequest;
+use App\Models\Marketplace;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\MarketplaceSupply;
@@ -153,8 +154,8 @@ class MarketplaceOrderService
             ->where('supply_id', $marketplace_supply->id);
 
         $status = match ($marketplace_supply->marketplace_id) {
-            1 => 'awaiting_deliver',
-            2 => 'confirm',
+            Marketplace::OZON => 'awaiting_deliver',
+            Marketplace::WB => 'confirm',
             default => '---',
         };
 

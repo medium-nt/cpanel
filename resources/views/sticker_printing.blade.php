@@ -299,8 +299,8 @@
                                         </td>
                                         <td class="td_style">
                                             <img style="width: 80px;"
-                                                 src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
-                                                 alt="{{ $item->marketplaceOrder->marketplace_name }}">
+                                                 src="{{ asset($item->marketplaceOrder->marketplace_logo) }}"
+                                                 alt="{{ $item->marketplaceOrder->marketplace_title }}">
                                         </td>
                                         <td class="td_style">
                                             @if($canSticking)

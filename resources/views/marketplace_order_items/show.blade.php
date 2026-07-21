@@ -158,8 +158,8 @@
                                         <th>Маркетплейс</th>
                                         <td>
                                             <img style="width: 60px;"
-                                                 src="{{ asset($item->marketplaceOrder->marketplace_name) }}"
-                                                 alt="{{ $item->marketplaceOrder->marketplace_name }}">
+                                                 src="{{ asset($item->marketplaceOrder->marketplace_logo) }}"
+                                                 alt="{{ $item->marketplaceOrder->marketplace_title }}">
                                         </td>
                                     </tr>
                                     <tr>

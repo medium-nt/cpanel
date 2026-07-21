@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveGroupWarehouseOfItemRequest;
+use App\Models\Marketplace;
 use App\Models\MarketplaceItem;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
@@ -215,8 +216,8 @@ class WarehouseOfItemController extends Controller
         $sku = $skuModel?->sku;
 
         $result = match ($marketplaceOrder->marketplace_id) {
-            1 => MarketplaceApiService::collectOrderOzon($orderId, $sku),
-            2 => MarketplaceApiService::collectOrderWb($orderId),
+            Marketplace::OZON => MarketplaceApiService::collectOrderOzon($orderId, $sku),
+            Marketplace::WB => MarketplaceApiService::collectOrderWb($orderId),
             default => false,
         };
 
